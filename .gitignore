@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+web/node_modules/
+
+# Next.js
+web/.next/
+web/out/
+web/build/
+web/dist/
+
+# Production
+build/
+dist/
+
+# Environment variables
+.env
+.env*.local
+web/.env
+web/.env*.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Testing
+coverage/
+.nyc_output/
+.pytest_cache/
+
+# Misc
+*.pem
+.vercel
+.turbo

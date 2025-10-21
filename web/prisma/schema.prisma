@@ -1,0 +1,324 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(cuid())
+  name              String?
+  email             String            @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  location          String?
+  timezone          String?           @default("UTC")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  accounts          Account[]
+  analytics         Analytics[]
+  categories        Category[]
+  habits            Habit[]
+  sessions          Session[]
+  tasks             Task[]
+  prayerTimes       PrayerTime[]
+  prayerTracking    PrayerTracking[]
+  journalEntries    JournalEntry[]
+  goals             Goal[]
+  preferences       UserPreference?
+
+  // Performance indexes for auth and lookups
+  @@index([email])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Task {
+  id            String       @id @default(cuid())
+  title         String
+  description   String?
+  status        TaskStatus   @default(TODO)
+  priority      Priority     @default(MEDIUM)
+  urgent        Boolean      @default(false)
+  important     Boolean      @default(false)
+  aiSuggested   Boolean      @default(false)
+  aiReason      String?
+  estimatedTime Int?
+  energyLevel   EnergyLevel?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  userId        String
+  categoryId    String?
+  subtasks      Subtask[]
+  category      Category?    @relation(fields: [categoryId], references: [id])
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags          Tag[]        @relation("TagToTask")
+
+  // Performance-optimized indexes for common queries
+  @@index([userId, status, createdAt(sort: Desc)])
+  @@index([userId, dueDate, priority])
+  @@index([userId, aiSuggested, createdAt(sort: Desc)])
+  @@index([userId, priority, status])
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("tasks")
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  title     String
+  completed Boolean  @default(false)
+  taskId    String
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("subtasks")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#3B82F6")
+  icon      String?
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  tasks     Task[]   @relation("TagToTask")
+
+  @@map("tags")
+}
+
+model Habit {
+  id            String            @id @default(cuid())
+  title         String
+  description   String?
+  frequency     HabitFrequency    @default(DAILY)
+  targetDays    Int               @default(7)
+  streak        Int               @default(0)
+  longestStreak Int               @default(0)
+  userId        String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  completions   HabitCompletion[]
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("habits")
+}
+
+model HabitCompletion {
+  id      String   @id @default(cuid())
+  habitId String
+  date    DateTime @default(now())
+  note    String?
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@map("habit_completions")
+}
+
+model Analytics {
+  id                String   @id @default(cuid())
+  userId            String
+  date              DateTime @unique
+  tasksCreated      Int      @default(0)
+  tasksCompleted    Int      @default(0)
+  focusTimeMinutes  Int      @default(0)
+  productivityScore Float    @default(0)
+  energyLevel       Float    @default(0)
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("analytics")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+  CUSTOM
+}
+
+// Islamic Features Models
+
+model IslamicQuote {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  source    String
+  category  QuoteCategory @default(GENERAL)
+  author    String?
+  isArabic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("islamic_quotes")
+}
+
+model PrayerTime {
+  id       String   @id @default(cuid())
+  userId   String
+  date     DateTime
+  fajr     String
+  dhuhr    String
+  asr      String
+  maghrib  String
+  isha     String
+  location String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("prayer_times")
+}
+
+model PrayerTracking {
+  id          String      @id @default(cuid())
+  userId      String
+  date        DateTime
+  prayerName  PrayerName
+  completedAt DateTime?
+  onTime      Boolean     @default(false)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, prayerName])
+  @@index([userId, date])
+  @@map("prayer_tracking")
+}
+
+model JournalEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @default(now())
+  gratitude1  String?
+  gratitude2  String?
+  gratitude3  String?
+  reflection  String?  @db.Text
+  mood        String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("journal_entries")
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  description String?    @db.Text
+  category    GoalCategory @default(PERSONAL)
+  target      Int
+  progress    Int        @default(0)
+  deadline    DateTime?
+  completed   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("goals")
+}
+
+model UserPreference {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  showHijriDate         Boolean @default(true)
+  prayerNotifications   Boolean @default(true)
+  prayerReminderMinutes Int     @default(10)
+  ramadanMode           Boolean @default(false)
+  language              String  @default("en")
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+// Enums for Islamic Features
+
+enum QuoteCategory {
+  GENERAL
+  PRODUCTIVITY
+  PATIENCE
+  GRATITUDE
+  PRAYER
+  KNOWLEDGE
+  FAMILY
+  CHARACTER
+}
+
+enum PrayerName {
+  FAJR
+  DHUHR
+  ASR
+  MAGHRIB
+  ISHA
+}
+
+enum GoalCategory {
+  IBADAH
+  KNOWLEDGE
+  FAMILY
+  WORK
+  HEALTH
+  COMMUNITY
+  PERSONAL
+}

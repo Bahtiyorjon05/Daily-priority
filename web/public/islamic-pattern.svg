@@ -1,0 +1,18 @@
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="islamic-geometric" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M50 20 L55 40 L75 40 L60 52 L65 70 L50 58 L35 70 L40 52 L25 40 L45 40 Z" fill="currentColor" opacity="0.3"/>
+      <circle cx="10" cy="10" r="3" fill="currentColor" opacity="0.2"/>
+      <circle cx="90" cy="10" r="3" fill="currentColor" opacity="0.2"/>
+      <circle cx="10" cy="90" r="3" fill="currentColor" opacity="0.2"/>
+      <circle cx="90" cy="90" r="3" fill="currentColor" opacity="0.2"/>
+      <path d="M10 50 L90 50" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+      <path d="M50 10 L50 90" stroke="currentColor" stroke-width="0.5" opacity="0.2"/>
+      <path d="M0 0 L15 0 L0 15 Z" fill="currentColor" opacity="0.15"/>
+      <path d="M100 0 L85 0 L100 15 Z" fill="currentColor" opacity="0.15"/>
+      <path d="M0 100 L15 100 L0 85 Z" fill="currentColor" opacity="0.15"/>
+      <path d="M100 100 L85 100 L100 85 Z" fill="currentColor" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <rect width="100" height="100" fill="url(#islamic-geometric)"/>
+</svg>
