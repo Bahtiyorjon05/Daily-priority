@@ -5,6 +5,7 @@ import { AlertCircle, RefreshCw, Home } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { SUPPORT_EMAIL } from '@/constants/defaults'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -147,7 +148,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 If this problem persists, please{' '}
                 <a
-                  href="mailto:support@dailypriority.app"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
                 >
                   contact support

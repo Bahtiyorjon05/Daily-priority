@@ -7,6 +7,15 @@ const APP_BASE_URL =
   process.env.NEXTAUTH_URL ||
   'https://daily-priority.vercel.app'
 
+const SUPPORT_EMAIL =
+  process.env.SUPPORT_EMAIL ||
+  process.env.FROM_EMAIL ||
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL ||
+  'dailypriorityapp@gmail.com'
+
+const DEFAULT_FROM = process.env.FROM_EMAIL || `"Daily Priority" <${SUPPORT_EMAIL}>`
+const SUPPORT_LINK_HTML = `<a href="mailto:${SUPPORT_EMAIL}" style="color: #10b981; text-decoration: none;">${SUPPORT_EMAIL}</a>`
+
 // Using database storage for verification codes (persists across server restarts)
 
 // Create a transporter object using the default SMTP transport
@@ -181,7 +190,7 @@ export const sendVerificationEmail = async (email: string, code: string): Promis
     const transporter = createTransporter()
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: DEFAULT_FROM,
       to: email,
       subject: 'Password Reset Verification Code',
       html: `
@@ -211,13 +220,13 @@ export const sendVerificationEmail = async (email: string, code: string): Promis
             </div>
 
             <p style="color: #6b7280; line-height: 1.6;">
-              If you didn't request this password reset, please ignore this email or contact our support team.
+              If you didn't request this password reset, please ignore this email or contact our support team at ${SUPPORT_LINK_HTML}.
             </p>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; font-size: 14px; margin: 0;">
                 This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at support@dailypriority.app
+                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}.
               </p>
             </div>
           </div>
@@ -251,7 +260,7 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
     const transporter = createTransporter()
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: DEFAULT_FROM,
       to: email,
       subject: 'Password Successfully Reset',
       html: `
@@ -297,7 +306,7 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; font-size: 14px; margin: 0;">
                 This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at support@dailypriority.app
+                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}.
               </p>
             </div>
           </div>
@@ -330,7 +339,7 @@ export const sendContactEmail = async (data: {
 
     // Email to admin/support team
     const adminMailOptions = {
-      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: DEFAULT_FROM,
       to: process.env.CONTACT_EMAIL || 'dailypriorityapp@gmail.com',
       replyTo: data.email,
       subject: `New Contact Form Submission from ${data.name}`,
@@ -371,7 +380,7 @@ export const sendContactEmail = async (data: {
 
     // Confirmation email to user
     const userMailOptions = {
-      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: DEFAULT_FROM,
       to: data.email,
       subject: 'We received your message - Daily Priority',
       html: `
@@ -482,7 +491,7 @@ export const sendTwoFactorEmail = async (
         : 'You are signing in to your Daily Priority account. Please use the verification code below to complete your login:'
 
     const mailOptions = {
-      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: DEFAULT_FROM,
       to: email,
       subject: type === 'enable' ? 'Enable Two-Factor Authentication' : 'Your Login Verification Code',
       html: `
@@ -517,13 +526,13 @@ export const sendTwoFactorEmail = async (
             </div>
 
             <p style="color: #6b7280; line-height: 1.6;">
-              If you didn't request this ${type === 'enable' ? '2FA setup' : 'login'}, please ignore this email or contact our support team immediately.
+              If you didn't request this ${type === 'enable' ? '2FA setup' : 'login'}, please ignore this email or contact our support team at ${SUPPORT_LINK_HTML}.
             </p>
 
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
               <p style="color: #9ca3af; font-size: 14px; margin: 0;">
                 This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at support@dailypriority.app
+                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}
               </p>
             </div>
           </div>
@@ -565,7 +574,7 @@ export const sendEmail = async (options: {
     const transporter = createTransporter()
 
     const mailOptions = {
-      from: options.from || process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      from: options.from || DEFAULT_FROM,
       to: options.to,
       subject: options.subject,
       html: options.html,

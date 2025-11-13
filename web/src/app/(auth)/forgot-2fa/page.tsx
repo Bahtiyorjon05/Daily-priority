@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/theme-toggle'
 import Logo from '@/components/shared/Logo'
+import { SUPPORT_EMAIL } from '@/constants/defaults'
 
 export default function Forgot2FAPage() {
   const router = useRouter()
@@ -544,7 +545,7 @@ export default function Forgot2FAPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Need help? Contact{' '}
-            <a href="mailto:support@example.com" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold hover:underline">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold hover:underline">
               support
             </a>
           </p>

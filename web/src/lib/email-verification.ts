@@ -7,6 +7,12 @@ import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
 import crypto from 'crypto'
 
+const SUPPORT_EMAIL =
+  process.env.SUPPORT_EMAIL ||
+  process.env.FROM_EMAIL ||
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL ||
+  'dailypriorityapp@gmail.com'
+
 interface VerificationToken {
   token: string
   expires: Date
@@ -154,7 +160,7 @@ export async function sendVerificationEmail(
           <div class="footer">
             <p>© ${new Date().getFullYear()} Daily Priority. All rights reserved.</p>
             <p style="margin-top: 10px;">
-              If you have any questions, please contact us at support@dailypriority.com
+              If you have any questions, please contact us at ${SUPPORT_EMAIL}
             </p>
           </div>
         </div>

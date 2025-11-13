@@ -175,6 +175,9 @@ NEXTAUTH_URL="http://localhost:3000"
 
 # Public base URL used in emails/metadata
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+# Support email displayed in the UI (and fallback sender)
+NEXT_PUBLIC_SUPPORT_EMAIL="dailypriorityapp@gmail.com"
+SUPPORT_EMAIL="dailypriorityapp@gmail.com"
 
 # Google AI (Required for AI features)
 GOOGLE_AI_API_KEY="your-google-ai-api-key"

@@ -286,7 +286,8 @@ export const SOCIAL_LINKS = {
 // Help & Support
 // ============================================================================
 
-export const SUPPORT_EMAIL = 'support@dailypriority.com'
+export const SUPPORT_EMAIL =
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'dailypriorityapp@gmail.com'
 export const DOCUMENTATION_URL = 'https://docs.dailypriority.com'
 export const CHANGELOG_URL = 'https://dailypriority.com/changelog'
 
