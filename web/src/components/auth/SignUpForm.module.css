@@ -1,0 +1,32 @@
+/* Theme-based button text colors */
+/* Light mode - white text on dark gradient background */
+.signupSubmitBtn {
+  color: #ffffff !important;
+}
+
+.signupSubmitBtn * {
+  color: #ffffff !important;
+}
+
+.signupSubmitBtn span {
+  color: #ffffff !important;
+}
+
+.signupSubmitBtn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Dark mode - keep white text */
+:global(.dark) .signupSubmitBtn {
+  color: #ffffff !important;
+}
+
+:global(.dark) .signupSubmitBtn * {
+  color: #ffffff !important;
+}
+
+:global(.dark) .signupSubmitBtn svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}

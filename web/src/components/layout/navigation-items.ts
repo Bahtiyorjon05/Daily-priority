@@ -35,6 +35,16 @@ export const navigationItems: NavItem[] = [
     shadowActive: 'shadow-blue-500/25',
   },
   {
+    path: '/analytics',
+    icon: BarChart3,
+    label: 'Analytics',
+    description: 'Insights',
+    gradient: 'bg-gradient-to-r from-indigo-500 to-purple-500',
+    bgHover: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/30',
+    text: 'text-indigo-700 dark:text-indigo-300',
+    shadowActive: 'shadow-indigo-500/25',
+  },
+  {
     path: '/prayers',
     icon: Activity,
     label: 'Prayers',
@@ -103,16 +113,6 @@ export const navigationItems: NavItem[] = [
     bgHover: 'hover:bg-pink-50 dark:hover:bg-pink-950/30',
     text: 'text-pink-700 dark:text-pink-300',
     shadowActive: 'shadow-pink-500/25',
-  },
-  {
-    path: '/analytics',
-    icon: BarChart3,
-    label: 'Analytics',
-    description: 'Insights',
-    gradient: 'bg-gradient-to-r from-indigo-500 to-purple-500',
-    bgHover: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/30',
-    text: 'text-indigo-700 dark:text-indigo-300',
-    shadowActive: 'shadow-indigo-500/25',
   },
   {
     path: '/settings',

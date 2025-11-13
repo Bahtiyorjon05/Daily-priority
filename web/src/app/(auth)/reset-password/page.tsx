@@ -9,9 +9,10 @@ import {
   AlertCircle, 
   CheckCircle2,
   Home,
-  ArrowLeft
+  ArrowLeft,
+  Lock
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -90,6 +91,8 @@ export default function ResetPasswordPage() {
         }),
       })
 
+      const data = await response.json()
+      
       if (response.ok) {
         // Clear localStorage items used for password reset flow
         localStorage.removeItem('resetEmail')
@@ -97,11 +100,18 @@ export default function ResetPasswordPage() {
         localStorage.removeItem('verifiedCode')
         localStorage.removeItem('resetCodeCountdown')
         
-        // Redirect to success page or signin with success message
-        router.push('/signin?message=Password reset successfully! Please sign in with your new password.')
+        toast.success('Password reset successful!', {
+          description: 'You can now sign in with your new password.',
+          duration: 3000,
+        })
+        
+        // Redirect to signin with success message
+        setTimeout(() => {
+          router.push('/signin?reset=success')
+        }, 1500)
       } else {
-        const data = await response.json()
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to reset password. Please try again.' }))
+        toast.error(data.error || 'Failed to reset password')
       }
     } catch (error) {
       console.error('Password reset error:', error)
@@ -160,13 +170,25 @@ export default function ResetPasswordPage() {
 
               <div className="flex items-center gap-3">
                 <Link href="/signin">
-                  <Button className="relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:from-emerald-500 dark:to-teal-500 dark:hover:from-emerald-400 dark:hover:to-teal-400 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                  <button 
+                    className="relative overflow-hidden text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                    style={{ 
+                      background: 'linear-gradient(to right, #059669, #0f766e)',
+                      color: '#ffffff'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #047857, #0d9488)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #059669, #0f766e)'
+                    }}
+                  >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                    <span className="relative flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      Sign In
+                    <span className="relative flex items-center gap-2 text-white" style={{ color: '#ffffff' }}>
+                      <Shield className="h-4 w-4 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                      <span className="text-white" style={{ color: '#ffffff' }}>Sign In</span>
                     </span>
-                  </Button>
+                  </button>
                 </Link>
                 <ThemeToggle />
               </div>
@@ -185,11 +207,30 @@ export default function ResetPasswordPage() {
             
             <CardContent className="p-8">
               <CardHeader className="text-center pb-8">
-                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">New Password</CardTitle>
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-500 flex items-center justify-center shadow-lg">
+                    <Lock className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create New Password</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-lg">
-                  Create a new password for your account
+                  Choose a strong password for your account
                 </CardDescription>
               </CardHeader>
+              
+              {/* Password tips */}
+              <div className="mb-6 p-4 bg-emerald-50/80 dark:bg-emerald-950/30 backdrop-blur-sm border border-emerald-200/60 dark:border-emerald-500/20 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-emerald-800 dark:text-emerald-300">
+                    <p className="font-semibold mb-1">Password requirements:</p>
+                    <ul className="list-disc list-inside text-emerald-700 dark:text-emerald-400 space-y-1">
+                      <li>At least 8 characters long</li>
+                      <li>Mix of letters, numbers, and symbols recommended</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
               
               {errors.general && (
                 <div className="mb-6 p-4 bg-red-50/80 dark:bg-red-950/30 backdrop-blur-sm border border-red-200/60 dark:border-red-500/20 text-red-800 dark:text-red-300 rounded-xl animate-shake relative overflow-hidden">
@@ -264,27 +305,39 @@ export default function ResetPasswordPage() {
                   </div>
                 </div>
                 <div className="mt-8">
-                  <Button
+                  <button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:from-emerald-500 dark:to-teal-500 dark:hover:from-emerald-400 dark:hover:to-teal-400 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                    className="w-full h-12 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     disabled={loading}
+                    style={{ 
+                      background: 'linear-gradient(to right, #059669, #0f766e)',
+                      color: '#ffffff'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.background = 'linear-gradient(to right, #047857, #0d9488)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #059669, #0f766e)'
+                    }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                    <span className="relative flex items-center justify-center gap-2">
+                    <span className="relative flex items-center justify-center gap-2 text-white" style={{ color: '#ffffff' }}>
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                          Resetting Password...
+                          <span className="text-white" style={{ color: '#ffffff' }}>Resetting Password...</span>
                         </>
                       ) : (
                         <>
-                          <Shield className="h-5 w-5" />
-                          Reset Password
-                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                          <Shield className="h-5 w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                          <span className="text-white" style={{ color: '#ffffff' }}>Reset Password</span>
+                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
                     </span>
-                  </Button>
+                  </button>
                 </div>
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 dark:text-gray-400">

@@ -1,0 +1,16 @@
+# Daily Priority - Robots.txt
+
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Block dashboard and auth pages from indexing
+Disallow: /dashboard/
+Disallow: /signin
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://dailypriority.com/sitemap.xml

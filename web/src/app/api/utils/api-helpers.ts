@@ -86,7 +86,7 @@ export const paginate = (page: number = 1, limit: number = 20) => {
 // Cache helper for API responses
 export class APICache {
   private static cache = new Map<string, { data: any; timestamp: number }>()
-  private static defaultTTL = 5 * 60 * 1000 // 5 minutes
+  private static defaultTTL = 10 * 1000 // 10 seconds for real-time feel
 
   static get(key: string) {
     const item = this.cache.get(key)

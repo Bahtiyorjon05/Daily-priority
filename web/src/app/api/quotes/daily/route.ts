@@ -1,21 +1,42 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-let cachedQuote: { quote: any; timestamp: number } | null = null
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+// Cache quotes per user per day
+const quoteCache = new Map<string, { quote: any; date: string }>()
 
 export async function GET() {
   try {
-    // Check if we have a cached quote that's still valid
-    const now = Date.now()
-    if (cachedQuote && now - cachedQuote.timestamp < CACHE_DURATION) {
+    const session = await getServerSession(authOptions)
+    
+    // Get user's timezone (default to UTC if not set)
+    let userTimezone = 'UTC'
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { timezone: true }
+      })
+      userTimezone = user?.timezone || 'UTC'
+    }
+
+    // Get current date in user's timezone
+    const now = new Date()
+    const userDate = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }))
+    
+    // Create a date string in user's timezone (YYYY-MM-DD)
+    const userDateString = userDate.toISOString().split('T')[0]
+    
+    // Check cache for this user's quote today
+    const cacheKey = `${session?.user?.id || 'anonymous'}-${userDateString}`
+    const cachedQuote = quoteCache.get(cacheKey)
+    if (cachedQuote && cachedQuote.date === userDateString) {
       return NextResponse.json({ quote: cachedQuote.quote })
     }
 
-    // Get quote of the day (based on day of year)
-    const today = new Date()
-    const startOfYear = new Date(today.getFullYear(), 0, 0)
-    const diff = today.getTime() - startOfYear.getTime()
+    // Calculate day of year based on user's timezone
+    const startOfYear = new Date(userDate.getFullYear(), 0, 0)
+    const diff = userDate.getTime() - startOfYear.getTime()
     const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))
 
     const quotes = await prisma.islamicQuote.findMany()
@@ -27,8 +48,8 @@ export async function GET() {
         category: 'PATIENCE'
       };
       
-      // Cache the fallback quote
-      cachedQuote = { quote: fallbackQuote, timestamp: now };
+      // Cache the fallback quote for this user for this day
+      quoteCache.set(cacheKey, { quote: fallbackQuote, date: userDateString })
       
       return NextResponse.json({ quote: fallbackQuote })
     }
@@ -37,8 +58,21 @@ export async function GET() {
     const quoteIndex = dayOfYear % quotes.length
     const quote = quotes[quoteIndex]
 
-    // Cache the quote
-    cachedQuote = { quote, timestamp: now };
+    // Cache the quote for this user for this day
+    quoteCache.set(cacheKey, { quote, date: userDateString })
+    
+    // Clean up old cache entries (keep only last 7 days)
+    if (quoteCache.size > 100) {
+      const keysToDelete: string[] = []
+      for (const [key, value] of quoteCache.entries()) {
+        const cacheDate = new Date(value.date)
+        const daysDiff = Math.floor((userDate.getTime() - cacheDate.getTime()) / (1000 * 60 * 60 * 24))
+        if (daysDiff > 7) {
+          keysToDelete.push(key)
+        }
+      }
+      keysToDelete.forEach(key => quoteCache.delete(key))
+    }
 
     return NextResponse.json({ quote })
   } catch (error: any) {

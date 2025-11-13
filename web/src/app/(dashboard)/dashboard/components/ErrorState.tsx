@@ -23,15 +23,15 @@ export default function ErrorState({
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-12 text-center"
     >
-      <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center mb-6">
+      <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/60 flex items-center justify-center mb-6 ring-1 ring-red-200 dark:ring-red-700/50">
         <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
       </div>
-      
+
       <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
         {title}
       </h3>
-      
-      <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+
+      <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
         {message}
       </p>
       

@@ -123,11 +123,11 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
               <>
                 <div className="flex items-center justify-center gap-3 mb-3">
                   <Flame className="h-6 sm:h-8 w-6 sm:w-8 text-orange-300" />
-                  <span className="text-3xl sm:text-4xl font-bold">{stats?.streak || 0}</span>
+                  <span className="text-3xl sm:text-4xl font-bold">{stats?.currentStreak || 0}</span>
                 </div>
                 <p className="text-white/90 text-sm font-medium">Day Streak</p>
                 <p className="text-white/70 text-xs mt-1">
-                  {stats?.streak && stats.streak > 0 ? 'Keep it up!' : 'Start your journey!'}
+                  {stats?.currentStreak && stats.currentStreak > 0 ? 'Keep it up!' : 'Start your journey!'}
                 </p>
               </>
             )}

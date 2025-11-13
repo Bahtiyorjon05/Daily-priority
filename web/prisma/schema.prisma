@@ -8,29 +8,35 @@ datasource db {
 }
 
 model User {
-  id                String            @id @default(cuid())
-  name              String?
-  email             String            @unique
-  emailVerified     DateTime?
-  image             String?
-  password          String?
-  location          String?
-  timezone          String?           @default("UTC")
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  accounts          Account[]
-  analytics         Analytics[]
-  categories        Category[]
-  habits            Habit[]
-  sessions          Session[]
-  tasks             Task[]
-  prayerTimes       PrayerTime[]
-  prayerTracking    PrayerTracking[]
-  journalEntries    JournalEntry[]
-  goals             Goal[]
-  preferences       UserPreference?
+  id               String           @id @default(cuid())
+  name             String?
+  email            String           @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  location         String?
+  timezone         String?          @default("UTC")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  twoFactorEnabled Boolean          @default(false)
+  twoFactorSecret  String?
+  accounts         Account[]
+  adhkarProgress   AdhkarProgress[]
+  analytics        Analytics[]
+  calendarEvents   CalendarEvent[]
+  categories       Category[]
+  focusSessions    FocusSession[]
+  goals            Goal[]
+  habits           Habit[]
+  journalEntries   JournalEntry[]
+  prayerTimes      PrayerTime[]
+  prayerTracking   PrayerTracking[]
+  sessions         Session[]
+  tasks            Task[]
+  twoFactorTokens  TwoFactorToken[]
+  preferences      UserPreference?
+  settings         UserSettings?
 
-  // Performance indexes for auth and lookups
   @@index([email])
   @@index([createdAt])
   @@map("users")
@@ -65,6 +71,15 @@ model Session {
   @@map("sessions")
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 model Task {
   id            String       @id @default(cuid())
   title         String
@@ -73,8 +88,6 @@ model Task {
   priority      Priority     @default(MEDIUM)
   urgent        Boolean      @default(false)
   important     Boolean      @default(false)
-  aiSuggested   Boolean      @default(false)
-  aiReason      String?
   estimatedTime Int?
   energyLevel   EnergyLevel?
   dueDate       DateTime?
@@ -88,10 +101,8 @@ model Task {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags          Tag[]        @relation("TagToTask")
 
-  // Performance-optimized indexes for common queries
   @@index([userId, status, createdAt(sort: Desc)])
   @@index([userId, dueDate, priority])
-  @@index([userId, aiSuggested, createdAt(sort: Desc)])
   @@index([userId, priority, status])
   @@index([userId, updatedAt(sort: Desc)])
   @@map("tasks")
@@ -175,6 +186,188 @@ model Analytics {
   @@map("analytics")
 }
 
+model IslamicQuote {
+  id        String        @id @default(cuid())
+  text      String
+  source    String
+  category  QuoteCategory @default(GENERAL)
+  author    String?
+  isArabic  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+
+  @@map("islamic_quotes")
+}
+
+model PrayerTime {
+  id       String   @id @default(cuid())
+  userId   String
+  date     DateTime
+  fajr     String
+  dhuhr    String
+  asr      String
+  maghrib  String
+  isha     String
+  location String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("prayer_times")
+}
+
+model PrayerTracking {
+  id          String     @id @default(cuid())
+  userId      String
+  date        DateTime
+  prayerName  PrayerName
+  completedAt DateTime?
+  onTime      Boolean    @default(false)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, prayerName])
+  @@index([userId, date])
+  @@map("prayer_tracking")
+}
+
+model JournalEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime @default(now())
+  gratitude1 String?
+  gratitude2 String?
+  gratitude3 String?
+  reflection String?
+  mood       String?
+  createdAt  DateTime @default(now())
+  duas       String?
+  goodDeeds  String?
+  hijriDate  String?
+  lessons    String?
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("journal_entries")
+}
+
+model Goal {
+  id          String       @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  category    GoalCategory @default(PERSONAL)
+  target      Int
+  progress    Int          @default(0)
+  deadline    DateTime?
+  completed   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  goalType    GoalType     @default(DUNYA)
+  milestones  Json?
+  status      GoalStatus   @default(IN_PROGRESS)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, goalType])
+  @@map("goals")
+}
+
+model UserPreference {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  showHijriDate         Boolean @default(true)
+  prayerReminderMinutes Int     @default(10)
+  ramadanMode           Boolean @default(false)
+  language              String  @default("en")
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model FocusSession {
+  id          String   @id @default(cuid())
+  userId      String
+  duration    Int
+  taskTitle   String?
+  sessionType String   @default("work")
+  completed   Boolean  @default(true)
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date(sort: Desc)])
+  @@index([userId, completed, date(sort: Desc)])
+  @@index([userId, sessionType, completed])
+  @@map("focus_sessions")
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  date        DateTime
+  hijriDate   String?
+  eventType   String   @default("custom")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("calendar_events")
+}
+
+model AdhkarProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  adhkarId   String
+  adhkarName String
+  category   String
+  count      Int      @default(0)
+  target     Int
+  date       DateTime
+  completed  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adhkarId, date])
+  @@index([userId, date])
+  @@index([userId, category, date])
+  @@map("adhkar_progress")
+}
+
+model UserSettings {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  focusDuration      Int      @default(25)
+  shortBreakDuration Int      @default(5)
+  longBreakDuration  Int      @default(15)
+  autoStartBreaks    Boolean  @default(false)
+  autoStartFocus     Boolean  @default(false)
+  enableMusic        Boolean  @default(true)
+  musicVolume        Int      @default(50)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_settings")
+}
+
+model TwoFactorToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([token])
+  @@index([userId])
+  @@map("two_factor_tokens")
+}
+
 enum TaskStatus {
   TODO
   IN_PROGRESS
@@ -200,99 +393,6 @@ enum HabitFrequency {
   WEEKLY
   CUSTOM
 }
-
-// Islamic Features Models
-
-model IslamicQuote {
-  id        String   @id @default(cuid())
-  text      String   @db.Text
-  source    String
-  category  QuoteCategory @default(GENERAL)
-  author    String?
-  isArabic  Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("islamic_quotes")
-}
-
-model PrayerTime {
-  id       String   @id @default(cuid())
-  userId   String
-  date     DateTime
-  fajr     String
-  dhuhr    String
-  asr      String
-  maghrib  String
-  isha     String
-  location String
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date])
-  @@index([userId, date])
-  @@map("prayer_times")
-}
-
-model PrayerTracking {
-  id          String      @id @default(cuid())
-  userId      String
-  date        DateTime
-  prayerName  PrayerName
-  completedAt DateTime?
-  onTime      Boolean     @default(false)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date, prayerName])
-  @@index([userId, date])
-  @@map("prayer_tracking")
-}
-
-model JournalEntry {
-  id          String   @id @default(cuid())
-  userId      String
-  date        DateTime @default(now())
-  gratitude1  String?
-  gratitude2  String?
-  gratitude3  String?
-  reflection  String?  @db.Text
-  mood        String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, date])
-  @@map("journal_entries")
-}
-
-model Goal {
-  id          String     @id @default(cuid())
-  userId      String
-  title       String
-  description String?    @db.Text
-  category    GoalCategory @default(PERSONAL)
-  target      Int
-  progress    Int        @default(0)
-  deadline    DateTime?
-  completed   Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("goals")
-}
-
-model UserPreference {
-  id                    String  @id @default(cuid())
-  userId                String  @unique
-  showHijriDate         Boolean @default(true)
-  prayerNotifications   Boolean @default(true)
-  prayerReminderMinutes Int     @default(10)
-  ramadanMode           Boolean @default(false)
-  language              String  @default("en")
-  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_preferences")
-}
-
-// Enums for Islamic Features
 
 enum QuoteCategory {
   GENERAL
@@ -321,4 +421,16 @@ enum GoalCategory {
   HEALTH
   COMMUNITY
   PERSONAL
+}
+
+enum GoalType {
+  DUNYA
+  AKHIRAH
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
 }

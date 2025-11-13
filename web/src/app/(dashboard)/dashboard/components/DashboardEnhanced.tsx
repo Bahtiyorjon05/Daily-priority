@@ -23,7 +23,6 @@ import {
   List,
   User,
   Settings,
-  Bell,
   Menu,
   Home,
   ChevronDown,
@@ -40,7 +39,6 @@ import TaskCard from './TaskCard'
 import StatCardEnhanced from './StatCardEnhanced'
 import PrayerTimesSectionEnhanced from './PrayerTimesSectionEnhanced'
 import NewTaskModalEnhanced from './NewTaskModalEnhanced'
-import AISuggestionsModalEnhanced from './AISuggestionsModalEnhanced'
 import LoadingState from './LoadingState'
 import ErrorState from './ErrorState'
 import EmptyState from './EmptyState'
@@ -116,8 +114,6 @@ export default function DashboardEnhanced({ session }: { session: any }) {
   const [aiInsights, setAiInsights] = useState<any[]>([])
   const [insightsLoading, setInsightsLoading] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [notifications, setNotifications] = useState(3)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Mock data for demonstration
@@ -379,15 +375,6 @@ export default function DashboardEnhanced({ session }: { session: any }) {
                   className="pl-10 pr-4 py-2 w-64 bg-gray-100 dark:bg-gray-800 border-0 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
-              
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </Button>
               
               <div className="relative">
                 <Button 
@@ -997,15 +984,6 @@ export default function DashboardEnhanced({ session }: { session: any }) {
         isOpen={showNewTask}
         onClose={() => setShowNewTask(false)}
         onCreateTask={handleCreateTask}
-      />
-      
-      <AISuggestionsModalEnhanced
-        isOpen={showAiSuggestions}
-        onClose={() => setShowAiSuggestions(false)}
-        suggestions={aiSuggestions}
-        onAcceptSuggestion={handleAcceptSuggestion}
-        onAcceptAll={handleAcceptAllSuggestions}
-        onDismissSuggestion={handleDismissSuggestion}
       />
     </div>
   )

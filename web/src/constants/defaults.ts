@@ -186,18 +186,6 @@ export const CACHE_DURATION = {
 } as const
 
 // ============================================================================
-// AI Configuration
-// ============================================================================
-
-export const AI_SUGGESTION_LIMITS = {
-  tasks: 5,
-  insights: 3,
-  goals: 3,
-} as const
-
-export const AI_CONTEXT_MAX_TASKS = 10
-
-// ============================================================================
 // File Upload Configuration
 // ============================================================================
 
@@ -274,14 +262,12 @@ export const DATE_FORMATS = {
 // ============================================================================
 
 export const FEATURES = {
-  aiSuggestions: true,
   prayerTimes: true,
   habits: true,
   goals: true,
   journal: true,
   analytics: true,
   darkMode: true,
-  notifications: true,
   sharing: false, // Future feature
   collaboration: false, // Future feature
 } as const

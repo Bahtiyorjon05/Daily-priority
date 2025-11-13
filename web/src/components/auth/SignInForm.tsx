@@ -4,8 +4,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2, Sparkles, Shield } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
@@ -14,16 +13,78 @@ export function SignInForm() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [show2FAPassword, setShow2FAPassword] = useState(false)
+  const [requires2FA, setRequires2FA] = useState(false)
+  const [twoFactorPassword, setTwoFactorPassword] = useState('')
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    twoFactor: '',
+    general: '',
+  })
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Reset errors
+    setErrors({
+      email: '',
+      password: '',
+      twoFactor: '',
+      general: '',
+    })
+    
+    // Validate form
+    let hasErrors = false
+    
+    if (!formData.email) {
+      setErrors(prev => ({ ...prev, email: 'Email is required' }))
+      hasErrors = true
+    } else if (!validateEmail(formData.email)) {
+      setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }))
+      hasErrors = true
+    }
+    
+    if (!formData.password) {
+      setErrors(prev => ({ ...prev, password: 'Password is required' }))
+      hasErrors = true
+    } else if (formData.password.length < 8) {
+      setErrors(prev => ({ ...prev, password: 'Password must be at least 8 characters' }))
+      hasErrors = true
+    }
+    
+    if (hasErrors) return
+    
     setLoading(true)
 
     try {
+      // Step 1: Check if user has 2FA enabled
+      const check2FAResponse = await fetch('/api/auth/2fa/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      })
+
+      const { twoFactorEnabled } = await check2FAResponse.json()
+
+      if (twoFactorEnabled) {
+        // User has 2FA - show 2FA input
+        setRequires2FA(true)
+        setLoading(false)
+        toast.info('2FA is enabled. Please enter your 2FA password.')
+        return
+      }
+
+      // No 2FA - proceed with normal signin
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -31,14 +92,73 @@ export function SignInForm() {
       })
 
       if (result?.error) {
-        toast.error('Invalid email or password')
+        setErrors(prev => ({ ...prev, general: 'Invalid email or password. Please try again.' }))
+        toast.error('Invalid credentials')
       } else if (result?.ok) {
-        toast.success('Signed in successfully!')
+        toast.success('Welcome back!', {
+          description: 'Redirecting to your dashboard...',
+          duration: 2000,
+        })
         router.push('/dashboard')
         router.refresh()
       }
     } catch (error) {
-      toast.error('Something went wrong')
+      setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
+      toast.error('Sign in failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmitWith2FA = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!twoFactorPassword) {
+      setErrors(prev => ({ ...prev, twoFactor: '2FA password is required' }))
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      // Step 1: Verify 2FA password
+      const verify2FAResponse = await fetch('/api/auth/2fa/login-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: formData.email, 
+          twoFactorPassword 
+        })
+      })
+
+      if (!verify2FAResponse.ok) {
+        setErrors(prev => ({ ...prev, twoFactor: 'Invalid 2FA password' }))
+        toast.error('Invalid 2FA password')
+        setLoading(false)
+        return
+      }
+
+      // Step 2: 2FA verified - proceed with signin
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false
+      })
+
+      if (result?.error) {
+        setErrors(prev => ({ ...prev, general: 'Sign in failed after 2FA verification' }))
+        toast.error('Sign in failed')
+      } else if (result?.ok) {
+        toast.success('Welcome back!', {
+          description: '2FA verified successfully',
+          duration: 2000,
+        })
+        router.push('/dashboard')
+        router.refresh()
+      }
+    } catch (error) {
+      setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
+      toast.error('Sign in failed')
     } finally {
       setLoading(false)
     }
@@ -46,6 +166,7 @@ export function SignInForm() {
 
   const handleGoogleSignIn = async () => {
     try {
+      // Sign in with Google - if 2FA is enabled, user will be redirected to verify-2fa-google page
       await signIn('google', { callbackUrl: '/dashboard' })
     } catch (error) {
       toast.error('Google sign-in failed')
@@ -53,102 +174,246 @@ export function SignInForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
+      {/* Error Message */}
+      {errors.general && (
+        <div className="p-3 sm:p-4 bg-red-50/80 dark:bg-red-950/30 backdrop-blur-sm border border-red-200/60 dark:border-red-500/20 text-red-800 dark:text-red-300 rounded-xl animate-shake relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent dark:from-red-400/10 dark:to-transparent"></div>
+          <div className="relative flex items-start gap-3">
+            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mt-0.5">
+              <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
+            </div>
+            <span className="font-medium text-sm leading-relaxed">{errors.general}</span>
+          </div>
+        </div>
+      )}
+
       {/* Google Sign In */}
-      <Button
+      <button
         type="button"
-        variant="outline"
         onClick={handleGoogleSignIn}
-        className="w-full"
+        className="w-full h-11 sm:h-12 inline-flex items-center justify-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg group font-semibold text-sm sm:text-base text-gray-700 dark:text-gray-200"
       >
-        <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        Continue with Google
-      </Button>
+        <span>Continue with Google</span>
+      </button>
 
       {/* Divider */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+          <span className="w-full border-t border-gray-200 dark:border-gray-700" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-slate-950 px-2 text-slate-500">
-            Or continue with
+        <div className="relative flex justify-center text-xs sm:text-sm uppercase">
+          <span className="bg-white dark:bg-slate-900 px-3 text-gray-500 dark:text-gray-400 font-medium">
+            Or continue with email
           </span>
         </div>
       </div>
 
       {/* Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={requires2FA ? handleSubmitWith2FA : handleSubmit} className="space-y-4 sm:space-y-5">
+        {/* Email Field */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Email Address
+          </Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="pl-10"
-              required
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value })
+                setErrors(prev => ({ ...prev, email: '', general: '' }))
+                setRequires2FA(false)
+              }}
+              disabled={requires2FA}
+              className={'h-11 sm:h-12 text-sm sm:text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 ' + (errors.email 
+                  ? 'border-red-500 dark:border-red-400 bg-red-50/30 dark:bg-red-950/20 focus:border-red-500 dark:focus:border-red-400' 
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20')}
             />
           </div>
+          {errors.email && (
+            <p className="text-red-500 dark:text-red-400 text-xs sm:text-sm flex items-center gap-1 mt-1 animate-shake">
+              <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+              {errors.email}
+            </p>
+          )}
         </div>
 
+        {/* Password Field */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Lock className="w-4 h-4" />
+              Password
+            </Label>
             <Link
               href="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
+              className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
             >
               Forgot?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="pl-10 pr-10"
-              required
+              onChange={(e) => {
+                setFormData({ ...formData, password: e.target.value })
+                setErrors(prev => ({ ...prev, password: '', general: '' }))
+              }}
+              disabled={requires2FA}
+              className={'h-11 sm:h-12 pr-10 text-sm sm:text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 ' + (errors.password 
+                  ? 'border-red-500 dark:border-red-400 bg-red-50/30 dark:bg-red-950/20 focus:border-red-500 dark:focus:border-red-400' 
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20')}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
           </div>
+          {errors.password && (
+            <p className="text-red-500 dark:text-red-400 text-xs sm:text-sm flex items-center gap-1 mt-1 animate-shake">
+              <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+              {errors.password}
+            </p>
+          )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? (
-            'Signing in...'
-          ) : (
-            <>
-              Sign In
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
+        {/* 2FA Password Field (shown only when 2FA is required) */}
+        {requires2FA && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="twoFactorPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                2FA Password
+              </Label>
+              <Link
+                href="/forgot-2fa"
+                className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
+              >
+                Forgot?
+              </Link>
+            </div>
+            <div className="relative">
+              <Input
+                id="twoFactorPassword"
+                type={show2FAPassword ? 'text' : 'password'}
+                placeholder="Enter your 2FA password"
+                value={twoFactorPassword}
+                onChange={(e) => {
+                  setTwoFactorPassword(e.target.value)
+                  setErrors(prev => ({ ...prev, twoFactor: '', general: '' }))
+                }}
+                className={'h-11 sm:h-12 pr-10 text-sm sm:text-base text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-300 ' + (errors.twoFactor 
+                    ? 'border-red-500 dark:border-red-400 bg-red-50/30 dark:bg-red-950/20 focus:border-red-500 dark:focus:border-red-400' 
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20')}
+              />
+              <button
+                type="button"
+                onClick={() => setShow2FAPassword(!show2FAPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              >
+                {show2FAPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
+              </button>
+            </div>
+            {errors.twoFactor && (
+              <p className="text-red-500 dark:text-red-400 text-xs sm:text-sm flex items-center gap-1 mt-1 animate-shake">
+                <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                {errors.twoFactor}
+              </p>
+            )}
+            <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
+                This account has two-factor authentication enabled
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-11 sm:h-12 md:h-13 inline-flex items-center justify-center gap-2 text-white font-bold text-sm sm:text-base px-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 group relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 border-0"
+            style={{ 
+              background: 'linear-gradient(to right, #059669, #047857, #0f766e)',
+              color: '#ffffff'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #047857, #065f46, #134e4a)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #059669, #047857, #0f766e)'
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+            <span className="relative flex items-center justify-center gap-2 drop-shadow-md text-white" style={{ color: '#ffffff' }}>
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
+                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Sign In</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                </>
+              )}
+            </span>
+          </button>
+        </div>
       </form>
 
       {/* Sign Up Link */}
-      <div className="text-center text-sm">
-        <span className="text-slate-600 dark:text-slate-400">Don't have an account? </span>
-        <Link href="/signup" className="text-blue-600 hover:underline font-medium">
-          Sign up
-        </Link>
+      <div className="pt-4 text-center">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
+            Sign Up
+            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />
+          </Link>
+        </p>
+      </div>
+
+      {/* Features List */}
+      <div className="pt-6 sm:pt-8 border-t border-gray-200/60 dark:border-gray-700/60">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <span>Secure Login</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
+              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-teal-600 dark:text-teal-400" />
+            </div>
+            <span>Fast Access</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+              <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
+            </div>
+            <span>Protected</span>
+          </div>
+        </div>
       </div>
     </div>
   )

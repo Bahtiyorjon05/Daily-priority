@@ -14,24 +14,21 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-          borderRadius: '8px',
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          borderRadius: '6px',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-            fontWeight: '900',
-            color: 'white',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          }}
-        >
-          DP
-        </div>
+        {/* Checkmark in circle - productivity symbol */}
+        <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="45" fill="white" opacity="0.95"/>
+          <path 
+            d="M30 50 L42 62 L70 34" 
+            stroke="#10b981" 
+            strokeWidth="8" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
     ),
     {

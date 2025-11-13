@@ -49,12 +49,18 @@ export async function PATCH(
       const validStatuses = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
       if (validStatuses.includes(normalizedStatus)) {
         updateData.status = normalizedStatus
-        if (normalizedStatus === 'COMPLETED' && !existingTask.completedAt) {
+        // Always update completedAt when status changes to/from COMPLETED
+        if (normalizedStatus === 'COMPLETED') {
           updateData.completedAt = new Date()
-        } else if (normalizedStatus !== 'COMPLETED' && existingTask.completedAt) {
+        } else if (normalizedStatus !== 'COMPLETED') {
           updateData.completedAt = null
         }
       }
+    }
+    
+    // Handle explicit completedAt updates
+    if (body.completedAt !== undefined) {
+      updateData.completedAt = body.completedAt ? new Date(body.completedAt) : null
     }
     if (urgent !== undefined) updateData.urgent = Boolean(urgent)
     if (important !== undefined) updateData.important = Boolean(important)
@@ -87,6 +93,8 @@ export async function PATCH(
     for (let i = 1; i <= 10; i++) { // Clear first 10 pages
       APICache.delete(`tasks:${userId}:${i}:20`)
     }
+    // Also clear user stats cache since task status changed
+    APICache.delete(`user-stats:${userId}`)
 
     return apiResponse.success(task)
   } catch (error: any) {
@@ -137,6 +145,8 @@ export async function DELETE(
     for (let i = 1; i <= 10; i++) { // Clear first 10 pages
       APICache.delete(`tasks:${userId}:${i}:20`)
     }
+    // Also clear user stats cache since task was deleted
+    APICache.delete(`user-stats:${userId}`)
 
     return apiResponse.success({ message: 'Task deleted successfully' })
   } catch (error: any) {

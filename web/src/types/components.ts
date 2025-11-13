@@ -262,30 +262,6 @@ export interface BarChartProps {
 }
 
 // ============================================================================
-// AI Component Props
-// ============================================================================
-
-export interface AISuggestionsProps {
-  onAcceptSuggestion: (suggestion: any) => void
-  onDismiss: () => void
-  userId?: string
-  isLoading?: boolean
-  className?: string
-}
-
-export interface AIChatProps {
-  onSendMessage: (message: string) => void
-  messages?: Array<{
-    id: string
-    role: 'user' | 'assistant'
-    content: string
-    timestamp: Date
-  }>
-  isLoading?: boolean
-  className?: string
-}
-
-// ============================================================================
 // Form Component Props
 // ============================================================================
 

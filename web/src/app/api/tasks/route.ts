@@ -3,6 +3,17 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { apiResponse, paginate, APICache } from '../utils/api-helpers'
+import {
+  sanitizeTitle,
+  sanitizeText,
+  sanitizeBoolean,
+  sanitizeNumber,
+  sanitizeDate,
+  sanitizeEnum,
+} from '@/lib/sanitize'
+import { createLogger } from '@/lib/logger'
+
+const logger = createLogger('TasksAPI')
 
 export async function GET(request: Request) {
   try {
@@ -40,10 +51,38 @@ export async function GET(request: Request) {
       where: {
         userId,
       },
-      include: {
-        category: true,
-        subtasks: true,
-        tags: true,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        urgent: true,
+        important: true,
+        status: true,
+        dueDate: true,
+        estimatedTime: true,
+        energyLevel: true,
+        createdAt: true,
+        updatedAt: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+          },
+        },
+        subtasks: {
+          select: {
+            id: true,
+            title: true,
+            completed: true,
+          },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: [
         { urgent: 'desc' },
@@ -65,12 +104,12 @@ export async function GET(request: Request) {
       }
     }
 
-    // Cache the results
-    APICache.set(cacheKey, response)
+    // Cache the results for only 5 seconds for real-time updates
+    APICache.set(cacheKey, response, 5 * 1000)
 
     return apiResponse.success(response)
   } catch (error: any) {
-    console.error('Get tasks error:', error)
+    logger.error('Failed to fetch tasks', error)
     return apiResponse.error('Failed to fetch tasks', 500, error.message)
   }
 }
@@ -94,33 +133,41 @@ export async function POST(request: Request) {
       estimatedTime,
       energyLevel,
       status,
-      aiSuggested,
-      aiReason,
     } = body
 
-    // Validate required fields
-    if (!title?.trim()) {
+    // Sanitize and validate inputs
+    const sanitizedTitle = sanitizeTitle(title)
+    if (!sanitizedTitle) {
       return apiResponse.validationError({
-        title: 'Task title is required'
+        title: 'Task title is required and must be valid',
       })
     }
 
-    const normalizedStatus =
-      typeof status === 'string' ? status.toUpperCase() : undefined
+    const sanitizedDescription = sanitizeText(description)
+    const sanitizedUrgent = sanitizeBoolean(urgent)
+    const sanitizedImportant = sanitizeBoolean(important)
+    const sanitizedDueDate = sanitizeDate(dueDate)
+    const sanitizedEstimatedTime = sanitizeNumber(estimatedTime, 1, 1440) // 1 min to 24 hours
+    const sanitizedEnergyLevel = energyLevel
+      ? sanitizeEnum(energyLevel, ['LOW', 'MEDIUM', 'HIGH'] as const)
+      : null
+    const sanitizedStatus = status
+      ? sanitizeEnum(status, [
+          'TODO',
+          'IN_PROGRESS',
+          'COMPLETED',
+          'CANCELLED',
+        ] as const)
+      : null
 
     const taskData: Record<string, unknown> = {
-      title: title.trim(),
-      description: description?.trim() || null,
-      urgent: Boolean(urgent),
-      important: Boolean(important),
-      dueDate: dueDate ? new Date(dueDate) : null,
-      estimatedTime:
-        typeof estimatedTime === 'number' && !Number.isNaN(estimatedTime)
-          ? Math.max(1, Math.min(1440, estimatedTime)) // 1 min to 24 hours
-          : null,
-      energyLevel: energyLevel || null,
-      aiSuggested: aiSuggested ?? false,
-      aiReason: aiReason?.trim() || null,
+      title: sanitizedTitle,
+      description: sanitizedDescription || null,
+      urgent: sanitizedUrgent,
+      important: sanitizedImportant,
+      dueDate: sanitizedDueDate,
+      estimatedTime: sanitizedEstimatedTime,
+      energyLevel: sanitizedEnergyLevel,
       userId: session.user.id,
     }
 
@@ -128,12 +175,8 @@ export async function POST(request: Request) {
       taskData.categoryId = categoryId
     }
 
-    if (normalizedStatus) {
-      // Validate status against Prisma enum
-      const validStatuses = ['TODO', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
-      if (validStatuses.includes(normalizedStatus)) {
-        taskData.status = normalizedStatus
-      }
+    if (sanitizedStatus) {
+      taskData.status = sanitizedStatus
     }
 
     const task = await prisma.task.create({
@@ -147,19 +190,22 @@ export async function POST(request: Request) {
 
     // Clear cache for this user's tasks
     const userId = session.user.id
-    for (let i = 1; i <= 10; i++) { // Clear first 10 pages
+    for (let i = 1; i <= 10; i++) {
+      // Clear first 10 pages
       APICache.delete(`tasks:${userId}:${i}:20`)
     }
+    // Also clear user stats cache since task count changed
+    APICache.delete(`user-stats:${userId}`)
 
     return apiResponse.success(task, 201)
   } catch (error: any) {
-    console.error('Create task error:', error)
-    
+    logger.error('Failed to create task', error)
+
     // Handle specific database errors
     if (error.code === 'P2002') {
       return apiResponse.error('A task with this title already exists', 409)
     }
-    
+
     return apiResponse.error('Failed to create task', 500, error.message)
   }
 }

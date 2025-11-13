@@ -12,7 +12,7 @@ import {
   ArrowLeft,
   Mail
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -41,7 +41,7 @@ export default function VerifyCodePage() {
     if (storedCountdown) {
       setCountdown(parseInt(storedCountdown, 10))
     } else {
-      setCountdown(120) // 2 minutes default
+      setCountdown(600) // 10 minutes default
     }
     
     // Start countdown timer
@@ -100,13 +100,21 @@ export default function VerifyCodePage() {
       })
 
       if (response.ok) {
-        // Store verified email and code for next step
-        localStorage.setItem('verifiedEmail', email)
+        const data = await response.json()
+        // Store verified email (sanitized from API) and code for next step
+        localStorage.setItem('verifiedEmail', data.email || email)
         localStorage.setItem('verifiedCode', codeData.code)
-        router.push('/reset-password')
+        toast.success('Code verified!', {
+          description: 'Redirecting to password reset...',
+          duration: 2000,
+        })
+        setTimeout(() => {
+          router.push('/reset-password')
+        }, 1000)
       } else {
         const data = await response.json()
-        setErrors(prev => ({ ...prev, general: data.error || 'Invalid verification code. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || 'Invalid or expired verification code. Please try again.' }))
+        toast.error(data.error || 'Invalid code')
       }
     } catch (error) {
       console.error('Code verification error:', error)
@@ -134,12 +142,17 @@ export default function VerifyCodePage() {
 
       if (response.ok) {
         // Reset countdown timer
-        setCountdown(120)
-        localStorage.setItem('resetCodeCountdown', '120')
-        setErrors(prev => ({ ...prev, general: 'New verification code sent!' }))
+        setCountdown(600) // 10 minutes
+        localStorage.setItem('resetCodeCountdown', '600')
+        toast.success('New code sent!', {
+          description: 'Check your email for the new verification code.',
+          duration: 3000,
+        })
+        setErrors({ code: '', general: '' })
       } else {
         const data = await response.json()
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to resend code. Please try again.' }))
+        toast.error(data.error || 'Failed to resend code')
       }
     } catch (error) {
       console.error('Resend code error:', error)
@@ -204,13 +217,25 @@ export default function VerifyCodePage() {
 
               <div className="flex items-center gap-3">
                 <Link href="/signin">
-                  <Button className="relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:from-emerald-500 dark:to-teal-500 dark:hover:from-emerald-400 dark:hover:to-teal-400 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+                  <button 
+                    className="relative overflow-hidden text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                    style={{ 
+                      background: 'linear-gradient(to right, #059669, #0f766e)',
+                      color: '#ffffff'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #047857, #0d9488)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #059669, #0f766e)'
+                    }}
+                  >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                    <span className="relative flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      Sign In
+                    <span className="relative flex items-center gap-2 text-white" style={{ color: '#ffffff' }}>
+                      <Shield className="h-4 w-4 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                      <span className="text-white" style={{ color: '#ffffff' }}>Sign In</span>
                     </span>
-                  </Button>
+                  </button>
                 </Link>
                 <ThemeToggle />
               </div>
@@ -229,11 +254,23 @@ export default function VerifyCodePage() {
             
             <CardContent className="p-8">
               <CardHeader className="text-center pb-8">
-                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Verify Code</CardTitle>
+                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Check Your Email</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-lg">
-                  Enter the 6-digit code sent to {email}
+                  We sent a 6-digit verification code to<br />
+                  <strong className="text-emerald-600 dark:text-emerald-400">{email}</strong>
                 </CardDescription>
               </CardHeader>
+              
+              {/* Info box */}
+              <div className="mb-6 p-4 bg-blue-50/80 dark:bg-blue-950/30 backdrop-blur-sm border border-blue-200/60 dark:border-blue-500/20 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-800 dark:text-blue-300">
+                    <p className="font-semibold mb-1">Check your email inbox</p>
+                    <p className="text-blue-700 dark:text-blue-400">The code may take a few moments to arrive. Don't forget to check your spam folder!</p>
+                  </div>
+                </div>
+              </div>
               
               {errors.general && (
                 <div className="mb-6 p-4 bg-red-50/80 dark:bg-red-950/30 backdrop-blur-sm border border-red-200/60 dark:border-red-500/20 text-red-800 dark:text-red-300 rounded-xl animate-shake relative overflow-hidden">
@@ -300,27 +337,39 @@ export default function VerifyCodePage() {
                   </div>
                 </div>
                 <div className="mt-8">
-                  <Button
+                  <button
                     type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:from-emerald-500 dark:to-teal-500 dark:hover:from-emerald-400 dark:hover:to-teal-400 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                    className="w-full h-12 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     disabled={loading}
+                    style={{ 
+                      background: 'linear-gradient(to right, #059669, #0f766e)',
+                      color: '#ffffff'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loading) {
+                        e.currentTarget.style.background = 'linear-gradient(to right, #047857, #0d9488)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #059669, #0f766e)'
+                    }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                    <span className="relative flex items-center justify-center gap-2">
+                    <span className="relative flex items-center justify-center gap-2 text-white" style={{ color: '#ffffff' }}>
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                          Verifying...
+                          <span className="text-white" style={{ color: '#ffffff' }}>Verifying...</span>
                         </>
                       ) : (
                         <>
-                          <Shield className="h-5 w-5" />
-                          Verify Code
-                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                          <Shield className="h-5 w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
+                          <span className="text-white" style={{ color: '#ffffff' }}>Verify Code</span>
+                          <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
                     </span>
-                  </Button>
+                  </button>
                 </div>
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 dark:text-gray-400">

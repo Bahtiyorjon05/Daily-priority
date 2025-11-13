@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target,
@@ -17,8 +17,6 @@ import {
   BookOpen,
   Settings,
   User,
-  Bell,
-  Search,
   Menu,
   X,
   ChevronRight,
@@ -31,17 +29,22 @@ import {
   Camera,
   Edit3,
   Globe,
-  Palette
+  Palette,
+  CheckCircle2,
+  TrendingUp,
+  LayoutDashboard
 } from 'lucide-react'
-import AISmartSearch from '@/app/(dashboard)/components/AISmartSearch'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { signOut } from 'next-auth/react'
 import { getGreeting } from '@/lib/utils'
 import { useTheme } from '@/components/theme-provider'
 import { getThemeClass } from '@/lib/theme-config'
+import Logo from '@/components/shared/Logo'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
-export default function DashboardLayout({
+function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode
@@ -63,68 +66,19 @@ export default function DashboardLayout({
   const [checkedPassword, setCheckedPassword] = useState(false)
   const [redirectedToSetPassword, setRedirectedToSetPassword] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
-  const [notifications, setNotifications] = useState(0)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [notificationsList, setNotificationsList] = useState<Array<{
-    id: string
-    title: string
-    message: string
-    timestamp: string
-    read: boolean
-    type: string
-  }>>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showSmartSearch, setShowSmartSearch] = useState(false)
-
-  // Notification functions
-  const markNotificationAsRead = (notificationId: string) => {
-    setNotificationsList(prev => 
-      prev.map(notif => 
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
-    )
-    const notification = notificationsList.find(n => n.id === notificationId)
-    if (notification && !notification.read) {
-      setNotifications(prev => Math.max(0, prev - 1))
+  const previousIsMobileRef = useRef<boolean>(false)
+  const isCollapsed = sidebarCollapsed && !isMobile
+  const effectiveSidebarOpen = isMobile ? sidebarOpen : true
+  const sidebarX = (() => {
+    if (isMobile) {
+      return effectiveSidebarOpen ? 0 : -300
     }
-  }
-
-  const markAllNotificationsAsRead = () => {
-    setNotificationsList(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    )
-    setNotifications(0)
-  }
-
-  const deleteNotification = (notificationId: string) => {
-    setNotificationsList(prev => 
-      prev.filter(notif => notif.id !== notificationId)
-    )
-    const notification = notificationsList.find(n => n.id === notificationId)
-    if (notification && !notification.read) {
-      setNotifications(prev => Math.max(0, prev - 1))
+    if (isCollapsed) {
+      return -280
     }
-  }
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'task': return Target
-      case 'goal': return Sparkles 
-      case 'prayer': return BookHeart
-      default: return Bell
-    }
-  }
-
-  const formatNotificationTime = (timestamp: string) => {
-    const now = new Date()
-    const time = new Date(timestamp)
-    const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60))
-    
-    if (diffInMinutes < 1) return 'Just now'
-    if (diffInMinutes < 60) return (diffInMinutes) + 'm ago'
-    if (diffInMinutes < 1440) return (Math.floor(diffInMinutes / 60)) + 'h ago'
-    return (Math.floor(diffInMinutes / 1440)) + 'd ago'
-  }
+    return 0
+  })()
+  const isSidebarVisible = isMobile ? effectiveSidebarOpen : true
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -168,6 +122,7 @@ export default function DashboardLayout({
     const checkMobile = () => {
       const isMobileView = window.innerWidth < 1024
       setIsMobile(isMobileView)
+      previousIsMobileRef.current = isMobileView
 
       // Set initial sidebar state based on saved preference or screen size
       const saved = localStorage.getItem('sidebar-open')
@@ -180,11 +135,25 @@ export default function DashboardLayout({
 
     const handleResize = () => {
       const isMobileView = window.innerWidth < 1024
-      setIsMobile(isMobileView)
+      const previousIsMobile = previousIsMobileRef.current
 
-      // Only auto-close on mobile if transitioning from desktop to mobile
-      if (isMobileView && window.innerWidth < 1024) {
-        setSidebarOpen(false)
+      // Handle transition between mobile and desktop
+      if (isMobileView !== previousIsMobile) {
+        setIsMobile(isMobileView)
+
+        if (isMobileView) {
+          // Transitioning to mobile - close sidebar
+          setSidebarOpen(false)
+        } else {
+          // Transitioning to desktop - open sidebar (restore state or default to open)
+          const saved = localStorage.getItem('sidebar-open')
+          if (saved !== null) {
+            setSidebarOpen(JSON.parse(saved))
+          } else {
+            setSidebarOpen(true) // Default to open on desktop
+          }
+        }
+        previousIsMobileRef.current = isMobileView
       }
     }
 
@@ -225,11 +194,30 @@ export default function DashboardLayout({
       if (e.key === 'Escape' && isMobile && sidebarOpen) {
         setSidebarOpen(false)
       }
+      // Escape to close dropdowns
+      if (e.key === 'Escape') {
+        setShowProfileDropdown(false)
+      }
     }
 
     window.addEventListener('keydown', handleKeyboard)
     return () => window.removeEventListener('keydown', handleKeyboard)
   }, [isMobile, sidebarOpen])
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-dropdown]')) {
+        setShowProfileDropdown(false)
+      }
+    }
+
+    if (showProfileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProfileDropdown])
 
   // Swipe gesture handlers for mobile sidebar
   const minSwipeDistance = 50
@@ -266,11 +254,7 @@ export default function DashboardLayout({
   if (status === 'loading' || (status === 'authenticated' && !checkedPassword)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-950 dark:via-emerald-950/20 dark:to-teal-950/20">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full"
-        />
+        <LoadingSpinner size="xl" message="Loading your dashboard..." />
       </div>
     )
   }
@@ -282,17 +266,24 @@ export default function DashboardLayout({
   const navigationItems = [
     {
       path: '/dashboard',
-      icon: Home,
+      icon: LayoutDashboard,
       label: 'Dashboard',
       description: 'Overview & stats',
       color: 'from-blue-500 to-cyan-500'
     },
     {
+      path: '/analytics',
+      icon: TrendingUp,
+      label: 'Analytics',
+      description: 'Insights & reports',
+      color: 'from-indigo-500 to-purple-500'
+    },
+    {
       path: '/prayers',
-      icon: Activity,
+      icon: Heart,
       label: 'Prayers',
       description: 'Prayer times & tracking',
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-emerald-500 to-teal-500'
     },
     {
       path: '/adhkar',
@@ -303,10 +294,10 @@ export default function DashboardLayout({
     },
     {
       path: '/focus',
-      icon: Timer,
+      icon: Zap,
       label: 'Focus',
       description: 'Pomodoro & deep work',
-      color: 'from-orange-500 to-red-500'
+      color: 'from-orange-500 to-amber-500'
     },
     {
       path: '/calendar',
@@ -324,10 +315,10 @@ export default function DashboardLayout({
     },
     {
       path: '/habits',
-      icon: Target,
+      icon: CheckCircle2,
       label: 'Habits',
       description: 'Build positive habits',
-      color: 'from-emerald-500 to-teal-500'
+      color: 'from-green-500 to-emerald-500'
     },
     {
       path: '/journal',
@@ -335,13 +326,6 @@ export default function DashboardLayout({
       label: 'Journal',
       description: 'Reflect & grow',
       color: 'from-pink-500 to-rose-500'
-    },
-    {
-      path: '/analytics',
-      icon: BarChart3,
-      label: 'Analytics',
-      description: 'Insights & reports',
-      color: 'from-gray-500 to-slate-500'
     },
     {
       path: '/settings',
@@ -354,11 +338,126 @@ export default function DashboardLayout({
 
   const userMenuItems = [
     { icon: User, label: 'Profile Settings', action: () => router.push('/settings') },
-    { icon: Settings, label: 'Preferences', action: () => router.push('/settings') },
-    { icon: Bell, label: 'Notifications', action: () => {} },
-    { icon: Shield, label: 'Privacy', action: () => {} },
-    { icon: LogOut, label: 'Sign Out', action: () => signOut({ callbackUrl: '/' }) },
+    { icon: Settings, label: 'Preferences', action: () => router.push('/settings?tab=appearance') },
+    { icon: Shield, label: 'Privacy & Security', action: () => router.push('/settings?tab=security') },
   ]
+
+  // Get theme-specific colors for each page
+  const getPageTheme = (path: string) => {
+    const themes: Record<string, { bg: string, bgDark: string, hover: string, hoverDark: string, text: string, textDark: string, border: string, borderDark: string, shadow: string }> = {
+      '/dashboard': {
+        bg: 'bg-blue-50/50',
+        bgDark: 'dark:bg-blue-950/20',
+        hover: 'hover:bg-blue-100/70',
+        hoverDark: 'dark:hover:bg-blue-950/30',
+        text: 'text-blue-700',
+        textDark: 'dark:text-blue-300',
+        border: 'border-l-blue-500',
+        borderDark: 'dark:border-l-blue-400',
+        shadow: 'shadow-blue-500/20'
+      },
+      '/prayers': {
+        bg: 'bg-emerald-50/50',
+        bgDark: 'dark:bg-emerald-950/20',
+        hover: 'hover:bg-emerald-100/70',
+        hoverDark: 'dark:hover:bg-emerald-950/30',
+        text: 'text-emerald-700',
+        textDark: 'dark:text-emerald-300',
+        border: 'border-l-emerald-500',
+        borderDark: 'dark:border-l-emerald-400',
+        shadow: 'shadow-emerald-500/20'
+      },
+      '/adhkar': {
+        bg: 'bg-purple-50/50',
+        bgDark: 'dark:bg-purple-950/20',
+        hover: 'hover:bg-purple-100/70',
+        hoverDark: 'dark:hover:bg-purple-950/30',
+        text: 'text-purple-700',
+        textDark: 'dark:text-purple-300',
+        border: 'border-l-purple-500',
+        borderDark: 'dark:border-l-purple-400',
+        shadow: 'shadow-purple-500/20'
+      },
+      '/focus': {
+        bg: 'bg-orange-50/50',
+        bgDark: 'dark:bg-orange-950/20',
+        hover: 'hover:bg-orange-100/70',
+        hoverDark: 'dark:hover:bg-orange-950/30',
+        text: 'text-orange-700',
+        textDark: 'dark:text-orange-300',
+        border: 'border-l-orange-500',
+        borderDark: 'dark:border-l-orange-400',
+        shadow: 'shadow-orange-500/20'
+      },
+      '/calendar': {
+        bg: 'bg-teal-50/50',
+        bgDark: 'dark:bg-teal-950/20',
+        hover: 'hover:bg-teal-100/70',
+        hoverDark: 'dark:hover:bg-teal-950/30',
+        text: 'text-teal-700',
+        textDark: 'dark:text-teal-300',
+        border: 'border-l-teal-500',
+        borderDark: 'dark:border-l-teal-400',
+        shadow: 'shadow-teal-500/20'
+      },
+      '/goals': {
+        bg: 'bg-amber-50/50',
+        bgDark: 'dark:bg-amber-950/20',
+        hover: 'hover:bg-amber-100/70',
+        hoverDark: 'dark:hover:bg-amber-950/30',
+        text: 'text-amber-700',
+        textDark: 'dark:text-amber-300',
+        border: 'border-l-amber-500',
+        borderDark: 'dark:border-l-amber-400',
+        shadow: 'shadow-amber-500/20'
+      },
+      '/habits': {
+        bg: 'bg-green-50/50',
+        bgDark: 'dark:bg-green-950/20',
+        hover: 'hover:bg-green-100/70',
+        hoverDark: 'dark:hover:bg-green-950/30',
+        text: 'text-green-700',
+        textDark: 'dark:text-green-300',
+        border: 'border-l-green-500',
+        borderDark: 'dark:border-l-green-400',
+        shadow: 'shadow-green-500/20'
+      },
+      '/journal': {
+        bg: 'bg-pink-50/50',
+        bgDark: 'dark:bg-pink-950/20',
+        hover: 'hover:bg-pink-100/70',
+        hoverDark: 'dark:hover:bg-pink-950/30',
+        text: 'text-pink-700',
+        textDark: 'dark:text-pink-300',
+        border: 'border-l-pink-500',
+        borderDark: 'dark:border-l-pink-400',
+        shadow: 'shadow-pink-500/20'
+      },
+      '/analytics': {
+        bg: 'bg-gray-50/50',
+        bgDark: 'dark:bg-gray-800/20',
+        hover: 'hover:bg-gray-100/70',
+        hoverDark: 'dark:hover:bg-gray-800/30',
+        text: 'text-gray-700',
+        textDark: 'dark:text-gray-300',
+        border: 'border-l-gray-500',
+        borderDark: 'dark:border-l-gray-400',
+        shadow: 'shadow-gray-500/20'
+      },
+      '/settings': {
+        bg: 'bg-slate-50/50',
+        bgDark: 'dark:bg-slate-950/20',
+        hover: 'hover:bg-slate-100/70',
+        hoverDark: 'dark:hover:bg-slate-950/30',
+        text: 'text-slate-700',
+        textDark: 'dark:text-slate-300',
+        border: 'border-l-slate-500',
+        borderDark: 'dark:border-l-slate-400',
+        shadow: 'shadow-slate-500/20'
+      },
+    }
+    return themes[path] || themes['/dashboard']
+  }
 
   const themeClass = getThemeClass(pathname)
 
@@ -370,183 +469,50 @@ export default function DashboardLayout({
       onTouchEnd={onTouchEnd}
     >
       {/* Enhanced Animated Sidebar */}
-      <motion.aside 
+      <motion.aside
         initial={{ x: -300 }}
-        animate={{ 
-          x: sidebarOpen ? 0 : -300,
-          width: sidebarCollapsed ? '80px' : '280px'
+        animate={{
+          x: sidebarX,
         }}
         transition={{ type: "spring", damping: 25, stiffness: 400 }}
-        className="fixed left-0 top-0 h-full glass-panel border-r border-border/50 shadow-2xl text-foreground z-50 flex flex-col w-full md:w-auto max-w-xs md:max-w-none backdrop-blur-xl"
+        className="fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r-2 border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-200/60 dark:shadow-black/20 text-foreground z-50 flex flex-col w-[280px]"
         id="sidebar-navigation"
         role="navigation"
         aria-label="Main navigation"
-        aria-hidden={!sidebarOpen}
+        aria-hidden={!isSidebarVisible}
       >
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-border/60 bg-gradient-to-r from-background/50 to-emerald-50/30 dark:from-gray-800/50 dark:to-gray-700/50">
+        <div className="p-6 border-b-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-emerald-50/50 dark:from-gray-800 dark:to-emerald-900/20">
           <div className="flex items-center justify-between">
-            {!sidebarCollapsed && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="flex items-center gap-3"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-xl shadow-emerald-500/25">
-                  <Target className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                    Daily Priority
-                  </h1>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Islamic Productivity Hub
-                  </p>
-                </div>
-              </motion.div>
-            )}
-            {sidebarCollapsed && (
+            {!isCollapsed ? (
+              <Logo size="lg" showText={true} showSubtext={true} animate={true} />
+            ) : (
               <div className="flex justify-center w-full">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                  <Target className="h-5 w-5 text-white" />
-                </div>
+                <Logo size="md" showText={false} animate={true} />
               </div>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="h-9 w-9 hover:bg-accent rounded-xl transition-colors"
-            >
-              <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${sidebarCollapsed ? 'rotate-180' : ''}`} />
-            </Button>
+            {!isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="h-9 w-9 hover:bg-accent rounded-xl transition-all duration-200 hover:scale-105 hover:rotate-90"
+                title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              >
+                <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* User Profile Section */}
-        <div className="p-4 border-b border-border/50">
-          <div className="relative">
-            <Button
-              variant="ghost"
-              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={`w-full p-3 h-auto justify-start hover:bg-accent rounded-xl ui-element ${sidebarCollapsed ? 'px-3' : ''}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Avatar className="h-10 w-10 border-2 border-emerald-200 dark:border-emerald-800">
-                    <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || 'User'} />
-                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
-                      {session?.user?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background dark:border-gray-900"></div>
-                </div>
-                {!sidebarCollapsed && (
-                  <div className="flex-1 text-left">
-                    <p className="font-semibold text-foreground truncate">
-                      {session?.user?.name || 'User'}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {getGreeting()} 👋
-                    </p>
-                  </div>
-               )}
-              </div>
-            </Button>
-
-            {/* Enhanced Profile Dropdown */}
-            <AnimatePresence>
-              {showProfileDropdown && !sidebarCollapsed && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-popover backdrop-blur-xl rounded-2xl shadow-2xl border border-border overflow-hidden z-[100]"
-                  style={{ zIndex: 100 }}
-                >
-                  {/* User Info Header */}
-                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-b border-border/50">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 ring-2 ring-emerald-200 dark:ring-emerald-800">
-                        <AvatarImage src={session?.user?.image || ''} />
-                        <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-semibold">
-                          {session?.user?.name?.charAt(0) || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-semibold text-foreground text-sm">
-                          {session?.user?.name || 'User'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {session?.user?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Menu Items */}
-                  <div className="p-2">
-                    {userMenuItems.map((item, index) => {
-                      const Icon = item.icon
-                      return (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Button
-                            variant="ghost"
-                            onClick={() => {
-                              item.action()
-                              setShowProfileDropdown(false) // Close dropdown after action
-                            }}
-                            className="w-full justify-start px-3 py-2.5 h-auto hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-foreground hover:text-emerald-600 dark:hover:text-emerald-300 rounded-xl transition-all duration-200 group ui-element"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-accent to-muted dark:from-gray-700 dark:to-gray-800 group-hover:from-emerald-100 group-hover:to-emerald-200 dark:group-hover:from-emerald-900/50 dark:group-hover:to-emerald-800/50 transition-all duration-200">
-                                <Icon className="h-3.5 w-3.5 text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-300" />
-                              </div>
-                              <span className="font-medium text-sm">{item.label}</span>
-                            </div>
-                          </Button>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Sign Out Button */}
-                  <div className="p-2 border-t border-border/50">
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        signOut()
-                        setShowProfileDropdown(false) // Close dropdown after action
-                      }}
-                      className="w-full justify-start px-3 py-2.5 h-auto hover:bg-red-50 dark:hover:bg-red-900/20 text-foreground hover:text-red-600 dark:hover:text-red-300 rounded-xl transition-all duration-200 group ui-element"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-accent to-muted dark:from-gray-700 dark:to-gray-800 group-hover:from-red-100 group-hover:to-red-200 dark:group-hover:from-red-900/50 dark:group-hover:to-red-800/50 transition-all duration-200">
-                          <LogOut className="h-3.5 w-3.5 text-foreground group-hover:text-red-600 dark:group-hover:text-red-300" />
-                        </div>
-                        <span className="font-medium text-sm">Sign Out</span>
-                      </div>
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
 
         {/* Enhanced Navigation Items */}
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto" role="menu" aria-label="Navigation menu">
           {navigationItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.path
-            
+            const pageTheme = getPageTheme(item.path)
+
             return (
               <motion.div
                 key={item.path}
@@ -559,67 +525,37 @@ export default function DashboardLayout({
                 <Button
                   variant="ghost"
                   onClick={() => router.push(item.path)}
-                  className={`w-full justify-start p-4 md:p-3 h-auto min-h-[48px] md:min-h-auto rounded-2xl transition-all duration-300 group relative overflow-hidden ui-element ${
-                    isActive
-                      ? `bg-gradient-to-r text-white shadow-xl shadow-emerald-500/25 ${item.color}`
-                      : 'hover:bg-accent hover:shadow-lg hover:shadow-gray-200/30 dark:hover:shadow-gray-900/30 text-foreground backdrop-blur-sm'
-                  } ${sidebarCollapsed ? 'px-3' : ''}`}
+                  className={`w-full justify-start p-4 md:p-3 h-auto min-h-[48px] md:min-h-auto rounded-2xl transition-all duration-300 group relative overflow-hidden ui-element ${pageTheme.bg} ${pageTheme.bgDark} ${pageTheme.hover} ${pageTheme.hoverDark} ${pageTheme.border} ${pageTheme.borderDark} shadow-md ${
+                    isActive ? 'border-l-4' : 'border-l-2 hover:border-l-4'
+                  } ${isCollapsed ? 'px-3' : ''}`}
                   aria-label={`Navigate to ${item.label} - ${item.description}`}
                   aria-current={isActive ? 'page' : undefined}
                   role="menuitem"
                 >
-                  {/* Active indicator bar */}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  
+
                   <div className="flex items-center gap-3 relative z-10">
                     {/* Enhanced Icon Container */}
-                    <div className={`p-2 rounded-xl transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-white/20 backdrop-blur-sm' 
-                        : 'bg-gradient-to-br from-accent to-muted dark:from-gray-700 dark:to-gray-800 group-hover:from-emerald-100 group-hover:to-emerald-200 dark:group-hover:from-emerald-900/50 dark:group-hover:to-emerald-800/50'
-                    }`}>
-                      <Icon className={`h-4 w-4 transition-all duration-300 ${
-                        isActive 
-                          ? 'text-white' 
-                          : 'text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-300'
-                      }`} />
+                    <div className={`p-2 rounded-xl transition-all duration-300 shadow-md bg-gradient-to-br ${item.color}`}>
+                      <Icon className="h-4 w-4 transition-all duration-300 text-white" />
                     </div>
-                    
-                    {!sidebarCollapsed && (
+
+                    {!isCollapsed && (
                       <div className="flex-1 text-left">
-                        <p className={`font-semibold text-sm transition-colors duration-300 ${
-                          isActive 
-                            ? 'text-white' 
-                            : 'text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-300'
-                        }`}>
+                        <p className={`font-semibold text-sm transition-colors duration-300 ${pageTheme.text} ${pageTheme.textDark}`}>
                           {item.label}
                         </p>
-                        <p className={`text-xs transition-colors duration-300 ${
-                          isActive 
-                            ? 'text-white/80' 
-                            : 'text-muted-foreground group-hover:text-emerald-500 dark:group-hover:text-emerald-400'
-                        }`}>
+                        <p className={`text-xs transition-colors duration-300 ${pageTheme.text} ${pageTheme.textDark} opacity-80`}>
                           {item.description}
                         </p>
                       </div>
                     )}
-                    
-                    {/* Right arrow for active item */}
-                    {isActive && !sidebarCollapsed && (
-                      <ChevronRight className="h-4 w-4 text-white/80" />
+
+                    {/* Active page indicator */}
+                    {isActive && !isCollapsed && (
+                      <ChevronRight className={`h-4 w-4 ${pageTheme.text} ${pageTheme.textDark}`} />
                     )}
                   </div>
-                  
-                  {/* Subtle glow effect for active item */}
-                  {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r opacity-10 rounded-2xl blur-sm" />
-                  )}
+
                 </Button>
               </motion.div>
             )
@@ -627,8 +563,8 @@ export default function DashboardLayout({
         </nav>
 
         {/* Enhanced Sidebar Footer */}
-        <div className="p-4 border-t border-border/50">
-          {!sidebarCollapsed && (
+        <div className="p-4 border-t-2 border-gray-200 dark:border-gray-700">
+          {!isCollapsed && (
             <div className="text-center">
               <div className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -646,7 +582,7 @@ export default function DashboardLayout({
         variant="ghost"
         size="icon"
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden bg-popover/95 backdrop-blur-xl shadow-xl shadow-gray-900/10 dark:shadow-gray-950/20 rounded-xl hover:scale-105 transition-all duration-200 border border-border"
+        className="fixed top-3 left-3 z-50 lg:hidden bg-white dark:bg-gray-900 backdrop-blur-xl shadow-xl shadow-gray-900/10 dark:shadow-gray-950/20 rounded-xl hover:scale-105 transition-all duration-200 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-600"
         aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
         aria-expanded={sidebarOpen}
         aria-controls="sidebar-navigation"
@@ -664,199 +600,171 @@ export default function DashboardLayout({
         </motion.div>
       </Button>
 
+      {/* Desktop Sidebar Toggle (visible when collapsed) */}
+      <AnimatePresence>
+        {isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed left-4 top-4 z-50"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarCollapsed(false)}
+              className="bg-white dark:bg-gray-900 backdrop-blur-xl shadow-xl shadow-gray-900/10 dark:shadow-gray-950/20 rounded-xl hover:scale-105 transition-all duration-200 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-600 w-12 h-12"
+              aria-label="Expand sidebar"
+              title="Expand sidebar (Ctrl+B)"
+            >
+              <motion.div
+                initial={false}
+                animate={{ rotate: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Menu className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              </motion.div>
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area */}
       <div className={`transition-all duration-500 ease-in-out ${
-        isMobile 
-          ? 'ml-0' 
-          : sidebarOpen 
-            ? sidebarCollapsed ? 'ml-20' : 'ml-[300px]' 
-            : 'ml-0'
+        isMobile
+          ? 'ml-0'
+          : isCollapsed
+            ? 'ml-0'
+            : effectiveSidebarOpen
+              ? 'ml-[300px]'
+              : 'ml-0'
       }`}>
         {/* Enhanced Top Bar */}
-        <header className="sticky top-0 z-30 bg-popover/90 backdrop-blur-xl border-b border-border/40 shadow-md shadow-gray-900/5 dark:shadow-gray-950/20">
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowSmartSearch(true)}
-                  placeholder="Search anything or ask AI for suggestions..."
-                  className="pl-10 pr-4 py-2 w-64 sm:w-80 lg:w-96 bg-muted border-0 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none text-foreground placeholder:text-muted-foreground transition-all duration-200 hover:bg-accent cursor-pointer"
-                />
-                <AISmartSearch 
-                  isOpen={showSmartSearch}
-                  onClose={() => setShowSmartSearch(false)}
-                  onNavigate={(path) => {
-                    router.push(path)
-                    setShowSmartSearch(false)
-                  }}
-                  session={session}
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Theme Toggle - Always Visible */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
+        <header className="sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b-2 border-gray-200 dark:border-gray-800 shadow-md shadow-gray-900/5 dark:shadow-gray-950/20">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 lg:px-8">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Theme Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                className="bg-muted hover:bg-accent rounded-xl transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md"
+                className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-2xl transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md h-11 w-11 min-h-[44px] min-w-[44px] shrink-0"
                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
                 {theme === 'light' ? (
-                  <Moon className="h-5 w-5 text-foreground transition-transform duration-200 hover:rotate-12" />
+                  <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300 transition-transform duration-200 hover:rotate-12" />
                 ) : (
-                  <Sun className="h-5 w-5 text-foreground transition-transform duration-200 hover:rotate-12" />
+                  <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300 transition-transform duration-200 hover:rotate-12" />
                 )}
               </Button>
 
-              {/* Notifications */}
-              <div className="relative">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative hover:bg-accent rounded-xl transition-all duration-200 hover:scale-105"
+              {/* User Profile Dropdown */}
+              <div className="relative" data-dropdown>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                  className="relative bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-2xl transition-all duration-200 hover:scale-105 p-1 h-11 w-11 min-h-[44px] min-w-[44px] shrink-0"
                 >
-                  <Bell className="h-5 w-5 text-foreground transition-transform duration-200 hover:rotate-12" />
-                  {notifications > 0 && (
-                    <motion.span 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      {notifications}
-                    </motion.span>
-                  )}
+                  <Avatar className="h-8 w-8 border-2 border-emerald-200 dark:border-emerald-800">
+                    <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || 'User'} />
+                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
+                      {session?.user?.name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
                 </Button>
 
-                {/* Notifications Dropdown */}
+                {/* Profile Dropdown */}
                 <AnimatePresence>
-                  {showNotifications && (
+                  {showProfileDropdown && (
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-full mt-2 w-80 bg-popover/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-border overflow-hidden z-50"
+                      className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-900 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden z-50"
                     >
-                      {/* Header */}
-                      <div className="p-4 border-b border-border/50 bg-gradient-to-r from-background/50 to-emerald-50/30 dark:from-gray-800/50 dark:to-gray-700/50">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-foreground">Notifications</h3>
-                          <div className="flex items-center gap-2">
-                            {notifications > 0 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={markAllNotificationsAsRead}
-                                className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
-                              >
-                                Mark all read
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setShowNotifications(false)}
-                              className="h-6 w-6"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
+                      {/* User Info Header */}
+                      <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-b-2 border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12 ring-2 ring-emerald-200 dark:ring-emerald-800">
+                            <AvatarImage src={session?.user?.image || ''} />
+                            <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold">
+                              {session?.user?.name?.charAt(0) || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
+                              {session?.user?.name || 'User'}
+                            </p>
+                            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+                              {getGreeting()} 👋
+                            </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Notifications List */}
-                      <div className="max-h-96 overflow-y-auto">
-                        {notificationsList.length > 0 ? (
-                          notificationsList.map((notification) => {
-                            const IconComponent = getNotificationIcon(notification.type)
-                            return (
-                              <motion.div
-                                key={notification.id}
-                                whileHover={{ backgroundColor: 'rgba(16, 185, 129, 0.05)' }}
-                                className={`p-4 border-b border-border/50 cursor-pointer transition-colors ${!notification.read ? 'bg-emerald-50/30 dark:bg-emerald-950/20' : ''}`}
-                                onClick={() => markNotificationAsRead(notification.id)}
+                      {/* Menu Items */}
+                      <div className="p-2">
+                        {userMenuItems.map((item, index) => {
+                          const Icon = item.icon
+                          return (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                            >
+                              <Button
+                                variant="ghost"
+                                onClick={() => {
+                                  item.action()
+                                  setShowProfileDropdown(false)
+                                }}
+                                className="w-full justify-start px-3 py-2.5 h-auto hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl transition-all duration-200 group ui-element"
                               >
-                                <div className="flex items-start gap-3">
-                                  <div className={`p-2 rounded-full ${
-                                    notification.type === 'task' ? 'bg-blue-100 dark:bg-blue-900/30' :
-                                    notification.type === 'goal' ? 'bg-purple-100 dark:bg-purple-900/30' :
-                                    notification.type === 'prayer' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
-                                    'bg-muted'
-                                  }`}>
-                                    <IconComponent className={`h-4 w-4 ${
-                                      notification.type === 'task' ? 'text-blue-600 dark:text-blue-400' :
-                                      notification.type === 'goal' ? 'text-purple-600 dark:text-purple-400' :
-                                      notification.type === 'prayer' ? 'text-emerald-600 dark:text-emerald-400' :
-                                      'text-foreground'
-                                    }`} />
+                                <div className="flex items-center gap-3">
+                                  <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-all duration-200">
+                                    <Icon className="h-4 w-4 text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
                                   </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                      <p className={`text-sm font-medium ${
-                                        !notification.read ? 'text-foreground' : 'text-muted-foreground'
-                                      }`}>
-                                        {notification.title}
-                                      </p>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          deleteNotification(notification.id)
-                                        }}
-                                        className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                                      >
-                                        <X className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {notification.message}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      {formatNotificationTime(notification.timestamp)}
-                                    </p>
-                                  </div>
-                                  {!notification.read && (
-                                    <div className="w-2 h-2 bg-emerald-500 rounded-full mt-1"></div>
-                                  )}
+                                  <span className="font-medium text-sm">{item.label}</span>
                                 </div>
-                              </motion.div>
-                            )
-                          })
-                        ) : (
-                          <div className="p-8 text-center">
-                            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                            <p className="text-muted-foreground">No notifications yet</p>
+                              </Button>
+                            </motion.div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Sign Out Button */}
+                      <div className="p-2 border-t-2 border-gray-200 dark:border-gray-700">
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            signOut({ callbackUrl: '/' })
+                            setShowProfileDropdown(false)
+                          }}
+                          className="w-full justify-start px-3 py-2.5 h-auto hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-all duration-200 group ui-element"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-red-100 dark:group-hover:bg-red-900/50 transition-all duration-200">
+                              <LogOut className="h-4 w-4 text-gray-700 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400" />
+                            </div>
+                            <span className="font-medium text-sm">Sign Out</span>
                           </div>
-                        )}
+                        </Button>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-
-              {/* User Avatar - Mobile */}
-              <div className="lg:hidden">
-                <Avatar className="h-8 w-8 border-2 border-emerald-200 dark:border-emerald-800">
-                  <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || 'User'} />
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm">
-                    {session?.user?.name?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
               </div>
             </div>
           </div>
         </header>
 
         {/* Enhanced Main Content */}
-        <main className="min-h-screen bg-gradient-to-br from-background/30 via-background/30 to-background/30 dark:from-gray-950/30 dark:via-gray-900/30 dark:to-gray-950/30">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -870,7 +778,7 @@ export default function DashboardLayout({
 
       {/* Enhanced Sidebar Overlay for Mobile */}
       <AnimatePresence>
-        {sidebarOpen && (
+        {isMobile && sidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -882,5 +790,18 @@ export default function DashboardLayout({
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+// Wrap the layout with ErrorBoundary
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ErrorBoundary>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </ErrorBoundary>
   )
 }

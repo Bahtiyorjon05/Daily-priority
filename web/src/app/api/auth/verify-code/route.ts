@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { verifyCode } from '@/lib/email'
+import { sanitizeEmail } from '@/lib/sanitize'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { email, code } = body
-
-    console.log('Verify code request for email:', email, 'code:', code)
 
     if (!email || !code) {
       return NextResponse.json(
@@ -15,36 +14,47 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    // Sanitize email to match how it was stored
+    const sanitizedEmail = sanitizeEmail(email)
+
+    if (!sanitizedEmail) {
       return NextResponse.json(
         { error: 'Please enter a valid email address' },
         { status: 400 }
       )
     }
 
-    // Validate code format (should be 6 digits)
-    if (!/^\d{6}$/.test(code)) {
+    // Trim and validate code format (should be 6 digits)
+    const trimmedCode = code.trim()
+    console.log('[VERIFY-CODE] Received code:', `"${code}"`, '| Trimmed:', `"${trimmedCode}"`)
+
+    if (!/^\d{6}$/.test(trimmedCode)) {
       return NextResponse.json(
         { error: 'Invalid verification code format' },
         { status: 400 }
       )
     }
 
-    // Verify the code
-    const isValid = verifyCode(email, code)
-    console.log('Code verification result:', isValid)
-    
+    // Verify the code (use sanitized email)
+    console.log('[VERIFY-CODE] Attempting to verify code for:', sanitizedEmail)
+    const isValid = await verifyCode(sanitizedEmail, trimmedCode)
+
     if (!isValid) {
+      console.log('[VERIFY-CODE] ❌ Verification failed for:', sanitizedEmail)
       return NextResponse.json(
         { error: 'Invalid or expired verification code' },
         { status: 400 }
       )
     }
 
+    console.log('[VERIFY-CODE] ✅ Code verified successfully for:', sanitizedEmail)
+
+    // Return the sanitized email so frontend can store it correctly
     return NextResponse.json(
-      { message: 'Verification code is valid' },
+      {
+        message: 'Verification code is valid',
+        email: sanitizedEmail  // Return sanitized email
+      },
       { status: 200 }
     )
   } catch (error) {

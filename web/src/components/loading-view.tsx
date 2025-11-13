@@ -1,16 +1,20 @@
 import React from 'react'
-import { Loader2 } from 'lucide-react'
+import { LoadingSpinner } from './ui/loading-spinner'
 
 interface LoadingViewProps {
   message?: string
   className?: string
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-export function LoadingView({ message = 'Loading...', className = '' }: LoadingViewProps) {
+export function LoadingView({ 
+  message = 'Loading...', 
+  className = '',
+  size = 'lg'
+}: LoadingViewProps) {
   return (
     <div className={`flex flex-col items-center justify-center min-h-[400px] ${className}`}>
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <p className="mt-4 text-muted-foreground">{message}</p>
+      <LoadingSpinner size={size} message={message} />
     </div>
   )
 }

@@ -14,13 +14,17 @@ class ClientCache {
   get(key: string): any | null {
     const item = this.cache.get(key)
     if (!item) return null
-    
+
     if (Date.now() > item.expires) {
       this.cache.delete(key)
       return null
     }
-    
+
     return item.data
+  }
+
+  delete(key: string): boolean {
+    return this.cache.delete(key)
   }
 
   clear() {
@@ -126,7 +130,7 @@ export async function optimizedFetch(
   } = {}
 ): Promise<Response> {
   const {
-    timeout = 10000,
+    timeout = 15000, // Increased default timeout to 15 seconds for database operations
     retries = 2,
     retryDelay = 1000,
     ...fetchOptions
@@ -137,7 +141,7 @@ export async function optimizedFetch(
   for (let i = 0; i <= retries; i++) {
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeout)
+      const timeoutId = setTimeout(() => controller.abort('Request timeout'), timeout)
 
       const response = await fetch(url, {
         ...fetchOptions,
@@ -149,9 +153,17 @@ export async function optimizedFetch(
     } catch (error) {
       lastError = error as Error
       
-      if (i < retries && error instanceof Error && error.name !== 'AbortError') {
-        await new Promise(resolve => setTimeout(resolve, retryDelay * (i + 1)))
-        continue
+      // For AbortError (timeout), retry if we have retries left
+      if (i < retries && error instanceof Error) {
+        if (error.name === 'AbortError') {
+          // Timeout - wait longer before retry
+          await new Promise(resolve => setTimeout(resolve, retryDelay * (i + 2)))
+          continue
+        } else {
+          // Other errors - retry with normal delay
+          await new Promise(resolve => setTimeout(resolve, retryDelay * (i + 1)))
+          continue
+        }
       }
       
       throw error

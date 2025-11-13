@@ -38,7 +38,19 @@
       "Bash(fi)",
       "Bash(test -f \"d:\\100 great python projects\\Daily Priority\\web\\src\\components\\ui\\tabs.tsx\")",
       "Bash(test -f \"d:\\100 great python projects\\Daily Priority\\web\\src\\components\\ui\\switch.tsx\")",
-      "Bash(git add -A)"
+      "Bash(git add -A)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Daily Priority - Islamic Productivity App\n\nDaily Priority is a comprehensive Islamic productivity application that helps Muslims organize their daily tasks around prayer times and Islamic principles.\n\nFeatures:\n- Prayer times integration with notifications\n- Smart task management with Islamic productivity principles\n- Dunya & Akhirah goal tracking\n- Islamic calendar with Hijri dates\n- Gratitude journal for daily reflection\n- Progress analytics and insights\n- Focus mode with Pomodoro timer\n- Habit tracking\n- AI-powered task suggestions\n- Beautiful marketing landing page with Islamic quotes\n\nTech Stack:\n- Next.js 15 with App Router and Turbopack\n- TypeScript\n- Prisma ORM\n- NextAuth.js for authentication\n- Framer Motion for animations\n- Tailwind CSS for styling\n- Radix UI components\n\nThis platform is built as Sadaqah Jariyah for the Muslim Ummah.\n100% Free • Always Free • For the Sake of Allah\nEOF\n)\")",
+      "Bash(git remote add origin https://github.com/Bahtiyorjon05/Daily-priority.git)",
+      "Bash(git branch -M main)",
+      "Bash(git push -u origin main)",
+      "Bash(git fetch origin)",
+      "Bash(git push -u origin main --force-with-lease)",
+      "Bash(test:*)",
+      "Bash(npm run dev:web:*)",
+      "Bash(curl:*)",
+      "Bash(if [ -d \"d:\\100 great python projects\\Daily Priority\\web\\src\\components\\shared\" ])",
+      "Bash(then ls \"d:\\100 great python projects\\Daily Priority\\web\\src\\components\\shared\")",
+      "Bash(else echo \"Shared directory does not exist\")"
     ],
     "deny": [],
     "ask": []

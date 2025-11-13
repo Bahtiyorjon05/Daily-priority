@@ -42,7 +42,7 @@ export default function ProfilePictureCard({ imageUrl, uploading, onUpload, onRe
               <Label htmlFor="avatar-upload" className={"cursor-pointer " + (uploading ? 'opacity-60 pointer-events-none' : '')}>
                 <Button variant="outline" className="gap-2" disabled={uploading}>
                   <Upload className="h-4 w-4" />
-                  {uploading ? 'Uploading…' : 'Upload Photo'}
+                  {uploading ? 'Uploading...' : 'Upload Photo'}
                 </Button>
               </Label>
               {imageUrl && !uploading && (
@@ -59,4 +59,6 @@ export default function ProfilePictureCard({ imageUrl, uploading, onUpload, onRe
     </Card>
   )
 }
+
+
 

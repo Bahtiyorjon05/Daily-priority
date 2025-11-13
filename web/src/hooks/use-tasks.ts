@@ -25,7 +25,7 @@ export function useTasks() {
   // Fetch tasks
   const { data, loading: fetchLoading, error: fetchError, refetch, invalidateCache } = useDataFetcher<{ success: boolean; data: TaskApiResponse }>(
     'tasks',
-    () => fetch('/api/tasks').then(res => res.json()),
+    (signal) => fetch('/api/tasks', { signal }).then(res => res.json()),
     { ttl: 2 * 60 * 1000 } // 2 minutes cache
   )
 

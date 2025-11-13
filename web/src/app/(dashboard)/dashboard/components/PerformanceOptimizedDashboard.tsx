@@ -23,7 +23,6 @@ import {
   List,
   User,
   Settings,
-  Bell,
   Menu,
   Home,
   ChevronDown,
@@ -42,7 +41,6 @@ import OptimizedTaskCard from './OptimizedTaskCard'
 import LazyLoadedStatCard from './LazyLoadedStatCard'
 import PrayerTimesSectionEnhanced from './PrayerTimesSectionEnhanced'
 import NewTaskModalEnhanced from './NewTaskModalEnhanced'
-import AISuggestionsModalEnhanced from './AISuggestionsModalEnhanced'
 import LoadingState from './LoadingState'
 import ErrorState from './ErrorState'
 import EmptyState from './EmptyState'
@@ -125,8 +123,6 @@ function PerformanceOptimizedDashboard({ session }: { session: any }) {
   const [aiInsights, setAiInsights] = useState<any[]>([])
   const [insightsLoading, setInsightsLoading] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [notifications, setNotifications] = useState(3)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -378,12 +374,7 @@ function PerformanceOptimizedDashboard({ session }: { session: any }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <SkipToContent />
-      <KeyboardNavigation
-        onNewTask={handleNewTaskShortcut}
-        onToggleView={handleToggleViewShortcut}
-        onSearchFocus={handleSearchFocusShortcut}
-        onAiSuggest={handleAiSuggestShortcut}
-      />
+      <KeyboardNavigation />
       
       {/* Enhanced Header */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
@@ -421,20 +412,6 @@ function PerformanceOptimizedDashboard({ session }: { session: any }) {
                   aria-label="Search tasks"
                 />
               </div>
-              
-              <AccessibleButton 
-                variant="ghost" 
-                size="icon" 
-                ariaLabel="Notifications"
-                className="relative"
-              >
-                <Bell className="h-5 w-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </AccessibleButton>
               
               <div className="relative">
                 <AccessibleButton 
@@ -1110,15 +1087,6 @@ function PerformanceOptimizedDashboard({ session }: { session: any }) {
         isOpen={showNewTask}
         onClose={() => setShowNewTask(false)}
         onCreateTask={handleCreateTask}
-      />
-      
-      <AISuggestionsModalEnhanced
-        isOpen={showAiSuggestions}
-        onClose={() => setShowAiSuggestions(false)}
-        suggestions={aiSuggestions}
-        onAcceptSuggestion={handleAcceptSuggestion}
-        onAcceptAll={handleAcceptAllSuggestions}
-        onDismissSuggestion={handleDismissSuggestion}
       />
     </div>
   )

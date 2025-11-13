@@ -6,7 +6,9 @@
 // Task Hooks
 export { useTaskFiltering } from './useTaskFiltering'
 export { useTaskOperations } from './useTaskOperations'
-export { useAISuggestions } from './useAISuggestions'
+
+// @deprecated Use @/lib/location-service instead for unified location handling
+export { useUserLocation } from './useUserLocation'
 
 // Existing Hooks
 export { useTasks } from './use-tasks'

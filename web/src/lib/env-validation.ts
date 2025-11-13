@@ -107,12 +107,14 @@ export function getEnvironmentInfo() {
   }
 }
 
-// Validate environment variables on import in development
-if (process.env.NODE_ENV === 'development') {
-  try {
-    validateEnvironmentVariables()
-  } catch (error) {
-    console.error('❌ Environment validation failed:', error)
+// ALWAYS validate environment variables on import (both dev and production)
+try {
+  validateEnvironmentVariables()
+} catch (error) {
+  console.error('❌ Environment validation failed:', error)
+  // In production, log error but don't exit (let app try to start)
+  // In development, exit immediately
+  if (process.env.NODE_ENV === 'development') {
     process.exit(1)
   }
 }

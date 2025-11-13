@@ -5,6 +5,7 @@ import { User, Settings, LogOut, Shield } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 interface UserDropdownProps {
   isOpen: boolean
@@ -12,15 +13,28 @@ interface UserDropdownProps {
   session: any
 }
 
-const menuItems = [
-  { icon: User, label: 'Profile Settings', action: () => {} },
-  { icon: Settings, label: 'Preferences', action: () => {} },
-  { icon: Shield, label: 'Privacy & Security', action: () => {} }
+interface MenuItem {
+  icon: any
+  label: string
+  href: string
+}
+
+const menuItems: MenuItem[] = [
+  { icon: User, label: 'Settings', href: '/settings' },
+  { icon: Settings, label: 'Preferences', href: '/settings?tab=appearance' },
+  { icon: Shield, label: 'Security', href: '/settings?tab=security' }
 ]
 
 export default function UserDropdown({ isOpen, onClose, session }: UserDropdownProps) {
+  const router = useRouter()
+  
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
+    onClose()
+  }
+
+  const handleMenuClick = (href: string) => {
+    router.push(href)
     onClose()
   }
 
@@ -46,9 +60,6 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
                 <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                   {session?.user?.name || 'User'}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  {session?.user?.email}
-                </p>
               </div>
             </div>
           </div>
@@ -66,10 +77,7 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
                 >
                   <Button
                     variant="ghost"
-                    onClick={() => {
-                      item.action()
-                      onClose()
-                    }}
+                    onClick={() => handleMenuClick(item.href)}
                     className="w-full justify-start px-3 py-2.5 h-auto hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all group"
                   >
                     <div className="flex items-center gap-3">

@@ -37,8 +37,8 @@ export default function PrayerTimesWidget() {
       const position = await getCurrentLocation()
       const { latitude, longitude } = position.coords
 
-      // Fetch prayer times
-      const prayerTimes = await fetchPrayerTimes(latitude, longitude)
+      // Fetch prayer times with Hanafi calculation
+      const prayerTimes = await fetchPrayerTimes(latitude, longitude, undefined, 1)
 
       if (!prayerTimes) {
         throw new Error('Failed to fetch prayer times')
@@ -71,15 +71,15 @@ export default function PrayerTimesWidget() {
   }
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-b border-emerald-100 dark:border-emerald-900/30">
+    <Card className="overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-300/70 dark:shadow-slate-500/30 bg-white dark:bg-slate-800">
+      <CardHeader className="bg-slate-50 dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 shadow-sm">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
             <span className="text-emerald-900 dark:text-emerald-100">Prayer Times</span>
           </div>
           {location && (
-            <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+            <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-300">
               <MapPin className="h-3 w-3" />
               {location.city}
             </div>
@@ -98,7 +98,7 @@ export default function PrayerTimesWidget() {
               className="flex flex-col items-center justify-center py-12"
             >
               <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-3" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">Loading prayer times...</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Loading prayer times...</p>
             </motion.div>
           ) : error ? (
             <motion.div
@@ -108,8 +108,8 @@ export default function PrayerTimesWidget() {
               exit={{ opacity: 0 }}
               className="text-center py-8"
             >
-              <AlertCircle className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{error}</p>
+              <AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400 mx-auto mb-3" />
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{error}</p>
               {locationDenied && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
                   You can enable location access in your browser settings.
@@ -118,7 +118,7 @@ export default function PrayerTimesWidget() {
               <Button
                 onClick={loadPrayerTimes}
                 size="sm"
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white shadow-md hover:shadow-lg"
               >
                 Try Again
               </Button>
@@ -132,19 +132,23 @@ export default function PrayerTimesWidget() {
               className="space-y-4"
             >
               {/* Next Prayer Highlight */}
-              <div className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-5 rounded-xl shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-emerald-50">Next Prayer</p>
-                  <Navigation className="h-4 w-4 text-emerald-50" />
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold mb-1">{nextPrayer.name}</p>
-                  <p className="text-4xl font-bold font-mono mb-2">{nextPrayer.time}</p>
-                  {nextPrayer.nextPrayerIn && (
-                    <p className="text-emerald-50 text-sm">
-                      in {nextPrayer.nextPrayerIn}
-                    </p>
-                  )}
+              <div className="bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 text-white p-5 rounded-xl shadow-xl shadow-emerald-200/50 dark:shadow-emerald-500/40 ring-1 ring-emerald-400/30 dark:ring-emerald-600/60 relative overflow-hidden">
+                {/* Add subtle pattern */}
+                <div className="absolute inset-0 opacity-10" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='3' fill='white' fill-opacity='0.3'/%3E%3C/svg%3E\")", backgroundSize: "20px 20px"}}></div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-emerald-50">Next Prayer</p>
+                    <Navigation className="h-4 w-4 text-emerald-50" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold mb-1">{nextPrayer.name}</p>
+                    <p className="text-4xl font-bold font-mono mb-2">{nextPrayer.time}</p>
+                    {nextPrayer.nextPrayerIn && (
+                      <p className="text-emerald-50 text-sm">
+                        in {nextPrayer.nextPrayerIn}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -158,12 +162,12 @@ export default function PrayerTimesWidget() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className={'flex items-center justify-between p-3 rounded-lg transition-all ' +
+                      className={'flex items-center justify-between p-3 rounded-xl transition-all border ' +
                         (prayer.name === nextPrayer.name
-                          ? 'bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-200 dark:border-emerald-800'
+                          ? 'bg-emerald-50/90 dark:bg-emerald-900/40 border-2 border-emerald-300/80 dark:border-emerald-700/70 shadow-md shadow-emerald-100/50 dark:shadow-emerald-500/30'
                           : prayer.passed
-                          ? 'bg-slate-50 dark:bg-slate-800/30 opacity-60'
-                          : 'bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800/50'
+                          ? 'bg-slate-50/80 dark:bg-slate-700/60 opacity-60 border-slate-200/50 dark:border-slate-600/50'
+                          : 'bg-white/80 dark:bg-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-700/80 border-slate-200/60 dark:border-slate-600/50 hover:border-slate-300 dark:hover:border-slate-500/70 hover:shadow-md dark:hover:shadow-slate-500/30'
                         )
                       }
                     >
@@ -212,7 +216,7 @@ export default function PrayerTimesWidget() {
               {/* View All Button */}
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full border-slate-200 dark:border-slate-600/70 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-500/70"
                 onClick={() => window.location.href = '/prayers'}
               >
                 View All Prayer Times

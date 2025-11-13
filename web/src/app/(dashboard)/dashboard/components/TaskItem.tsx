@@ -4,17 +4,18 @@ import { motion } from 'framer-motion'
 import { CheckCircle2, Circle, Trash2, AlertCircle, Flag, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { TaskStatus, Priority } from '@/types/models'
 
 interface Task {
   id: string
   title: string
-  description?: string
-  status: 'TODO' | 'IN_PROGRESS' | 'COMPLETED'
-  priority: 'LOW' | 'MEDIUM' | 'HIGH'
+  description?: string | null
+  status: TaskStatus
+  priority: Priority
   urgent: boolean
   important: boolean
-  createdAt: string
-  completedAt?: string
+  createdAt: Date | string
+  completedAt?: Date | string | null
 }
 
 interface TaskItemProps {
@@ -24,13 +25,13 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
-  const isCompleted = task.status === 'COMPLETED'
+  const isCompleted = task.status === TaskStatus.COMPLETED
   
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: Priority) => {
     switch (priority) {
-      case 'HIGH': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-      case 'MEDIUM': return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
-      case 'LOW': return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+      case Priority.HIGH: return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+      case Priority.MEDIUM: return 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300'
+      case Priority.LOW: return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
       default: return 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
     }
   }

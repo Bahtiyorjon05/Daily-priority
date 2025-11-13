@@ -43,7 +43,7 @@ export default function Sidebar({
       `}
       role="complementary"
       aria-label="Primary sidebar"
-      aria-hidden={!isMobile && !isOpen}
+      aria-hidden={!isOpen}
     >
       {/* Header */}
       <div className="p-6 border-b border-slate-200/60 dark:border-slate-700/60">

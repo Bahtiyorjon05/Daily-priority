@@ -7,19 +7,35 @@ interface LogoProps {
 
 export function Logo({ className = '', showText = true }: LogoProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {/* Minimalist Icon */}
-      <div className="relative">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-          <div className="w-3 h-3 rounded-full bg-white"></div>
+    <div className={`flex items-center gap-3 ${className}`}>
+      {/* Checkmark logo - productivity symbol */}
+      <div className="relative group">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-xl shadow-emerald-500/30 dark:shadow-emerald-500/20 ring-2 ring-emerald-400/20 dark:ring-emerald-600/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="none" className="drop-shadow-md">
+            <circle cx="50" cy="50" r="42" fill="white" opacity="0.95"/>
+            <path 
+              d="M32 50 L42 60 L68 34" 
+              stroke="#10b981" 
+              strokeWidth="7" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
+        {/* Animated glow effect */}
+        <div className="absolute inset-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 blur-xl opacity-40 dark:opacity-25 animate-pulse"></div>
       </div>
 
-      {/* Text */}
+      {/* Text with enhanced gradient */}
       {showText && (
-        <span className="text-xl font-bold text-slate-900 dark:text-white">
-          Daily Priority
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent leading-tight">
+            Daily Priority
+          </span>
+          <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400 leading-tight">
+            Islamic Productivity
+          </span>
+        </div>
       )}
     </div>
   )

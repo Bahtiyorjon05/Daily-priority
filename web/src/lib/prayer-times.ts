@@ -64,67 +64,130 @@ export interface PrayerTimeResponse {
 }
 
 /**
- * Fetch prayer times from Aladhan API
+ * Save prayer times to localStorage for faster loading
+ */
+export function savePrayerTimes(
+  prayerTimes: PrayerTimes,
+  latitude: number,
+  longitude: number
+): void {
+  try {
+    const data = {
+      prayerTimes,
+      latitude,
+      longitude,
+      timestamp: Date.now(),
+      date: new Date().toDateString(),
+    }
+    localStorage.setItem('dailypriority_prayer_times', JSON.stringify(data))
+  } catch (error) {
+    console.warn('Failed to save prayer times to localStorage:', error)
+  }
+}
+
+/**
+ * Get stored prayer times from localStorage
+ */
+export function getStoredPrayerTimes(
+  latitude: number,
+  longitude: number
+): PrayerTimes | null {
+  try {
+    const stored = localStorage.getItem('dailypriority_prayer_times')
+    if (!stored) return null
+
+    const data = JSON.parse(stored)
+    const currentDate = new Date().toDateString()
+
+    // Check if cached data is for today and same location (within 50km)
+    if (
+      data.date === currentDate &&
+      data.prayerTimes &&
+      Math.abs(data.latitude - latitude) < 0.5 &&
+      Math.abs(data.longitude - longitude) < 0.5
+    ) {
+      return data.prayerTimes
+    }
+
+    return null
+  } catch (error) {
+    console.warn('Failed to retrieve stored prayer times:', error)
+    return null
+  }
+}
+
+/**
+ * Fetch prayer times from internal API route (bypasses CORS)
  */
 export async function fetchPrayerTimes(
   latitude: number,
   longitude: number,
-  date?: Date
+  date?: Date,
+  school: 0 | 1 = 0 // 0=Standard (Shafi), 1=Hanafi
 ): Promise<PrayerTimes | null> {
   try {
+    // Check cache first for today's prayer times
+    if (!date || date.toDateString() === new Date().toDateString()) {
+      const cached = getStoredPrayerTimes(latitude, longitude)
+      if (cached) {
+        console.log('Using cached prayer times')
+        return cached
+      }
+    }
+
     const targetDate = date || new Date()
     const day = targetDate.getDate()
     const month = targetDate.getMonth() + 1
     const year = targetDate.getFullYear()
 
-    const url = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${latitude}&longitude=${longitude}&method=2`
+    // Use internal API route instead of direct Aladhan API call
+    // school parameter: 0=Standard (Shafi, Maliki, Hanbali), 1=Hanafi
+    const url = `/api/prayer-times/fetch?latitude=${latitude}&longitude=${longitude}&day=${day}&month=${month}&year=${year}&school=${school}`
 
     // Add AbortController for timeout
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout
+    const timeoutId = setTimeout(() => controller.abort('Prayer times fetch timeout'), 15000) // 15 second timeout (increased)
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
       signal: controller.signal,
-      cache: 'no-cache',
     })
 
     clearTimeout(timeoutId)
 
     if (!response.ok) {
       console.error('Prayer times API error:', response.status, response.statusText)
+      const errorData = await response.json().catch(() => ({}))
+      console.error('Error details:', errorData)
       throw new Error(`Failed to fetch prayer times: ${response.status}`)
     }
 
-    const data = await response.json()
+    const result = await response.json()
 
-    if (!data || !data.data || !data.data.timings) {
-      console.error('Invalid prayer times response:', data)
+    if (!result.success || !result.data) {
+      console.error('Invalid prayer times response:', result)
       throw new Error('Invalid prayer times data structure')
     }
 
-    const timings = data.data.timings
-    const dateInfo = data.data.date
+    // Cache the prayer times for today
+    if (!date || date.toDateString() === new Date().toDateString()) {
+      savePrayerTimes(result.data, latitude, longitude)
+    }
 
-    return {
-      fajr: formatTime(timings.Fajr),
-      dhuhr: formatTime(timings.Dhuhr),
-      asr: formatTime(timings.Asr),
-      maghrib: formatTime(timings.Maghrib),
-      isha: formatTime(timings.Isha),
-      sunrise: formatTime(timings.Sunrise || '06:30'),
-      date: dateInfo.readable || 'Unknown',
-      hijriDate: dateInfo.hijri ? `${dateInfo.hijri.date} ${dateInfo.hijri.month.en} ${dateInfo.hijri.year}` : 'Unknown'
-    }
+    return result.data
   } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.warn('Prayer times fetch timed out, using fallback')
-    } else {
-      console.error('Error fetching prayer times:', error)
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        console.warn('Prayer times fetch timed out, using fallback')
+      } else {
+        console.error('Error fetching prayer times:', error.message)
+      }
     }
+
     // Return default prayer times as fallback
     return {
       fajr: '05:30',
@@ -164,42 +227,52 @@ export function getUserLocation(): Promise<{ latitude: number; longitude: number
 }
 
 /**
- * Get city and country from coordinates using reverse geocoding
+ * Get city and country from coordinates using internal API (bypasses CORS)
  */
 export async function getCityFromCoordinates(
   latitude: number,
   longitude: number
-): Promise<{ city: string; country: string }> {
-  // Always return a valid object, never null
+): Promise<{ city: string; region?: string; country: string }> {
   try {
-    // Try OpenStreetMap Nominatim first (more reliable, no API issues)
-    const osmUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
+    // Use internal geocoding API
+    const url = `/api/geocode?lat=${latitude}&lon=${longitude}`
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort('Geocoding timeout'), 10000)
 
-    const osmResponse = await fetch(osmUrl, {
+    const response = await fetch(url, {
       headers: {
-        'User-Agent': 'DailyPriorityApp/1.0',
         'Accept': 'application/json',
       },
-      signal: controller.signal
+      signal: controller.signal,
     })
 
     clearTimeout(timeoutId)
 
-    if (osmResponse.ok) {
-      const osmData = await osmResponse.json()
-      const city = osmData.address?.city || osmData.address?.town || osmData.address?.village || 'Unknown Location'
-      const country = osmData.address?.country || 'Unknown Country'
-      return { city, country }
+    if (response.ok) {
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        return {
+          city: result.data.city || 'Unknown',
+          region: result.data.region || undefined,
+          country: result.data.country || 'Unknown'
+        }
+      }
     }
   } catch (error) {
-    console.warn('Location fetch failed, using fallback:', error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Geocoding timed out')
+    } else {
+      console.warn('Geocoding failed:', error)
+    }
   }
 
-  // Always return a valid fallback
-  return { city: 'Your City', country: 'Your Country' }
+  // Fallback to coordinates
+  return {
+    city: `Location`,
+    country: `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`
+  }
 }
 
 /**
@@ -272,36 +345,54 @@ export function isTimeForPrayer(prayerTime: string, reminderMinutes: number = 10
 }
 
 /**
- * Get Qibla direction for a location
+ * Get Qibla direction for a location using internal API (bypasses CORS)
  */
 export async function getQiblaDirection(
   latitude: number,
   longitude: number
 ): Promise<number | null> {
   try {
-    const url = `https://api.aladhan.com/v1/qibla/${latitude}/${longitude}`
+    // Use internal API route
+    const url = `/api/qibla?latitude=${latitude}&longitude=${longitude}`
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort('Qibla fetch timeout'), 10000)
+
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
       },
-      cache: 'no-cache',
+      signal: controller.signal,
     })
 
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
-      throw new Error(`Failed to fetch Qibla direction: ${response.status}`)
+      console.warn('Qibla API error:', response.status)
+      return calculateQiblaDirection(latitude, longitude)
     }
 
-    const data = await response.json()
-    return data.data.direction || calculateQiblaDirection(latitude, longitude)
+    const result = await response.json()
+
+    if (result.success && result.data && typeof result.data.direction === 'number') {
+      return result.data.direction
+    }
+
+    // Fallback to calculation
+    return calculateQiblaDirection(latitude, longitude)
   } catch (error) {
-    console.error('Error fetching Qibla direction:', error)
-    // Fallback to manual calculation
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Qibla direction fetch timed out, using calculation')
+    } else {
+      console.warn('Error fetching Qibla direction:', error)
+    }
+    // Always fallback to manual calculation
     return calculateQiblaDirection(latitude, longitude)
   }
 }
 
 /**
- * Get Islamic date for today
+ * Get Islamic date for today using internal API (bypasses CORS)
  */
 export async function getHijriDate(): Promise<string | null> {
   try {
@@ -310,22 +401,27 @@ export async function getHijriDate(): Promise<string | null> {
     const month = today.getMonth() + 1
     const year = today.getFullYear()
 
-    const url = `https://api.aladhan.com/v1/gToH/${day}-${month}-${year}`
+    // Use internal API route
+    const url = `/api/hijri/convert?date=${day}-${month}-${year}`
+
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
       },
-      cache: 'no-cache',
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch Hijri date: ${response.status}`)
+      console.error('Hijri date API error:', response.status)
+      return null
     }
 
-    const data = await response.json()
-    const hijri = data.data.hijri
+    const result = await response.json()
 
-    return `${hijri.day} ${hijri.month.en} ${hijri.year} AH`
+    if (result.success && result.data && result.data.hijri) {
+      return result.data.hijri.formatted
+    }
+
+    return null
   } catch (error) {
     console.error('Error fetching Hijri date:', error)
     return null
@@ -498,4 +594,169 @@ export function formatPrayerTime(time: string, use24Hour: boolean = false): stri
   const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
 
   return (displayHours) + ':' + (minutes.toString().padStart(2, '0')) + ' ' + (period)
+}
+
+/**
+ * Get approximate location from IP address (no permission needed)
+ */
+export async function getLocationFromIP(): Promise<{
+  latitude: number
+  longitude: number
+  city: string
+  country: string
+  region?: string
+  timezone?: string
+} | null> {
+  try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort('IP location timeout'), 8000)
+
+    const response = await fetch('/api/location/ip', {
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      console.warn('IP location API failed:', response.status)
+      return null
+    }
+
+    const result = await response.json()
+
+    if (result.success && result.data) {
+      return {
+        latitude: result.data.latitude,
+        longitude: result.data.longitude,
+        city: result.data.city,
+        country: result.data.country,
+        region: result.data.region,
+        timezone: result.data.timezone
+      }
+    }
+
+    return null
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('IP location request timed out')
+    } else {
+      console.error('IP location failed:', error)
+    }
+    return null
+  }
+}
+
+/**
+ * Save location to localStorage for faster loading
+ */
+export function saveLocation(location: {
+  latitude: number
+  longitude: number
+  city: string
+  country: string
+  region?: string
+  timestamp?: number
+}): void {
+  try {
+    const data = {
+      ...location,
+      timestamp: Date.now()
+    }
+    localStorage.setItem('dailypriority_location', JSON.stringify(data))
+  } catch (error) {
+    console.warn('Failed to save location to localStorage:', error)
+  }
+}
+
+/**
+ * Get stored location from localStorage
+ */
+export function getStoredLocation(): {
+  latitude: number
+  longitude: number
+  city: string
+  country: string
+  region?: string
+  timestamp: number
+} | null {
+  try {
+    const stored = localStorage.getItem('dailypriority_location')
+    if (!stored) return null
+
+    const data = JSON.parse(stored)
+
+    // Validate data structure
+    if (
+      typeof data.latitude === 'number' &&
+      typeof data.longitude === 'number' &&
+      typeof data.city === 'string' &&
+      typeof data.country === 'string'
+    ) {
+      return data
+    }
+
+    return null
+  } catch (error) {
+    console.warn('Failed to retrieve stored location:', error)
+    return null
+  }
+}
+
+/**
+ * Check if cached location is still valid (within 7 days)
+ */
+export function isLocationValid(location: { timestamp: number } | null): boolean {
+  if (!location || !location.timestamp) return false
+
+  const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000
+  const age = Date.now() - location.timestamp
+
+  return age < sevenDaysInMs
+}
+
+/**
+ * Smart location detection with multiple fallbacks
+ * 1. Check localStorage cache (instant)
+ * 2. Try IP-based location (automatic, no permission)
+ * 3. Return null if all fail (caller can request GPS)
+ */
+export async function getSmartLocation(): Promise<{
+  latitude: number
+  longitude: number
+  city: string
+  country: string
+  region?: string
+  source: 'cache' | 'ip' | 'gps'
+} | null> {
+  // Try cached location first
+  const cached = getStoredLocation()
+  if (cached && isLocationValid(cached)) {
+    console.log('Using cached location:', cached.city, cached.country)
+    return {
+      latitude: cached.latitude,
+      longitude: cached.longitude,
+      city: cached.city,
+      country: cached.country,
+      region: cached.region,
+      source: 'cache'
+    }
+  }
+
+  // Try IP-based location
+  const ipLocation = await getLocationFromIP()
+  if (ipLocation) {
+    console.log('Using IP-based location:', ipLocation.city, ipLocation.country)
+
+    // Cache for future use
+    saveLocation(ipLocation)
+
+    return {
+      ...ipLocation,
+      source: 'ip'
+    }
+  }
+
+  // All automatic methods failed
+  console.warn('Automatic location detection failed')
+  return null
 }

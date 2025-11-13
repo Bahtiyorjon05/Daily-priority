@@ -25,11 +25,19 @@ export function usePrayerTimes() {
       setError(null)
       setLocationDenied(false)
 
-      // Get user's current location
+      // CRITICAL: Prayer times MUST use CURRENT location
+      // User might be traveling, moved, or in different city
+      // Prayer times are location-specific and time-sensitive!
+      
+      // ALWAYS get user's CURRENT location from browser
       const position = await getCurrentLocation()
       const { latitude, longitude } = position.coords
 
-      // Fetch prayer times
+      // Get location name from coordinates
+      const locationName = await getCityFromCoordinates(latitude, longitude)
+      setLocation(locationName)
+
+      // Fetch prayer times using CURRENT coordinates
       const prayerTimes = await fetchPrayerTimes(latitude, longitude)
 
       if (!prayerTimes) {
@@ -44,18 +52,18 @@ export function usePrayerTimes() {
       const next = getNextPrayer(enhancedPrayers)
       setNextPrayer(next)
 
-      // Get location info (always returns a value, never null)
-      const locationInfo = await getCityFromCoordinates(latitude, longitude)
-      setLocation(locationInfo)
-
     } catch (err: any) {
       console.error('Error loading prayer times:', err)
 
-      if (err.message.includes('denied')) {
+      if (err.message.includes('denied') || err.code === 1) {
         setLocationDenied(true)
-        setError('Location access denied. Please enable location services to see prayer times.')
+        setError('Location access denied. Please enable location services to see accurate prayer times for your current location.')
+      } else if (err.message.includes('unavailable') || err.code === 2) {
+        setError('Location unavailable. Please check your device settings.')
+      } else if (err.message.includes('timeout') || err.code === 3) {
+        setError('Location request timed out. Please try again.')
       } else {
-        setError('Failed to load prayer times. Please try again.')
+        setError('Failed to load prayer times. Please enable location services.')
       }
     } finally {
       setLoading(false)

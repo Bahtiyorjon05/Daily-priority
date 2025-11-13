@@ -53,11 +53,6 @@ export function useTaskFiltering({ tasks, filters, sortOptions }: UseTaskFilteri
         return false
       }
 
-      // AI Suggested filter
-      if (filters.aiSuggested !== undefined && task.aiSuggested !== filters.aiSuggested) {
-        return false
-      }
-
       return true
     })
 
@@ -100,7 +95,6 @@ export function useTaskFiltering({ tasks, filters, sortOptions }: UseTaskFilteri
       completed: tasks.filter(t => t.status === 'COMPLETED').length,
       urgent: tasks.filter(t => t.urgent).length,
       important: tasks.filter(t => t.important).length,
-      aiSuggested: tasks.filter(t => t.aiSuggested).length,
     }
   }, [tasks])
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { PerformanceMonitor } from '@/lib/performance-monitor'
 
 interface UseDataFetcherOptions {
@@ -21,7 +21,7 @@ const cache = new Map<string, CacheItem<any>>()
 
 export function useDataFetcher<T>(
   key: string,
-  fetcher: () => Promise<T>,
+  fetcher: (signal?: AbortSignal) => Promise<T>,
   options: UseDataFetcherOptions = {}
 ) {
   const {
@@ -35,7 +35,12 @@ export function useDataFetcher<T>(
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
+  const abortControllerRef = useRef<AbortController | null>(null)
+
   const fetchData = useCallback(async () => {
+    abortControllerRef.current?.abort('New fetch started')
+    const controller = new AbortController()
+    abortControllerRef.current = controller
     const stopMonitoring = PerformanceMonitor.start(`fetch-${key}`)
     
     try {
@@ -59,7 +64,7 @@ export function useDataFetcher<T>(
       // Retry logic
       for (let attempt = 0; attempt <= retryAttempts; attempt++) {
         try {
-          const result = await fetcher()
+          const result = await fetcher(controller.signal)
           
           // Cache the result
           cache.set(cacheKey, {
@@ -67,8 +72,10 @@ export function useDataFetcher<T>(
             timestamp: Date.now()
           })
           
-          setData(result)
-          setLoading(false)
+          if (!controller.signal.aborted) {
+            setData(result)
+            setLoading(false)
+          }
           stopMonitoring()
           return
         } catch (err) {
@@ -91,6 +98,12 @@ export function useDataFetcher<T>(
         }
       }
     } catch (err) {
+      // Ignore abort errors (component unmounted or request cancelled)
+      if (err instanceof Error && err.name === 'AbortError') {
+        stopMonitoring()
+        return
+      }
+      
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch data'
       setError(errorMessage)
       setLoading(false)
@@ -104,6 +117,11 @@ export function useDataFetcher<T>(
 
   useEffect(() => {
     fetchData()
+    
+    // Cleanup: abort pending requests when component unmounts or dependencies change
+    return () => {
+      abortControllerRef.current?.abort('Component unmounted')
+    }
   }, [fetchData])
 
   return { data, loading, error, refetch: fetchData, invalidateCache }

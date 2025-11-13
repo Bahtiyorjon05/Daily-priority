@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import {
+  sanitizeText,
+  sanitizeDate,
+  sanitizeEnum,
+  sanitizeString,
+} from '@/lib/sanitize'
 
 export async function GET(request: Request) {
   try {
@@ -20,18 +26,15 @@ export async function GET(request: Request) {
       },
     })
 
-    // Transform to frontend format
-    const transformedEntries = entries.map(entry => ({
-      id: entry.id,
-      date: entry.date.toISOString().split('T')[0],
-      gratitude: [entry.gratitude1, entry.gratitude2, entry.gratitude3].filter(Boolean),
-      reflection: entry.reflection || '',
-      mood: entry.mood || 'good',
-      achievements: [], // Legacy field - can be added to schema if needed
-      createdAt: entry.date.toISOString(),
+    // Serialize dates to avoid Next.js serialization issues
+    const serializedEntries = entries.map(entry => ({
+      ...entry,
+      date: entry.date.toISOString(),
+      createdAt: entry.createdAt.toISOString(),
+      updatedAt: entry.updatedAt.toISOString(),
     }))
 
-    return NextResponse.json(transformedEntries)
+    return NextResponse.json({ entries: serializedEntries })
   } catch (error: any) {
     console.error('Error fetching journal entries:', error)
     return NextResponse.json(
@@ -50,29 +53,66 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { gratitude, reflection, mood, date } = body
+    const {
+      gratitude1,
+      gratitude2,
+      gratitude3,
+      goodDeeds,
+      lessons,
+      duas,
+      reflection,
+      mood,
+      date,
+      hijriDate,
+    } = body
+
+    // Sanitize all text inputs
+    const sanitizedGratitude1 = sanitizeText(gratitude1)
+    const sanitizedGratitude2 = sanitizeText(gratitude2)
+    const sanitizedGratitude3 = sanitizeText(gratitude3)
+    const sanitizedGoodDeeds = sanitizeText(goodDeeds)
+    const sanitizedLessons = sanitizeText(lessons)
+    const sanitizedDuas = sanitizeText(duas)
+    const sanitizedReflection = sanitizeText(reflection)
+    const sanitizedHijriDate = sanitizeString(hijriDate)
+
+    // Sanitize mood enum - must match frontend MOODS array
+    const sanitizedMood = sanitizeEnum(mood, [
+      'happy',
+      'grateful',
+      'peaceful',
+      'neutral',
+      'sad',
+    ] as const)
+
+    // Sanitize date
+    const sanitizedDate = sanitizeDate(date) || new Date()
 
     const entry = await prisma.journalEntry.create({
       data: {
         userId: session.user.id,
-        date: date ? new Date(date) : new Date(),
-        gratitude1: gratitude?.[0] || null,
-        gratitude2: gratitude?.[1] || null,
-        gratitude3: gratitude?.[2] || null,
-        reflection: reflection || null,
-        mood: mood || 'good',
+        date: sanitizedDate,
+        gratitude1: sanitizedGratitude1 || null,
+        gratitude2: sanitizedGratitude2 || null,
+        gratitude3: sanitizedGratitude3 || null,
+        goodDeeds: sanitizedGoodDeeds || null,
+        lessons: sanitizedLessons || null,
+        duas: sanitizedDuas || null,
+        reflection: sanitizedReflection || null,
+        mood: sanitizedMood || 'neutral',
+        hijriDate: sanitizedHijriDate || null,
       },
     })
 
-    return NextResponse.json({
-      id: entry.id,
-      date: entry.date.toISOString().split('T')[0],
-      gratitude: [entry.gratitude1, entry.gratitude2, entry.gratitude3].filter(Boolean),
-      reflection: entry.reflection || '',
-      mood: entry.mood || 'good',
-      achievements: [],
-      createdAt: entry.date.toISOString(),
-    }, { status: 201 })
+    // Serialize dates
+    const serializedEntry = {
+      ...entry,
+      date: entry.date.toISOString(),
+      createdAt: entry.createdAt.toISOString(),
+      updatedAt: entry.updatedAt.toISOString(),
+    }
+
+    return NextResponse.json({ entry: serializedEntry }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating journal entry:', error)
     return NextResponse.json(

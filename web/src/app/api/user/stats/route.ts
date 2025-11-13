@@ -42,9 +42,22 @@ export async function GET() {
       }
     })
 
-    // Calculate task statistics
-    const totalTasks = tasks.length
-    const completedTasks = tasks.filter(task => task.status === 'COMPLETED').length
+    // Calculate today's date range (server time - will be close to user's timezone)
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(now)
+    todayEnd.setHours(23, 59, 59, 999)
+
+    // Filter tasks created today for TODAY's statistics
+    const todayTasks = tasks.filter(task => {
+      const createdDate = new Date(task.createdAt)
+      return createdDate >= todayStart && createdDate <= todayEnd
+    })
+
+    // Calculate task statistics for TODAY only (matching dashboard display)
+    const totalTasks = todayTasks.length
+    const completedTasks = todayTasks.filter(task => task.status === 'COMPLETED').length
 
     // Calculate weekly goals
     const weekStart = new Date()
@@ -59,7 +72,7 @@ export async function GET() {
       goal.createdAt >= weekStart && goal.completed === true
     ).length
 
-    // Calculate streak (simplified - days with completed tasks)
+    // Calculate streak (simplified - days with completed tasks from ALL historical tasks)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     let streak = 0
@@ -67,9 +80,11 @@ export async function GET() {
 
     for (let i = 0; i < 30; i++) { // Check last 30 days max
       const dayStart = new Date(currentDate)
+      dayStart.setHours(0, 0, 0, 0)
       const dayEnd = new Date(currentDate)
       dayEnd.setHours(23, 59, 59, 999)
 
+      // Use ALL tasks (not just today's) for streak calculation
       const dayTasks = tasks.filter(task => 
         task.completedAt && 
         new Date(task.completedAt) >= dayStart && 
@@ -89,24 +104,6 @@ export async function GET() {
     const streakBonus = Math.min(streak * 2, 20) // Max 20 points from streak
     const productivityScore = Math.min(Math.round(completionRate + streakBonus), 100)
 
-    // Get user achievements
-    let achievements: Array<{
-      id: string
-      title: string
-      description: string | null
-      icon: string | null
-      createdAt: Date
-    }> = []
-
-    const prismaAny = prisma as any
-    if (typeof prismaAny?.achievement?.findMany === 'function') {
-      achievements = await prismaAny.achievement.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' },
-        take: 3
-      })
-    }
-
     const response = {
       streak,
       productivityScore,
@@ -114,12 +111,11 @@ export async function GET() {
       totalTasks,
       weeklyGoals,
       completedGoals: completedWeeklyGoals,
-      completionRate: Math.round(completionRate),
-      achievements
+      completionRate: Math.round(completionRate)
     }
 
-    // Cache the results for 2 minutes
-    APICache.set(cacheKey, response, 2 * 60 * 1000)
+    // Cache the results for only 10 seconds for real-time feel
+    APICache.set(cacheKey, response, 10 * 1000)
 
     return apiResponse.success(response)
   } catch (error: any) {

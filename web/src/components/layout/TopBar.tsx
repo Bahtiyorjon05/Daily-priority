@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu, Search, Bell, Sun, Moon, Monitor } from 'lucide-react'
+import { Menu, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useTheme } from '@/components/theme-provider'
-import { SearchModal, NotificationsDropdown, UserDropdown } from './index'
+import { UserDropdown } from './index'
 
 interface TopBarProps {
   session: any
@@ -15,8 +15,6 @@ interface TopBarProps {
 
 export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarProps) {
   const { theme, systemTheme, setTheme } = useTheme()
-  const [showSearch, setShowSearch] = useState(false)
-  const [showNotifications, setShowNotifications] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
 
   return (
@@ -33,31 +31,10 @@ export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarPro
             >
               <Menu className="h-5 w-5" />
             </Button>
-
-            {/* Search - Hidden on mobile, shown on larger screens */}
-            <div className="hidden md:block relative">
-              <Button
-                variant="ghost"
-                onClick={() => setShowSearch(true)}
-                className="w-80 justify-start bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl"
-              >
-                <Search className="h-4 w-4 mr-3 text-slate-500" />
-                <span className="text-slate-500">Search anything...</span>
-              </Button>
-            </div>
           </div>
 
           {/* Right Section */}
           <div className="flex items-center gap-3">
-            {/* Mobile Search */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowSearch(true)}
-              className="md:hidden h-10 w-10 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
 
             {/* Theme Toggle: cycle light → dark → system */}
             <Button
@@ -79,28 +56,6 @@ export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarPro
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-
-            {/* Notifications */}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="h-10 w-10 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 relative"
-              >
-                <Bell className="h-5 w-5" />
-                {/* Hide notification badge for new users - in production, fetch real notification count */}
-                {false && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    0
-                  </span>
-                )}
-              </Button>
-              <NotificationsDropdown
-                isOpen={showNotifications}
-                onClose={() => setShowNotifications(false)}
-              />
-            </div>
 
             {/* User Avatar */}
             <div className="relative">
@@ -125,12 +80,6 @@ export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarPro
           </div>
         </div>
       </header>
-
-      {/* Search Modal */}
-      <SearchModal
-        isOpen={showSearch}
-        onClose={() => setShowSearch(false)}
-      />
     </>
   )
 }

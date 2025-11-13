@@ -29,8 +29,6 @@ export type {
   ErrorStateProps,
   LineChartProps,
   BarChartProps,
-  AISuggestionsProps,
-  AIChatProps,
   FormFieldProps,
   ButtonProps,
   DropdownProps,

@@ -17,36 +17,54 @@ export function Navbar() {
   // Get the resolved theme (handle 'system' theme)
   const resolvedTheme = theme === 'system' ? systemTheme : theme
 
+  // Smooth scrolling function
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    const targetElement = document.getElementById(targetId)
+    if (targetElement) {
+      window.scrollTo({
+        top: targetElement.offsetTop - 80, // Adjust for navbar height
+        behavior: 'smooth'
+      })
+    }
+    // Close mobile menu if open
+    setMobileMenuOpen(false)
+  }
+
   if (!mounted) return null
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl border-b border-slate-200/50 dark:border-[#404040]/50 shadow-sm dark:shadow-emerald-500/5">
-      <div className="container mx-auto px-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/95 via-white/90 to-emerald-50/30 dark:from-[#121212]/95 dark:via-[#121212]/90 dark:to-emerald-950/20 backdrop-blur-xl border-b border-slate-200/50 dark:border-[#404040]/50 shadow-sm dark:shadow-emerald-500/5">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex-shrink-0">
-            <Logo />
+            <Logo className="hover:scale-105 transition-transform duration-300" />
           </Link>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-1 lg:gap-2">
             <a
               href="#features"
-              className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+              onClick={(e) => scrollToSection(e, 'features')}
+              className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-[#1C1C1C]/50 group relative overflow-hidden"
             >
-              Features
+              <span className="relative z-10">Features</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </a>
             <a
               href="#contact"
-              className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+              onClick={(e) => scrollToSection(e, 'contact')}
+              className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-[#1C1C1C]/50 group relative overflow-hidden"
             >
-              Contact
+              <span className="relative z-10">Contact</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </a>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Awesome Theme Toggle Button */}
             <button
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="relative group h-10 w-10 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-slate-700 dark:to-slate-800 hover:from-emerald-200 hover:to-teal-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center overflow-hidden"
+              className="relative group h-9 w-9 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-slate-700 dark:to-slate-800 hover:from-emerald-200 hover:to-teal-200 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 flex items-center justify-center overflow-hidden border border-emerald-200/50 dark:border-slate-600/50"
               aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
               title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
             >
@@ -54,11 +72,11 @@ export function Navbar() {
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/10 dark:to-teal-500/10 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               {/* Icons with smooth rotation animation */}
-              <div className="relative w-5 h-5">
-                <Sun className={`h-5 w-5 text-amber-600 dark:text-amber-400 absolute inset-0 transition-all duration-500 ease-in-out ${
+              <div className="relative w-4 h-4">
+                <Sun className={`h-4 w-4 text-amber-600 dark:text-amber-400 absolute inset-0 transition-all duration-500 ease-in-out ${
                   resolvedTheme === 'dark' ? 'rotate-0 scale-100 opacity-100' : 'rotate-180 scale-0 opacity-0'
                 }`} />
-                <Moon className={`h-5 w-5 text-slate-700 dark:text-slate-300 absolute inset-0 transition-all duration-500 ease-in-out ${
+                <Moon className={`h-4 w-4 text-slate-700 dark:text-slate-300 absolute inset-0 transition-all duration-500 ease-in-out ${
                   resolvedTheme === 'dark' ? '-rotate-180 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'
                 }`} />
               </div>
@@ -66,11 +84,20 @@ export function Navbar() {
 
             <div className="hidden md:flex items-center gap-2">
               <Link href="/signin">
-                <Button variant="ghost" className="rounded-md hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-colors duration-200">Sign In</Button>
+                <Button 
+                  variant="ghost" 
+                  className="relative rounded-lg hover:bg-emerald-100 dark:hover:bg-[#1C1C1C] transition-all duration-200 h-9 px-3 text-sm font-medium group overflow-hidden border border-emerald-200/50 dark:border-emerald-800/50"
+                >
+                  <span className="relative z-10 text-emerald-700 dark:text-emerald-300 font-semibold">Sign In</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 dark:from-emerald-400/10 dark:to-emerald-400/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </Button>
               </Link>
               <Link href="/signup">
-                <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-md text-white shadow-md hover:shadow-lg transition-all duration-200">
-                  Start Free
+                <Button 
+                  className="relative bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg text-slate-900 dark:text-white shadow-lg shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-200 h-9 px-4 text-sm font-semibold group overflow-hidden transform hover:-translate-y-0.5 hover:scale-105"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10">Get Started</span>
                 </Button>
               </Link>
             </div>
@@ -78,7 +105,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden rounded-md"
+              className="md:hidden rounded-lg h-9 w-9"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -90,28 +117,41 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-[#404040] bg-white/98 dark:bg-[#121212]/98 backdrop-blur-xl">
+        <div className="md:hidden border-t border-slate-200 dark:border-[#404040] bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl">
           <div className="container mx-auto px-4 py-3 space-y-1">
             <a
               href="#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-base font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 rounded-md hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-colors duration-200"
+              onClick={(e) => scrollToSection(e, 'features')}
+              className="block px-3 py-2.5 text-base font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-all duration-300 group relative overflow-hidden"
             >
-              Features
+              <span className="relative z-10">Features</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </a>
             <a
               href="#contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-base font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 rounded-md hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-colors duration-200"
+              onClick={(e) => scrollToSection(e, 'contact')}
+              className="block px-3 py-2.5 text-base font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-all duration-300 group relative overflow-hidden"
             >
-              Contact
+              <span className="relative z-10">Contact</span>
+              <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </a>
             <div className="pt-2 border-t border-slate-200 dark:border-[#404040] space-y-2">
               <Link href="/signin">
-                <Button variant="outline" className="w-full rounded-md border-slate-300 dark:border-[#404040] hover:bg-emerald-50 dark:hover:bg-[#1C1C1C] transition-colors duration-200">Sign In</Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full rounded-lg border-emerald-300 dark:border-emerald-700 hover:bg-emerald-100 dark:hover:bg-[#1C1C1C] transition-all duration-200 h-9 group relative overflow-hidden font-semibold"
+                >
+                  <span className="relative z-10 text-emerald-700 dark:text-emerald-300">Sign In</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 dark:from-emerald-400/10 dark:to-emerald-400/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                </Button>
               </Link>
               <Link href="/signup">
-                <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-md text-white shadow-md transition-all duration-200">Start Free</Button>
+                <Button 
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg text-slate-900 dark:text-white shadow-lg shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-200 h-9 group relative overflow-hidden font-semibold transform hover:-translate-y-0.5 hover:scale-105"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10">Get Started</span>
+                </Button>
               </Link>
             </div>
           </div>

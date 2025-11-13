@@ -3,11 +3,12 @@ import bcrypt from 'bcryptjs'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sanitizeEmail } from '@/lib/sanitize'
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     // If user is already signed in, we can set password for their account
     if (session?.user?.email) {
       const body = await request.json()
@@ -20,12 +21,21 @@ export async function POST(request: Request) {
         )
       }
 
+      // Sanitize email to ensure it matches database format
+      const sanitizedEmail = sanitizeEmail(session.user.email)
+      if (!sanitizedEmail) {
+        return NextResponse.json(
+          { error: 'Invalid email address' },
+          { status: 400 }
+        )
+      }
+
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 12)
 
-      // Update user with password
+      // Update user with password (use sanitized email)
       const user = await prisma.user.update({
-        where: { email: session.user.email },
+        where: { email: sanitizedEmail },
         data: {
           password: hashedPassword
         }
@@ -55,9 +65,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // Sanitize email to match database format
+    const sanitizedEmail = sanitizeEmail(email)
+    if (!sanitizedEmail) {
+      return NextResponse.json(
+        { error: 'Invalid email address' },
+        { status: 400 }
+      )
+    }
+
     // Check if user exists and has no password (Google signup)
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: sanitizedEmail }
     })
 
     if (!existingUser) {
@@ -77,9 +96,9 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Update user with password
+    // Update user with password (use sanitized email)
     const user = await prisma.user.update({
-      where: { email },
+      where: { email: sanitizedEmail },
       data: {
         password: hashedPassword
       }

@@ -103,13 +103,13 @@ export default function QuickActionsPanel() {
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
               <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                {stats?.tasksCompleted || 0}
+                {stats?.completedTasks || 0}
               </p>
               <p className="text-xs text-emerald-700 dark:text-emerald-500">Completed</p>
             </div>
-            <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {stats ? (stats.totalTasks - stats.tasksCompleted) : 0}
+            <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                {stats ? (stats.totalTasks - stats.completedTasks) : 0}
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-500">Pending</p>
             </div>

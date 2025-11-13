@@ -1,33 +1,41 @@
 import nodemailer from 'nodemailer'
+import crypto from 'crypto'
+import { prisma } from './prisma'
 
-// In-memory storage for verification codes (in production, use a database)
-const verificationCodes = new Map<string, { code: string; expires: number }>()
-const verifiedCodes = new Map<string, { expires: number }>() // Store verified codes temporarily
+// Using database storage for verification codes (persists across server restarts)
 
 // Create a transporter object using the default SMTP transport
 const createTransporter = () => {
-  // For localhost development, we'll use Ethereal.email to simulate email sending
-  // In production, you would use your actual SMTP credentials
+  // Use Gmail SMTP if configured, otherwise fall back to Ethereal for testing
+  const useGmail = process.env.SMTP_USER && process.env.SMTP_PASS
   
-  // Check if we're in production or development
-  if (process.env.NODE_ENV === 'production') {
-    // Production SMTP configuration
+  const isDev = process.env.NODE_ENV !== 'production'
+
+  if (useGmail) {
+    if (isDev) {
+      console.log('Using Gmail SMTP transport')
+    }
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
       auth: {
-        user: process.env.SMTP_USER || 'support@dailypriority.app',
-        pass: process.env.SMTP_PASS || 'your-app-password',
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
+      tls: {
+        rejectUnauthorized: false // Accept self-signed certificates
+      }
     })
   } else {
-    // Development configuration using Ethereal.email
-    // This is for testing purposes only
+    // Development configuration using Ethereal.email for testing only
+    if (isDev) {
+      console.log('Using Ethereal SMTP (test mode)')
+    }
     return nodemailer.createTransport({
       host: 'smtp.ethereal.email',
       port: 587,
-      secure: false, // true for 465, false for other ports
+      secure: false,
       auth: {
         user: process.env.ETHEREAL_USER || 'your-ethereal-user@ethereal.email',
         pass: process.env.ETHEREAL_PASS || 'your-ethereal-password',
@@ -38,79 +46,135 @@ const createTransporter = () => {
 
 // Generate a random 6-digit verification code
 export const generateVerificationCode = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return crypto.randomInt(0, 1_000_000).toString().padStart(6, '0')
 }
 
 // Store verification code with expiration (10 minutes)
-export const storeVerificationCode = (email: string, code: string): void => {
-  const expires = Date.now() + 10 * 60 * 1000 // 10 minutes from now
-  verificationCodes.set(email, { code, expires })
-  console.log('Verification code ' + (code) + ' stored for ' + (email) + ', expires at ' + (new Date(expires).toISOString()))
+export const storeVerificationCode = async (email: string, code: string): Promise<void> => {
+  const expires = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+  const trimmedCode = code.trim() // Ensure no whitespace
+
+  // Delete any existing codes for this email
+  await prisma.verificationToken.deleteMany({
+    where: {
+      identifier: `reset:${email}` // prefix to identify password reset codes
+    }
+  })
+
+  // Store new code in database
+  await prisma.verificationToken.create({
+    data: {
+      identifier: `reset:${email}`,
+      token: trimmedCode,
+      expires
+    }
+  })
+
+  console.log('[EMAIL] 📝 Stored verification code in DB:', trimmedCode, 'for:', email, '| Expires:', expires.toISOString())
 }
 
 // Mark code as verified with expiration (10 minutes)
-export const markCodeAsVerified = (email: string): void => {
-  const expires = Date.now() + 10 * 60 * 1000 // 10 minutes from now
-  verifiedCodes.set(email, { expires })
-  
-  // Also remove the original code since it's been verified
-  verificationCodes.delete(email)
-  console.log('Code marked as verified for ' + (email) + ', expires at ' + (new Date(expires).toISOString()))
+export const markCodeAsVerified = async (email: string): Promise<void> => {
+  const expires = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+
+  // Delete the original reset code
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: `reset:${email}` }
+  })
+
+  // Delete any existing verified tokens for this email to avoid unique constraint error
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: `verified:${email}` }
+  })
+
+  // Store verified flag with unique token (email + timestamp for uniqueness)
+  const uniqueToken = `VERIFIED_${email}_${Date.now()}`
+  await prisma.verificationToken.create({
+    data: {
+      identifier: `verified:${email}`, // prefix to identify verified codes
+      token: uniqueToken, // Unique token to avoid DB constraint violation
+      expires
+    }
+  })
+
+  console.log('[EMAIL] ✅ Marked code as verified in DB for:', email)
 }
 
 // Check if code has been verified
-export const isCodeVerified = (email: string): boolean => {
-  const stored = verifiedCodes.get(email)
-  
+export const isCodeVerified = async (email: string): Promise<boolean> => {
+  const stored = await prisma.verificationToken.findFirst({
+    where: {
+      identifier: `verified:${email}`,
+      expires: { gt: new Date() } // Not expired
+    }
+  })
+
   if (!stored) {
-    console.log('No verified code found for ' + (email))
+    console.log('[EMAIL] ❌ No verified code found for:', email)
     return false
   }
-  
-  // Check if verification is expired
-  if (Date.now() > stored.expires) {
-    verifiedCodes.delete(email)
-    console.log('Verified code expired for ' + (email))
-    return false
-  }
-  
-  console.log('Verified code is valid for ' + (email))
+
+  console.log('[EMAIL] ✅ Verified code valid for:', email)
   return true
 }
 
+// Clear verification after password reset (consume the verification)
+export const clearVerification = async (email: string): Promise<void> => {
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: `verified:${email}` }
+  })
+  console.log('[EMAIL] 🗑️ Cleared verification for:', email)
+}
+
 // Verify code
-export const verifyCode = (email: string, code: string): boolean => {
-  const stored = verificationCodes.get(email)
-  
+export const verifyCode = async (email: string, code: string): Promise<boolean> => {
+  const trimmedCode = code.trim() // Ensure no whitespace
+
+  console.log('[EMAIL] 🔍 Verifying code for:', email)
+  console.log('[EMAIL] 🔍 Provided code:', `"${trimmedCode}"`, '| Length:', trimmedCode.length)
+
+  // Fetch from database
+  const stored = await prisma.verificationToken.findFirst({
+    where: {
+      identifier: `reset:${email}`,
+      expires: { gt: new Date() } // Not expired
+    }
+  })
+
   if (!stored) {
-    console.log('No verification code found for ' + (email))
+    console.log('[EMAIL] ❌ No verification code found in DB for:', email)
+    // Show all reset codes in DB for debugging
+    const allCodes = await prisma.verificationToken.findMany({
+      where: { identifier: { startsWith: 'reset:' } },
+      select: { identifier: true, token: true, expires: true }
+    })
+    console.log('[EMAIL] 📋 All reset codes in DB:', allCodes)
     return false
   }
-  
-  // Check if code is expired
-  if (Date.now() > stored.expires) {
-    verificationCodes.delete(email)
-    console.log('Verification code expired for ' + (email))
-    return false
-  }
-  
+
+  console.log('[EMAIL] 🔍 Stored code:', `"${stored.token}"`, '| Length:', stored.token.length)
+  console.log('[EMAIL] 🔍 Expiration:', stored.expires.toISOString(), '| Now:', new Date().toISOString())
+
   // Check if code matches
-  if (stored.code !== code) {
-    console.log('Verification code mismatch for ' + (email) + '. Expected: ' + (stored.code) + ', Got: ' + (code))
+  if (stored.token !== trimmedCode) {
+    console.log('[EMAIL] ❌ Verification code mismatch!')
+    console.log('[EMAIL] ❌ Expected:', `"${stored.token}"`, '(type:', typeof stored.token, ')')
+    console.log('[EMAIL] ❌ Provided:', `"${trimmedCode}"`, '(type:', typeof trimmedCode, ')')
     return false
   }
-  
+
   // Code is valid, mark it as verified and remove original
-  console.log('Verification code valid for ' + (email) + ', marking as verified')
-  markCodeAsVerified(email)
+  console.log('[EMAIL] ✅ Verification code valid for:', email)
+  await markCodeAsVerified(email)
   return true
 }
 
 // Send verification email
 export const sendVerificationEmail = async (email: string, code: string): Promise<boolean> => {
   try {
+    console.log('[EMAIL] 📧 Preparing to send verification email to:', email, '| Code:', code)
     const transporter = createTransporter()
-    
+
     const mailOptions = {
       from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
       to: email,
@@ -180,7 +244,7 @@ export const sendVerificationEmail = async (email: string, code: string): Promis
 export const sendPasswordResetEmail = async (email: string): Promise<boolean> => {
   try {
     const transporter = createTransporter()
-    
+
     const mailOptions = {
       from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
       to: email,
@@ -247,5 +311,270 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
   } catch (error) {
     console.error('Error sending password reset email:', error)
     return false
+  }
+}
+
+// Send contact form email
+export const sendContactEmail = async (data: {
+  name: string
+  email: string
+  message: string
+}): Promise<boolean> => {
+  try {
+    const transporter = createTransporter()
+
+    // Email to admin/support team
+    const adminMailOptions = {
+      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      to: process.env.CONTACT_EMAIL || 'dailypriorityapp@gmail.com',
+      replyTo: data.email,
+      subject: `New Contact Form Submission from ${data.name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
+            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">New Contact Form Submission</p>
+          </div>
+
+          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #374151; margin-top: 0;">Contact Details</h2>
+
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="margin: 10px 0;"><strong style="color: #374151;">Name:</strong> <span style="color: #6b7280;">${data.name}</span></p>
+              <p style="margin: 10px 0;"><strong style="color: #374151;">Email:</strong> <span style="color: #6b7280;">${data.email}</span></p>
+            </div>
+
+            <h3 style="color: #374151; margin-top: 20px;">Message</h3>
+            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin: 15px 0;">
+              <p style="color: #374151; line-height: 1.6; margin: 0; white-space: pre-wrap;">${data.message}</p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
+                This email was sent from the Daily Priority contact form.
+                You can reply directly to this email to respond to ${data.name}.
+              </p>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+            <p>© 2025 Daily Priority. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    }
+
+    // Confirmation email to user
+    const userMailOptions = {
+      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      to: data.email,
+      subject: 'We received your message - Daily Priority',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
+            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">Thank You for Contacting Us</p>
+          </div>
+
+          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #374151; margin-top: 0;">Assalamu Alaikum, ${data.name}</h2>
+
+            <p style="color: #6b7280; line-height: 1.6;">
+              Thank you for reaching out to Daily Priority. We have received your message and our team will get back to you as soon as possible, typically within 24-48 hours.
+            </p>
+
+            <p style="color: #6b7280; line-height: 1.6;">
+              In the meantime, feel free to:
+            </p>
+
+            <ul style="color: #6b7280; line-height: 1.6; padding-left: 20px;">
+              <li>Explore our <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}" style="color: #10b981; text-decoration: none;">productivity features</a></li>
+              <li>Read our documentation and guides</li>
+              <li>Join our community of Muslim productivity enthusiasts</li>
+            </ul>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}"
+                 style="display: inline-block; background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Visit Daily Priority
+              </a>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
+                If you have any urgent concerns, please reply to this email directly.
+              </p>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+            <p>© 2025 Daily Priority. All rights reserved.</p>
+            <p>Made with love for the Muslim Ummah</p>
+          </div>
+        </div>
+      `,
+    }
+
+    // Send both emails
+    console.log('Attempting to send contact emails...')
+    const adminInfo = await transporter.sendMail(adminMailOptions)
+    console.log('✅ Contact email sent to admin: %s', adminInfo.messageId)
+
+    const userInfo = await transporter.sendMail(userMailOptions)
+    console.log('✅ Confirmation email sent to user: %s', userInfo.messageId)
+
+    // For Ethereal.email, you can preview the emails
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Admin email preview URL: %s', nodemailer.getTestMessageUrl(adminInfo))
+      console.log('User email preview URL: %s', nodemailer.getTestMessageUrl(userInfo))
+    }
+
+    return true
+  } catch (error) {
+    console.error('❌ Error sending contact email:', error)
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+        cause: error.cause
+      })
+    }
+    
+    // Check if it's an email configuration issue
+    if (error && typeof error === 'object' && 'code' in error) {
+      const emailError = error as { code?: string; command?: string }
+      console.error('Email error code:', emailError.code)
+      console.error('Email command:', emailError.command)
+      
+      if (emailError.code === 'EAUTH') {
+        console.error('⚠️  Email authentication failed. Check SMTP credentials in .env.local')
+      } else if (emailError.code === 'ECONNECTION') {
+        console.error('⚠️  Failed to connect to email server. Check SMTP_HOST and SMTP_PORT')
+      }
+    }
+    
+    return false
+  }
+}
+
+/**
+ * Send 2FA verification email
+ * Used for enabling 2FA and for login verification
+ */
+export const sendTwoFactorEmail = async (
+  email: string,
+  code: string,
+  type: 'enable' | 'login'
+): Promise<boolean> => {
+  try {
+    const transporter = createTransporter()
+
+    const title = type === 'enable' ? 'Enable Two-Factor Authentication' : 'Two-Factor Authentication'
+    const description =
+      type === 'enable'
+        ? 'You are setting up Two-Factor Authentication for your Daily Priority account. Please use the verification code below to complete the process:'
+        : 'You are signing in to your Daily Priority account. Please use the verification code below to complete your login:'
+
+    const mailOptions = {
+      from: process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      to: email,
+      subject: type === 'enable' ? 'Enable Two-Factor Authentication' : 'Your Login Verification Code',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
+            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">${title}</p>
+          </div>
+
+          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #374151; margin-top: 0;">🔐 Verification Code</h2>
+
+            <p style="color: #6b7280; line-height: 1.6;">
+              ${description}
+            </p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <div style="display: inline-block; background: #f0fdf4; border: 2px dashed #10b981; padding: 20px 40px; border-radius: 10px;">
+                <div style="font-size: 36px; font-weight: bold; color: #0d9488; letter-spacing: 8px;">
+                  ${code}
+                </div>
+                <div style="color: #6b7280; font-size: 14px; margin-top: 10px;">
+                  This code will expire in 10 minutes
+                </div>
+              </div>
+            </div>
+
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px; margin: 20px 0;">
+              <p style="color: #92400e; margin: 0; font-size: 14px;">
+                <strong>⚠️ Security Notice:</strong> Never share this code with anyone. Daily Priority staff will never ask for your verification code.
+              </p>
+            </div>
+
+            <p style="color: #6b7280; line-height: 1.6;">
+              If you didn't request this ${type === 'enable' ? '2FA setup' : 'login'}, please ignore this email or contact our support team immediately.
+            </p>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
+                This email was sent from Daily Priority.
+                If you have any questions, please contact our support team at support@dailypriority.app
+              </p>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
+            <p>© 2025 Daily Priority. All rights reserved.</p>
+            <p>Made with ❤️ for the Muslim community</p>
+          </div>
+        </div>
+      `,
+    }
+
+    const info = await transporter.sendMail(mailOptions)
+    console.log('2FA email sent: %s', info.messageId)
+
+    // For Ethereal.email, you can preview the email
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('2FA email preview URL: %s', nodemailer.getTestMessageUrl(info))
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error sending 2FA email:', error)
+    return false
+  }
+}
+
+/**
+ * Generic send email function
+ * Used for custom email sending (verification, notifications, etc.)
+ */
+export const sendEmail = async (options: {
+  to: string
+  subject: string
+  html: string
+  from?: string
+}): Promise<void> => {
+  try {
+    const transporter = createTransporter()
+
+    const mailOptions = {
+      from: options.from || process.env.FROM_EMAIL || '"Daily Priority" <support@dailypriority.app>',
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    }
+
+    const info = await transporter.sendMail(mailOptions)
+    console.log('Email sent: %s', info.messageId)
+
+    // For Ethereal.email, you can preview the email
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Email preview URL: %s', nodemailer.getTestMessageUrl(info))
+    }
+  } catch (error) {
+    console.error('Error sending email:', error)
+    throw error
   }
 }

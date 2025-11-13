@@ -23,7 +23,15 @@ export function useDailyQuote() {
       setLoading(true)
       setError(null)
 
-      const response = await fetch('/api/quotes/daily')
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort('Request timeout'), 15000) // 15 second timeout
+
+      const response = await fetch('/api/quotes/daily', {
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
       const result = await response.json()
 
       if (!response.ok) {
@@ -33,9 +41,9 @@ export function useDailyQuote() {
       // API shape: { quote }
       setQuote(result.quote)
     } catch (err) {
-      console.error('Error fetching daily quote:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch daily quote')
-
+      // Silently use fallback quote without logging (not critical)
+      setError(null) // Don't show error to user
+      
       // Fallback quote for new users or errors
       setQuote({
         id: 'fallback',

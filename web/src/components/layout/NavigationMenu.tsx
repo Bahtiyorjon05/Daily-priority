@@ -1,9 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import { ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { navigationItems } from './navigation-items'
 
 interface NavigationMenuProps {
@@ -12,15 +11,6 @@ interface NavigationMenuProps {
 }
 
 export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenuProps) {
-  const router = useRouter()
-
-  const onKeyNavigate = (e: React.KeyboardEvent, path: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      router.push(path)
-    }
-  }
-
   return (
     <nav
       aria-label="Primary"
@@ -38,14 +28,12 @@ export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenu
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
           >
-            <Button
-              variant="ghost"
-              onClick={() => router.push(item.path)}
-              onKeyDown={(e) => onKeyNavigate(e, item.path)}
+            <Link
+              href={item.path}
               aria-current={isActive ? 'page' : undefined}
               aria-label={item.label}
               className={`
-                w-full justify-start h-14 rounded-2xl transition-all duration-300 group relative overflow-hidden
+                group relative flex h-14 w-full items-center gap-4 overflow-hidden rounded-2xl transition-all duration-300
                 ${isActive
                   ? `${item.gradient} text-white shadow-xl ${item.shadowActive}`
                   : `${item.bgHover} ${item.text} hover:scale-[1.02] hover:shadow-md text-slate-600 dark:text-slate-400`
@@ -53,6 +41,7 @@ export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenu
                 ${isCollapsed ? 'px-3' : 'px-5'}
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 dark:focus-visible:ring-emerald-400
               `}
+              role="link"
             >
               {isActive && (
                 <motion.div
@@ -62,44 +51,43 @@ export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenu
                 />
               )}
 
-              <div className="flex items-center gap-4 w-full relative z-10">
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  className={`
-                    p-3 rounded-xl transition-all duration-300 flex-shrink-0 relative
-                    ${isActive
-                      ? 'bg-white/20 shadow-lg'
-                      : 'bg-white/50 dark:bg-slate-800/50 group-hover:bg-white dark:group-hover:bg-slate-700 shadow-sm'
-                    }
-                  `}
-                >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
-                  {isActive && <div className="absolute inset-0 rounded-xl bg-white/10 blur-sm" />}
-                </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className={`
+                  p-3 rounded-xl transition-all duration-300 flex-shrink-0 relative
+                  ${isActive
+                    ? 'bg-white/20 shadow-lg'
+                    : 'bg-white/50 dark:bg-slate-800/50 group-hover:bg-white dark:group-hover:bg-slate-700 shadow-sm'
+                  }
+                `}
+              >
+                <Icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
+                {isActive && <div className="absolute inset-0 rounded-xl bg-white/10 blur-sm" />}
+              </motion.div>
 
-                {!isCollapsed && (
-                  <div className="flex-1 text-left min-w-0">
-                    <p className="font-bold text-sm truncate mb-0.5">{item.label}</p>
-                    <p
-                      className={`text-xs truncate font-medium ${
-                        isActive ? 'text-white/90' : 'text-slate-500 dark:text-slate-400 group-hover:text-current'
-                      }`}
-                    >
-                      {item.description}
-                    </p>
-                  </div>
-                )}
-
-                {!isCollapsed && (
-                  <motion.div
-                    animate={{ x: isActive ? 4 : 0, opacity: isActive ? 1 : 0 }}
-                    transition={{ duration: 0.2 }}
+              {!isCollapsed && (
+                <div className="flex-1 text-left min-w-0 relative z-10">
+                  <p className="font-bold text-sm truncate mb-0.5">{item.label}</p>
+                  <p
+                    className={`text-xs truncate font-medium ${
+                      isActive ? 'text-white/90' : 'text-slate-500 dark:text-slate-400 group-hover:text-current'
+                    }`}
                   >
-                    <ChevronRight className="h-4 w-4 text-white/90 flex-shrink-0" />
-                  </motion.div>
-                )}
-              </div>
-            </Button>
+                    {item.description}
+                  </p>
+                </div>
+              )}
+
+              {!isCollapsed && (
+                <motion.div
+                  animate={{ x: isActive ? 4 : 0, opacity: isActive ? 1 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative z-10"
+                >
+                  <ChevronRight className="h-4 w-4 text-white/90 flex-shrink-0" />
+                </motion.div>
+              )}
+            </Link>
           </motion.div>
         )
       })}

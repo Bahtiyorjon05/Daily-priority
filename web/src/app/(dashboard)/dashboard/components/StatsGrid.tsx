@@ -34,12 +34,12 @@ export default function StatsGrid() {
   const statsData = [
     {
       title: 'Tasks Completed',
-      value: stats?.tasksCompleted?.toString() || '0',
+      value: stats?.completedTasks?.toString() || '0',
       subtitle: `of ${stats?.totalTasks || 0} total`,
       icon: CheckCircle2,
       color: 'blue',
       progress: stats?.completionRate || 0,
-      trend: stats?.tasksCompleted && stats.tasksCompleted > 0 ? 'up' : 'neutral',
+      trend: stats?.completedTasks && stats.completedTasks > 0 ? 'up' : 'neutral',
       trendValue: stats?.completionRate ? `${stats.completionRate}%` : undefined
     },
     {
@@ -55,25 +55,25 @@ export default function StatsGrid() {
     },
     {
       title: 'Weekly Goals',
-      value: `${stats?.completedGoals || 0}/${stats?.weeklyGoals || 0}`,
-      subtitle: stats?.weeklyGoals ? 
-        `${Math.round((stats.completedGoals / stats.weeklyGoals) * 100)}% complete` : 
+      value: `${stats?.completedTasks || 0}/${stats?.totalTasks || 0}`,
+      subtitle: stats?.totalTasks ? 
+        `${Math.round((stats.completedTasks / stats.totalTasks) * 100)}% complete` : 
         'No goals set',
       icon: Target,
       color: 'purple',
-      progress: stats?.weeklyGoals ? 
-        Math.round((stats.completedGoals / stats.weeklyGoals) * 100) : 0,
-      trend: stats?.completedGoals && stats.completedGoals > 0 ? 'up' : 'neutral'
+      progress: stats?.totalTasks ? 
+        Math.round((stats.completedTasks / stats.totalTasks) * 100) : 0,
+      trend: stats?.completedTasks && stats.completedTasks > 0 ? 'up' : 'neutral'
     },
     {
       title: 'Current Streak',
-      value: `${stats?.streak || 0}`,
-      subtitle: stats?.streak && stats.streak > 0 ? 'days in a row' : 'Start today!',
+      value: `${stats?.currentStreak || 0}`,
+      subtitle: stats?.currentStreak && stats.currentStreak > 0 ? 'days in a row' : 'Start today!',
       icon: Clock,
       color: 'orange',
-      progress: Math.min((stats?.streak || 0) * 10, 100), // 10 days = 100%
-      trend: stats?.streak && stats.streak > 0 ? 'up' : 'neutral',
-      trendValue: stats?.streak && stats.streak > 0 ? `${stats.streak} days` : undefined
+      progress: Math.min((stats?.currentStreak || 0) * 10, 100), // 10 days = 100%
+      trend: stats?.currentStreak && stats.currentStreak > 0 ? 'up' : 'neutral',
+      trendValue: stats?.currentStreak && stats.currentStreak > 0 ? `${stats.currentStreak} days` : undefined
     }
   ] as const
   return (

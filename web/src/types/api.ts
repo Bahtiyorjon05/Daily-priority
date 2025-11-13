@@ -67,8 +67,6 @@ export interface CreateTaskRequest {
   categoryId?: string
   goalId?: string
   tags?: string[]
-  aiSuggested?: boolean
-  aiReason?: string
 }
 
 export interface UpdateTaskRequest {
@@ -223,40 +221,6 @@ export interface AnalyticsResponse {
     chartData: Analytics[]
     insights: string[]
   }
-}
-
-// ============================================================================
-// AI API Types
-// ============================================================================
-
-export interface AISuggestRequest {
-  userContext: {
-    completedTasks?: string[]
-    currentTime?: string
-    userGoals?: string
-    energyLevel?: EnergyLevel
-    recentActivities?: string[]
-  }
-  requestType: 'task_suggestions' | 'productivity_insights' | 'goal_recommendations'
-}
-
-export interface AISuggestResponse {
-  success: boolean
-  data: {
-    suggestions: AISuggestion[]
-    insights?: string[]
-    reasoning?: string
-  }
-}
-
-export interface AISuggestion {
-  title: string
-  description: string
-  priority: Priority
-  estimatedTime?: number
-  energyLevel?: EnergyLevel
-  reason: string
-  category?: string
 }
 
 // ============================================================================

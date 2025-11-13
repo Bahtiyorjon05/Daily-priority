@@ -283,6 +283,16 @@
   80% { transform: translateY(-5px) translateX(-20px) rotate(1deg); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.05); }
+}
+
+@keyframes pulse-medium {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.03); }
+}
+
 .animate-float-slow {
   animation: float-slow 8s ease-in-out infinite;
 }
@@ -293,6 +303,14 @@
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+.animate-pulse-medium {
+  animation: pulse-medium 4s ease-in-out infinite;
 }
 
 /* Radial Gradient Utility */
@@ -1494,10 +1512,10 @@ img.loaded {
 
 @keyframes shimmer {
   0% {
-    background-position: -200px 0;
+    transform: translateX(-100%);
   }
   100% {
-    background-position: calc(200px + 100%) 0;
+    transform: translateX(100%);
   }
 }
 

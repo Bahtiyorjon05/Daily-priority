@@ -137,16 +137,6 @@ const TaskCard = memo<TaskCardProps>(({
         )}
       />
 
-      {/* AI Suggested badge */}
-      {task.aiSuggested && (
-        <div className="absolute top-2 right-2">
-          <Badge variant="secondary" className="gap-1 text-xs">
-            <Sparkles className="h-3 w-3" />
-            AI
-          </Badge>
-        </div>
-      )}
-
       <div className={cn('flex-1 p-4', viewMode === 'list' && 'flex items-start gap-4')}>
         {/* Completion checkbox */}
         <button
@@ -318,16 +308,6 @@ const TaskCard = memo<TaskCardProps>(({
               </DropdownMenu>
             )}
           </div>
-
-          {/* AI Reason (if exists) */}
-          {task.aiSuggested && task.aiReason && (
-            <div className="mt-3 p-2 rounded-md bg-primary/5 border border-primary/10">
-              <p className="text-xs text-muted-foreground italic">
-                <Sparkles className="inline h-3 w-3 mr-1" />
-                {task.aiReason}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </motion.div>

@@ -86,8 +86,6 @@ export interface Task {
   priority: Priority
   urgent: boolean
   important: boolean
-  aiSuggested: boolean
-  aiReason: string | null
   estimatedTime: number | null
   energyLevel: EnergyLevel | null
   dueDate: Date | null
@@ -220,7 +218,6 @@ export interface UserPreference {
   id: string
   userId: string
   showHijriDate: boolean
-  prayerNotifications: boolean
   prayerReminderMinutes: number
   ramadanMode: boolean
   language: string
@@ -242,7 +239,6 @@ export interface TaskFilters {
   search?: string
   urgent?: boolean
   important?: boolean
-  aiSuggested?: boolean
 }
 
 export interface TaskSortOptions {

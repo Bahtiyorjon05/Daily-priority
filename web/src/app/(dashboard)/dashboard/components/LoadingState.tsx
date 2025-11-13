@@ -28,7 +28,7 @@ export default function LoadingState({
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className={(sizeClasses[size]) + ' ' + (borderClasses[size]) + ' border-emerald-200 border-t-emerald-600 dark:border-emerald-800 dark:border-t-emerald-500 rounded-full'}
+        className={(sizeClasses[size]) + ' ' + (borderClasses[size]) + ' border-emerald-200 border-t-emerald-600 dark:border-emerald-700/60 dark:border-t-emerald-400 rounded-full'}
       />
       {message && (
         <motion.p 

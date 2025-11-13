@@ -6,7 +6,7 @@ import type { UserStats } from '@/types/models'
 export function useUserStats() {
   const { data, loading, error, refetch, invalidateCache } = useDataFetcher<{ success: boolean; data: UserStats }>(
     'user-stats',
-    () => fetch('/api/user/stats').then(res => res.json()),
+    (signal) => fetch('/api/user/stats', { signal }).then(res => res.json()),
     { ttl: 2 * 60 * 1000 }
   )
 

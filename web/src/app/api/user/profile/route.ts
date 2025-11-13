@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sanitizeTitle, sanitizeString, sanitizeEmail } from '@/lib/sanitize'
 
 export async function GET() {
   try {
@@ -28,7 +29,7 @@ export async function GET() {
       language: user.preferences?.language || 'en',
       notifications: {
         email: true,
-        push: user.preferences?.prayerNotifications ?? true,
+        push: true,
         taskReminders: true,
         goalUpdates: true,
         weeklyReport: true
@@ -71,7 +72,7 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -79,32 +80,44 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const { name, email, image, location, timezone, preferences } = body
 
+    // Sanitize inputs
+    const sanitizedName = name ? sanitizeTitle(name) : undefined
+    const sanitizedEmail = email ? sanitizeEmail(email) : undefined
+    const sanitizedLocation = location ? sanitizeString(location) : undefined
+    const sanitizedTimezone = timezone ? sanitizeString(timezone) : undefined
+
+    if (sanitizedEmail && sanitizedEmail !== session.user.email) {
+      return NextResponse.json(
+        { error: 'Email updates are not supported via this endpoint' },
+        { status: 400 }
+      )
+    }
+
     // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        ...(name && { name }),
-        ...(email && { email }),
-        ...(image && { image }),
-        ...(location !== undefined && { location }),
-        ...(timezone && { timezone }),
-        updatedAt: new Date()
-      }
+        ...(sanitizedName !== undefined && { name: sanitizedName }),
+        ...(image !== undefined && { image }),
+        ...(sanitizedLocation !== undefined && { location: sanitizedLocation }),
+        ...(sanitizedTimezone !== undefined && { timezone: sanitizedTimezone }),
+        updatedAt: new Date(),
+      },
     })
 
     // Update or create user preferences
     if (preferences) {
+      const sanitizedLanguage = sanitizeString(preferences.language) || 'en'
+
       await prisma.userPreference.upsert({
         where: { userId: session.user.id },
         update: {
-          language: preferences.language || 'en',
-          prayerNotifications: preferences.notifications?.push ?? true
+          language: sanitizedLanguage,
         },
         create: {
           userId: session.user.id,
-          language: preferences.language || 'en',
-          prayerNotifications: preferences.notifications?.push ?? true
-        }
+          language: sanitizedLanguage,
+        },
       })
     }
 
@@ -112,8 +125,8 @@ export async function PATCH(request: NextRequest) {
     const userWithPreferences = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        preferences: true
-      }
+        preferences: true,
+      },
     })
 
     return NextResponse.json({
@@ -125,24 +138,24 @@ export async function PATCH(request: NextRequest) {
           language: userWithPreferences?.preferences?.language || 'en',
           notifications: {
             email: true,
-            push: userWithPreferences?.preferences?.prayerNotifications ?? true,
+            push: true,
             taskReminders: true,
             goalUpdates: true,
-            weeklyReport: true
+            weeklyReport: true,
           },
           privacy: {
             profileVisibility: 'private',
             showActivity: true,
-            showStats: true
+            showStats: true,
           },
           dashboard: {
             startPage: 'dashboard',
             showGreeting: true,
             showQuote: true,
-            showWeather: false
-          }
-        }
-      }
+            showWeather: false,
+          },
+        },
+      },
     })
   } catch (error) {
     console.error('Error updating user profile:', error)

@@ -16,7 +16,7 @@ export interface SpecialDay {
 }
 
 /**
- * Convert Gregorian date to Hijri
+ * Convert Gregorian date to Hijri using internal API (bypasses CORS)
  */
 export async function gregorianToHijri(date: Date): Promise<HijriDate | null> {
   try {
@@ -24,32 +24,56 @@ export async function gregorianToHijri(date: Date): Promise<HijriDate | null> {
     const month = date.getMonth() + 1
     const year = date.getFullYear()
 
-    const url = 'https://api.aladhan.com/v1/gToH/' + (day) + '-' + (month) + '-' + (year)
-    const response = await fetch(url)
+    // Use internal API route instead of direct Aladhan call
+    const url = `/api/hijri/convert?date=${day}-${month}-${year}`
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort('Hijri conversion timeout'), 15000) // 15 second timeout
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+      },
+    })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('Hijri conversion error:', errorData)
       throw new Error('Failed to convert date')
     }
 
-    const data = await response.json()
-    const hijri = data.data.hijri
+    const result = await response.json()
+
+    if (!result.success || !result.data || !result.data.hijri) {
+      console.error('Invalid response structure:', result)
+      throw new Error('Invalid response structure')
+    }
+
+    const hijri = result.data.hijri
 
     return {
-      day: parseInt(hijri.day),
+      day: hijri.day,
       month: hijri.month.en,
-      monthNumber: parseInt(hijri.month.number),
-      year: parseInt(hijri.year),
+      monthNumber: hijri.month.number,
+      year: hijri.year,
       weekday: hijri.weekday.en,
-      formatted: (hijri.day) + ' ' + (hijri.month.en) + ' ' + (hijri.year) + ' AH'
+      formatted: hijri.formatted
     }
   } catch (error) {
-    console.error('Error converting to Hijri:', error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Hijri conversion timed out')
+    } else {
+      console.error('Error converting to Hijri:', error)
+    }
     return null
   }
 }
 
 /**
- * Convert Hijri date to Gregorian
+ * Convert Hijri date to Gregorian using internal API (bypasses CORS)
  */
 export async function hijriToGregorian(
   day: number,
@@ -57,23 +81,50 @@ export async function hijriToGregorian(
   year: number
 ): Promise<Date | null> {
   try {
-    const url = 'https://api.aladhan.com/v1/hToG/' + (day) + '-' + (month) + '-' + (year)
-    const response = await fetch(url)
+    // Use internal API route with POST method
+    const url = '/api/hijri/convert'
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort('Hijri to Gregorian timeout'), 15000)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ day, month, year }),
+      signal: controller.signal,
+    })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('Hijri to Gregorian conversion error:', errorData)
       throw new Error('Failed to convert date')
     }
 
-    const data = await response.json()
-    const gregorian = data.data.gregorian
+    const result = await response.json()
+
+    if (!result.success || !result.data || !result.data.gregorian) {
+      console.error('Invalid response structure:', result)
+      throw new Error('Invalid response structure')
+    }
+
+    const gregorian = result.data.gregorian
 
     return new Date(
-      parseInt(gregorian.year),
-      parseInt(gregorian.month.number) - 1,
-      parseInt(gregorian.day)
+      gregorian.year,
+      gregorian.month - 1,
+      gregorian.day
     )
   } catch (error) {
-    console.error('Error converting to Gregorian:', error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.warn('Hijri to Gregorian conversion timed out')
+    } else {
+      console.error('Error converting to Gregorian:', error)
+    }
     return null
   }
 }
