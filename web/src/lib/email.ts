@@ -2,6 +2,11 @@ import nodemailer from 'nodemailer'
 import crypto from 'crypto'
 import { prisma } from './prisma'
 
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.NEXTAUTH_URL ||
+  'https://daily-priority.vercel.app'
+
 // Using database storage for verification codes (persists across server restarts)
 
 // Create a transporter object using the default SMTP transport
@@ -283,7 +288,7 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
             </ul>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/signin"
+              <a href="${APP_BASE_URL}/signin"
                  style="display: inline-block; background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                 Sign In to Your Account
               </a>
@@ -388,13 +393,13 @@ export const sendContactEmail = async (data: {
             </p>
 
             <ul style="color: #6b7280; line-height: 1.6; padding-left: 20px;">
-              <li>Explore our <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}" style="color: #10b981; text-decoration: none;">productivity features</a></li>
+              <li>Explore our <a href="${APP_BASE_URL}" style="color: #10b981; text-decoration: none;">productivity features</a></li>
               <li>Read our documentation and guides</li>
               <li>Join our community of Muslim productivity enthusiasts</li>
             </ul>
 
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}"
+              <a href="${APP_BASE_URL}"
                  style="display: inline-block; background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                 Visit Daily Priority
               </a>

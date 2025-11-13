@@ -127,7 +127,11 @@ export const CORSPresets = {
    * Development - Allow localhost
    */
   development: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://daily-priority.vercel.app',
+    ],
     credentials: true,
   } as CORSOptions,
 
@@ -135,9 +139,14 @@ export const CORSPresets = {
    * Production - Allow only your domains
    */
   production: {
-    origin: process.env.NEXT_PUBLIC_APP_URL
-      ? [process.env.NEXT_PUBLIC_APP_URL]
-      : false,
+    origin: (() => {
+      const allowed =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.NEXT_PUBLIC_BASE_URL ||
+        process.env.NEXTAUTH_URL ||
+        'https://daily-priority.vercel.app'
+      return [allowed]
+    })(),
     credentials: true,
   } as CORSOptions,
 

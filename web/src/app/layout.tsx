@@ -24,8 +24,13 @@ const amiri = Amiri({
   display: 'swap',
 });
 
+const appUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.NEXTAUTH_URL ||
+  'https://daily-priority.vercel.app';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(appUrl),
   title: {
     default: "Daily Priority - Islamic Productivity App",
     template: "%s | Daily Priority"

@@ -170,7 +170,11 @@ DATABASE_URL="postgresql://username:password@localhost:5432/daily_priority"
 
 # NextAuth
 NEXTAUTH_SECRET="your-secret-key-min-32-characters"
+# Use https://daily-priority.vercel.app or your custom domain when deploying
 NEXTAUTH_URL="http://localhost:3000"
+
+# Public base URL used in emails/metadata
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 
 # Google AI (Required for AI features)
 GOOGLE_AI_API_KEY="your-google-ai-api-key"
@@ -182,6 +186,8 @@ SMTP_USER="your-email@gmail.com"
 SMTP_PASS="your-app-password"
 FROM_EMAIL="your-email@gmail.com"
 ```
+
+> ℹ️ When deploying to Vercel, set `NEXTAUTH_URL` and `NEXT_PUBLIC_BASE_URL` to your live domain (for example `https://daily-priority.vercel.app`) so all emails and SEO metadata link to the correct site.
 
 4. **Set up the database**
 ```bash
