@@ -114,7 +114,9 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub as string
         session.user.name = token.name ?? null
         session.user.email = token.email ?? ''
-        session.user.image = token.image ?? null
+        // DON'T store base64 image in session - causes 494 header too large error
+        // Fetch image separately when needed
+        session.user.image = null
         // Pass 2FA verification status to client-side session
         ;(session as unknown as { needs2FA?: boolean }).needs2FA = token.needs2FA as boolean | undefined
       }
@@ -130,7 +132,7 @@ export const authOptions: NextAuthOptions = {
       // Update token when session is updated (e.g., profile image change)
       if (trigger === 'update' && session && session.user) {
         token.name = session.user.name || token.name
-        token.image = session.user.image || token.image
+        // Don't store image in JWT - causes 494 header too large
         token.email = session.user.email || token.email
         return token
       }
@@ -141,7 +143,7 @@ export const authOptions: NextAuthOptions = {
         token.sub = user.id
         token.name = user.name
         token.email = user.email
-        token.image = user.image
+        // Don't store image in JWT - causes 494 header too large
         return token
       }
 
@@ -213,7 +215,7 @@ export const authOptions: NextAuthOptions = {
             // Update token with user data
             token.name = dbUser.name
             token.email = dbUser.email
-            token.image = dbUser.image
+            // token.image removed - causes 494 header too large
             token.location = dbUser.location
             token.timezone = dbUser.timezone
           }
@@ -283,7 +285,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = existingUser.id
                 token.name = existingUser.name
                 token.email = existingUser.email
-                token.image = existingUser.image
+                // token.image removed - causes 494 header too large
                 token.location = existingUser.location
                 token.timezone = existingUser.timezone
                 return token
@@ -318,7 +320,7 @@ export const authOptions: NextAuthOptions = {
                   token.id = existingUser.id
                   token.name = existingUser.name
                   token.email = existingUser.email
-                  token.image = existingUser.image
+                  // token.image removed - causes 494 header too large
                   token.location = existingUser.location
                   token.timezone = existingUser.timezone
                   return token
@@ -337,7 +339,7 @@ export const authOptions: NextAuthOptions = {
               token.id = existingUser.id
               token.name = existingUser.name
               token.email = existingUser.email
-              token.image = existingUser.image
+              // token.image removed - causes 494 header too large
               token.location = existingUser.location
               token.timezone = existingUser.timezone
             }
@@ -381,7 +383,7 @@ export const authOptions: NextAuthOptions = {
               token.id = dbUser.id
               token.name = dbUser.name
               token.email = dbUser.email
-              token.image = dbUser.image
+              // token.image removed - causes 494 header too large
               token.location = dbUser.location
               token.timezone = dbUser.timezone
               return token
@@ -410,7 +412,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = dbUser.id
                 token.name = dbUser.name
                 token.email = dbUser.email
-                token.image = dbUser.image
+                // token.image removed - causes 494 header too large
                 token.location = dbUser.location
                 token.timezone = dbUser.timezone
                 return token
@@ -462,7 +464,7 @@ export const authOptions: NextAuthOptions = {
             token.id = dbUser.id
             token.name = dbUser.name
             token.email = sanitizedEmail
-            token.image = dbUser.image
+            // token.image removed - causes 494 header too large
             token.location = dbUser.location
             token.timezone = dbUser.timezone
           } else {
@@ -516,7 +518,7 @@ export const authOptions: NextAuthOptions = {
               token.id = dbUser.id
               token.name = dbUser.name
               token.email = dbUser.email
-              token.image = dbUser.image
+              // token.image removed - causes 494 header too large
               token.location = dbUser.location
               token.timezone = dbUser.timezone
               return token
@@ -542,7 +544,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = dbUser.id
                 token.name = dbUser.name
                 token.email = dbUser.email
-                token.image = dbUser.image
+                // token.image removed - causes 494 header too large
                 token.location = dbUser.location
                 token.timezone = dbUser.timezone
                 return token
@@ -561,7 +563,7 @@ export const authOptions: NextAuthOptions = {
             token.id = dbUser.id
             token.name = dbUser.name
             token.email = dbUser.email
-            token.image = dbUser.image
+            // token.image removed - causes 494 header too large
             token.location = dbUser.location
             token.timezone = dbUser.timezone
           }
@@ -588,3 +590,4 @@ export const authOptions: NextAuthOptions = {
     }
   }
 }
+
