@@ -50,19 +50,25 @@ export function useUserProfile() {
     setLoading(true)
     profilePromise = fetch('/api/user/profile')
       .then(async (response) => {
-        if (!response.ok) throw new Error('Failed to fetch profile')
-        const data = await response.json()
-        const userProfile: UserProfile = {
-          name: data.profile.name || 'User',
-          email: data.profile.email || '',
-          image: data.profile.image || null,
-          location: data.profile.location || '',
-          timezone: data.profile.timezone || ''
+        if (!response.ok) {
+          console.error('Profile fetch failed:', response.status, response.statusText)
+          throw new Error('Failed to fetch profile')
         }
+        const data = await response.json()
+        console.log('Profile data received:', data)
+        const userProfile: UserProfile = {
+          name: data.profile?.name || 'User',
+          email: data.profile?.email || session.user.email || '',
+          image: data.profile?.image || null,
+          location: data.profile?.location || '',
+          timezone: data.profile?.timezone || ''
+        }
+        console.log('User profile processed:', userProfile)
         profileCache = userProfile
         return userProfile
       })
       .catch((err) => {
+        console.error('Profile fetch error:', err)
         profilePromise = null
         throw err
       })
@@ -73,6 +79,7 @@ export function useUserProfile() {
         setLoading(false)
       })
       .catch(err => {
+        console.error('Profile error in useEffect:', err)
         setError(err.message)
         setLoading(false)
         // Set default values on error
