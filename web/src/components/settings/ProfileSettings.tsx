@@ -21,6 +21,7 @@ export function ProfileSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [locationLoading, setLocationLoading] = useState(false)
   const [locationError, setLocationError] = useState<string | null>(null)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,14 +29,28 @@ export function ProfileSettings() {
     timezone: '',
   })
 
+  // Fetch user profile data from API (since session no longer contains name/image)
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/user/profile')
+        if (response.ok) {
+          const data = await response.json()
+          setFormData({
+            name: data.profile.name || '',
+            email: data.profile.email || '',
+            location: data.profile.location || '',
+            timezone: data.profile.timezone || '',
+          })
+          setProfileImage(data.profile.image)
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
+      }
+    }
+
     if (session?.user) {
-      setFormData({
-        name: session.user.name || '',
-        email: session.user.email || '',
-        location: (session.user as any).location || '',
-        timezone: (session.user as any).timezone || '',
-      })
+      fetchProfile()
     }
   }, [session])
 
@@ -115,10 +130,8 @@ export function ProfileSettings() {
         fileInputRef.current.value = ''
       }
 
-      // Update session with new image
-      await update({ image: data.imageUrl })
-      
       // Update local state to reflect the change immediately
+      setProfileImage(data.imageUrl)
       setImageCacheBuster(Date.now())
       
       toast.success('Profile picture updated successfully!')
@@ -167,11 +180,6 @@ export function ProfileSettings() {
 
       if (!response.ok) throw new Error('Failed to update profile')
 
-      // Update session with new data
-      await update({ 
-        name: formData.name.trim()
-      })
-      
       toast.success('Profile updated successfully')
     } catch (error) {
       toast.error('Failed to update profile')
@@ -194,11 +202,11 @@ export function ProfileSettings() {
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24 ring-4 ring-emerald-200 dark:ring-emerald-800 shadow-lg">
                 <AvatarImage 
-                  src={imagePreview || (session?.user?.image ? `${session.user.image}?t=${imageCacheBuster}` : '')} 
+                  src={imagePreview || (profileImage ? `${profileImage}?t=${imageCacheBuster}` : '')} 
                   key={imageCacheBuster}
                 />
                 <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold">
-                  {session?.user?.name?.charAt(0) || 'U'}
+                  {formData.name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-3">
