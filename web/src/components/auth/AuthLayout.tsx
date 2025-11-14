@@ -38,28 +38,28 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
       {/* Enhanced Header */}
       <div className="absolute top-0 left-0 right-0 z-50">
         <div className="backdrop-blur-3xl bg-white/95 dark:bg-gray-900/95 border-b border-emerald-200/60 dark:border-emerald-700/60 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3 sm:gap-4">
+          <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Link 
                   href="/"
-                  className="group flex items-center gap-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-3 sm:px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20"
+                  className="group flex items-center gap-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-300"
                 >
-                  <div className="p-1 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/70 transition-all duration-300">
-                    <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400 group-hover:translate-x-[-2px] transition-transform duration-300" />
+                  <div className="p-0.5 sm:p-1 bg-emerald-100 dark:bg-emerald-900/50 rounded">
+                    <ArrowLeft className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div className="p-1 bg-teal-100 dark:bg-teal-900/50 rounded-lg group-hover:bg-teal-200 dark:group-hover:bg-teal-800/70 transition-all duration-300">
-                    <Home className="h-3 w-3 sm:h-4 sm:w-4 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300" />
+                  <div className="p-0.5 sm:p-1 bg-teal-100 dark:bg-teal-900/50 rounded">
+                    <Home className="h-3 w-3 text-teal-600 dark:text-teal-400" />
                   </div>
-                  <span className="hidden sm:inline text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                    Back to Home
+                  <span className="hidden md:inline text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Back
                   </span>
                 </Link>
                 
-                <div className="flex items-center gap-2 sm:gap-3 pl-3 sm:pl-4 border-l border-gray-200/60 dark:border-gray-600/60">
-                  <Logo showText={false} className="scale-90 sm:scale-100" />
-                  <div className="hidden sm:block">
-                    <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-300 bg-clip-text text-transparent">
+                <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-gray-200/60 dark:border-gray-600/60">
+                  <Logo showText={false} className="scale-75 sm:scale-90" />
+                  <div className="hidden xs:block">
+                    <span className="font-bold text-sm sm:text-base md:text-lg bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-300 bg-clip-text text-transparent whitespace-nowrap">
                       Daily Priority
                     </span>
                   </div>
@@ -73,21 +73,21 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 pt-20 sm:pt-24 md:pt-28 pb-6 sm:pb-8">
-        <div className="w-full max-w-[95%] sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl animate-fade-in-scale">
-          <Card className="relative backdrop-blur-3xl bg-white/98 dark:bg-slate-900/98 border-2 border-emerald-200/70 dark:border-emerald-500/40 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-400/30 rounded-xl sm:rounded-2xl overflow-hidden">
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-3 py-16 sm:p-4 sm:pt-24 md:p-6 md:pt-28 pb-6 sm:pb-8">
+        <div className="w-full max-w-[96%] sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl animate-fade-in-scale">
+          <Card className="relative backdrop-blur-3xl bg-white/98 dark:bg-slate-900/98 border-2 border-emerald-200/70 dark:border-emerald-500/40 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-400/30 rounded-lg sm:rounded-xl overflow-hidden">
 
             {/* Ambient glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/3 via-teal-500/3 to-emerald-500/3 dark:from-emerald-400/15 dark:via-teal-400/12 dark:to-emerald-400/15 rounded-xl sm:rounded-2xl blur-xl -z-10"></div>
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/5 to-teal-400/0 dark:from-emerald-400/10 dark:via-teal-400/8 dark:to-emerald-400/10 rounded-xl sm:rounded-2xl blur-lg opacity-0 hover:opacity-100 transition-opacity duration-500 -z-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/3 via-teal-500/3 to-emerald-500/3 dark:from-emerald-400/15 dark:via-teal-400/12 dark:to-emerald-400/15 rounded-lg sm:rounded-xl blur-xl -z-10"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/0 via-emerald-400/5 to-teal-400/0 dark:from-emerald-400/10 dark:via-teal-400/8 dark:to-emerald-400/10 rounded-lg sm:rounded-xl blur-lg opacity-0 hover:opacity-100 transition-opacity duration-500 -z-20"></div>
 
-            <CardContent className="p-5 sm:p-6 md:p-8 lg:p-10">
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10">
               {/* Header */}
-              <div className="text-center mb-4 sm:mb-5 md:mb-7">
-                <div className="flex justify-center mb-3 sm:mb-4 md:mb-5">
-                  <Logo showText={false} className="scale-90 sm:scale-100 md:scale-125" />
+              <div className="text-center mb-3 sm:mb-5 md:mb-7">
+                <div className="flex justify-center mb-2 sm:mb-4 md:mb-5">
+                  <Logo showText={false} className="scale-75 sm:scale-90 md:scale-100" />
                 </div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1.5 sm:mb-2">
+                <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
                   {title}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base px-2">

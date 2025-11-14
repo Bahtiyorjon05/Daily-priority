@@ -317,14 +317,14 @@ export function SignUpForm() {
   const currentStepNumber = steps.findIndex(s => s.id === currentStep) + 1
 
   return (
-    <div className="space-y-4 sm:space-y-5 md:space-y-6">
+    <div className="space-y-3 sm:space-y-4 md:space-y-5">
       {/* Progress Indicator */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 pb-4">
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 pb-3 sm:pb-4">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex items-center gap-2 sm:gap-3">
-            <div className="flex flex-col items-center gap-1">
+          <div key={step.id} className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1">
               <div
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm sm:text-base transition-all duration-300 ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm md:text-base transition-all duration-300 ${
                   currentStepNumber > step.number
                     ? 'bg-emerald-600 text-white'
                     : currentStepNumber === step.number
@@ -348,7 +348,7 @@ export function SignUpForm() {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`w-8 sm:w-12 h-0.5 mb-6 transition-all duration-300 ${
+                className={`w-6 sm:w-10 md:w-12 h-0.5 mb-5 sm:mb-6 transition-all duration-300 ${
                   currentStepNumber > step.number
                     ? 'bg-emerald-600'
                     : 'bg-gray-200 dark:bg-gray-700'
@@ -379,7 +379,7 @@ export function SignUpForm() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            className="w-full h-10 sm:h-11 md:h-12 inline-flex items-center justify-center gap-1.5 sm:gap-2 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group font-semibold text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-200"
+            className="w-full h-9 sm:h-10 md:h-11 inline-flex items-center justify-center gap-1 sm:gap-1.5 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group font-semibold text-[11px] sm:text-xs md:text-sm text-gray-700 dark:text-gray-200"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform flex-shrink-0" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -468,18 +468,18 @@ export function SignUpForm() {
       {currentStep === 'code' && (
         <div className="space-y-4 sm:space-y-5">
           {/* Timer Display */}
-          <div className="text-center space-y-2 p-4 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
-            <div className="flex items-center justify-center gap-2">
-              <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium">
-                Code sent to <span className="font-bold text-emerald-600 dark:text-emerald-400">{formData.email}</span>
+          <div className="text-center space-y-1.5 sm:space-y-2 p-3 sm:p-4 bg-emerald-50/50 dark:bg-emerald-950/30 rounded-lg sm:rounded-xl border border-emerald-200/60 dark:border-emerald-800/60">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+              <p className="text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300 font-medium truncate">
+                Code sent to <span className="font-bold text-emerald-600 dark:text-emerald-400 break-all">{formData.email}</span>
               </p>
             </div>
-            <p className="text-2xl sm:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
+            <p className="text-xl sm:text-2xl md:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
               {formatTime(timeLeft)}
             </p>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              Code expires in {formatTime(timeLeft)}
+            <p className="text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-400">
+              Expires in {formatTime(timeLeft)}
             </p>
           </div>
 

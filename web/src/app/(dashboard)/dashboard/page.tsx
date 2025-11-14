@@ -717,7 +717,7 @@ export default function DashboardPageRedesigned() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100/40 to-cyan-100/40 dark:from-blue-500/20 dark:to-cyan-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-100/40 to-teal-100/40 dark:from-emerald-500/20 dark:to-teal-500/20 rounded-full blur-3xl"></div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4 md:py-6 space-y-3 sm:space-y-4 md:space-y-6 relative z-10">
         {/* Error Banner */}
         <AnimatePresence>
           {error && (
@@ -836,7 +836,7 @@ export default function DashboardPageRedesigned() {
         </motion.div>
 
         {/* Stats Grid - Compact */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Tasks Completed */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -844,7 +844,7 @@ export default function DashboardPageRedesigned() {
             transition={{ delay: 0.1 }}
           >
             <Card className="border border-blue-100 dark:border-blue-700/70 shadow-lg shadow-blue-100/50 dark:shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-200/60 dark:hover:shadow-blue-500/40 transition-all duration-300 bg-gradient-to-br from-white via-blue-50/60 to-indigo-50/80 dark:from-slate-800 dark:via-blue-900/80 dark:to-indigo-900/80 backdrop-blur-sm">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-xs font-medium text-blue-600 dark:text-blue-300 mb-1">Tasks Done</p>
@@ -878,7 +878,7 @@ export default function DashboardPageRedesigned() {
             transition={{ delay: 0.2 }}
           >
             <Card className="border border-emerald-100 dark:border-emerald-700/70 shadow-lg shadow-emerald-100/50 dark:shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-200/60 dark:hover:shadow-emerald-500/40 transition-all duration-300 bg-gradient-to-br from-white via-emerald-50/60 to-teal-50/80 dark:from-slate-800 dark:via-emerald-900/80 dark:to-teal-900/80 backdrop-blur-sm">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300 mb-1">Productivity</p>
@@ -906,7 +906,7 @@ export default function DashboardPageRedesigned() {
             transition={{ delay: 0.3 }}
           >
             <Card className="border border-purple-100 dark:border-purple-700/70 shadow-lg shadow-purple-100/50 dark:shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-200/60 dark:hover:shadow-purple-500/40 transition-all duration-300 bg-gradient-to-br from-white via-purple-50/60 to-violet-50/80 dark:from-slate-800 dark:via-purple-900/80 dark:to-violet-900/80 backdrop-blur-sm">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4"
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1">Weekly Goals</p>
@@ -1081,7 +1081,7 @@ export default function DashboardPageRedesigned() {
               </div>
             ) : (
               <>
-                <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4' : 'space-y-3'}>
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4' : 'space-y-2 sm:space-y-3'}>
                   <AnimatePresence mode="popLayout">
                     {paginatedTasks.map((task, index) => (
                       <motion.div
@@ -1098,14 +1098,14 @@ export default function DashboardPageRedesigned() {
                             : 'bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/60 dark:shadow-slate-500/20 hover:shadow-2xl hover:shadow-emerald-300/40 dark:hover:shadow-emerald-500/30 hover:border-emerald-300 dark:hover:border-emerald-500/70 hover:-translate-y-1 hover:scale-[1.02]'
                           )
                         }>
-                          <CardContent className="p-6">
-                            <div className="flex items-start gap-5">
+                          <CardContent className="p-3 sm:p-4 md:p-6">
+                            <div className="flex items-start gap-2 sm:gap-3 md:gap-5">
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => toggleTask(task.id)}
                                 disabled={task.status.toUpperCase() === 'COMPLETED'}
-                                className={'h-10 w-10 rounded-full flex-shrink-0 transition-all ring-2 shadow-md ' +
+                                className={'h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full flex-shrink-0 transition-all ring-2 shadow-md ' +
                                   (task.status.toUpperCase() === 'COMPLETED'
                                     ? 'text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-800/60 ring-emerald-400 dark:ring-emerald-500/50 shadow-emerald-300/60 dark:shadow-emerald-500/40 cursor-not-allowed opacity-70'
                                     : 'text-slate-400 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-slate-300 dark:ring-slate-600 hover:ring-emerald-400 dark:hover:ring-emerald-500/50 shadow-slate-300/40 cursor-pointer'
@@ -1121,7 +1121,7 @@ export default function DashboardPageRedesigned() {
                               </Button>
 
                               <div className="flex-1 min-w-0">
-                                <h3 className={'text-xl font-bold mb-2 ' +
+                                <h3 className={'text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 ' +
                                   (task.status.toUpperCase() === 'COMPLETED'
                                     ? 'line-through text-slate-500 dark:text-slate-400'
                                     : 'text-slate-900 dark:text-slate-100'
@@ -1130,7 +1130,7 @@ export default function DashboardPageRedesigned() {
                                   {task.title}
                                 </h3>
                                 {task.description && (
-                                  <p className={'text-sm mb-4 leading-relaxed ' +
+                                  <p className={'text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 leading-relaxed ' +
                                     (task.status.toUpperCase() === 'COMPLETED'
                                       ? 'line-through text-slate-400 dark:text-slate-500'
                                       : 'text-slate-600 dark:text-slate-300'
@@ -1142,44 +1142,44 @@ export default function DashboardPageRedesigned() {
 
                                 <div className="flex items-center gap-2 flex-wrap">
                                   {task.urgent && (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-200 text-sm font-semibold border-2 border-red-200 dark:border-red-700/50 shadow-sm">
-                                      <AlertCircle className="h-4 w-4" />
+                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-red-200 dark:border-red-700/50 shadow-sm">
+                                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                                       Urgent
                                     </span>
                                   )}
                                   {task.important && (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-200 text-sm font-semibold border-2 border-amber-200 dark:border-amber-700/50 shadow-sm">
-                                      <Flag className="h-4 w-4" />
+                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-amber-200 dark:border-amber-700/50 shadow-sm">
+                                      <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
                                       Important
                                     </span>
                                   )}
                                   {task.aiSuggested && (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-200 text-sm font-semibold border-2 border-purple-200 dark:border-purple-700/50 shadow-sm">
-                                      <Brain className="h-4 w-4" />
+                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-purple-200 dark:border-purple-700/50 shadow-sm">
+                                      <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
                                       AI Suggested
                                     </span>
                                   )}
                                   {task.estimatedTime && (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-200 text-sm font-semibold border-2 border-blue-200 dark:border-blue-700/50 shadow-sm">
-                                      <Clock className="h-4 w-4" />
+                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-blue-200 dark:border-blue-700/50 shadow-sm">
+                                      <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                                       {task.estimatedTime}m
                                     </span>
                                   )}
                                   {task.dueDate && (
-                                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-200 text-sm font-semibold border-2 border-indigo-200 dark:border-indigo-700/50 shadow-sm">
-                                      <CalendarIcon className="h-4 w-4" />
+                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-indigo-200 dark:border-indigo-700/50 shadow-sm">
+                                      <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                                       {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                     </span>
                                   )}
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                              <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setEditingTask(task)}
-                                  className="h-10 w-10 rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0 hover:shadow-md"
+                                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0 hover:shadow-md"
                                   aria-label="Edit task"
                                 >
                                   <Edit2 className="h-5 w-5" />
@@ -1188,7 +1188,7 @@ export default function DashboardPageRedesigned() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => deleteTask(task.id)}
-                                  className="h-10 w-10 rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0 hover:shadow-md"
+                                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0 hover:shadow-md"
                                   aria-label="Delete task"
                                 >
                                   <Trash2 className="h-5 w-5" />
