@@ -43,6 +43,7 @@ import { getThemeClass } from '@/lib/theme-config'
 import Logo from '@/components/shared/Logo'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 function DashboardLayoutContent({
   children,
@@ -50,6 +51,7 @@ function DashboardLayoutContent({
   children: React.ReactNode
 }) {
   const { data: session, status } = useSession()
+  const { profile } = useUserProfile()
   const router = useRouter()
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
@@ -668,9 +670,9 @@ function DashboardLayoutContent({
                   className="relative bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-2xl transition-all duration-200 hover:scale-105 p-1 h-11 w-11 min-h-[44px] min-w-[44px] shrink-0"
                 >
                   <Avatar className="h-8 w-8 border-2 border-emerald-200 dark:border-emerald-800">
-                    <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || 'User'} />
+                    <AvatarImage src={profile?.image || ''} alt={profile?.name || 'User'} />
                     <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
-                      {session?.user?.name?.charAt(0) || 'U'}
+                      {profile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
@@ -690,14 +692,14 @@ function DashboardLayoutContent({
                       <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-b-2 border-gray-200 dark:border-gray-700">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-12 w-12 ring-2 ring-emerald-200 dark:ring-emerald-800">
-                            <AvatarImage src={session?.user?.image || ''} />
+                            <AvatarImage src={profile?.image || ''} />
                             <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold">
-                              {session?.user?.name?.charAt(0) || 'U'}
+                              {profile?.name?.charAt(0) || 'U'}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
-                              {session?.user?.name || 'User'}
+                              {profile?.name || 'User'}
                             </p>
                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
                               {getGreeting()} 👋
