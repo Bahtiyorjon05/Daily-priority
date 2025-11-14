@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +12,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const file = formData.get('image') as File
-    const type = formData.get('type') as string || 'general'
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
@@ -26,35 +22,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid file type. Only images are allowed.' }, { status: 400 })
     }
 
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size too large. Maximum 5MB allowed.' }, { status: 400 })
+    // Validate file size (1MB limit for base64 storage)
+    if (file.size > 1 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size too large. Maximum 1MB allowed.' }, { status: 400 })
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', session.user.id)
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const fileExtension = file.name.split('.').pop()
-    const filename = (type) + '_' + (timestamp) + '.' + (fileExtension)
-    const filepath = join(uploadsDir, filename)
-
-    // Convert file to buffer and save
+    // Convert file to base64 (Vercel serverless workaround)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
-
-    // Return the public URL
-    const publicUrl = '/uploads/' + (session.user.id) + '/' + (filename)
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64}`
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
-      filename,
+      url: dataUrl,
+      filename: file.name,
       size: file.size,
       type: file.type
     })
@@ -68,50 +50,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle GET request to list user's uploaded files
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
-
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', session.user.id)
-    
-    if (!existsSync(uploadsDir)) {
-      return NextResponse.json({ files: [] })
-    }
-
-    const { readdir, stat } = await import('fs/promises')
-    const files = await readdir(uploadsDir)
-    
-    const fileList = await Promise.all(
-      files
-        .filter(file => !type || file.startsWith((type) + '_'))
-        .map(async (file) => {
-          const filepath = join(uploadsDir, file)
-          const stats = await stat(filepath)
-          return {
-            filename: file,
-            url: '/uploads/' + (session.user.id) + '/' + (file),
-            size: stats.size,
-            createdAt: stats.birthtime,
-            type: file.split('_')[0]
-          }
-        })
-    )
-
-    return NextResponse.json({ files: fileList })
-
-  } catch (error) {
-    console.error('File list error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error while listing files' },
-      { status: 500 }
-    )
-  }
-}
+// GET endpoint removed - files are stored as base64 in database on Vercel
