@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -31,16 +31,23 @@ export function ProfileSettings() {
   })
 
   // Update form data when profile loads
+  const derivedName = useMemo(() => {
+    if (profile?.name?.trim()) return profile.name.trim()
+    if (profile?.email) return profile.email.split('@')[0]
+    if (session?.user?.email) return session.user.email.split('@')[0]
+    return ''
+  }, [profile, session])
+
   useEffect(() => {
     if (profile) {
       setFormData({
-        name: profile.name || '',
-        email: profile.email || '',
+        name: derivedName,
+        email: profile.email || session?.user?.email || '',
         location: profile.location || '',
         timezone: profile.timezone || '',
       })
     }
-  }, [profile])
+  }, [profile, session, derivedName])
 
   const detectLocation = async () => {
     setLocationLoading(true)
@@ -192,10 +199,17 @@ export function ProfileSettings() {
             <Label className="text-base font-semibold">Profile Picture</Label>
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24 ring-4 ring-emerald-200 dark:ring-emerald-800 shadow-lg">
-                <AvatarImage 
-                  src={imagePreview || (profile?.image ? `${profile.image}?t=${imageCacheBuster}` : '')} 
-                  key={imageCacheBuster}
-                />
+                  <AvatarImage 
+                    src={
+                      imagePreview ||
+                      (profile?.image
+                        ? profile.image.startsWith('data:')
+                          ? profile.image
+                          : `${profile.image}${profile.image.includes('?') ? '&' : '?'}t=${imageCacheBuster}`
+                        : '')
+                    }
+                    key={imageCacheBuster}
+                  />
                 <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold">
                   {profile?.name?.charAt(0) || formData.name?.charAt(0) || 'U'}
                 </AvatarFallback>

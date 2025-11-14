@@ -23,6 +23,15 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    let resolvedName = user.name
+    if (!resolvedName) {
+      resolvedName = user.email?.split('@')[0] || 'User'
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { name: resolvedName },
+      })
+    }
+
     // Create default preferences structure for frontend
     const defaultPreferences = {
       theme: 'system',
@@ -50,7 +59,7 @@ export async function GET() {
     return NextResponse.json({
       profile: {
         id: user.id,
-        name: user.name,
+        name: resolvedName,
         email: user.email,
         image: user.image,
         location: user.location,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 
 interface UserProfile {
@@ -14,9 +14,21 @@ let profilePromise: Promise<UserProfile> | null = null
 
 export function useUserProfile() {
   const { data: session } = useSession()
+  const previousUserIdRef = useRef<string | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(profileCache)
   const [loading, setLoading] = useState(!profileCache)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const currentUserId = session?.user?.id ?? null
+    if (previousUserIdRef.current && previousUserIdRef.current !== currentUserId) {
+      profileCache = null
+      profilePromise = null
+      setProfile(null)
+      setLoading(true)
+    }
+    previousUserIdRef.current = currentUserId
+  }, [session?.user?.id])
 
   useEffect(() => {
     if (!session?.user) {
@@ -56,8 +68,14 @@ export function useUserProfile() {
         }
         const data = await response.json()
         console.log('Profile data received:', data)
+        const fallbackName =
+          data.profile?.name?.trim() ||
+          session.user.name ||
+          session.user.email?.split('@')[0] ||
+          'User'
+
         const userProfile: UserProfile = {
-          name: data.profile?.name || 'User',
+          name: fallbackName,
           email: data.profile?.email || session.user.email || '',
           image: data.profile?.image || null,
           location: data.profile?.location || '',
@@ -84,7 +102,7 @@ export function useUserProfile() {
         setLoading(false)
         // Set default values on error
         setProfile({
-          name: 'User',
+          name: session.user.email?.split('@')[0] || 'User',
           email: session.user.email || '',
           image: null,
           location: '',
@@ -104,9 +122,15 @@ export function useUserProfile() {
       const response = await fetch('/api/user/profile')
       if (!response.ok) throw new Error('Failed to fetch profile')
       const data = await response.json()
+      const fallbackName =
+        data.profile.name?.trim() ||
+        data.profile.email?.split('@')[0] ||
+        session?.user?.email?.split('@')[0] ||
+        'User'
+
       const userProfile: UserProfile = {
-        name: data.profile.name || 'User',
-        email: data.profile.email || '',
+        name: fallbackName,
+        email: data.profile.email || session?.user?.email || '',
         image: data.profile.image || null,
         location: data.profile.location || '',
         timezone: data.profile.timezone || ''
