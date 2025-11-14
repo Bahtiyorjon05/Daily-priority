@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     "islamic calendar",
     "salah tracker",
     "quran journal",
-    "AI productivity",
     "task management",
-    "dunya akhirah balance"
+    "dunya akhirah balance",
+    "barakah productivity"
   ],
   authors: [{ name: "Daily Priority Team" }],
   creator: "Daily Priority",

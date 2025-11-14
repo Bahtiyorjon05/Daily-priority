@@ -154,15 +154,15 @@ export function Hero() {
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-12 sm:py-16 md:py-20 lg:py-28 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center max-w-[1400px] mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center max-w-7xl mx-auto">
 
           {/* LEFT: Content */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-5 sm:space-y-7 md:space-y-8 lg:space-y-10"
+            className="space-y-6 sm:space-y-8 lg:space-y-10"
           >
             {/* Badge with enhanced glow effect */}
             <motion.div
@@ -172,21 +172,21 @@ export function Hero() {
               className="relative"
             >
               <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/15 dark:to-teal-600/15 rounded-full blur-xl opacity-70" />
-                <span className="relative inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg shadow-emerald-500/15 dark:shadow-emerald-900/20 backdrop-blur-sm">
+                <span className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg backdrop-blur-sm">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 >
-                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
                 </motion.div>
-                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">Islamic Productivity Platform</span>
+                <span className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300">Islamic Productivity Platform</span>
               </span>
             </motion.div>
 
             {/* Heading with stagger animation and enhanced effects */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               <motion.h1
-                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight"
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -208,7 +208,7 @@ export function Hero() {
               </motion.h1>
 
               <motion.p
-                className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed font-medium"
+                className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -281,7 +281,7 @@ export function Hero() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 dark:from-emerald-600/25 dark:to-teal-600/25 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <Button
                     size="lg"
-                    className="relative w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base font-bold bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-teal-700 text-slate-900 dark:text-white shadow-2xl shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-200 overflow-hidden group rounded-xl transform hover:-translate-y-1 hover:scale-105"
+                    className="relative w-full sm:w-auto h-12 px-8 text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 rounded-lg"
                   >
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
@@ -307,7 +307,7 @@ export function Hero() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="relative w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base font-bold border-2 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200 group rounded-xl transform hover:-translate-y-1 hover:scale-105"
+                    className="relative w-full sm:w-auto h-12 px-8 text-base font-semibold border-2 hover:border-emerald-500 transition-all duration-300 rounded-lg"
                   >
                     <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200" />
                     <span className="relative z-10">View Features</span>
