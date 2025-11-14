@@ -201,12 +201,8 @@ export const authOptions: NextAuthOptions = {
               }
             }
             
-            // Update token with user data
-            // name removed
-            token.email = dbUser.email
-            // token.image removed - causes 494 header too large
-            // Removed to reduce JWT size
-            // Removed to reduce JWT size
+            // DON'T update token with user data - keep JWT minimal
+            // Token already has email from initial login, no need to refresh it
           }
         } catch (error) {
           logger.error('Error refreshing user data in JWT', error)
