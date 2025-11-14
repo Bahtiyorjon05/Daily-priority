@@ -1,7 +1,7 @@
 {
   "name": "Daily Priority - Islamic Productivity App",
   "short_name": "Daily Priority",
-  "description": "Organize your daily tasks around prayer times. Built for the Muslim Ummah.",
+  "description": "Organize your daily tasks around prayer times. Balance your Dunya and Akhirah with Islamic productivity principles.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
