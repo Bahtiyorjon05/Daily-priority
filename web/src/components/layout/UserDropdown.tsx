@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Settings, LogOut, Shield } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface UserDropdownProps {
   isOpen: boolean
@@ -28,29 +28,7 @@ const menuItems: MenuItem[] = [
 
 export default function UserDropdown({ isOpen, onClose, session }: UserDropdownProps) {
   const router = useRouter()
-  const [userName, setUserName] = useState<string>('')
-  const [userImage, setUserImage] = useState<string | null>(null)
-
-  // Fetch user profile data (since session no longer contains name/image)
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/user/profile')
-        if (response.ok) {
-          const data = await response.json()
-          setUserName(data.profile.name || 'User')
-          setUserImage(data.profile.image)
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-        setUserName('User')
-      }
-    }
-
-    if (session?.user && isOpen) {
-      fetchProfile()
-    }
-  }, [session, isOpen])
+  const { profile } = useUserProfile()
   
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
@@ -75,14 +53,14 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12 ring-2 ring-emerald-200 dark:ring-emerald-800">
-                <AvatarImage src={userImage || ''} />
+                <AvatarImage src={profile?.image || ''} />
                 <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold">
-                  {userName?.charAt(0) || 'U'}
+                  {profile?.name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {userName || 'User'}
+                  {profile?.name || 'User'}
                 </p>
               </div>
             </div>

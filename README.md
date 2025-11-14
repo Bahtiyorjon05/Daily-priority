@@ -148,7 +148,7 @@ To provide Muslims worldwide with a productivity tool that seamlessly integrates
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/daily-priority.git
+git clone https://github.com/Bahtiyorjon05/Daily-priority.git
 cd daily-priority
 ```
 

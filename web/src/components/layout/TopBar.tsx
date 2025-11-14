@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Menu, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useTheme } from '@/components/theme-provider'
 import { UserDropdown } from './index'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface TopBarProps {
   session: any
@@ -16,29 +17,7 @@ interface TopBarProps {
 export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarProps) {
   const { theme, systemTheme, setTheme } = useTheme()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
-  const [userName, setUserName] = useState<string>('')
-  const [userImage, setUserImage] = useState<string | null>(null)
-
-  // Fetch user profile data (since session no longer contains name/image)
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/user/profile')
-        if (response.ok) {
-          const data = await response.json()
-          setUserName(data.profile.name || 'User')
-          setUserImage(data.profile.image)
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-        setUserName('User')
-      }
-    }
-
-    if (session?.user) {
-      fetchProfile()
-    }
-  }, [session])
+  const { profile } = useUserProfile()
 
   return (
     <>
@@ -88,9 +67,9 @@ export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarPro
                 className="h-10 w-10 rounded-lg p-0"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={userImage || ''} />
+                  <AvatarImage src={profile?.image || ''} />
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
-                    {userName?.charAt(0) || 'U'}
+                    {profile?.name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>

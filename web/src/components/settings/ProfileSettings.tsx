@@ -10,9 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { toast } from 'sonner'
 import { Save, Upload, X, MapPin, Loader2 } from 'lucide-react'
 import { requestGPSLocation, formatLocationForDisplay, formatLocationDetailed, type UnifiedLocation } from '@/lib/location-service'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 export function ProfileSettings() {
-  const { data: session, update } = useSession()
+  const { data: session } = useSession()
+  const { profile, refreshProfile } = useUserProfile()
   const [loading, setLoading] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -21,7 +23,6 @@ export function ProfileSettings() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [locationLoading, setLocationLoading] = useState(false)
   const [locationError, setLocationError] = useState<string | null>(null)
-  const [profileImage, setProfileImage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,30 +30,17 @@ export function ProfileSettings() {
     timezone: '',
   })
 
-  // Fetch user profile data from API (since session no longer contains name/image)
+  // Update form data when profile loads
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/user/profile')
-        if (response.ok) {
-          const data = await response.json()
-          setFormData({
-            name: data.profile.name || '',
-            email: data.profile.email || '',
-            location: data.profile.location || '',
-            timezone: data.profile.timezone || '',
-          })
-          setProfileImage(data.profile.image)
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile:', error)
-      }
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        location: profile.location || '',
+        timezone: profile.timezone || '',
+      })
     }
-
-    if (session?.user) {
-      fetchProfile()
-    }
-  }, [session])
+  }, [profile])
 
   const detectLocation = async () => {
     setLocationLoading(true)
@@ -130,8 +118,8 @@ export function ProfileSettings() {
         fileInputRef.current.value = ''
       }
 
-      // Update local state to reflect the change immediately
-      setProfileImage(data.imageUrl)
+      // Refresh profile cache to update all components
+      await refreshProfile()
       setImageCacheBuster(Date.now())
       
       toast.success('Profile picture updated successfully!')
@@ -180,6 +168,9 @@ export function ProfileSettings() {
 
       if (!response.ok) throw new Error('Failed to update profile')
 
+      // Refresh profile cache to update all components
+      await refreshProfile()
+      
       toast.success('Profile updated successfully')
     } catch (error) {
       toast.error('Failed to update profile')
@@ -202,11 +193,11 @@ export function ProfileSettings() {
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24 ring-4 ring-emerald-200 dark:ring-emerald-800 shadow-lg">
                 <AvatarImage 
-                  src={imagePreview || (profileImage ? `${profileImage}?t=${imageCacheBuster}` : '')} 
+                  src={imagePreview || (profile?.image ? `${profile.image}?t=${imageCacheBuster}` : '')} 
                   key={imageCacheBuster}
                 />
                 <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold">
-                  {formData.name?.charAt(0) || 'U'}
+                  {profile?.name?.charAt(0) || formData.name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-3">
