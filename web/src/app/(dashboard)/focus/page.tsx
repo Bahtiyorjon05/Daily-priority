@@ -113,10 +113,13 @@ export default function FocusPage() {
   useEffect(() => {
     if (!audioRef.current) return
 
-    const playMusic = () => {
-      audioRef.current!.play().catch(() => {
-        // Silently fail if no music file
-      })
+    const playMusic = async () => {
+      try {
+        await audioRef.current!.play()
+      } catch (error) {
+        // Browser blocked autoplay - will work after user interaction
+        console.log('Audio autoplay blocked - waiting for user interaction')
+      }
     }
 
     const stopMusic = () => {
@@ -284,6 +287,13 @@ export default function FocusPage() {
     setIsActive(true)
     // Track start time for all session types
     setSessionStart(new Date())
+    
+    // Ensure audio is ready to play (user interaction trigger)
+    if (audioRef.current && mode === 'focus' && settings.enableMusic && !isMuted) {
+      audioRef.current.play().catch(() => {
+        console.log('Audio playback will start on user interaction')
+      })
+    }
   }
 
   const pauseTimer = () => {
