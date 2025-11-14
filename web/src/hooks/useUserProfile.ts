@@ -12,12 +12,31 @@ interface UserProfile {
 let profileCache: UserProfile | null = null
 let profilePromise: Promise<UserProfile> | null = null
 
+// Event system to notify all hook instances of profile updates
+const PROFILE_UPDATE_EVENT = 'userProfileUpdated'
+const profileUpdateEvent = new Event(PROFILE_UPDATE_EVENT)
+
 export function useUserProfile() {
   const { data: session } = useSession()
   const previousUserIdRef = useRef<string | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(profileCache)
   const [loading, setLoading] = useState(!profileCache)
   const [error, setError] = useState<string | null>(null)
+
+  // Listen for profile updates from other hook instances
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log('Profile update event received, updating local state')
+      if (profileCache) {
+        setProfile(profileCache)
+      }
+    }
+
+    window.addEventListener(PROFILE_UPDATE_EVENT, handleProfileUpdate)
+    return () => {
+      window.removeEventListener(PROFILE_UPDATE_EVENT, handleProfileUpdate)
+    }
+  }, [])
 
   useEffect(() => {
     const currentUserId = session?.user?.id ?? null
@@ -138,6 +157,10 @@ export function useUserProfile() {
       profileCache = userProfile
       setProfile(userProfile)
       setLoading(false)
+      
+      // Notify all other hook instances about the update
+      console.log('Broadcasting profile update to all components')
+      window.dispatchEvent(profileUpdateEvent)
     } catch (err: any) {
       setError(err.message)
       setLoading(false)
