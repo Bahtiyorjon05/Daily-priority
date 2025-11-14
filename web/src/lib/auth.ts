@@ -415,28 +415,13 @@ export const authOptions: NextAuthOptions = {
               }
             })
 
-            // Update profile
-            const updateData: Record<string, unknown> = {}
-            if (user.name && user.name !== dbUser.name) {
-              updateData.name = user.name
-            }
-            if (user.image && user.image !== dbUser.image) {
-              updateData.image = user.image
-            }
-            if (Object.keys(updateData).length > 0) {
-              dbUser = await prisma.user.update({
-                where: { id: dbUser.id },
-                data: updateData
-              })
-            }
+            // Profile updates removed - don't need to sync name/image from Google
+            // User can update these manually in settings if needed
 
             token.sub = dbUser.id
             token.id = dbUser.id
-            // name removed
             token.email = sanitizedEmail
-            // token.image removed - causes 494 header too large
-            // Removed to reduce JWT size
-            // Removed to reduce JWT size
+            // DON'T store name, image, location, timezone - causes 494 header too large
           } else {
             // Create new user and link Google account (use sanitized email)
             logger.info('Creating new user for Google account', { email: sanitizedEmail })
