@@ -61,8 +61,6 @@ export const authOptions: NextAuthOptions = {
           select: {
             id: true,
             email: true,
-            name: true,
-            image: true,
             password: true
           }
         })
@@ -112,10 +110,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
         session.user.id = token.sub as string
-        session.user.name = token.name ?? null
         session.user.email = token.email ?? ''
-        // DON'T store base64 image in session - causes 494 header too large error
-        // Fetch image separately when needed
+        // DON'T store name, image, location, timezone in session - causes 494 header too large error
+        // These should be fetched separately from database when needed in components
+        session.user.name = null
         session.user.image = null
         // Pass 2FA verification status to client-side session
         ;(session as unknown as { needs2FA?: boolean }).needs2FA = token.needs2FA as boolean | undefined
@@ -131,9 +129,8 @@ export const authOptions: NextAuthOptions = {
     }) {
       // Update token when session is updated (e.g., profile image change)
       if (trigger === 'update' && session && session.user) {
-        token.name = session.user.name || token.name
-        // Don't store image in JWT - causes 494 header too large
         token.email = session.user.email || token.email
+        // Don't store name, image, location, timezone in JWT - causes 494 header too large
         return token
       }
 
@@ -141,25 +138,19 @@ export const authOptions: NextAuthOptions = {
       if (user && !account?.provider) {
         token.id = user.id
         token.sub = user.id
-        token.name = user.name
         token.email = user.email
-        // Don't store image in JWT - causes 494 header too large
+        // Don't store name, image, location, timezone in JWT - causes 494 header too large
         return token
       }
 
       // Refresh user data from database on subsequent requests (after initial login)
-      // This ensures profile image and other data stays in sync
+      // MINIMIZED: Only fetch critical fields to avoid 494 header too large
       if (token.sub && !user && !account) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.sub },
             select: {
               id: true,
-              name: true,
-              email: true,
-              image: true,
-              location: true,
-              timezone: true,
               password: true,
               twoFactorEnabled: true,
               twoFactorSecret: true
@@ -213,11 +204,11 @@ export const authOptions: NextAuthOptions = {
             }
             
             // Update token with user data
-            token.name = dbUser.name
+            // name removed
             token.email = dbUser.email
             // token.image removed - causes 494 header too large
-            token.location = dbUser.location
-            token.timezone = dbUser.timezone
+            // Removed to reduce JWT size
+            // Removed to reduce JWT size
           }
         } catch (error) {
           logger.error('Error refreshing user data in JWT', error)
@@ -258,15 +249,12 @@ export const authOptions: NextAuthOptions = {
             logger.info('Cleaned up old Google 2FA tokens on new signin', { userId: existingAccount.userId })
             
             // Account already linked, fetch user data for token
+            // MINIMIZED: Only critical fields to avoid 494 error
             const existingUser = await prisma.user.findUnique({
               where: { id: existingAccount.userId },
               select: {
                 id: true,
-                name: true,
                 email: true,
-                image: true,
-                location: true,
-                timezone: true,
                 password: true,
                 twoFactorEnabled: true,
                 twoFactorSecret: true
@@ -283,11 +271,8 @@ export const authOptions: NextAuthOptions = {
                 token.needsPasswordSetup = true
                 token.sub = existingUser.id
                 token.id = existingUser.id
-                token.name = existingUser.name
                 token.email = existingUser.email
-                // token.image removed - causes 494 header too large
-                token.location = existingUser.location
-                token.timezone = existingUser.timezone
+                // DON'T store name, image, location, timezone - causes 494 header too large
                 return token
               }
 
@@ -318,11 +303,8 @@ export const authOptions: NextAuthOptions = {
                   token.needs2FA = true
                   token.sub = existingUser.id
                   token.id = existingUser.id
-                  token.name = existingUser.name
                   token.email = existingUser.email
-                  // token.image removed - causes 494 header too large
-                  token.location = existingUser.location
-                  token.timezone = existingUser.timezone
+                  // DON'T store name, image, location, timezone - causes 494 header too large
                   return token
                 }
 
@@ -337,25 +319,19 @@ export const authOptions: NextAuthOptions = {
 
               token.sub = existingUser.id
               token.id = existingUser.id
-              token.name = existingUser.name
               token.email = existingUser.email
-              // token.image removed - causes 494 header too large
-              token.location = existingUser.location
-              token.timezone = existingUser.timezone
+              // DON'T store name, image, location, timezone - causes 494 header too large
             }
             return token
           }
 
           // Check if user exists with this email (use sanitized email)
+          // MINIMIZED: Only critical fields to avoid 494 error
           let dbUser = await prisma.user.findUnique({
             where: { email: sanitizedEmail },
             select: {
               id: true,
-              name: true,
               email: true,
-              image: true,
-              location: true,
-              timezone: true,
               password: true,
               twoFactorEnabled: true,
               twoFactorSecret: true
@@ -381,11 +357,11 @@ export const authOptions: NextAuthOptions = {
               token.needsPasswordSetup = true
               token.sub = dbUser.id
               token.id = dbUser.id
-              token.name = dbUser.name
+              // name removed
               token.email = dbUser.email
               // token.image removed - causes 494 header too large
-              token.location = dbUser.location
-              token.timezone = dbUser.timezone
+              // Removed to reduce JWT size
+              // Removed to reduce JWT size
               return token
             }
 
@@ -410,11 +386,11 @@ export const authOptions: NextAuthOptions = {
                 token.needs2FA = true
                 token.sub = dbUser.id
                 token.id = dbUser.id
-                token.name = dbUser.name
+                // name removed
                 token.email = dbUser.email
                 // token.image removed - causes 494 header too large
-                token.location = dbUser.location
-                token.timezone = dbUser.timezone
+                // Removed to reduce JWT size
+                // Removed to reduce JWT size
                 return token
               }
 
@@ -462,11 +438,11 @@ export const authOptions: NextAuthOptions = {
 
             token.sub = dbUser.id
             token.id = dbUser.id
-            token.name = dbUser.name
+            // name removed
             token.email = sanitizedEmail
             // token.image removed - causes 494 header too large
-            token.location = dbUser.location
-            token.timezone = dbUser.timezone
+            // Removed to reduce JWT size
+            // Removed to reduce JWT size
           } else {
             // Create new user and link Google account (use sanitized email)
             logger.info('Creating new user for Google account', { email: sanitizedEmail })
@@ -479,11 +455,7 @@ export const authOptions: NextAuthOptions = {
               },
               select: {
                 id: true,
-                name: true,
                 email: true,
-                image: true,
-                location: true,
-                timezone: true,
                 password: true,
                 twoFactorEnabled: true,
                 twoFactorSecret: true
@@ -516,11 +488,11 @@ export const authOptions: NextAuthOptions = {
               token.needsPasswordSetup = true
               token.sub = dbUser.id
               token.id = dbUser.id
-              token.name = dbUser.name
+              // name removed
               token.email = dbUser.email
               // token.image removed - causes 494 header too large
-              token.location = dbUser.location
-              token.timezone = dbUser.timezone
+              // Removed to reduce JWT size
+              // Removed to reduce JWT size
               return token
             }
 
@@ -542,11 +514,11 @@ export const authOptions: NextAuthOptions = {
                 token.needs2FA = true
                 token.sub = dbUser.id
                 token.id = dbUser.id
-                token.name = dbUser.name
+                // name removed
                 token.email = dbUser.email
                 // token.image removed - causes 494 header too large
-                token.location = dbUser.location
-                token.timezone = dbUser.timezone
+                // Removed to reduce JWT size
+                // Removed to reduce JWT size
                 return token
               }
 
@@ -561,11 +533,11 @@ export const authOptions: NextAuthOptions = {
             logger.info('Created new user successfully', { userId: dbUser.id })
             token.sub = dbUser.id
             token.id = dbUser.id
-            token.name = dbUser.name
+            // name removed
             token.email = dbUser.email
             // token.image removed - causes 494 header too large
-            token.location = dbUser.location
-            token.timezone = dbUser.timezone
+            // Removed to reduce JWT size
+            // Removed to reduce JWT size
           }
         } catch (error: any) {
           logger.error('JWT callback error', error)
@@ -590,4 +562,5 @@ export const authOptions: NextAuthOptions = {
     }
   }
 }
+
 
