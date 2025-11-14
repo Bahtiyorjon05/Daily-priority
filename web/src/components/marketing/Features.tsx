@@ -54,7 +54,7 @@ export function Features() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section id="features" className="relative py-20 sm:py-28 md:py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60 overflow-hidden">
+    <section id="features" className="relative py-12 sm:py-16 md:py-20 lg:py-28 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60 overflow-hidden">
 
       {/* Enhanced gradient background with subtle animation */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60" />
@@ -73,7 +73,7 @@ export function Features() {
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-7xl relative z-10">
 
         {/* Header with enhanced glow effect */}
         <motion.div
@@ -81,7 +81,7 @@ export function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16 sm:mb-20 space-y-5"
+          className="text-center mb-10 sm:mb-12 md:mb-16 lg:mb-20 space-y-3 sm:space-y-4 md:space-y-5"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -95,7 +95,7 @@ export function Features() {
             <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300 relative z-10">Features</span>
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tighter">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter">
             <span className="block text-slate-900 dark:text-white mb-2">Everything You Need</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
               To Be Productive

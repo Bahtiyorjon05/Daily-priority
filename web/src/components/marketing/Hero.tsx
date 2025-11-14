@@ -154,15 +154,15 @@ export function Hero() {
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center max-w-[1400px] mx-auto">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-12 sm:py-16 md:py-20 lg:py-28 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center max-w-[1400px] mx-auto">
 
           {/* LEFT: Content */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-8 sm:space-y-10"
+            className="space-y-5 sm:space-y-7 md:space-y-8 lg:space-y-10"
           >
             {/* Badge with enhanced glow effect */}
             <motion.div
@@ -172,7 +172,7 @@ export function Hero() {
               className="relative"
             >
               <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/15 dark:to-teal-600/15 rounded-full blur-xl opacity-70" />
-              <span className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg shadow-emerald-500/15 dark:shadow-emerald-900/20 backdrop-blur-sm">
+                <span className="relative inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg shadow-emerald-500/15 dark:shadow-emerald-900/20 backdrop-blur-sm">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
@@ -186,7 +186,7 @@ export function Hero() {
             {/* Heading with stagger animation and enhanced effects */}
             <div className="space-y-5">
               <motion.h1
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem] font-black leading-[1.1] tracking-tight"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -208,7 +208,7 @@ export function Hero() {
               </motion.h1>
 
               <motion.p
-                className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed font-medium"
+                className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed font-medium"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
@@ -342,7 +342,7 @@ export function Hero() {
                   transition={{ duration: 0.3 }}
                 />
 
-                <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-[calc(1.5rem-2px)] sm:rounded-[calc(1.5rem-3px)] p-6 sm:p-8 md:p-10 border border-white/50 dark:border-gray-700/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20">
+                <div className="relative bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-[calc(1.5rem-2px)] sm:rounded-[calc(1.5rem-3px)] p-4 sm:p-6 md:p-8 lg:p-10 border border-white/50 dark:border-gray-700/50 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-900/20">
                   {/* Decorative corner accents with enhanced glow */}
                   <div className="absolute top-3 sm:top-4 left-3 sm:left-4 w-10 sm:w-12 h-10 sm:h-12 border-l-2 border-t-2 border-emerald-500/40 dark:border-emerald-400/40 rounded-tl-xl sm:rounded-tl-2xl shadow-sm shadow-emerald-500/20 dark:shadow-emerald-900/20" />
                   <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 w-10 sm:w-12 h-10 sm:h-12 border-r-2 border-b-2 border-emerald-500/40 dark:border-emerald-400/40 rounded-br-xl sm:rounded-br-2xl shadow-sm shadow-emerald-500/20 dark:shadow-emerald-900/20" />
@@ -355,13 +355,13 @@ export function Hero() {
                       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                       exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
                       transition={{ duration: 0.5 }}
-                      className="space-y-6 sm:space-y-8"
+                      className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8"
                     >
                       {/* Arabic with enhanced gradient text and glow */}
                       <div className="text-center relative">
                         <div className="absolute -inset-2 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-2xl blur opacity-50" />
                         <motion.p
-                          className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 dark:from-emerald-300 dark:via-emerald-200 dark:to-teal-300 bg-clip-text text-transparent font-[family-name:var(--font-amiri)] leading-[1.8]"
+                          className="relative text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 dark:from-emerald-300 dark:via-emerald-200 dark:to-teal-300 bg-clip-text text-transparent font-[family-name:var(--font-amiri)] leading-[1.8]"
                           dir="rtl"
                           initial={{ scale: 0.95 }}
                           animate={{ scale: 1 }}
@@ -395,7 +395,7 @@ export function Hero() {
 
                       {/* English translation with improved styling and glow */}
                       <div className="text-center space-y-3 sm:space-y-4">
-                        <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed">
+                        <p className="text-sm sm:text-base md:text-lg text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed">
                           "{islamicQuotes[currentQuote].english}"
                         </p>
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-emerald-50/90 dark:bg-emerald-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-sm shadow-emerald-500/10 dark:shadow-emerald-900/20 backdrop-blur-sm">
