@@ -28,11 +28,16 @@ const menuItems: MenuItem[] = [
 
 export default function UserDropdown({ isOpen, onClose, session }: UserDropdownProps) {
   const router = useRouter()
-  const { profile } = useUserProfile()
+  const { profile, loading, error } = useUserProfile()
+  
+  console.log('[UserDropdown] Profile state:', { profile, loading, error, isOpen })
+  
   const fallbackEmail = session?.user?.email || profile?.email || ''
   const computedName = (profile?.name && profile.name.trim()) || fallbackEmail.split('@')[0] || 'User'
   const avatarSrc = profile?.image || session?.user?.image || ''
   const avatarInitial = computedName.charAt(0).toUpperCase()
+  
+  console.log('[UserDropdown] Computed values:', { computedName, avatarSrc, avatarInitial })
   
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
