@@ -906,7 +906,7 @@ export default function DashboardPageRedesigned() {
             transition={{ delay: 0.3 }}
           >
             <Card className="border border-purple-100 dark:border-purple-700/70 shadow-lg shadow-purple-100/50 dark:shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-200/60 dark:hover:shadow-purple-500/40 transition-all duration-300 bg-gradient-to-br from-white via-purple-50/60 to-violet-50/80 dark:from-slate-800 dark:via-purple-900/80 dark:to-violet-900/80 backdrop-blur-sm">
-              <CardContent className="p-3 sm:p-4"
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1">Weekly Goals</p>
