@@ -46,6 +46,7 @@ import ErrorState from './components/ErrorState'
 import LoadingState from './components/LoadingState'
 import ConfirmModal from '@/components/modals/ConfirmModal'
 import { optimizedFetch, PerformanceMonitor, clientCache } from '@/lib/performance'
+import { useUserProfile } from '@/hooks/useUserProfile'
 
 interface Task {
   id: string
@@ -104,6 +105,7 @@ function isTimeoutError(error: Error): boolean {
 
 export default function DashboardPageRedesigned() {
   const { data: session } = useSession()
+  const { profile } = useUserProfile()
   const userCacheKey = session?.user?.id ?? 'guest'
   const [tasks, setTasks] = useState<Task[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
@@ -797,14 +799,14 @@ export default function DashboardPageRedesigned() {
                 {/* User Info - Compact */}
                 <div className="flex items-center gap-3 flex-1">
                   <Avatar className="h-12 w-12 border-2 border-white/30 shadow-lg">
-                    <AvatarImage src={session?.user?.image || ''} alt={session?.user?.name || 'User'} />
+                    <AvatarImage src={profile?.image || ''} alt={profile?.name || 'User'} />
                     <AvatarFallback className="bg-white/20 backdrop-blur-sm text-white text-lg font-bold">
-                      {session?.user?.name?.charAt(0) || 'U'}
+                      {profile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <h1 className="text-xl font-bold truncate">
-                      {getGreeting()}, {session?.user?.name || 'User'}!
+                      {getGreeting()}, {profile?.name || 'User'}!
                     </h1>
                     <p className="text-white/80 text-sm">Let's be productive today</p>
                   </div>
