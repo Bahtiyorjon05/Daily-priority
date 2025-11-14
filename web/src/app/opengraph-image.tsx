@@ -102,7 +102,7 @@ export default async function Image() {
             maxWidth: '1000px',
             lineHeight: '1.5',
           }}>
-            Organize your daily tasks around prayer times • AI-powered suggestions • Built for the Muslim Ummah
+            Organize your daily tasks around prayer times • Built for the Muslim Ummah • 100% Free Forever
           </div>
 
           {/* Features */}
