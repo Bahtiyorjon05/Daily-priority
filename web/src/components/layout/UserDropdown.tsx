@@ -32,12 +32,12 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
   
   console.log('[UserDropdown] Profile state:', { profile, loading, error, isOpen })
   
-  const fallbackEmail = session?.user?.email || profile?.email || ''
-  const computedName = (profile?.name && profile.name.trim()) || fallbackEmail.split('@')[0] || 'User'
-  const avatarSrc = profile?.image || session?.user?.image || ''
-  const avatarInitial = computedName.charAt(0).toUpperCase()
+  // Use profile data directly - it should be loaded by now
+  const displayName = profile?.name || 'User'
+  const displayImage = profile?.image || ''
+  const displayInitial = displayName.charAt(0).toUpperCase()
   
-  console.log('[UserDropdown] Computed values:', { computedName, avatarSrc, avatarInitial })
+  console.log('[UserDropdown] Display values:', { displayName, displayImage, displayInitial })
   
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
@@ -62,14 +62,14 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
           <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12 ring-2 ring-emerald-200 dark:ring-emerald-800">
-                <AvatarImage src={avatarSrc} />
+                <AvatarImage src={displayImage} />
                 <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold">
-                  {avatarInitial || 'U'}
+                  {displayInitial}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {computedName}
+                  {displayName}
                 </p>
               </div>
             </div>
