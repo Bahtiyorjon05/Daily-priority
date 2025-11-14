@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Menu, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -16,6 +16,29 @@ interface TopBarProps {
 export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarProps) {
   const { theme, systemTheme, setTheme } = useTheme()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [userName, setUserName] = useState<string>('')
+  const [userImage, setUserImage] = useState<string | null>(null)
+
+  // Fetch user profile data (since session no longer contains name/image)
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch('/api/user/profile')
+        if (response.ok) {
+          const data = await response.json()
+          setUserName(data.profile.name || 'User')
+          setUserImage(data.profile.image)
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
+        setUserName('User')
+      }
+    }
+
+    if (session?.user) {
+      fetchProfile()
+    }
+  }, [session])
 
   return (
     <>
@@ -65,9 +88,9 @@ export default function TopBar({ session, onSidebarToggle, isMobile }: TopBarPro
                 className="h-10 w-10 rounded-lg p-0"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={session?.user?.image || ''} />
+                  <AvatarImage src={userImage || ''} />
                   <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
-                    {session?.user?.name?.charAt(0) || 'U'}
+                    {userName?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
