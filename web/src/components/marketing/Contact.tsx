@@ -110,10 +110,12 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-12 sm:py-16 md:py-20 lg:py-28 overflow-hidden bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-emerald-50/90 via-teal-50/80 to-cyan-50/70 dark:from-[#0a0a0a] dark:via-[#0d2a22] dark:to-[#0a1f18]">
+    <section id="contact" className="relative py-10 sm:py-14 md:py-18 lg:py-28 bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-emerald-50/90 via-teal-50/80 to-cyan-50/70 dark:from-[#0a0a0a] dark:via-[#0d2a22] dark:to-[#0a1f18] scroll-mt-16 sm:scroll-mt-20">
+
+      <div className="absolute inset-0 sm:hidden bg-gradient-to-b from-white via-emerald-50/60 to-white dark:from-[#050505] dark:via-[#0c1f19]/90 dark:to-[#050505]" aria-hidden="true" />
 
       {/* Enhanced animated background elements with additional depth */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none hidden lg:block" aria-hidden="true">
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
@@ -170,11 +172,11 @@ export function Contact() {
       </div>
 
       {/* Enhanced noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay">
+      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay hidden lg:block" aria-hidden="true">
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-4xl relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-4xl max-w-[100vw] relative z-10">
 
         {/* Header with enhanced glow effect */}
         <motion.div
@@ -195,14 +197,14 @@ export function Contact() {
             <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 relative z-10">Get in Touch</span>
           </motion.div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-            <span className="block text-slate-900 dark:text-white mb-2">We're Here to Help</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold leading-tight text-balance">
+            <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">We're Here to Help</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
               Reach Out Anytime
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base lg:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed text-pretty px-2">
             Have questions or feedback? We'd love to hear from you
           </p>
         </motion.div>
@@ -219,7 +221,7 @@ export function Contact() {
             <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/40 via-teal-500/40 to-cyan-500/40 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
 
             {/* Card with enhanced glass morphism */}
-            <div className="relative bg-white/80 dark:bg-[#1C1C1C]/80 backdrop-blur-2xl border-2 border-emerald-200/50 dark:border-emerald-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-500">
+            <div className="relative bg-white/80 dark:bg-[#1C1C1C]/80 backdrop-blur-2xl border-2 border-emerald-200/50 dark:border-emerald-700/60 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-8 shadow-2xl hover:shadow-3xl transition-all duration-500">
 
               {/* Decorative elements */}
               <div className="absolute top-4 left-4 w-12 h-12 border-l-2 border-t-2 border-emerald-500/30 dark:border-emerald-400/30 rounded-tl-2xl" />
@@ -300,7 +302,7 @@ export function Contact() {
                   <button
                     type="submit"
                     disabled={isSubmitting || showSuccess}
-                    className={`${styles.contactSubmitBtn} relative w-full h-14 sm:h-16 md:h-20 text-lg sm:text-xl md:text-2xl font-black bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-700 hover:from-emerald-800 hover:via-teal-800 hover:to-emerald-800 rounded-2xl shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300 overflow-hidden border-4 border-emerald-800/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]`}
+                    className={`${styles.contactSubmitBtn} relative w-full h-14 sm:h-16 md:h-20 text-base sm:text-lg md:text-2xl font-black bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-700 hover:from-emerald-800 hover:via-teal-800 hover:to-emerald-800 rounded-2xl shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300 overflow-hidden border-4 border-emerald-800/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]`}
                   >
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
@@ -419,7 +421,7 @@ export function Contact() {
                           <h3 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
                             Message Sent! 🎉
                           </h3>
-                          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xs mx-auto">
+                          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xs mx-auto text-pretty">
                             Thank you for reaching out! We'll get back to you within 24-48 hours.
                           </p>
                         </motion.div>

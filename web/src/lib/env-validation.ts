@@ -1,20 +1,20 @@
 /**
- * Environment variable validation for Next.js app
- * This ensures all required environment variables are present and valid
+ * Environment variable validation for Next.js app.
+ * Keeps production strict while letting local designers run without every secret.
  */
 
 const requiredEnvVars = {
   // Database
   DATABASE_URL: process.env.DATABASE_URL,
-  
+
   // NextAuth
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-  
+
   // Google OAuth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-  
+
   // App
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 } as const
@@ -24,43 +24,59 @@ const optionalEnvVars = {
   GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
 } as const
 
+const isProduction = process.env.NODE_ENV === 'production'
+const strictValidation = isProduction || process.env.STRICT_ENV_VALIDATION === 'true'
+
 /**
- * Validates all required environment variables
- * Throws an error if any required variable is missing
+ * Validates all required environment variables.
+ * In strict mode (production or STRICT_ENV_VALIDATION=true) missing/invalid vars throw.
+ * In relaxed mode we log warnings so the marketing site can still run locally.
  */
 export function validateEnvironmentVariables() {
   const missingVars: string[] = []
-  
-  // Check required variables
+
   Object.entries(requiredEnvVars).forEach(([key, value]) => {
     if (!value || value.trim() === '') {
       missingVars.push(key)
     }
   })
-  
+
   if (missingVars.length > 0) {
-    throw new Error(
-      'Missing required environment variables: ' + (missingVars.join(', ')) + '\n' +
-      'Please check your .env file and ensure all required variables are set.'
-    )
+    const message =
+      'Missing required environment variables: ' + missingVars.join(', ') +
+      '\nPlease check your .env file and ensure all required variables are set.'
+
+    if (strictValidation) {
+      throw new Error(message)
+    } else {
+      console.warn('�?O Env validation warning:', message)
+      return
+    }
   }
-  
-  // Validate formats
-  validateEnvFormats()
-  
-  console.log('✅ All environment variables are valid')
+
+  if (strictValidation) {
+    validateEnvFormats()
+    console.log('�?O All environment variables are valid')
+  } else {
+    try {
+      validateEnvFormats()
+    } catch (error) {
+      console.warn(
+        '�?O Env validation warning:',
+        error instanceof Error ? error.message : error
+      )
+    }
+  }
 }
 
 /**
- * Validates the format of environment variables
+ * Validates the format of environment variables.
  */
 function validateEnvFormats() {
-  // Validate DATABASE_URL format
   if (requiredEnvVars.DATABASE_URL && !requiredEnvVars.DATABASE_URL.startsWith('postgresql://')) {
     throw new Error('DATABASE_URL must be a valid PostgreSQL connection string')
   }
-  
-  // Validate NEXTAUTH_URL format
+
   if (requiredEnvVars.NEXTAUTH_URL) {
     try {
       new URL(requiredEnvVars.NEXTAUTH_URL)
@@ -68,18 +84,15 @@ function validateEnvFormats() {
       throw new Error('NEXTAUTH_URL must be a valid URL')
     }
   }
-  
-  // Validate NEXTAUTH_SECRET length
+
   if (requiredEnvVars.NEXTAUTH_SECRET && requiredEnvVars.NEXTAUTH_SECRET.length < 32) {
     throw new Error('NEXTAUTH_SECRET must be at least 32 characters long for security')
   }
-  
-  // Validate Google Client ID format
+
   if (requiredEnvVars.GOOGLE_CLIENT_ID && !requiredEnvVars.GOOGLE_CLIENT_ID.includes('.apps.googleusercontent.com')) {
     throw new Error('GOOGLE_CLIENT_ID must be a valid Google OAuth client ID')
   }
-  
-  // Validate NEXT_PUBLIC_APP_URL format
+
   if (requiredEnvVars.NEXT_PUBLIC_APP_URL) {
     try {
       new URL(requiredEnvVars.NEXT_PUBLIC_APP_URL)
@@ -90,31 +103,31 @@ function validateEnvFormats() {
 }
 
 /**
- * Get all environment variables (for debugging)
+ * Debug helper to list environment state without exposing secrets.
  */
 export function getEnvironmentInfo() {
   return {
     required: Object.entries(requiredEnvVars).map(([key, value]) => ({
       key,
       present: !!value,
-      masked: value ? (value.substring(0, 8)) + '...' : 'NOT_SET'
+      masked: value ? value.substring(0, 8) + '...' : 'NOT_SET',
     })),
     optional: Object.entries(optionalEnvVars).map(([key, value]) => ({
       key,
       present: !!value,
-      masked: value ? (value.substring(0, 8)) + '...' : 'NOT_SET'
-    }))
+      masked: value ? value.substring(0, 8) + '...' : 'NOT_SET',
+    })),
   }
 }
 
-// ALWAYS validate environment variables on import (both dev and production)
+// ALWAYS validate environment variables on import.
 try {
   validateEnvironmentVariables()
 } catch (error) {
-  console.error('❌ Environment validation failed:', error)
-  // In production, log error but don't exit (let app try to start)
-  // In development, exit immediately
-  if (process.env.NODE_ENV === 'development') {
+  console.error('�?O Environment validation failed:', error)
+  if (!strictValidation && process.env.NODE_ENV === 'development') {
+    console.warn('Skipping environment validation failure in development mode.')
+  } else if (process.env.NODE_ENV === 'development') {
     process.exit(1)
   }
 }

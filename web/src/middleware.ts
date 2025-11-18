@@ -1,101 +1,137 @@
-import { withAuth } from "next-auth/middleware"
+import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import { jwtVerify, type JWTPayload } from "jose"
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl
-    const token = req.nextauth.token
-    
-    // Public routes that don't require authentication
-    const publicRoutes = [
-      '/',
-      '/signin',
-      '/signup',
-      '/forgot-password',
-      '/forgot-2fa',
-      '/reset-password',
-      '/verify-code',
-      '/verify-2fa-google',
-      '/error'
-    ]
+const publicRoutes = new Set([
+  '/',
+  '/signin',
+  '/signup',
+  '/forgot-password',
+  '/forgot-2fa',
+  '/reset-password',
+  '/verify-code',
+  '/verify-2fa-google',
+  '/error'
+])
 
-    // Routes that need authentication but are special (like set-password for OAuth users)
-    const semiProtectedRoutes = [
-      '/set-password'
-    ]
+const semiProtectedRoutes = new Set(['/set-password'])
+const authCookieNames = ['next-auth.session-token', '__Secure-next-auth.session-token']
+const secret = process.env.NEXTAUTH_SECRET
+const secretKey = secret ? new TextEncoder().encode(secret) : null
+const authEnabled = Boolean(secretKey)
 
-    // Check if current path is a public route
-    const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
-    const isSemiProtected = semiProtectedRoutes.some(route => pathname === route || pathname.startsWith(route + '/'))
-    
-    // Allow access to public routes
-    if (isPublicRoute) {
-      return NextResponse.next()
-    }
+type AuthPayload = JWTPayload & {
+  email?: string
+  needs2FA?: boolean
+  needsPasswordSetup?: boolean
+}
 
-    // For set-password and similar routes, allow if user is authenticated (even without full setup)
-    if (isSemiProtected && token) {
-      return NextResponse.next()
-    }
-
-    // Protect all other routes - require authentication
-    if (!token) {
-      const signInUrl = new URL('/signin', req.url)
-      signInUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname))
-      return NextResponse.redirect(signInUrl)
-    }
-
-    // ⚠️ CRITICAL: Check if user needs to set password (required for all users, including Google OAuth)
-    // This check must come BEFORE 2FA check, as password is required before enabling 2FA
-    if (token.needsPasswordSetup && pathname !== '/set-password') {
-      const setPasswordUrl = new URL('/set-password', req.url)
-      if (token.email) {
-        setPasswordUrl.searchParams.set('email', encodeURIComponent(token.email as string))
-        setPasswordUrl.searchParams.set('required', 'true') // Indicate this is mandatory
-      }
-      return NextResponse.redirect(setPasswordUrl)
-    }
-
-    // Check if user needs 2FA verification
-    // If they're authenticated but haven't completed 2FA, redirect them
-    if (token.needs2FA && pathname !== '/verify-2fa-google') {
-      const verify2FAUrl = new URL('/verify-2fa-google', req.url)
-      if (token.email) {
-        verify2FAUrl.searchParams.set('email', encodeURIComponent(token.email as string))
-      }
-      return NextResponse.redirect(verify2FAUrl)
-    }
-
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        // Return true to allow the middleware function to handle the logic
-        // This will be called for all matched routes
-        return true
-      }
-    },
-    pages: {
-      signIn: '/signin',
+function matchesRoute(pathname: string, routes: Set<string>) {
+  for (const route of routes) {
+    if (pathname === route || pathname.startsWith(`${route}/`)) {
+      return true
     }
   }
-)
+  return false
+}
 
-// Apply middleware to these routes
+function getSessionToken(req: NextRequest) {
+  const cookieHeader = req.headers.get('cookie')
+  if (!cookieHeader) return null
+
+  const cookies = cookieHeader.split(';').map((part) => part.trim())
+  for (const cookie of cookies) {
+    const [name, ...rest] = cookie.split('=')
+    if (authCookieNames.includes(name)) {
+      const rawValue = rest.join('=')
+      try {
+        return decodeURIComponent(rawValue)
+      } catch {
+        return rawValue
+      }
+    }
+  }
+  return null
+}
+
+async function decodeToken(tokenValue: string): Promise<AuthPayload | null> {
+  if (!secretKey) return null
+
+  try {
+    const { payload } = await jwtVerify<AuthPayload>(tokenValue, secretKey)
+    return payload
+  } catch (error) {
+    console.warn('[middleware] Failed to verify session token', error)
+    return null
+  }
+}
+
+function redirectToSignIn(req: NextRequest) {
+  const signInUrl = new URL('/signin', req.url)
+  signInUrl.searchParams.set('callbackUrl', encodeURIComponent(req.nextUrl.pathname))
+
+  const response = NextResponse.redirect(signInUrl)
+  authCookieNames.forEach((name) => {
+    response.cookies.set({
+      name,
+      value: '',
+      path: '/',
+      expires: new Date(0),
+    })
+  })
+  return response
+}
+
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+
+  if (!authEnabled) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[middleware] NEXTAUTH_SECRET missing; allowing request without auth.')
+    }
+    return NextResponse.next()
+  }
+
+  if (matchesRoute(pathname, publicRoutes)) {
+    return NextResponse.next()
+  }
+
+  const sessionToken = getSessionToken(req)
+  const tokenPayload = sessionToken ? await decodeToken(sessionToken) : null
+
+  if (!tokenPayload) {
+    return redirectToSignIn(req)
+  }
+
+  if (matchesRoute(pathname, semiProtectedRoutes)) {
+    return NextResponse.next()
+  }
+
+  if (tokenPayload.needsPasswordSetup && pathname !== '/set-password') {
+    const setPasswordUrl = new URL('/set-password', req.url)
+    if (tokenPayload.email) {
+      setPasswordUrl.searchParams.set('email', encodeURIComponent(tokenPayload.email))
+      setPasswordUrl.searchParams.set('required', 'true')
+    }
+    return NextResponse.redirect(setPasswordUrl)
+  }
+
+  if (tokenPayload.needs2FA && pathname !== '/verify-2fa-google') {
+    const verify2FAUrl = new URL('/verify-2fa-google', req.url)
+    if (tokenPayload.email) {
+      verify2FAUrl.searchParams.set('email', encodeURIComponent(tokenPayload.email))
+    }
+    return NextResponse.redirect(verify2FAUrl)
+  }
+
+  return NextResponse.next()
+}
+
 export const config = {
+  // Keep middleware off of Next.js internals and run in the Node runtime so we avoid
+  // the edge-only request-cookies adapter that has been crashing in dev.
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public (public files)
-     * - manifest.json (PWA manifest)
-     * - robots.txt (robots file)
-     * - sitemap.xml (sitemap)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public|manifest.json|robots.txt|sitemap.xml).*)',
   ],
+  runtime: 'nodejs',
 }

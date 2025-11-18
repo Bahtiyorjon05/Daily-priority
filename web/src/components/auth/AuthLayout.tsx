@@ -28,11 +28,11 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
         }} />
         
         {/* Floating Orbs - More vibrant in dark mode */}
-        <div className="absolute top-1/5 left-1/6 w-96 h-96 bg-gradient-to-br from-emerald-400/20 via-teal-400/15 to-cyan-400/25 dark:from-emerald-500/30 dark:via-teal-500/25 dark:to-cyan-500/35 rounded-full blur-3xl animate-float opacity-40 dark:opacity-70"></div>
-        <div className="absolute bottom-1/5 right-1/6 w-80 h-80 bg-gradient-to-tl from-purple-400/15 via-pink-400/12 to-rose-400/18 dark:from-purple-500/25 dark:via-pink-500/20 dark:to-rose-500/30 rounded-full blur-3xl animate-float-slow opacity-35 dark:opacity-60"></div>
-        <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-gradient-to-r from-blue-400/12 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/22 dark:via-indigo-500/28 dark:to-purple-500/35 rounded-full blur-2xl animate-pulse opacity-30 dark:opacity-55"></div>
-        <div className="absolute top-1/3 left-1/2 w-64 h-64 bg-gradient-to-bl from-teal-400/18 via-cyan-400/15 to-emerald-400/22 dark:from-teal-500/28 dark:via-cyan-500/25 dark:to-emerald-500/35 rounded-full blur-3xl animate-float-slower opacity-25 dark:opacity-50"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-88 h-88 bg-gradient-to-tr from-rose-400/10 via-pink-400/8 to-purple-400/15 dark:from-rose-500/18 dark:via-pink-500/15 dark:to-purple-500/25 rounded-full blur-3xl animate-float opacity-20 dark:opacity-45"></div>
+        <div aria-hidden="true" className="hidden sm:block absolute top-1/5 left-1/6 w-96 h-96 bg-gradient-to-br from-emerald-400/20 via-teal-400/15 to-cyan-400/25 dark:from-emerald-500/30 dark:via-teal-500/25 dark:to-cyan-500/35 rounded-full blur-3xl animate-float opacity-40 dark:opacity-70"></div>
+        <div aria-hidden="true" className="hidden sm:block absolute bottom-1/5 right-1/6 w-80 h-80 bg-gradient-to-tl from-purple-400/15 via-pink-400/12 to-rose-400/18 dark:from-purple-500/25 dark:via-pink-500/20 dark:to-rose-500/30 rounded-full blur-3xl animate-float-slow opacity-35 dark:opacity-60"></div>
+        <div aria-hidden="true" className="hidden md:block absolute top-1/2 right-1/4 w-72 h-72 bg-gradient-to-r from-blue-400/12 via-indigo-400/15 to-purple-400/20 dark:from-blue-500/22 dark:via-indigo-500/28 dark:to-purple-500/35 rounded-full blur-2xl animate-pulse opacity-30 dark:opacity-55"></div>
+        <div aria-hidden="true" className="hidden md:block absolute top-1/3 left-1/2 w-64 h-64 bg-gradient-to-bl from-teal-400/18 via-cyan-400/15 to-emerald-400/22 dark:from-teal-500/28 dark:via-cyan-500/25 dark:to-emerald-500/35 rounded-full blur-3xl animate-float-slower opacity-25 dark:opacity-50"></div>
+        <div aria-hidden="true" className="hidden lg:block absolute bottom-1/3 left-1/4 w-88 h-88 bg-gradient-to-tr from-rose-400/10 via-pink-400/8 to-purple-400/15 dark:from-rose-500/18 dark:via-pink-500/15 dark:to-purple-500/25 rounded-full blur-3xl animate-float opacity-20 dark:opacity-45"></div>
       </div>
 
       {/* Enhanced Header */}
@@ -73,9 +73,9 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-3 py-16 sm:p-4 sm:pt-24 md:p-6 md:pt-28 pb-6 sm:pb-8">
-        <div className="w-full max-w-[96%] sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl animate-fade-in-scale">
-          <Card className="relative backdrop-blur-3xl bg-white/98 dark:bg-slate-900/98 border-2 border-emerald-200/70 dark:border-emerald-500/40 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-400/30 rounded-lg sm:rounded-xl overflow-hidden">
+      <div className="relative z-10 min-h-screen px-3 pt-24 pb-10 sm:px-4 sm:pt-28 md:px-6 lg:px-8 flex items-start md:items-center justify-center">
+        <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl animate-fade-in-scale">
+          <Card className="relative backdrop-blur-3xl bg-white/98 dark:bg-slate-900/98 border-2 border-emerald-200/70 dark:border-emerald-500/40 shadow-2xl shadow-emerald-500/10 dark:shadow-emerald-400/30 rounded-xl sm:rounded-2xl overflow-hidden">
 
             {/* Ambient glow */}
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/3 via-teal-500/3 to-emerald-500/3 dark:from-emerald-400/15 dark:via-teal-400/12 dark:to-emerald-400/15 rounded-lg sm:rounded-xl blur-xl -z-10"></div>

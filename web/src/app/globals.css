@@ -547,8 +547,18 @@
   @apply border-border;
 }
 
+html {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
 body {
   @apply bg-background text-foreground;
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  position: relative;
   font-feature-settings: "rlig" 1, "calt" 1;
   /* Smooth font rendering */
   -webkit-font-smoothing: antialiased;
@@ -646,27 +656,62 @@ body {
   background-size: 1000px 100%;
 }
 
-/* Custom Scrollbar - Modern and sleek */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* Hide scrollbar on mobile only, show on desktop */
+@media (max-width: 1023px) {
+  ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  ::-webkit-scrollbar-track {
+    display: none !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    display: none !important;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    display: none !important;
+  }
+
+  /* Firefox scrollbar hiding on mobile */
+  * {
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 10px;
-}
+/* Desktop scrollbar - elegant and modern */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-gradient-to-b from-indigo-500 to-purple-600 dark:from-indigo-600 dark:to-purple-700 rounded-full;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  transition: all 0.3s ease;
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  @apply from-indigo-600 to-purple-700 dark:from-indigo-500 dark:to-purple-600;
-  border-width: 1px;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gradient-to-b from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-full;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: all 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply from-emerald-600 to-teal-700 dark:from-emerald-500 dark:to-teal-600;
+    border-width: 1px;
+  }
+
+  /* Firefox scrollbar on desktop */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(16 185 129) transparent;
+  }
 }
 
 /* Glass morphism effect */

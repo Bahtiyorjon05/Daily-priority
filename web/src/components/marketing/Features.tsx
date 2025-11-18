@@ -54,13 +54,13 @@ export function Features() {
   const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section id="features" className="relative py-16 sm:py-20 md:py-24 lg:py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60 overflow-hidden">
+    <section id="features" className="relative py-12 sm:py-16 md:py-20 lg:py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60 scroll-mt-16 sm:scroll-mt-20">
 
       {/* Enhanced gradient background with subtle animation */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60" />
 
       {/* Floating orbs for background effect with enhanced depth */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/25 dark:to-teal-600/25 rounded-full blur-3xl animate-float-slow" />
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-tr from-teal-400/20 to-cyan-400/20 dark:from-teal-600/25 dark:to-cyan-600/25 rounded-full blur-3xl animate-float-slower" />
         {/* Additional orbs for enhanced depth */}
@@ -69,11 +69,11 @@ export function Features() {
       </div>
 
       {/* Enhanced noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay">
+      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay hidden lg:block" aria-hidden="true">
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl max-w-[100vw] relative z-10">
 
         {/* Header with enhanced glow effect */}
         <motion.div
@@ -81,7 +81,7 @@ export function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10 sm:mb-12 md:mb-16 lg:mb-20 space-y-3 sm:space-y-4 md:space-y-5"
+          className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-20 space-y-2 sm:space-y-3 md:space-y-5"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -95,14 +95,14 @@ export function Features() {
             <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300 relative z-10">Features</span>
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight">
-            <span className="block text-slate-900 dark:text-white mb-2">Everything You Need</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black leading-tight tracking-tight">
+            <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">Everything You Need</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
               To Be Productive
             </span>
           </h2>
 
-          <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed text-pretty px-2">
             Built with Islamic principles at the core
           </p>
         </motion.div>
@@ -112,7 +112,7 @@ export function Features() {
           ref={ref}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon
@@ -138,32 +138,32 @@ export function Features() {
                   <div className={`absolute -inset-2 bg-gradient-to-br ${feature.gradient} rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500`} />
 
                   {/* Card with enhanced glass morphism */}
-                  <div className="relative h-full p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-[#1C1C1C]/80 border border-slate-200/60 dark:border-[#2a2a2a]/60 hover:border-slate-300 dark:hover:border-[#404040]/60 transition-all duration-500 shadow-xl hover:shadow-2xl overflow-hidden backdrop-blur-sm">
+                  <div className="relative h-full p-4 sm:p-5 md:p-6 lg:p-7 rounded-xl sm:rounded-2xl lg:rounded-3xl bg-white/80 dark:bg-[#1C1C1C]/80 border border-slate-200/60 dark:border-[#2a2a2a]/60 hover:border-slate-300 dark:hover:border-[#404040]/60 transition-all duration-500 shadow-xl hover:shadow-2xl overflow-hidden backdrop-blur-sm">
 
                     {/* Gradient overlay on hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl sm:rounded-3xl`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-xl sm:rounded-2xl lg:rounded-3xl`} />
 
                     {/* Icon with enhanced glow and animation */}
                     <motion.div
                       whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                       transition={{ duration: 0.5 }}
-                      className="relative mb-5"
+                      className="relative mb-3 sm:mb-4 lg:mb-5"
                     >
-                      <div className={`relative inline-flex p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg shadow-${feature.shadowColor}-500/30 dark:shadow-${feature.shadowColor}-900/30`}>
-                        <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur opacity-50 rounded-xl sm:rounded-2xl`} />
-                        <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10" />
+                      <div className={`relative inline-flex p-2.5 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl lg:rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg shadow-${feature.shadowColor}-500/30 dark:shadow-${feature.shadowColor}-900/30`}>
+                        <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur opacity-50 rounded-lg sm:rounded-xl lg:rounded-2xl`} />
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" />
                       </div>
 
                       {/* Glow effect on icon */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 rounded-xl sm:rounded-2xl`} />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 rounded-lg sm:rounded-xl lg:rounded-2xl`} />
                     </motion.div>
 
                     {/* Content */}
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
+                    <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                       {feature.title}
                     </h3>
 
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-5 text-sm sm:text-base">
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3 sm:mb-4 lg:mb-5 text-xs sm:text-sm md:text-base text-pretty">
                       {feature.description}
                     </p>
 
