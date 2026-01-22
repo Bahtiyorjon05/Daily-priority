@@ -110,7 +110,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-10 sm:py-14 md:py-18 lg:py-28 bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-emerald-50/90 via-teal-50/80 to-cyan-50/70 dark:from-[#0a0a0a] dark:via-[#0d2a22] dark:to-[#0a1f18] scroll-mt-16 sm:scroll-mt-20">
+    <section id="contact" className="relative py-12 sm:py-16 md:py-20 lg:py-28 bg-[conic-gradient(at_top_right,_var(--tw-gradient-stops))] from-emerald-50/90 via-teal-50/80 to-cyan-50/70 dark:from-[#0a0a0a] dark:via-[#0d2a22] dark:to-[#0a1f18] scroll-mt-16 sm:scroll-mt-20">
 
       <div className="absolute inset-0 sm:hidden bg-gradient-to-b from-white via-emerald-50/60 to-white dark:from-[#050505] dark:via-[#0c1f19]/90 dark:to-[#050505]" aria-hidden="true" />
 

@@ -156,14 +156,14 @@ export function Navbar() {
         {mobileMenuOpen && (
           <motion.div
             id="marketing-mobile-nav"
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className="md:hidden fixed top-0 left-0 right-0 bottom-0 z-50 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-2xl flex flex-col"
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+            className="md:hidden fixed inset-0 z-50 bg-white/95 dark:bg-[#0a0a0a]/98 backdrop-blur-2xl flex flex-col"
           >
             {/* Mobile Nav Header */}
-            <div className="flex items-center justify-between px-4 h-16 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="flex items-center justify-between px-4 h-16 border-b border-slate-100/50 dark:border-slate-800/50">
               <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                 <Logo />
               </Link>
@@ -173,36 +173,36 @@ export function Navbar() {
                 className="rounded-full h-10 w-10 hover:bg-slate-100 dark:hover:bg-slate-800"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </Button>
             </div>
 
             {/* Mobile Nav Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-center items-center gap-8">
+            <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-center items-center gap-6">
               <div className="flex flex-col items-center gap-6 w-full max-w-sm">
                 <a
                   href="#features"
                   onClick={(e) => scrollToSection(e, 'features')}
-                  className="text-2xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="text-3xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   Features
                 </a>
                 <a
                   href="#contact"
                   onClick={(e) => scrollToSection(e, 'contact')}
-                  className="text-2xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                  className="text-3xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   Contact
                 </a>
               </div>
 
-              <div className="w-16 h-1 bg-slate-100 dark:bg-slate-800 rounded-full" />
+              <div className="w-16 h-1 bg-slate-100 dark:bg-slate-800 rounded-full my-4" />
 
               <div className="flex flex-col gap-4 w-full max-w-sm">
                 <Link href="/signin" onClick={() => setMobileMenuOpen(false)} className="w-full">
                   <Button 
                     variant="outline" 
-                    className="w-full h-12 text-lg font-medium rounded-xl border-2 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    className="w-full h-12 text-lg font-medium rounded-xl border-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:border-slate-700"
                   >
                     Sign In
                   </Button>
