@@ -792,41 +792,43 @@ export default function DashboardPageRedesigned() {
               <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E\")", backgroundSize: "30px 30px" }}></div>
             </div>
 
-            <CardContent className="p-6 relative z-10">
-              <div className="flex items-center justify-between gap-4">
+            <CardContent className="p-4 sm:p-6 relative z-10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
                 {/* User Info - Compact */}
-                <div className="flex items-center gap-3 flex-1">
-                  <Avatar className="h-12 w-12 border-2 border-white/30 shadow-lg">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border-2 border-white/30 shadow-lg shrink-0">
                     <AvatarImage src={profile?.image || ''} alt={profile?.name || 'User'} />
                     <AvatarFallback className="bg-white/20 backdrop-blur-sm text-white text-lg font-bold">
                       {profile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-xl font-bold truncate">
+                    <h1 className="text-xl sm:text-2xl font-bold truncate leading-tight">
                       {getGreeting()}, {profile?.name || 'User'}!
                     </h1>
-                    <p className="text-white/80 text-sm">Let's be productive today</p>
+                    <p className="text-white/80 text-xs sm:text-sm truncate">Let's be productive today</p>
                   </div>
                 </div>
 
                 {/* Streak Badge - Compact */}
-                <div className="bg-white/20 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-2 border border-white/30">
-                  <Flame className="h-5 w-5 text-orange-300" />
-                  <div className="text-left">
-                    <div className="text-2xl font-bold leading-none">{stats?.streak || 0}</div>
-                    <div className="text-xs text-white/80">days</div>
+                <div className="flex sm:block justify-start sm:justify-end w-full sm:w-auto">
+                  <div className="bg-white/20 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-3 border border-white/30 w-full sm:w-auto">
+                    <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-orange-300" />
+                    <div className="text-left">
+                      <div className="text-xl sm:text-2xl font-bold leading-none">{stats?.streak || 0}</div>
+                      <div className="text-xs text-white/80">day streak</div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Daily Quote - Compact */}
               {dailyQuote && (
-                <div className="mt-4 bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                  <p className="text-white/95 text-sm font-medium italic leading-relaxed">
+                <div className="mt-4 sm:mt-6 bg-white/10 backdrop-blur-md rounded-xl p-3 sm:p-4 border border-white/20">
+                  <p className="text-white/95 text-xs sm:text-sm font-medium italic leading-relaxed">
                     "{dailyQuote.text}"
                   </p>
-                  <p className="text-white/70 text-xs mt-1">-- {dailyQuote.source}</p>
+                  <p className="text-white/70 text-[10px] sm:text-xs mt-1.5">-- {dailyQuote.source}</p>
                 </div>
               )}
             </CardContent>
@@ -1166,24 +1168,24 @@ export default function DashboardPageRedesigned() {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
+                              <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all self-start sm:self-center mt-1 sm:mt-0">
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setEditingTask(task)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0 hover:shadow-md"
+                                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0"
                                   aria-label="Edit task"
                                 >
-                                  <Edit2 className="h-5 w-5" />
+                                  <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => deleteTask(task.id)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0 hover:shadow-md"
+                                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0"
                                   aria-label="Delete task"
                                 >
-                                  <Trash2 className="h-5 w-5" />
+                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
                               </div>
                             </div>
