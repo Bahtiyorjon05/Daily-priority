@@ -32,11 +32,13 @@ const appUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "Daily Priority - Islamic Productivity App",
+    default: "Daily Priority - Islamic Productivity & Focus App",
     template: "%s | Daily Priority"
   },
-  description: "Daily Priority helps Muslims organize their daily tasks around prayer times with habit tracking and Islamic productivity principles. Built as Sadaqah Jariyah for the Ummah.",
+  description: "Daily Priority helps Muslims organize their daily tasks around prayer times. The ultimate Islamic productivity app for focus, habit tracking, and Barakah.",
   keywords: [
+    "daily priority",
+    "priority",
     "islamic productivity",
     "muslim task management",
     "prayer times",
@@ -44,11 +46,8 @@ export const metadata: Metadata = {
     "productivity app for muslims",
     "daily planner",
     "habit tracker",
-    "islamic calendar",
     "salah tracker",
-    "quran journal",
-    "task management",
-    "dunya akhirah balance",
+    "focus app",
     "barakah productivity"
   ],
   authors: [{ name: "Daily Priority Team" }],
@@ -71,7 +70,7 @@ export const metadata: Metadata = {
     alternateLocale: ['ar_SA', 'ur_PK', 'id_ID', 'tr_TR'],
     url: '/',
     siteName: 'Daily Priority',
-    title: 'Daily Priority - Islamic Productivity App',
+    title: 'Daily Priority - Islamic Productivity & Focus App',
     description: 'Organize your daily tasks around prayer times. Balance your Dunya and Akhirah with purpose-driven productivity.',
     images: [
       {
@@ -85,7 +84,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Daily Priority - Islamic Productivity App',
+    title: 'Daily Priority - Islamic Productivity & Focus App',
     description: 'Organize your daily tasks around prayer times. Build productive habits aligned with Islamic values.',
     images: ['/opengraph-image'],
     creator: '@dailypriority',

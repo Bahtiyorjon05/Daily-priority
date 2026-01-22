@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://dailypriority.com'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://daily-priority.vercel.app'
 
   return {
     rules: {
