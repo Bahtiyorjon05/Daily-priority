@@ -6,10 +6,7 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
-  // ESLint and TypeScript errors WILL prevent builds (safe defaults)
-  eslint: {
-    ignoreDuringBuilds: false, // ✅ Catch ESLint errors during build
-  },
+  // TypeScript errors WILL prevent builds (safe defaults)
   typescript: {
     ignoreBuildErrors: false, // ✅ Catch TypeScript errors during build
   },

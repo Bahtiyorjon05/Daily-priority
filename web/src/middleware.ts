@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
-import { jwtVerify, type JWTPayload } from "jose"
+import { getToken } from "next-auth/jwt"
 
 const publicRoutes = new Set([
   '/',
@@ -16,15 +16,9 @@ const publicRoutes = new Set([
 
 const semiProtectedRoutes = new Set(['/set-password'])
 const authCookieNames = ['next-auth.session-token', '__Secure-next-auth.session-token']
+// We don't need to manually encode the secret for getToken, it handles it.
 const secret = process.env.NEXTAUTH_SECRET
-const secretKey = secret ? new TextEncoder().encode(secret) : null
-const authEnabled = Boolean(secretKey)
-
-type AuthPayload = JWTPayload & {
-  email?: string
-  needs2FA?: boolean
-  needsPasswordSetup?: boolean
-}
+const authEnabled = Boolean(secret)
 
 function matchesRoute(pathname: string, routes: Set<string>) {
   for (const route of routes) {
@@ -35,50 +29,13 @@ function matchesRoute(pathname: string, routes: Set<string>) {
   return false
 }
 
-function getSessionToken(req: NextRequest) {
-  const cookieHeader = req.headers.get('cookie')
-  if (!cookieHeader) return null
-
-  const cookies = cookieHeader.split(';').map((part) => part.trim())
-  for (const cookie of cookies) {
-    const [name, ...rest] = cookie.split('=')
-    if (authCookieNames.includes(name)) {
-      const rawValue = rest.join('=')
-      try {
-        return decodeURIComponent(rawValue)
-      } catch {
-        return rawValue
-      }
-    }
-  }
-  return null
-}
-
-async function decodeToken(tokenValue: string): Promise<AuthPayload | null> {
-  if (!secretKey) return null
-
-  try {
-    const { payload } = await jwtVerify<AuthPayload>(tokenValue, secretKey)
-    return payload
-  } catch (error) {
-    console.warn('[middleware] Failed to verify session token', error)
-    return null
-  }
-}
-
 function redirectToSignIn(req: NextRequest) {
   const signInUrl = new URL('/signin', req.url)
   signInUrl.searchParams.set('callbackUrl', encodeURIComponent(req.nextUrl.pathname))
 
   const response = NextResponse.redirect(signInUrl)
-  authCookieNames.forEach((name) => {
-    response.cookies.set({
-      name,
-      value: '',
-      path: '/',
-      expires: new Date(0),
-    })
-  })
+  // We can try to clear cookies, but it's tricky with HttpOnly. 
+  // Let's leave cookie clearing to the signin page or NextAuth's signOut.
   return response
 }
 
@@ -96,10 +53,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  const sessionToken = getSessionToken(req)
-  const tokenPayload = sessionToken ? await decodeToken(sessionToken) : null
+  // Use getToken which automatically handles decryption/verification of JWE/JWS
+  const token = await getToken({ req, secret })
 
-  if (!tokenPayload) {
+  if (!token) {
     return redirectToSignIn(req)
   }
 
@@ -107,19 +64,23 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  if (tokenPayload.needsPasswordSetup && pathname !== '/set-password') {
+  // Check custom flags in the token
+  // Cast to any because standard JWT type doesn't know about our custom properties
+  const customToken = token as any
+
+  if (customToken.needsPasswordSetup && pathname !== '/set-password') {
     const setPasswordUrl = new URL('/set-password', req.url)
-    if (tokenPayload.email) {
-      setPasswordUrl.searchParams.set('email', encodeURIComponent(tokenPayload.email))
+    if (customToken.email) {
+      setPasswordUrl.searchParams.set('email', encodeURIComponent(customToken.email))
       setPasswordUrl.searchParams.set('required', 'true')
     }
     return NextResponse.redirect(setPasswordUrl)
   }
 
-  if (tokenPayload.needs2FA && pathname !== '/verify-2fa-google') {
+  if (customToken.needs2FA && pathname !== '/verify-2fa-google') {
     const verify2FAUrl = new URL('/verify-2fa-google', req.url)
-    if (tokenPayload.email) {
-      verify2FAUrl.searchParams.set('email', encodeURIComponent(tokenPayload.email))
+    if (customToken.email) {
+      verify2FAUrl.searchParams.set('email', encodeURIComponent(customToken.email))
     }
     return NextResponse.redirect(verify2FAUrl)
   }
@@ -133,5 +94,5 @@ export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|public|manifest.json|robots.txt|sitemap.xml).*)',
   ],
-  runtime: 'nodejs',
+  // runtime: 'nodejs', // Commenting this out to let Next.js decide, or keep if necessary. getToken works in Edge too.
 }

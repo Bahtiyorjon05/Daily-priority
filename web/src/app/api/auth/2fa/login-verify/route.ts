@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 /**
  * Verify 2FA password during login
@@ -50,6 +51,17 @@ export async function POST(request: NextRequest) {
         error: 'Invalid 2FA password' 
       }, { status: 401 })
     }
+
+    // Create a verification token that auth.ts expects
+    // valid for 5 minutes to allow enough time for the subsequent signIn call
+    const expires = new Date(new Date().getTime() + 5 * 60 * 1000)
+    await prisma.twoFactorToken.create({
+      data: {
+        userId: user.id,
+        token: `google-2fa-${crypto.randomUUID()}`,
+        expires
+      }
+    })
 
     return NextResponse.json({
       success: true,

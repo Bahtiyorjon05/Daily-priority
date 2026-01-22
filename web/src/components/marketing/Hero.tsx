@@ -100,7 +100,7 @@ export function Hero() {
 
   // Handle mouse move for 3D card tilt
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return
+    if (!cardRef.current || typeof window !== 'undefined' && window.innerWidth < 1024) return
 
     const rect = cardRef.current.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width - 0.5
@@ -116,7 +116,7 @@ export function Hero() {
   }
 
   const quoteCardContent = (
-  <div className="flex flex-col justify-between min-h-[300px] sm:min-h-[340px] md:min-h-[360px]">
+    <div className="flex flex-col justify-between min-h-[260px] sm:min-h-[320px] md:min-h-[360px]">
       {/* Quote content */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -125,13 +125,13 @@ export function Hero() {
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
           transition={{ duration: 0.5 }}
-          className="space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8"
+          className="space-y-4 sm:space-y-6 md:space-y-7 lg:space-y-8 flex-1 flex flex-col justify-center"
         >
           {/* Arabic with enhanced gradient text and glow */}
-          <div className="text-center relative max-w-full overflow-hidden px-2">
+          <div className="text-center relative max-w-full overflow-hidden px-1">
             <div className="absolute -inset-2 bg-gradient-to-br from-emerald-400/10 to-teal-400/10 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-2xl blur opacity-50" />
-                        <motion.p
-                            className="relative text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-bold bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 dark:from-emerald-300 dark:via-emerald-200 dark:to-teal-300 bg-clip-text text-transparent font-[family-name:var(--font-amiri)] leading-[1.5] lg:leading-[1.8] break-words max-w-full"
+            <motion.p
+              className="relative text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 dark:from-emerald-300 dark:via-emerald-200 dark:to-teal-300 bg-clip-text text-transparent font-[family-name:var(--font-amiri)] leading-[1.6] lg:leading-[1.8] break-words max-w-full px-1 py-1"
               dir="rtl"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
@@ -142,22 +142,22 @@ export function Hero() {
           </div>
 
           {/* Premium divider with animated star and enhanced glow */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 my-2">
             <motion.div
-              className="h-px w-10 sm:w-14 bg-gradient-to-r from-transparent via-emerald-500 to-emerald-400 dark:via-emerald-600 dark:to-emerald-700"
+              className="h-px w-8 sm:w-14 bg-gradient-to-r from-transparent via-emerald-500 to-emerald-400 dark:via-emerald-600 dark:to-emerald-700"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             />
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                          className="flex items-center justify-center rounded-full border border-emerald-500/40 dark:border-emerald-400/40 p-1"
-                        >
-                          <Star className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-500 fill-emerald-500 dark:text-emerald-400 dark:fill-emerald-400 drop-shadow-[0_0_4px_rgba(16,185,129,0.5)]" />
-                        </motion.div>
             <motion.div
-              className="h-px w-10 sm:w-14 bg-gradient-to-l from-transparent via-emerald-500 to-emerald-400 dark:via-emerald-600 dark:to-emerald-700"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="flex items-center justify-center rounded-full border border-emerald-500/40 dark:border-emerald-400/40 p-1"
+            >
+              <Star className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-500 fill-emerald-500 dark:text-emerald-400 dark:fill-emerald-400 drop-shadow-[0_0_4px_rgba(16,185,129,0.5)]" />
+            </motion.div>
+            <motion.div
+              className="h-px w-8 sm:w-14 bg-gradient-to-l from-transparent via-emerald-500 to-emerald-400 dark:via-emerald-600 dark:to-emerald-700"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -165,32 +165,34 @@ export function Hero() {
           </div>
 
           {/* English translation with improved styling and glow */}
-                        <div className="text-center space-y-4 sm:space-y-5 max-w-full overflow-hidden">
-                          <p className="text-base sm:text-lg md:text-lg text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed text-pretty px-3 break-words max-w-full">
+          <div className="text-center space-y-3 sm:space-y-5 max-w-full overflow-hidden flex-1 flex flex-col justify-center">
+            <p className="text-sm sm:text-base md:text-lg text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed text-pretty px-2 break-words max-w-full">
               "{islamicQuotes[currentQuote].english}"
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-emerald-50/90 dark:bg-emerald-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-sm shadow-emerald-500/10 dark:shadow-emerald-900/20 backdrop-blur-sm">
-              <p className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300">
-                {islamicQuotes[currentQuote].reference}
-              </p>
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-emerald-50/90 dark:bg-emerald-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-sm shadow-emerald-500/10 dark:shadow-emerald-900/20 backdrop-blur-sm">
+                <p className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                  {islamicQuotes[currentQuote].reference}
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>
       </AnimatePresence>
 
       {/* Interactive quote indicators with enhanced hover effects */}
-      <div className="flex justify-center gap-2 sm:gap-2 mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-gray-100/50 dark:border-gray-800/50">
+      <div className="flex justify-center gap-1.5 sm:gap-2 mt-5 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100/50 dark:border-gray-800/50">
         {islamicQuotes.map((_, index) => (
           <motion.button
             key={index}
             onClick={() => setCurrentQuote(index)}
-            className={`h-2 sm:h-2 rounded-full transition-all duration-300 ${
-              index === currentQuote
-                ? 'w-10 sm:w-10 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 shadow-sm shadow-emerald-500/30'
-                : 'w-2 sm:w-2 bg-gray-300 dark:bg-gray-700'
-            }`}
+            className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${index === currentQuote
+              ? 'w-8 sm:w-10 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 shadow-sm shadow-emerald-500/30'
+              : 'w-1.5 sm:w-2 bg-gray-300 dark:bg-gray-700'
+              }`}
             whileHover={{ scale: 1.5 }}
             whileTap={{ scale: 0.9 }}
+            aria-label={`Go to quote ${index + 1}`}
           />
         ))}
       </div>
@@ -198,9 +200,15 @@ export function Hero() {
   )
 
   return (
-    <section className="relative scroll-mt-24 sm:scroll-mt-32 min-h-screen flex items-center bg-gradient-to-b from-white via-emerald-50/40 to-white dark:from-[#050505] dark:via-[#0b1a16] dark:to-[#050505] lg:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] lg:from-slate-50 lg:via-slate-100 lg:to-emerald-50/30 dark:lg:from-[#0a0a0a] dark:lg:via-[#0f1f1a] dark:lg:to-emerald-950/40">
+    <section className="relative scroll-mt-16 sm:scroll-mt-20 min-h-[100dvh] flex items-center bg-gradient-to-b from-white via-emerald-50/40 to-white dark:from-[#050505] dark:via-[#0b1a16] dark:to-[#050505] lg:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] lg:from-slate-50 lg:via-slate-100 lg:to-emerald-50/30 dark:lg:from-[#0a0a0a] dark:lg:via-[#0f1f1a] dark:lg:to-emerald-950/40 overflow-hidden pt-16 sm:pt-0">
 
-      <div className="absolute inset-0 sm:hidden bg-gradient-to-b from-white via-emerald-50/50 to-white dark:from-[#050505] dark:via-[#07140f] dark:to-[#050505]" aria-hidden="true" />
+      {/* Islamic Pattern Background */}
+      <div
+        className="absolute inset-0 opacity-[0.08] dark:opacity-[0.12] bg-cover bg-center bg-no-repeat hidden lg:block"
+        style={{ backgroundImage: 'url(/islamic-pattern-hero.png)' }}
+        aria-hidden="true"
+      />
+
 
       {/* Enhanced animated gradient orbs background with multi-layered glow effects */}
       <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
@@ -236,15 +244,15 @@ export function Hero() {
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-32 relative z-10 w-full max-w-full">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center max-w-7xl mx-auto w-full box-border">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32 relative z-10 w-full max-w-full">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center max-w-7xl mx-auto w-full box-border">
 
           {/* LEFT: Content */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-10 text-center lg:text-left max-w-xl mx-auto lg:mx-0"
+            className="space-y-5 sm:space-y-6 md:space-y-8 lg:space-y-10 text-center lg:text-left max-w-xl mx-auto lg:mx-0"
           >
             {/* Badge with enhanced glow effect */}
             <motion.div
@@ -254,15 +262,15 @@ export function Hero() {
               className="relative flex justify-center lg:justify-start max-w-full"
             >
               <div className="absolute -inset-2 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/15 dark:to-teal-600/15 rounded-full blur-xl opacity-70" />
-              <span className="relative inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg backdrop-blur-sm max-w-[calc(100vw-2rem)]">
+              <span className="relative inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:from-emerald-950/60 dark:to-teal-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg backdrop-blur-sm max-w-[calc(100vw-2rem)]">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                   className="flex items-center justify-center"
                 >
-                  <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
                 </motion.div>
-                <span className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap lg:whitespace-normal">
+                <span className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap sm:whitespace-normal">
                   Islamic Productivity Platform
                 </span>
               </span>
@@ -271,16 +279,16 @@ export function Hero() {
             {/* Heading with stagger animation and enhanced effects */}
             <div className="space-y-3 sm:space-y-4 px-0 max-w-full">
               <motion.h1
-                className="text-[2rem] leading-[1.1] sm:text-4xl sm:leading-tight md:text-5xl lg:text-7xl font-black tracking-tight text-pretty break-words max-w-full"
+                className="text-4xl leading-tight sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-balance"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
-                <span className="block text-gray-900 dark:text-white mb-2 break-words">
+                <span className="block text-gray-900 dark:text-white mb-1 sm:mb-2">
                   Daily Priority
                 </span>
                 <span className="block relative max-w-full">
-                  <span className="relative inline-block bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-400 bg-clip-text text-transparent bg-[length:200%_auto] sm:animate-gradient break-words">
+                  <span className="relative inline-block bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-400 bg-clip-text text-transparent bg-[length:200%_auto] sm:animate-gradient">
                     For Muslims
                   </span>
                   <motion.span
@@ -293,13 +301,13 @@ export function Hero() {
               </motion.h1>
 
               <motion.p
-                className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-full lg:max-w-2xl leading-relaxed text-pretty break-words overflow-wrap-anywhere"
+                className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-full lg:max-w-2xl leading-relaxed text-balance"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
                 Organize your life around{' '}
-                <span className="font-bold text-emerald-600 dark:text-emerald-400 relative inline-block break-words">
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
                   prayer times
                   <motion.span
                     className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
@@ -309,7 +317,7 @@ export function Hero() {
                   />
                 </span>
                 , achieve goals with{' '}
-                <span className="font-bold text-emerald-600 dark:text-emerald-400 relative inline-block">
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
                   Islamic principles
                   <motion.span
                     className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
@@ -324,7 +332,7 @@ export function Hero() {
 
             {/* Premium trust indicators with enhanced hover effects */}
             <motion.div
-              className="flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start px-0 max-w-full"
+              className="flex flex-wrap gap-4 sm:gap-4 justify-center lg:justify-start px-0 max-w-full"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
@@ -340,13 +348,13 @@ export function Hero() {
                   whileHover={{ scale: 1.05, y: -2 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <div className={`relative w-9 h-9 sm:w-10 sm:h-10 lg:w-8 lg:h-8 rounded-xl lg:rounded-lg bg-gradient-to-br from-${item.color}-500/15 to-${item.color}-600/15 dark:from-${item.color}-400/15 dark:to-${item.color}-500/15 flex items-center justify-center border border-${item.color}-500/30 dark:border-${item.color}-500/40 shadow-md shadow-${item.color}-500/10 dark:shadow-${item.color}-900/20 backdrop-blur-sm transition-all duration-300 group-hover:shadow-lg group-hover:shadow-${item.color}-500/20 dark:group-hover:shadow-${item.color}-900/30`}>
-                    <div className={`absolute inset-0 bg-gradient-to-br from-${item.color}-400/10 to-${item.color}-500/10 rounded-xl lg:rounded-lg blur-sm opacity-50 transition-opacity duration-300 group-hover:opacity-70`} />
-                    <item.icon className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 text-${item.color}-600 dark:text-${item.color}-400 relative z-10 transition-colors duration-300 group-hover:text-${item.color}-700 dark:group-hover:text-${item.color}-300`} />
+                  <div className="relative w-8 h-8 sm:w-10 lg:w-8 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-600/15 dark:from-emerald-400/15 dark:to-emerald-500/15 flex items-center justify-center border border-emerald-500/30 dark:border-emerald-500/40 shadow-md shadow-emerald-500/10 dark:shadow-emerald-900/20 backdrop-blur-sm transition-all duration-300 group-hover:shadow-lg group-hover:shadow-emerald-500/20 dark:group-hover:shadow-emerald-900/30">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 to-emerald-500/10 rounded-lg sm:rounded-xl blur-sm opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
+                    <item.icon className="w-4 h-4 sm:w-5 lg:w-4 text-emerald-600 dark:text-emerald-400 relative z-10 transition-colors duration-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-300" />
                   </div>
-                  <span className={`text-sm sm:text-base lg:text-sm font-bold lg:font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-300 group-hover:text-${item.color}-600 dark:group-hover:text-${item.color}-400`}>
-                    <span className="lg:hidden">{item.text}</span>
-                    <span className="hidden lg:inline">{item.longText}</span>
+                  <span className="text-sm sm:text-base lg:text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    <span className="sm:hidden">{item.text}</span>
+                    <span className="hidden sm:inline">{item.longText}</span>
                   </span>
                 </motion.div>
               ))}
@@ -355,11 +363,11 @@ export function Hero() {
 
             {/* CTAs with enhanced magnetic hover effect */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-3 w-full max-w-full overflow-x-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
+              className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-full mx-auto sm:mx-0"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
               <Link href="/signup" className="group relative w-full sm:w-auto">
                 <motion.div
                   whileHover={{ scale: 1.03 }}
@@ -370,7 +378,7 @@ export function Hero() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 dark:from-emerald-600/25 dark:to-teal-600/25 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <Button
                     size="lg"
-                    className="relative w-full sm:w-auto h-12 sm:h-11 px-6 text-base sm:text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 rounded-xl"
+                    className="relative w-full sm:w-auto h-11 sm:h-12 px-5 sm:px-6 text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-300 rounded-xl"
                   >
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
@@ -396,7 +404,7 @@ export function Hero() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="relative w-full sm:w-auto h-12 sm:h-11 px-6 text-base font-semibold border-2 hover:border-emerald-500 transition-all duration-300 rounded-xl"
+                    className="relative w-full sm:w-auto h-11 sm:h-12 px-5 sm:px-6 text-base font-semibold border-2 hover:border-emerald-500 transition-all duration-300 rounded-xl"
                   >
                     <Sparkles className="w-5 h-5 mr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200" />
                     <span className="relative z-10">View Features</span>
@@ -406,8 +414,12 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* RIGHT: Quote Card with enhanced 3D tilt and glow effects */}
-          <div className="lg:hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-100/80 dark:border-emerald-900/50 bg-white/95 dark:bg-[#0b1a16]/90 shadow-2xl shadow-emerald-100/60 dark:shadow-black/50 p-6 sm:p-7 md:p-8 mt-5 sm:mt-7 max-w-full overflow-hidden">
+          {/* RIGHT: Enhanced Visual Card with Illustration */}
+          <div className="lg:hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-100/80 dark:border-emerald-900/50 bg-white/90 dark:bg-[#0b1a16]/90 shadow-2xl shadow-emerald-100/60 dark:shadow-black/50 p-4 sm:p-6 md:p-8 mt-8 sm:mt-10 max-w-full overflow-hidden relative">
+            {/* Decorative Islamic Ornament */}
+            <div className="absolute top-2 right-2 w-12 h-12 sm:w-16 sm:h-16 opacity-20 dark:opacity-10">
+              <img src="/islamic-ornament.png" alt="" className="w-full h-full object-contain" />
+            </div>
             {quoteCardContent}
           </div>
 
@@ -424,6 +436,11 @@ export function Hero() {
               style={{ rotateX, rotateY }}
               className="relative"
             >
+              {/* Prayer Illustration Background */}
+              <div className="absolute -right-12 -top-12 w-64 h-64 opacity-15 dark:opacity-10 pointer-events-none">
+                <img src="/prayer-illustration.png" alt="" className="w-full h-full object-contain" />
+              </div>
+
               <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-[2rem] opacity-40 blur-2xl dark:opacity-30" />
 
               <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-500 shadow-2xl">

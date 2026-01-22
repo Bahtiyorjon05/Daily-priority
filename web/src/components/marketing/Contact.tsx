@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, MessageSquare, Send, Sparkles, Loader2, CheckCircle2, PartyPopper } from 'lucide-react'
 import { toast } from 'sonner'
-import styles from './Contact.module.css'
+
 
 export function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
@@ -13,19 +13,19 @@ export function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Prevent multiple submissions
     if (isSubmitting || showSuccess) {
       return
     }
-    
+
     // Trim and validate form data before sending
     const trimmedData = {
       name: formData.name.trim(),
       email: formData.email.trim(),
       message: formData.message.trim()
     }
-    
+
     if (!trimmedData.name || !trimmedData.email || !trimmedData.message) {
       toast.error('Please fill in all fields', {
         description: 'Name, email, and message are required.',
@@ -33,7 +33,7 @@ export function Contact() {
       })
       return
     }
-    
+
     if (trimmedData.message.length < 5) {
       toast.error('Message too short', {
         description: 'Please write at least 5 characters.',
@@ -41,7 +41,7 @@ export function Contact() {
       })
       return
     }
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(trimmedData.email)) {
@@ -51,7 +51,7 @@ export function Contact() {
       })
       return
     }
-    
+
     setIsSubmitting(true)
 
     try {
@@ -74,15 +74,15 @@ export function Contact() {
       if (response.ok) {
         // Show success animation
         setShowSuccess(true)
-        
+
         toast.success('🎉 Message sent successfully!', {
           description: 'Thank you for reaching out! We\'ll get back to you within 24-48 hours.',
           duration: 5000,
         })
-        
+
         // Reset form after successful submission
         setFormData({ name: '', email: '', message: '' })
-        
+
         // Hide success animation after 5 seconds
         setTimeout(() => setShowSuccess(false), 5000)
       } else {
@@ -176,7 +176,7 @@ export function Contact() {
         <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
       </div>
 
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-4xl max-w-[100vw] relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 max-w-4xl relative z-10 overflow-hidden">
 
         {/* Header with enhanced glow effect */}
         <motion.div
@@ -298,36 +298,36 @@ export function Contact() {
                 >
                   {/* Animated glow effect */}
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 animate-pulse transition duration-500" />
-                  
+
                   <button
                     type="submit"
                     disabled={isSubmitting || showSuccess}
-                    className={`${styles.contactSubmitBtn} relative w-full h-14 sm:h-16 md:h-20 text-base sm:text-lg md:text-2xl font-black bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-700 hover:from-emerald-800 hover:via-teal-800 hover:to-emerald-800 rounded-2xl shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300 overflow-hidden border-4 border-emerald-800/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]`}
+                    className="relative w-full h-16 sm:h-16 md:h-20 text-base sm:text-lg md:text-2xl font-black bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-700 hover:from-emerald-800 hover:via-teal-800 hover:to-emerald-800 rounded-2xl shadow-2xl hover:shadow-emerald-500/50 transition-all duration-300 overflow-hidden border-4 border-emerald-800/30 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] text-white"
                   >
                     {/* Shine effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                    
+
                     {/* Sparkle effects */}
                     <div className="absolute top-2 right-4 w-2 h-2 bg-white rounded-full animate-ping" />
                     <div className="absolute bottom-3 left-6 w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
                     <div className="absolute top-1/2 right-8 w-1 h-1 bg-white/60 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-                    
+
                     {/* Button content */}
-                    <span className="relative flex items-center justify-center gap-3 font-black tracking-wide uppercase text-emerald-900 dark:text-white">
+                    <span className="relative flex items-center justify-center gap-3 font-black tracking-wide uppercase text-white">
                       {isSubmitting ? (
                         <>
                           <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           >
-                            <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-900 dark:text-white" strokeWidth={3} />
+                            <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={3} />
                           </motion.div>
-                          <span className="drop-shadow-lg font-black text-emerald-900 dark:text-white">Sending...</span>
+                          <span className="drop-shadow-lg font-black text-white">Sending...</span>
                           <motion.div
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 0.5, repeat: Infinity }}
                           >
-                            <Sparkles className="w-5 h-5 text-emerald-900 dark:text-white fill-current" />
+                            <Sparkles className="w-5 h-5 text-white fill-current" />
                           </motion.div>
                         </>
                       ) : (
@@ -336,24 +336,24 @@ export function Contact() {
                             whileHover={{ x: 5 }}
                             transition={{ type: "spring", stiffness: 400 }}
                           >
-                            <Send className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-900 dark:text-white" strokeWidth={3} />
+                            <Send className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={3} />
                           </motion.div>
-                          <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-black text-emerald-900 dark:text-white">
+                          <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-black text-white">
                             Send Message
                           </span>
                           <motion.div
-                            animate={{ 
+                            animate={{
                               rotate: [0, 15, -15, 0],
                               scale: [1, 1.1, 1]
                             }}
                             transition={{ duration: 2, repeat: Infinity }}
                           >
-                            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-900 dark:text-white fill-current" />
+                            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white fill-current" />
                           </motion.div>
                         </>
                       )}
                     </span>
-                    
+
                     {/* Bottom glow */}
                     <div className="absolute bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                   </button>
@@ -394,14 +394,14 @@ export function Contact() {
                             <motion.div
                               key={i}
                               initial={{ opacity: 0, scale: 0, y: 0 }}
-                              animate={{ 
-                                opacity: [0, 1, 0], 
+                              animate={{
+                                opacity: [0, 1, 0],
                                 scale: [0, 1.5, 0],
                                 y: [-20, -60, -80],
                                 x: [(i - 2) * 20, (i - 2) * 30, (i - 2) * 40]
                               }}
-                              transition={{ 
-                                delay: 0.5 + i * 0.1, 
+                              transition={{
+                                delay: 0.5 + i * 0.1,
                                 duration: 1.5,
                                 ease: "easeOut"
                               }}
@@ -429,8 +429,8 @@ export function Contact() {
                         {/* Party Popper Icon */}
                         <motion.div
                           initial={{ opacity: 0, scale: 0, rotate: -45 }}
-                          animate={{ 
-                            opacity: 1, 
+                          animate={{
+                            opacity: 1,
                             scale: [0, 1.2, 1],
                             rotate: [0, 15, -15, 0]
                           }}

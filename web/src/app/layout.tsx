@@ -121,6 +121,27 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Daily Priority",
+  "applicationCategory": "ProductivityApplication",
+  "operatingSystem": "Web, PWA",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "Daily Priority helps Muslims organize their daily tasks around prayer times with habit tracking and Islamic productivity principles. Built as Sadaqah Jariyah for the Ummah.",
+  "featureList": "Task Management, Prayer Times, Habit Tracking, Goal Setting, Islamic Calendar",
+  "screenshot": "https://daily-priority.vercel.app/opengraph-image",
+  "softwareHelp": "https://daily-priority.vercel.app/#contact",
+  "author": {
+      "@type": "Person",
+      "name": "Bahtiyorjon"
+  }
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -174,6 +195,10 @@ export default function RootLayout({
               })();
             `,
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body

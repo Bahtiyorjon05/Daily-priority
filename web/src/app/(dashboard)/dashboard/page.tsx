@@ -57,8 +57,6 @@ interface Task {
   important: boolean
   estimatedTime?: number
   energyLevel?: string
-  aiSuggested: boolean
-  aiReason?: string
   createdAt: string
   updatedAt: string
   completedAt?: string
@@ -298,10 +296,10 @@ export default function DashboardPageRedesigned() {
       const validTasks = Array.isArray(data.data?.tasks)
         ? data.data.tasks.filter((t: any) => t && t.id && t.status && t.title)
         : []
-      
+
       // Cache the results for 5 seconds for real-time updates
       clientCache.set(`tasks:${userCacheKey}`, validTasks, 5 * 1000)
-      
+
       // Filter tasks to show only today's tasks in user's timezone
       const todaysTasks = filterTasksByToday(validTasks)
       setTasks(todaysTasks)
@@ -325,24 +323,24 @@ export default function DashboardPageRedesigned() {
   const filterTasksByToday = (tasks: Task[]) => {
     const today = new Date()
     today.setHours(0, 0, 0, 0) // Start of today
-    
+
     return tasks.filter(task => {
       const taskStatus = task.status?.toUpperCase()
-      
+
       // Show all pending tasks (not completed or cancelled)
       if (taskStatus === 'TODO' || taskStatus === 'IN_PROGRESS') {
         return true
       }
-      
+
       // For completed/cancelled tasks, only show if completed today
       if (taskStatus === 'COMPLETED' || taskStatus === 'CANCELLED') {
-        const completedDate = task.completedAt 
-          ? new Date(task.completedAt) 
+        const completedDate = task.completedAt
+          ? new Date(task.completedAt)
           : (task.updatedAt ? new Date(task.updatedAt) : new Date(task.createdAt))
         completedDate.setHours(0, 0, 0, 0)
         return completedDate.getTime() === today.getTime()
       }
-      
+
       return true
     })
   }
@@ -543,11 +541,11 @@ export default function DashboardPageRedesigned() {
       const previousTasks = tasks
       setTasks(prev => prev.map(t =>
         t.id === taskId
-          ? { 
-              ...t, 
-              status: newStatus, 
-              completedAt: newStatus === 'COMPLETED' ? new Date().toISOString() : undefined 
-            }
+          ? {
+            ...t,
+            status: newStatus,
+            completedAt: newStatus === 'COMPLETED' ? new Date().toISOString() : undefined
+          }
           : t
       ))
 
@@ -555,7 +553,7 @@ export default function DashboardPageRedesigned() {
         const response = await optimizedFetch('/api/tasks/' + taskId, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             status: newStatus,
             completedAt: newStatus === 'COMPLETED' ? new Date().toISOString() : null
           }),
@@ -609,7 +607,7 @@ export default function DashboardPageRedesigned() {
 
   const confirmDeleteTask = async () => {
     if (!taskToDelete) return
-    
+
     setIsDeleting(true)
     try {
       const response = await optimizedFetch('/api/tasks/' + taskToDelete, {
@@ -766,8 +764,8 @@ export default function DashboardPageRedesigned() {
 
         {/* Error State */}
         {!loading && error && !tasks.length && (
-          <ErrorState 
-            title="Unable to Load Dashboard" 
+          <ErrorState
+            title="Unable to Load Dashboard"
             message={error}
             onRetry={() => {
               fetchTasks()
@@ -791,7 +789,7 @@ export default function DashboardPageRedesigned() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
               {/* Islamic geometric pattern */}
-              <div className="absolute inset-0 opacity-10" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E\")", backgroundSize: "30px 30px"}}></div>
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E\")", backgroundSize: "30px 30px" }}></div>
             </div>
 
             <CardContent className="p-6 relative z-10">
@@ -862,7 +860,7 @@ export default function DashboardPageRedesigned() {
                       transition={{ delay: 0.3, duration: 0.8 }}
                       className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 h-full rounded-full shadow-sm relative overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{animation: 'shimmer 2s infinite', backgroundSize: '200% 100%'}}></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: 'shimmer 2s infinite', backgroundSize: '200% 100%' }}></div>
                     </motion.div>
                   </div>
                   <p className="text-xs text-blue-700 dark:text-blue-300 mt-1.5 text-right font-semibold">{Math.round(completionRate)}%</p>
@@ -890,8 +888,8 @@ export default function DashboardPageRedesigned() {
                 </div>
                 <div className="mt-3">
                   <div className="bg-emerald-100/80 dark:bg-emerald-900/60 rounded-full h-2.5 overflow-hidden shadow-inner ring-1 ring-emerald-200/40 dark:ring-emerald-700/50">
-                    <div className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 rounded-full shadow-sm relative overflow-hidden" style={{width: `${stats?.productivityScore || 0}%`}}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{animation: 'shimmer 2s infinite', backgroundSize: '200% 100%'}}></div>
+                    <div className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 rounded-full shadow-sm relative overflow-hidden" style={{ width: `${stats?.productivityScore || 0}%` }}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: 'shimmer 2s infinite', backgroundSize: '200% 100%' }}></div>
                     </div>
                   </div>
                 </div>
@@ -924,7 +922,7 @@ export default function DashboardPageRedesigned() {
                       transition={{ delay: 0.4, duration: 0.8 }}
                       className="bg-gradient-to-r from-purple-600 via-purple-500 to-violet-600 h-full rounded-full shadow-sm relative overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{animation: 'shimmer 2s infinite', backgroundSize: '200% 100%'}}></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" style={{ animation: 'shimmer 2s infinite', backgroundSize: '200% 100%' }}></div>
                     </motion.div>
                   </div>
                   <p className="text-xs text-purple-700 dark:text-purple-300 mt-1.5 text-right font-semibold">{Math.round(goalProgress)}%</p>
@@ -1151,12 +1149,6 @@ export default function DashboardPageRedesigned() {
                                     <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-amber-200 dark:border-amber-700/50 shadow-sm">
                                       <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
                                       Important
-                                    </span>
-                                  )}
-                                  {task.aiSuggested && (
-                                    <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-purple-200 dark:border-purple-700/50 shadow-sm">
-                                      <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
-                                      AI Suggested
                                     </span>
                                   )}
                                   {task.estimatedTime && (

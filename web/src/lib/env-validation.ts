@@ -20,8 +20,6 @@ const requiredEnvVars = {
 } as const
 
 const optionalEnvVars = {
-  // Google AI (optional)
-  GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
 } as const
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -110,12 +108,12 @@ export function getEnvironmentInfo() {
     required: Object.entries(requiredEnvVars).map(([key, value]) => ({
       key,
       present: !!value,
-      masked: value ? value.substring(0, 8) + '...' : 'NOT_SET',
+      masked: typeof value === 'string' ? value.substring(0, 8) + '...' : 'NOT_SET',
     })),
     optional: Object.entries(optionalEnvVars).map(([key, value]) => ({
       key,
       present: !!value,
-      masked: value ? value.substring(0, 8) + '...' : 'NOT_SET',
+      masked: typeof value === 'string' ? value.substring(0, 8) + '...' : 'NOT_SET',
     })),
   }
 }
