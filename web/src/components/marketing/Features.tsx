@@ -3,6 +3,7 @@
 import { Moon, CheckSquare, BarChart3, Target, Calendar, Heart, Sparkles, ArrowUpRight } from 'lucide-react'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
+import Image from 'next/image'
 
 const features = [
   {
@@ -58,7 +59,13 @@ export function Features() {
 
       {/* Decorative Illustration */}
       <div className="absolute bottom-10 right-10 w-96 h-96 opacity-5 dark:opacity-[0.03] pointer-events-none hidden xl:block">
-        <img src="/productivity-illustration.png" alt="" className="w-full h-full object-contain" />
+        <Image 
+          src="/productivity-illustration.png" 
+          alt="Productivity Illustration" 
+          width={384} 
+          height={384}
+          className="w-full h-full object-contain" 
+        />
       </div>
 
       {/* Enhanced gradient background with subtle animation */}

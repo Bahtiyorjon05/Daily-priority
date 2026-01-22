@@ -58,6 +58,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
   @@map("accounts")
 }
 
@@ -68,6 +69,7 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("sessions")
 }
 
@@ -105,6 +107,7 @@ model Task {
   @@index([userId, dueDate, priority])
   @@index([userId, priority, status])
   @@index([userId, updatedAt(sort: Desc)])
+  @@index([categoryId])
   @@map("tasks")
 }
 
@@ -116,6 +119,7 @@ model Subtask {
   createdAt DateTime @default(now())
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
+  @@index([taskId])
   @@map("subtasks")
 }
 

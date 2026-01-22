@@ -18,6 +18,35 @@ function VerifyEmailContent() {
   const [email, setEmail] = useState('')
 
   useEffect(() => {
+    const verifyEmail = async (token: string) => {
+      try {
+        const res = await fetch('/api/auth/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        })
+
+        const data = await res.json()
+
+        if (res.ok) {
+          setStatus('success')
+          setEmail(data.email)
+          setMessage('Your email has been verified successfully!')
+          
+          // Redirect to sign in after 3 seconds
+          setTimeout(() => {
+            router.push('/signin')
+          }, 3000)
+        } else {
+          setStatus('error')
+          setMessage(data.error || 'Verification failed')
+        }
+      } catch (error) {
+        setStatus('error')
+        setMessage('An error occurred during verification')
+      }
+    }
+
     if (!token) {
       setStatus('error')
       setMessage('No verification token provided')
@@ -25,36 +54,7 @@ function VerifyEmailContent() {
     }
 
     verifyEmail(token)
-  }, [token])
-
-  const verifyEmail = async (token: string) => {
-    try {
-      const res = await fetch('/api/auth/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        setStatus('success')
-        setEmail(data.email)
-        setMessage('Your email has been verified successfully!')
-        
-        // Redirect to sign in after 3 seconds
-        setTimeout(() => {
-          router.push('/signin')
-        }, 3000)
-      } else {
-        setStatus('error')
-        setMessage(data.error || 'Verification failed')
-      }
-    } catch (error) {
-      setStatus('error')
-      setMessage('An error occurred during verification')
-    }
-  }
+  }, [token, router])
 
   const handleResend = async () => {
     if (!email) {

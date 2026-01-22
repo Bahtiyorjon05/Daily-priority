@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Sparkles, Moon, Star, Users, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
@@ -414,33 +415,44 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          {/* RIGHT: Enhanced Visual Card with Illustration */}
-          <div className="lg:hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-100/80 dark:border-emerald-900/50 bg-white/90 dark:bg-[#0b1a16]/90 shadow-xl shadow-emerald-100/60 dark:shadow-black/50 p-4 sm:p-6 md:p-8 mt-4 sm:mt-10 max-w-full overflow-hidden relative">
-            {/* Decorative Islamic Ornament */}
-            <div className="absolute top-2 right-2 w-12 h-12 sm:w-16 sm:h-16 opacity-20 dark:opacity-10">
-              <img src="/islamic-ornament.png" alt="" className="w-full h-full object-contain" />
-            </div>
-            {quoteCardContent}
-          </div>
-
-          <motion.div
-            ref={cardRef}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="hidden lg:block relative perspective-1000 max-w-2xl w-full mx-auto lg:mx-0"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            <motion.div
-              style={{ rotateX, rotateY }}
-              className="relative"
-            >
-              {/* Prayer Illustration Background */}
-              <div className="absolute -right-12 -top-12 w-64 h-64 opacity-15 dark:opacity-10 pointer-events-none">
-                <img src="/prayer-illustration.png" alt="" className="w-full h-full object-contain" />
-              </div>
-
+                    {/* RIGHT: Enhanced Visual Card with Illustration */} 
+                    <div className="lg:hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-100/80 dark:border-emerald-900/50 bg-white/90 dark:bg-[#0b1a16]/90 shadow-2xl shadow-emerald-100/60 dark:shadow-black/50 p-4 sm:p-6 md:p-8 mt-8 sm:mt-10 max-w-full overflow-hidden relative">
+                      {/* Decorative Islamic Ornament */} 
+                      <div className="absolute top-2 right-2 w-12 h-12 sm:w-16 sm:h-16 opacity-20 dark:opacity-10">
+                        <Image 
+                          src="/islamic-ornament.png" 
+                          alt="Islamic Ornament" 
+                          width={64} 
+                          height={64}
+                          className="w-full h-full object-contain" 
+                        />
+                      </div>
+                      {quoteCardContent}
+                    </div>
+          
+                    <motion.div
+                      ref={cardRef}
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      className="hidden lg:block relative perspective-1000 max-w-2xl w-full mx-auto lg:mx-0"
+                      onMouseMove={handleMouseMove}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      <motion.div
+                        style={{ rotateX, rotateY }}
+                        className="relative"
+                      >
+                        {/* Prayer Illustration Background */} 
+                        <div className="absolute -right-12 -top-12 w-64 h-64 opacity-15 dark:opacity-10 pointer-events-none">
+                          <Image 
+                            src="/prayer-illustration.png" 
+                            alt="Prayer Illustration" 
+                            width={256} 
+                            height={256}
+                            className="w-full h-full object-contain" 
+                          />
+                        </div>
               <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-[2rem] opacity-40 blur-2xl dark:opacity-30" />
 
               <div className="relative rounded-3xl p-[2px] bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-500 shadow-2xl">
