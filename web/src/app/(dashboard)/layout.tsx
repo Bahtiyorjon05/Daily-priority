@@ -45,6 +45,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { InstallPrompt } from '@/components/shared/InstallPrompt'
+import { NotificationBell } from '@/components/shared/NotificationBell'
 
 function DashboardLayoutContent({
   children,
@@ -649,6 +650,9 @@ function DashboardLayoutContent({
         <header className="sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b-2 border-gray-200 dark:border-gray-800 shadow-md shadow-gray-900/5 dark:shadow-gray-950/20">
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 lg:px-8">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Notifications */}
+              <NotificationBell />
+
               {/* Theme Toggle */}
               <Button
                 variant="ghost"

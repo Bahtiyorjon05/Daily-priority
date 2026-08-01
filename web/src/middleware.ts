@@ -115,7 +115,10 @@ export const config = {
   // Keep middleware off of Next.js internals and run in the Node runtime so we avoid
   // the edge-only request-cookies adapter that has been crashing in dev.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|manifest.json|robots.txt|sitemap.xml).*)',
+    // Skip Next internals, and any static asset with a file extension (icons,
+    // sw.js, images, fonts, manifest, etc.) so PWA/static files aren't
+    // redirected to sign-in by the auth guard.
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|js|css|txt|xml|woff|woff2|ttf|map)).*)',
     // Admin API needs the auth guard too (the pattern above skips /api).
     '/api/admin/:path*',
   ],
