@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month')
     const year = searchParams.get('year')
 
-    let whereClause: any = {
+    const whereClause: any = {
       userId: session.user.id,
     }
 

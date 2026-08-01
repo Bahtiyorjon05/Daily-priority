@@ -6,6 +6,7 @@ import { Features } from '@/components/marketing/Features'
 import { Contact } from '@/components/marketing/Contact'
 import { Footer } from '@/components/marketing/Footer'
 import { BackToTopButton } from '@/components/marketing/BackToTopButton'
+import { InstallPrompt, InstallSection } from '@/components/shared/InstallPrompt'
 
 export default function HomePage() {
   return (
@@ -13,11 +14,13 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
+        <InstallSection />
         <Features />
         <Contact />
       </main>
       <Footer />
       <BackToTopButton />
+      <InstallPrompt />
     </>
   )
 }

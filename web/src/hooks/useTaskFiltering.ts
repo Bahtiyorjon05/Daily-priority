@@ -16,7 +16,7 @@ interface UseTaskFilteringProps {
 export function useTaskFiltering({ tasks, filters, sortOptions }: UseTaskFilteringProps) {
   const filteredAndSortedTasks = useMemo(() => {
     // Step 1: Filter tasks
-    let filtered = tasks.filter(task => {
+    const filtered = tasks.filter(task => {
       // Status filter
       if (filters.status && task.status !== filters.status) {
         return false

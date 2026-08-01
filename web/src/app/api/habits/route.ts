@@ -51,7 +51,7 @@ export async function GET(request: Request) {
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         
-        let currentDate = new Date(today)
+        const currentDate = new Date(today)
         let streak = 0
         
         // For DAILY habits, check consecutive days
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
           startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek)
           startOfWeek.setHours(0, 0, 0, 0)
           
-          let currentWeekStart = new Date(startOfWeek)
+          const currentWeekStart = new Date(startOfWeek)
           const weekCompletions = new Set<number>()
           
           // Group completions by week

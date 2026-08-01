@@ -76,7 +76,7 @@ export async function GET() {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     let streak = 0
-    let currentDate = new Date(today)
+    const currentDate = new Date(today)
 
     for (let i = 0; i < 30; i++) { // Check last 30 days max
       const dayStart = new Date(currentDate)

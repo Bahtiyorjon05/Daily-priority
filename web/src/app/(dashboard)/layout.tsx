@@ -44,6 +44,7 @@ import Logo from '@/components/shared/Logo'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { InstallPrompt } from '@/components/shared/InstallPrompt'
 
 function DashboardLayoutContent({
   children,
@@ -68,6 +69,7 @@ function DashboardLayoutContent({
   const [checkedPassword, setCheckedPassword] = useState(false)
   const [redirectedToSetPassword, setRedirectedToSetPassword] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
   const previousIsMobileRef = useRef<boolean>(false)
   const isCollapsed = sidebarCollapsed && !isMobile
   const effectiveSidebarOpen = isMobile ? sidebarOpen : true
@@ -181,6 +183,7 @@ function DashboardLayoutContent({
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false)
+      setShowMoreMenu(false)
     }
   }, [pathname, isMobile])
 
@@ -771,7 +774,7 @@ function DashboardLayoutContent({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="p-3 sm:p-4 md:p-6 lg:p-8"
+            className="p-3 sm:p-4 md:p-6 lg:p-8 pb-24 lg:pb-8"
           >
             {children}
           </motion.div>
@@ -791,6 +794,161 @@ function DashboardLayoutContent({
           />
         )}
       </AnimatePresence>
+
+      {/* Install Prompt */}
+      {isMobile ? (
+        <div className="install-prompt-mobile">
+          <InstallPrompt />
+        </div>
+      ) : (
+        <InstallPrompt />
+      )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      {isMobile && (
+        <>
+          {/* More Menu Overlay */}
+          <AnimatePresence>
+            {showMoreMenu && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMoreMenu(false)}
+                className="fixed inset-0 bg-gray-900/60 dark:bg-black/70 backdrop-blur-sm z-[59] lg:hidden"
+              />
+            )}
+          </AnimatePresence>
+
+          {/* More Menu Panel */}
+          <AnimatePresence>
+            {showMoreMenu && (
+              <motion.div
+                initial={{ y: '100%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: '100%', opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="fixed bottom-[4.5rem] left-2 right-2 z-[60] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-2xl shadow-gray-900/20 dark:shadow-black/40 overflow-hidden"
+                style={{ paddingBottom: 'var(--safe-area-bottom, 0px)' }}
+              >
+                <div className="p-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {navigationItems
+                      .filter(item => !['/dashboard', '/prayers', '/focus', '/goals'].includes(item.path))
+                      .map((item) => {
+                        const Icon = item.icon
+                        const isActive = pathname === item.path
+                        return (
+                          <button
+                            key={item.path}
+                            onClick={() => {
+                              router.push(item.path)
+                              setShowMoreMenu(false)
+                            }}
+                            className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 min-h-[44px] ${
+                              isActive
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                            }`}
+                          >
+                            <div className={`p-2 rounded-xl shadow-sm ${
+                              isActive
+                                ? `bg-gradient-to-br ${item.color} shadow-md`
+                                : 'bg-gray-100 dark:bg-gray-800'
+                            }`}>
+                              <Icon className={`h-4 w-4 ${
+                                isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+                              }`} />
+                            </div>
+                            <span className={`text-[11px] font-medium leading-tight text-center ${
+                              isActive ? 'text-emerald-700 dark:text-emerald-300' : ''
+                            }`}>
+                              {item.label}
+                            </span>
+                          </button>
+                        )
+                      })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Bottom Tab Bar */}
+          <nav
+            className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-[55] bg-white/95 dark:bg-gray-900/95 border-t-2 border-gray-200 dark:border-gray-800 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:hidden"
+            role="navigation"
+            aria-label="Quick navigation"
+          >
+            <div className="flex items-stretch justify-around px-1 pt-1.5 pb-1">
+              {[
+                { path: '/dashboard', icon: LayoutDashboard, label: 'Home' },
+                { path: '/prayers', icon: Heart, label: 'Prayers' },
+                { path: '/focus', icon: Zap, label: 'Focus' },
+                { path: '/goals', icon: Target, label: 'Goals' },
+              ].map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.path
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => router.push(item.path)}
+                    className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 min-h-[44px] relative ${
+                      isActive
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                    }`}
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="bottomNavIndicator"
+                        className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                      />
+                    )}
+                    <Icon className={`h-5 w-5 transition-transform duration-200 ${
+                      isActive ? 'scale-110' : ''
+                    }`} />
+                    <span className={`text-[10px] font-medium leading-none ${
+                      isActive ? 'font-bold' : ''
+                    }`}>
+                      {item.label}
+                    </span>
+                  </button>
+                )
+              })}
+
+              {/* More button */}
+              <button
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 min-h-[44px] ${
+                  showMoreMenu
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
+                }`}
+                aria-label="More navigation options"
+                aria-expanded={showMoreMenu}
+              >
+                <motion.div
+                  animate={{ rotate: showMoreMenu ? 90 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu className={`h-5 w-5 transition-transform duration-200 ${
+                    showMoreMenu ? 'scale-110' : ''
+                  }`} />
+                </motion.div>
+                <span className={`text-[10px] font-medium leading-none ${
+                  showMoreMenu ? 'font-bold' : ''
+                }`}>
+                  More
+                </span>
+              </button>
+            </div>
+          </nav>
+        </>
+      )}
     </div>
   )
 }

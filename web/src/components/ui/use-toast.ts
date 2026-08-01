@@ -10,7 +10,7 @@ interface Toast {
 }
 
 const toasts: Toast[] = []
-let listeners: Array<(toasts: Toast[]) => void> = []
+const listeners: Array<(toasts: Toast[]) => void> = []
 
 const addToast = (toast: Omit<Toast, 'id'>) => {
   const id = Math.random().toString(36)

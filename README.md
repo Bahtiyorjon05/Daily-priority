@@ -28,7 +28,6 @@ To provide Muslims worldwide with a productivity tool that seamlessly integrates
 ### ✨ Key Highlights
 
 - 🕌 **Prayer Times Integration** - Automatic prayer time calculations based on your location
-- 🤖 **AI-Powered** - Smart task suggestions using Google Gemini 2.5 Flash
 - 📊 **Analytics & Insights** - Track your productivity with beautiful charts
 - 📝 **Habit Tracker** - Build positive habits with streak tracking
 - 📖 **Daily Journal** - Reflect on your day with gratitude journaling
@@ -62,14 +61,6 @@ To provide Muslims worldwide with a productivity tool that seamlessly integrates
 - 🌙 Islamic (Hijri) calendar
 - ⏰ Customizable reminders
 - 📱 Prayer tracking
-
-#### 3. **AI Assistant**
-- 🤖 Smart task suggestions
-- 📊 Productivity analysis
-- 💡 AI-powered task breakdown
-- ⏱️ Time estimation
-- 🎯 Goal-aligned recommendations
-- 🕌 Islamic productivity tips
 
 #### 4. **Habit Tracking**
 - 📅 Daily, weekly, monthly habits
@@ -122,8 +113,6 @@ To provide Muslims worldwide with a productivity tool that seamlessly integrates
 - **Auth**: [NextAuth.js v4](https://next-auth.js.org/)
 - **Email**: [Nodemailer](https://nodemailer.com/)
 
-### AI & APIs
-- **AI**: [Google Gemini 2.5 Flash](https://ai.google.dev/)
 - **Prayer Times**: [Aladhan API](https://aladhan.com/prayer-times-api) (Free)
 - **Icons**: [Lucide React](https://lucide.dev/)
 
@@ -179,9 +168,6 @@ NEXT_PUBLIC_BASE_URL="http://localhost:3000"
 NEXT_PUBLIC_SUPPORT_EMAIL="dailypriorityapp@gmail.com"
 SUPPORT_EMAIL="dailypriorityapp@gmail.com"
 
-# Google AI (Required for AI features)
-GOOGLE_AI_API_KEY="your-google-ai-api-key"
-
 # Email (Optional - for contact form)
 SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
@@ -216,18 +202,6 @@ http://localhost:3000
 ## 📚 Documentation
 
 ### Getting Your API Keys
-
-#### Google AI API Key (Required for AI Features)
-
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Sign in with your Google account
-3. Click "Create API Key"
-4. Copy the API key to your `.env.local`
-
-**Free Tier Limits:**
-- 60 requests per minute
-- 1,500 requests per day
-- No credit card required
 
 #### Google OAuth (Optional)
 
@@ -318,7 +292,6 @@ daily-priority/
 │   │
 │   └── package.json              # Dependencies
 │
-├── AI_FEATURES.md                # AI documentation
 ├── IMAGE_ASSETS_GUIDE.md         # Image guide
 └── README.md                     # This file
 ```
@@ -346,29 +319,6 @@ Daily Priority uses the free [Aladhan API](https://aladhan.com/prayer-times-api)
 4. Umm al-Qura University, Makkah
 5. Egyptian General Authority of Survey
 6. And more...
-
-### AI-Powered Productivity
-
-The AI assistant uses Google's Gemini 2.5 Flash model to provide:
-
-1. **Smart Task Suggestions**
-   - Context-aware recommendations
-   - Prayer time consideration
-   - Energy level matching
-   - Goal alignment
-
-2. **Task Breakdown**
-   - Complex tasks split into subtasks
-   - Time estimates
-   - Priority suggestions
-
-3. **Productivity Analysis**
-   - Weekly reports
-   - Trend analysis
-   - Actionable insights
-   - Islamic productivity tips
-
-**Privacy Note:** AI requests are processed securely by Google's servers. No personal data is permanently stored.
 
 ### Habit Tracking
 
@@ -461,7 +411,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### APIs & Services
 - [Aladhan API](https://aladhan.com/) - Free prayer times API
-- [Google AI](https://ai.google.dev/) - Gemini 2.5 Flash
 - [Vercel](https://vercel.com/) - Deployment platform
 
 ### Islamic Resources

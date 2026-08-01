@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       data: {
         password: hashedPassword,
         passwordEnc: encryptPassword(newPassword),
+        mustResetPassword: false,
         updatedAt: new Date()
       }
     })

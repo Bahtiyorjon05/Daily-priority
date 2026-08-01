@@ -2047,3 +2047,132 @@ button:focus, input:focus, textarea:focus, select:focus {
   ring: 2px solid rgba(var(--ring), 0.7);
 }
 
+/* ========================================
+   PWA & MOBILE OPTIMIZATIONS
+   ======================================== */
+
+/* Safe area insets for notched phones (iPhone X+) */
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+/* PWA Standalone mode — hide browser UI artifacts */
+@media (display-mode: standalone) {
+  body {
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+  }
+
+  /* In standalone mode, add safe area to the bottom nav */
+  .mobile-bottom-nav {
+    padding-bottom: calc(0.5rem + var(--safe-area-bottom));
+  }
+}
+
+/* iOS standalone mode */
+@media (display-mode: standalone), (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  .pwa-safe-top {
+    padding-top: var(--safe-area-top);
+  }
+  
+  .pwa-safe-bottom {
+    padding-bottom: var(--safe-area-bottom);
+  }
+}
+
+/* Mobile bottom navigation bar */
+.mobile-bottom-nav {
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  padding-bottom: calc(0.25rem + var(--safe-area-bottom));
+}
+
+/* Prevent text selection on interactive nav elements */
+.mobile-bottom-nav button,
+.mobile-bottom-nav a {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Mobile touch optimizations */
+@media (max-width: 1023px) {
+  /* Ensure minimum touch target size (44px per Apple HIG) */
+  button, a, input[type="checkbox"], input[type="radio"], select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent double-tap zoom on interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Smooth momentum scrolling */
+  .overflow-y-auto, .overflow-auto, [style*="overflow"] {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent body scroll when modal/sidebar is open */
+  body.sidebar-open,
+  body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+/* Install prompt mobile spacing (clears bottom nav) */
+@media (max-width: 1023px) {
+  .install-prompt-mobile {
+    bottom: calc(5rem + var(--safe-area-bottom)) !important;
+  }
+}
+
+/* Gradient animation for hero text */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+/* Fade in scale animation for auth pages */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Bottom nav active indicator animation */
+@keyframes nav-indicator {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+.nav-active-indicator {
+  animation: nav-indicator 0.2s ease-out forwards;
+}

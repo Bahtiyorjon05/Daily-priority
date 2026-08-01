@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate')
     const date = searchParams.get('date')
 
-    let whereClause: any = {
+    const whereClause: any = {
       userId: session.user.id,
     }
 

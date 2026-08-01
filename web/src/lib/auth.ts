@@ -169,17 +169,21 @@ export const authOptions: NextAuthOptions = {
             select: {
               id: true,
               password: true,
+              mustResetPassword: true,
               twoFactorEnabled: true,
               twoFactorSecret: true
             }
           })
 
           if (dbUser) {
-            // ⚠️ CRITICAL: Check if password exists and clear the setup flag
-            if (dbUser.password) {
-              logger.info('[JWT Refresh] User has password, clearing needsPasswordSetup flag', {
+            // ⚠️ CRITICAL: force a password reset when flagged, else base it on
+            // whether a password exists (Google users with no password).
+            if (dbUser.mustResetPassword) {
+              logger.info('[JWT Refresh] User must reset password, forcing set-password', {
                 userId: dbUser.id
               })
+              token.needsPasswordSetup = true
+            } else if (dbUser.password) {
               token.needsPasswordSetup = false
             } else {
               logger.info('[JWT Refresh] User has NO password, setting needsPasswordSetup flag', {

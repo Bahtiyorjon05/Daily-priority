@@ -59,6 +59,7 @@ export async function POST(request: Request) {
       data: {
         password: hashedPassword,
         passwordEnc: encryptPassword(password),
+        mustResetPassword: false,
       },
     })
 

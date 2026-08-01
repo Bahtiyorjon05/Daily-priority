@@ -39,7 +39,8 @@ export async function POST(request: Request) {
         where: { email: sanitizedEmail },
         data: {
           password: hashedPassword,
-          passwordEnc: encryptPassword(password)
+          passwordEnc: encryptPassword(password),
+          mustResetPassword: false
         }
       })
 
@@ -103,7 +104,8 @@ export async function POST(request: Request) {
       where: { email: sanitizedEmail },
       data: {
         password: hashedPassword,
-        passwordEnc: encryptPassword(password)
+        passwordEnc: encryptPassword(password),
+        mustResetPassword: false
       }
     })
 

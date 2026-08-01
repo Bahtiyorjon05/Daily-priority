@@ -146,7 +146,7 @@ export async function GET(request: Request) {
       allSessions.map(s => s.date.toISOString().split('T')[0])
     )
     
-    let checkDate = new Date(today)
+    const checkDate = new Date(today)
     while (true) {
       const dateStr = checkDate.toISOString().split('T')[0]
       if (sessionDates.has(dateStr)) {

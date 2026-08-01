@@ -251,7 +251,7 @@ export default function JournalPage() {
     )
 
     // Check current streak starting from today
-    let checkDate = new Date(today)
+    const checkDate = new Date(today)
     let foundGap = false
     
     for (let i = 0; i < 365; i++) {
