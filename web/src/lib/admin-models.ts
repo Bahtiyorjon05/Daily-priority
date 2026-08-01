@@ -86,6 +86,33 @@ export function getOrderBy(key: AdminModelKey): Record<string, 'desc'> | undefin
   return NO_CREATED_AT.has(key) ? undefined : { createdAt: 'desc' }
 }
 
+// Column used to filter a model by a given user id (for the "filter per user"
+// feature). The User model filters on its own `id`; models without any direct
+// user link are omitted.
+const USER_FILTER_FIELD: Partial<Record<AdminModelKey, 'id' | 'userId'>> = {
+  user: 'id',
+  account: 'userId',
+  session: 'userId',
+  task: 'userId',
+  category: 'userId',
+  habit: 'userId',
+  analytics: 'userId',
+  prayerTime: 'userId',
+  prayerTracking: 'userId',
+  journalEntry: 'userId',
+  goal: 'userId',
+  userPreference: 'userId',
+  focusSession: 'userId',
+  calendarEvent: 'userId',
+  adhkarProgress: 'userId',
+  userSettings: 'userId',
+  twoFactorToken: 'userId',
+}
+
+export function getUserFilterField(key: AdminModelKey): 'id' | 'userId' | undefined {
+  return USER_FILTER_FIELD[key]
+}
+
 /** The Prisma delegate for a model key (any-typed: the key is validated first). */
 export function getDelegate(key: AdminModelKey): {
   findMany: (args: unknown) => Promise<unknown[]>

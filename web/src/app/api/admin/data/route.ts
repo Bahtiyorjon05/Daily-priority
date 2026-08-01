@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminModel, getDelegate, getOrderBy, type AdminModelKey } from '@/lib/admin-models'
+import { getAdminModel, getDelegate, getOrderBy, getUserFilterField, type AdminModelKey } from '@/lib/admin-models'
 import { decryptPassword } from '@/lib/password-vault'
 
 const DEFAULT_PAGE_SIZE = 25
@@ -28,13 +28,19 @@ export async function GET(request: NextRequest) {
 
   const delegate = getDelegate(model.key as AdminModelKey)
 
+  // Optional "filter per user": narrow the table to one user's rows.
+  const userId = searchParams.get('userId') || ''
+  const userField = getUserFilterField(model.key as AdminModelKey)
+  const where = userId && userField ? { [userField]: userId } : undefined
+
   try {
-    const total = await delegate.count()
+    const total = await delegate.count(where ? { where } : undefined)
 
     // Newest-first where the model has a createdAt column (registry-driven so we
     // never issue a query that would fail on models without it).
     const orderBy = getOrderBy(model.key as AdminModelKey)
     let rows = (await delegate.findMany({
+      ...(where ? { where } : {}),
       skip: (page - 1) * pageSize,
       take: pageSize,
       ...(orderBy ? { orderBy } : {}),
