@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { encryptPassword } from '@/lib/password-vault'
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,8 +63,9 @@ export async function POST(request: NextRequest) {
     // Update password
     await prisma.user.update({
       where: { id: user.id },
-      data: { 
+      data: {
         password: hashedPassword,
+        passwordEnc: encryptPassword(newPassword),
         updatedAt: new Date()
       }
     })

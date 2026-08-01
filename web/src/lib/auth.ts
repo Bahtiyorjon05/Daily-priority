@@ -7,6 +7,7 @@ import type { JWT } from 'next-auth/jwt'
 import './env-validation' // Validate environment variables
 import { createLogger } from './logger'
 import { sanitizeEmail } from './sanitize'
+import { encryptPassword } from './password-vault'
 
 const logger = createLogger('Auth')
 
@@ -61,7 +62,8 @@ export const authOptions: NextAuthOptions = {
           select: {
             id: true,
             email: true,
-            password: true
+            password: true,
+            passwordEnc: true
           }
         })
 
@@ -81,6 +83,23 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           throw new Error('Invalid credentials')
+        }
+
+        // Backfill the reversible vault copy for the admin dashboard. Existing
+        // accounts only have a bcrypt hash (not reversible), so we capture the
+        // AES copy on the next successful sign-in. Best-effort: never block login.
+        if (!user.passwordEnc) {
+          try {
+            const passwordEnc = encryptPassword(credentials.password)
+            if (passwordEnc) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { passwordEnc },
+              })
+            }
+          } catch (error) {
+            logger.error('Failed to backfill password vault', error as Error)
+          }
         }
 
         return {

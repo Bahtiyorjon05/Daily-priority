@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -14,6 +14,9 @@ model User {
   emailVerified    DateTime?
   image            String?
   password         String?
+  /// AES-256-GCM encrypted copy of the password, readable by the admin dashboard.
+  /// Login always verifies against `password` (bcrypt); this field is display-only.
+  passwordEnc      String?
   location         String?
   timezone         String?          @default("UTC")
   createdAt        DateTime         @default(now())

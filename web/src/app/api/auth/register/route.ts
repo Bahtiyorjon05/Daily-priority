@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { sanitizeEmail, sanitizeTitle } from '@/lib/sanitize'
 import { hasValidCode, deleteVerificationCode } from '@/lib/verification-code'
 import { createLogger } from '@/lib/logger'
+import { encryptPassword } from '@/lib/password-vault'
 
 const logger = createLogger('RegisterAPI')
 
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
       data: {
         email: sanitizedEmail,
         password: hashedPassword,
+        passwordEnc: encryptPassword(password),
         name: sanitizedName || sanitizedEmail.split('@')[0],
         emailVerified: new Date(), // Mark email as verified
       },

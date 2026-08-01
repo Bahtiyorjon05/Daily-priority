@@ -4,7 +4,7 @@
  */
 
 import { prisma } from './prisma'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '../../generated/prisma/client'
 
 /**
  * Execute multiple operations in a transaction

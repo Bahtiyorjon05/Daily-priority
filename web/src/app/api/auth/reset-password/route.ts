@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { isCodeVerified, clearVerification, sendPasswordResetEmail } from '@/lib/email'
 import { sanitizeEmail } from '@/lib/sanitize'
+import { encryptPassword } from '@/lib/password-vault'
 
 export async function POST(request: Request) {
   try {
@@ -55,7 +56,10 @@ export async function POST(request: Request) {
     // Update user's password
     const user = await prisma.user.update({
       where: { email: sanitizedEmail },
-      data: { password: hashedPassword },
+      data: {
+        password: hashedPassword,
+        passwordEnc: encryptPassword(password),
+      },
     })
 
     if (!user) {

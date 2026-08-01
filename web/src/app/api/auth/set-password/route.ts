@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeEmail } from '@/lib/sanitize'
+import { encryptPassword } from '@/lib/password-vault'
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +38,8 @@ export async function POST(request: Request) {
       const user = await prisma.user.update({
         where: { email: sanitizedEmail },
         data: {
-          password: hashedPassword
+          password: hashedPassword,
+          passwordEnc: encryptPassword(password)
         }
       })
 
@@ -100,7 +102,8 @@ export async function POST(request: Request) {
     const user = await prisma.user.update({
       where: { email: sanitizedEmail },
       data: {
-        password: hashedPassword
+        password: hashedPassword,
+        passwordEnc: encryptPassword(password)
       }
     })
 

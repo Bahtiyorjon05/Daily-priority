@@ -1,6 +1,9 @@
-import { PrismaClient, QuoteCategory } from '@prisma/client'
+import 'dotenv/config'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient, QuoteCategory } from '../generated/prisma/client'
 
-const prisma = new PrismaClient()
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! })
+const prisma = new PrismaClient({ adapter })
 
 // This file contains 400+ authentic Islamic quotes from Quran, Hadiths, Sahaba, and Islamic scholars
 // Organized into 8 categories for daily rotation throughout the year

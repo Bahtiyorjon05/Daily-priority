@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { ADMIN_COOKIE, verifyAdminSession } from "@/lib/admin-auth"
 
 const publicRoutes = new Set([
   '/',
@@ -41,6 +42,28 @@ function redirectToSignIn(req: NextRequest) {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+
+  // --- Admin dashboard (independent from the app's NextAuth session) ---
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    // The login page and login/logout APIs must stay reachable.
+    const isAdminPublic =
+      pathname === '/admin/login' ||
+      pathname === '/api/admin/login' ||
+      pathname === '/api/admin/logout'
+    if (isAdminPublic) {
+      return NextResponse.next()
+    }
+
+    const adminUser = await verifyAdminSession(req.cookies.get(ADMIN_COOKIE)?.value)
+    if (!adminUser) {
+      if (pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      const loginUrl = new URL('/admin/login', req.url)
+      return NextResponse.redirect(loginUrl)
+    }
+    return NextResponse.next()
+  }
 
   if (!authEnabled) {
     if (process.env.NODE_ENV !== 'production') {
@@ -93,6 +116,8 @@ export const config = {
   // the edge-only request-cookies adapter that has been crashing in dev.
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|public|manifest.json|robots.txt|sitemap.xml).*)',
+    // Admin API needs the auth guard too (the pattern above skips /api).
+    '/api/admin/:path*',
   ],
   // runtime: 'nodejs', // Commenting this out to let Next.js decide, or keep if necessary. getToken works in Edge too.
 }
