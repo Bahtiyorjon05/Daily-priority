@@ -117,7 +117,16 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    // Stay signed in for 30 days of inactivity. The token is re-issued at most
+    // once every 24h ("1 day" rotation) — each visit inside the window slides
+    // the expiry forward, so an active user is never asked to sign in again.
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60,   // refresh the token once per day
+  },
+  jwt: {
+    // Keep the JWT's own lifetime in step with the session.
+    maxAge: 30 * 24 * 60 * 60,
   },
   debug: process.env.NODE_ENV === 'development',
   callbacks: {
