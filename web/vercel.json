@@ -17,6 +17,14 @@
   },
   "headers": [
     {
+      "comment": "The service worker must always be revalidated, otherwise a cached copy keeps an old caching strategy alive on returning devices.",
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {

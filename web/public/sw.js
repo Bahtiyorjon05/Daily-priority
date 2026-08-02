@@ -1,13 +1,14 @@
 // Service Worker for Daily Priority PWA
 // v2 — Handles offline caching, background sync, and push notifications
 
-const CACHE_NAME = 'daily-priority-v2'
-const RUNTIME_CACHE = 'runtime-cache-v2'
+// Bump these on any caching-strategy change so old caches are dropped.
+const CACHE_NAME = 'daily-priority-v3'
+const RUNTIME_CACHE = 'runtime-cache-v3'
 
-// Assets to cache on install
+// Only truly static assets are precached. HTML pages are deliberately NOT
+// precached: a cached document pins the hashed JS chunks it references, so a
+// stale document serves an entire stale app after every deploy.
 const PRECACHE_ASSETS = [
-  '/',
-  '/dashboard',
   '/offline',
   '/manifest.json',
   '/icon-192.png',
@@ -85,10 +86,19 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Static assets (images, fonts, CSS, JS) — cache first
-  if (
-    url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|css|js)$/)
-  ) {
+  // Immutable build output (/_next/static/**) and media/fonts/images are safe
+  // to serve cache-first: their filenames contain a content hash, so a new
+  // build produces new URLs rather than changing an existing one.
+  //
+  // NOTE: this deliberately no longer matches every `.js`/`.css` path. Serving
+  // any script cache-first (including non-hashed ones like /sw.js) meant a
+  // deploy could never fully reach an existing visitor.
+  const isHashedBuildAsset = url.pathname.startsWith('/_next/static/')
+  const isMediaAsset = url.pathname.match(
+    /\.(png|jpg|jpeg|gif|svg|webp|avif|ico|woff2?|ttf|otf|mp3|ogg|wav|m4a)$/
+  )
+
+  if (isHashedBuildAsset || isMediaAsset) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached
@@ -113,28 +123,30 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Pages — stale-while-revalidate
+  // Pages/documents — NETWORK FIRST.
+  //
+  // These must never be served stale: an HTML document references hashed JS
+  // chunks, so returning a cached document from an older deploy loads the whole
+  // old app. That previously meant a plain refresh could show a version of the
+  // UI from a previous release while a fresh sign-in showed the new one.
+  // The cache is kept purely as an offline fallback.
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      const fetchPromise = fetch(request)
-        .then((response) => {
-          if (response.status === 200) {
-            const clone = response.clone()
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone))
-          }
-          return response
-        })
-        .catch(() => {
-          // If offline and no cache, show offline page
-          if (request.mode === 'navigate') {
-            return caches.match('/offline')
-          }
-          return new Response('Offline', { status: 503 })
-        })
-
-      // Return cached immediately if available, update in background
-      return cachedResponse || fetchPromise
-    })
+    fetch(request)
+      .then((response) => {
+        if (response.status === 200) {
+          const clone = response.clone()
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone))
+        }
+        return response
+      })
+      .catch(async () => {
+        const cached = await caches.match(request)
+        if (cached) return cached
+        if (request.mode === 'navigate') {
+          return (await caches.match('/offline')) || new Response('Offline', { status: 503 })
+        }
+        return new Response('Offline', { status: 503 })
+      })
   )
 })
 
