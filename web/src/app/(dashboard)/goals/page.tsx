@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useMemo } from 'react'
+import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target,
@@ -88,6 +89,9 @@ export default function GoalsPage() {
     target: 100,
     deadline: ''
   })
+
+  useModalBehavior(showNewGoal, () => setShowNewGoal(false))
+  useModalBehavior(!!deletingGoal, () => setDeletingGoal(null))
 
   useEffect(() => {
     fetchGoals()

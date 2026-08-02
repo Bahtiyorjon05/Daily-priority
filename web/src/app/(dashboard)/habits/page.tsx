@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toLocalDateKey, todayKey } from '@/lib/date-utils'
 import {
   Target,
   Plus,
@@ -59,6 +61,9 @@ export default function HabitsPage() {
     frequency: 'DAILY' as 'DAILY' | 'WEEKLY' | 'CUSTOM',
     targetDays: 7
   })
+
+  useModalBehavior(showNewHabit, () => setShowNewHabit(false))
+  useModalBehavior(!!deletingHabit, () => setDeletingHabit(null))
 
   useEffect(() => {
     fetchHabits()
@@ -144,21 +149,21 @@ export default function HabitsPage() {
   }
 
   async function toggleHabitCompletion(habitId: string) {
-    const today = new Date().toISOString().split('T')[0]
+    const today = todayKey()
     const habit = habits.find(h => h.id === habitId)
     
     if (!habit) return
     
     const completions = habit.completions || []
     const completedToday = completions.some(c => 
-      new Date(c.date).toISOString().split('T')[0] === today
+      toLocalDateKey(c.date) === today
     )
 
     // Optimistic update - instant UI feedback
     setHabits(prevHabits => prevHabits.map(h => {
       if (h.id === habitId) {
         const updatedCompletions = completedToday
-          ? completions.filter(c => new Date(c.date).toISOString().split('T')[0] !== today)
+          ? completions.filter(c => toLocalDateKey(c.date) !== today)
           : [...completions, { id: 'temp', date: today }]
         
         // Recalculate streak optimistically
@@ -260,10 +265,10 @@ export default function HabitsPage() {
   }, [searchQuery, selectedFrequency, sortBy])
 
   // Calculate stats
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayKey()
   const totalHabits = habits.length
   const completedToday = habits.filter(h => 
-    h.completions?.some(c => new Date(c.date).toISOString().split('T')[0] === today)
+    h.completions?.some(c => toLocalDateKey(c.date) === today)
   ).length
   const activeStreak = Math.max(...habits.map(h => h.currentStreak || 0), 0)
   
@@ -271,13 +276,13 @@ export default function HabitsPage() {
   const last7Days = Array.from({length: 7}, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() - i)
-    return d.toISOString().split('T')[0]
+    return toLocalDateKey(d)
   })
   const totalPossible = habits.length * 7
   const totalCompleted = habits.reduce((sum, habit) => {
     const completions = habit.completions || []
     return sum + completions.filter(c => 
-      last7Days.includes(new Date(c.date).toISOString().split('T')[0])
+      last7Days.includes(toLocalDateKey(c.date))
     ).length
   }, 0)
   const weeklyCompletion = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0
@@ -381,7 +386,7 @@ export default function HabitsPage() {
               {paginatedHabits.map(habit => {
                 const completions = habit.completions || []
                 const completedToday = completions.some(c => 
-                  new Date(c.date).toISOString().split('T')[0] === today
+                  toLocalDateKey(c.date) === today
                 )
               
               return (

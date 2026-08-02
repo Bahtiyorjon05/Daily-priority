@@ -1,7 +1,9 @@
 ﻿'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
+import { todayKey } from '@/lib/date-utils'
 import {
   BookOpen,
   Plus,
@@ -69,7 +71,7 @@ export default function JournalPage() {
   const entriesPerPage = 9
 
   const [newEntry, setNewEntry] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: todayKey(),
     gratitude1: '',
     gratitude2: '',
     gratitude3: '',
@@ -79,6 +81,8 @@ export default function JournalPage() {
     reflection: '',
     mood: 'neutral'
   })
+
+  useModalBehavior(showCreateModal, () => setShowCreateModal(false))
 
   useEffect(() => {
     fetchEntries()
@@ -135,7 +139,7 @@ export default function JournalPage() {
         
         setShowCreateModal(false)
         setNewEntry({
-          date: new Date().toISOString().split('T')[0],
+          date: todayKey(),
           gratitude1: '',
           gratitude2: '',
           gratitude3: '',

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -119,6 +120,8 @@ export default function CalendarPage() {
     isRecurring: false,
     recurrencePattern: 'none'
   })
+
+  useModalBehavior(showEventModal, () => setShowEventModal(false))
 
   useEffect(() => {
     if (session?.user?.id) {

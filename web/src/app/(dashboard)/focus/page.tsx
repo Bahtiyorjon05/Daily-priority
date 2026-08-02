@@ -59,6 +59,10 @@ export default function FocusPage() {
   const [showCompletionBadge, setShowCompletionBadge] = useState(false)
   
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  // Wall-clock timestamp (ms) at which the current run reaches zero.
+  const deadlineRef = useRef<number | null>(null)
+  // Guards against handleTimerComplete firing twice for one completion.
+  const completingRef = useRef(false)
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -67,27 +71,39 @@ export default function FocusPage() {
     }
   }, [session?.user?.email])
 
+  // Timestamp-based countdown.
+  //
+  // A plain `setInterval(..., 1000)` is throttled to ~once per minute in
+  // background tabs, so a 25-minute session left in the background would run
+  // far past its real duration. We instead store the wall-clock deadline and
+  // derive the remaining time from Date.now(), which stays correct no matter
+  // how often the tick actually fires (and re-syncs on tab focus).
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    if (!isActive) return
 
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    } else if (timeLeft === 0 && isActive) {
-      // Timer just hit zero, handle completion
-      handleTimerComplete()
+    const tick = () => {
+      const deadline = deadlineRef.current
+      if (deadline == null) return
+      const remaining = Math.max(0, Math.round((deadline - Date.now()) / 1000))
+      setTimeLeft(remaining)
+      if (remaining === 0 && !completingRef.current) {
+        completingRef.current = true
+        handleTimerComplete()
+      }
     }
+
+    tick()
+    const interval = setInterval(tick, 250)
+    document.addEventListener('visibilitychange', tick)
+    window.addEventListener('focus', tick)
 
     return () => {
-      if (interval) clearInterval(interval)
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', tick)
+      window.removeEventListener('focus', tick)
     }
-  }, [isActive, timeLeft])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive])
 
   // Music management - initialize audio once
   useEffect(() => {
@@ -209,15 +225,25 @@ export default function FocusPage() {
 
   const handleTimerComplete = async () => {
     setIsActive(false)
+    deadlineRef.current = null
     stopMusic()
 
-    // Calculate duration and save to database for all session types
+    // Record the time the timer actually ran, not wall-clock since start —
+    // wall-clock counted paused minutes as focus time.
     if (sessionStart) {
-      const duration = Math.round((Date.now() - sessionStart.getTime()) / 60000)
-      
+      const plannedSeconds =
+        (mode === 'focus'
+          ? settings.focusDuration
+          : mode === 'shortBreak'
+            ? settings.shortBreakDuration
+            : settings.longBreakDuration) * 60
+      const duration = Math.round(plannedSeconds / 60)
+
       // Ensure duration is at least 1 minute
       if (duration < 1) {
         console.log('Session too short, not recording')
+        completingRef.current = false
+        setSessionStart(null)
         return
       }
 
@@ -281,13 +307,19 @@ export default function FocusPage() {
     }
 
     setSessionStart(null)
+    completingRef.current = false
   }
 
   const startTimer = () => {
+    // Anchor the countdown to a wall-clock deadline so backgrounding the tab
+    // (or locking the phone) can't stretch the session.
+    deadlineRef.current = Date.now() + timeLeft * 1000
+    completingRef.current = false
     setIsActive(true)
-    // Track start time for all session types
-    setSessionStart(new Date())
-    
+    // Only stamp the session start on a fresh run, not when resuming a pause —
+    // resuming used to reset it, which under-counted the recorded duration.
+    setSessionStart((prev) => prev ?? new Date())
+
     // Ensure audio is ready to play (user interaction trigger)
     if (audioRef.current && mode === 'focus' && settings.enableMusic && !isMuted) {
       audioRef.current.play().catch(() => {
@@ -297,12 +329,19 @@ export default function FocusPage() {
   }
 
   const pauseTimer = () => {
+    // Freeze the countdown at the true remaining time.
+    if (deadlineRef.current != null) {
+      setTimeLeft(Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000)))
+    }
+    deadlineRef.current = null
     setIsActive(false)
     // Music will pause automatically via useEffect when isActive changes
   }
 
   const resetTimer = () => {
     setIsActive(false)
+    deadlineRef.current = null
+    completingRef.current = false
     stopMusic()
     // Reset music to start when explicitly resetting timer
     if (audioRef.current) {

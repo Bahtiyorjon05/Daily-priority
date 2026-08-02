@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import {
   BarChart3,
   TrendingUp,
@@ -151,7 +152,10 @@ type WeekdayTrendPoint = AnalyticsData['trends']['weekday'][number]
 export default function AnalyticsPage() {
   const { data: session } = useSession()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(false)
+  // Start in the loading state: the data is fetched in an effect, so starting
+  // at false made the very first render fall through to the "no data" error
+  // screen for a frame on every visit.
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchAnalytics = useCallback(async () => {
@@ -190,7 +194,28 @@ export default function AnalyticsPage() {
 
   if (loading) return <LoadingState message="Loading analytics..." />
   if (error) return <ErrorState message={error} onRetry={fetchAnalytics} />
-  if (!analytics) return <ErrorState message="No analytics data available" onRetry={fetchAnalytics} />
+  // No data is a normal state for a brand-new account, not an error — show an
+  // encouraging empty state instead of a failure screen.
+  if (!analytics) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
+          <BarChart3 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <h2 className="text-xl font-semibold">No analytics yet</h2>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+          Complete a few tasks, log a prayer, or run a focus session — your trends and
+          insights will show up here.
+        </p>
+        <Link
+          href="/dashboard"
+          className="mt-5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          Go to dashboard
+        </Link>
+      </div>
+    )
+  }
 
   const { overview, weekly, monthly, lastMonth, trends, insights, taskStats } = analytics
 
@@ -782,65 +807,65 @@ export default function AnalyticsPage() {
         </motion.div>
       </div>
 
-      {/* Weekday Performance Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.75 }}
-      >
-        <Card className="border-2 border-indigo-200 dark:border-indigo-700/50 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-indigo-500" />
-              Weekday Performance
-            </CardTitle>
-            <CardDescription>
-              {bestDay && worstDay ? (
-                <>
-                  Best: <span className="font-semibold text-emerald-600">{bestDay.day}</span> ({bestDay.rate.toFixed(0)}%) |{' '}
-                  Worst: <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
-                </>
-              ) : (
-                'Complete tasks across the week to reveal your patterns'
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {hasWeekdayData ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={weekdayTrends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="day" stroke="#64748b" />
-                  <YAxis stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-                    }}
-                    formatter={(value: any, name: any) => {
+      {/* Weekday Performance Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75 }}
+      >
+        <Card className="border-2 border-indigo-200 dark:border-indigo-700/50 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-indigo-500" />
+              Weekday Performance
+            </CardTitle>
+            <CardDescription>
+              {bestDay && worstDay ? (
+                <>
+                  Best: <span className="font-semibold text-emerald-600">{bestDay.day}</span> ({bestDay.rate.toFixed(0)}%) |{' '}
+                  Worst: <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
+                </>
+              ) : (
+                'Complete tasks across the week to reveal your patterns'
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {hasWeekdayData ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={weekdayTrends}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="day" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                    }}
+                    formatter={(value: any, name: any) => {
                       if (name === 'Completion Rate') return `${value.toFixed(1)}%`
-                      return value
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="created" fill="#3b82f6" name="Created" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="completed" fill="#10b981" name="Completed" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="rate" fill="#f59e0b" name="Completion Rate" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-[300px] flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400">
-                <AlertCircle className="mb-3 h-10 w-10 text-slate-400" />
-                <p className="font-medium">No weekday data yet</p>
-                <p className="text-sm">Log activity on multiple days to unlock this chart.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
-
+                      return value
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="created" fill="#3b82f6" name="Created" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="completed" fill="#10b981" name="Completed" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="rate" fill="#f59e0b" name="Completion Rate" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-[300px] flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400">
+                <AlertCircle className="mb-3 h-10 w-10 text-slate-400" />
+                <p className="font-medium">No weekday data yet</p>
+                <p className="text-sm">Log activity on multiple days to unlock this chart.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Insights */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
