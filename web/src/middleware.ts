@@ -144,7 +144,8 @@ export const config = {
     //   cron        - authenticated by CRON_SECRET, no session
     //   contact     - public contact form on the marketing page
     //   geocode / hijri / qibla / prayer-times / location - public lookups
-    '/api/((?!auth|admin|health|cron|contact|geocode|hijri|qibla|prayer-times|location).*)',
+    //   errors      - crash reports must post even when signed out
+    '/api/((?!auth|admin|health|cron|contact|geocode|hijri|qibla|prayer-times|location|errors).*)',
   ],
   // runtime: 'nodejs', // Commenting this out to let Next.js decide, or keep if necessary. getToken works in Edge too.
 }

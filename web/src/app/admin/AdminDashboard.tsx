@@ -2,18 +2,20 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Database, LogOut, LayoutDashboard, Users as UsersIcon, Table2, ArrowLeft } from 'lucide-react'
+import { Database, LogOut, LayoutDashboard, Users as UsersIcon, Table2, ArrowLeft, Bug } from 'lucide-react'
 import type { AdminModel } from '@/lib/admin-models'
 import OverviewView from './OverviewView'
 import UsersView from './UsersView'
 import TablesView from './TablesView'
+import ErrorsView from './ErrorsView'
 
-type View = 'overview' | 'users' | 'tables'
+type View = 'overview' | 'users' | 'tables' | 'errors'
 
 const NAV: { key: View; label: string; icon: React.ElementType }[] = [
   { key: 'overview', label: 'Overview', icon: LayoutDashboard },
   { key: 'users', label: 'Users', icon: UsersIcon },
   { key: 'tables', label: 'Tables', icon: Table2 },
+  { key: 'errors', label: 'Errors', icon: Bug },
 ]
 
 export default function AdminDashboard({
@@ -104,6 +106,7 @@ export default function AdminDashboard({
           {view === 'overview' && <OverviewView />}
           {view === 'users' && <UsersView />}
           {view === 'tables' && <TablesView models={models} />}
+          {view === 'errors' && <ErrorsView />}
         </div>
       </main>
     </div>

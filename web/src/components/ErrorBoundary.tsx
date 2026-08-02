@@ -3,6 +3,7 @@
 import { Component, ReactNode } from 'react'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { createLogger } from '@/lib/logger'
+import { reportError } from '@/components/shared/ErrorReporter'
 
 const logger = createLogger('ErrorBoundary')
 
@@ -36,6 +37,11 @@ export class ErrorBoundary extends Component<Props, State> {
     logger.error('Component error caught by boundary', error, {
       componentStack: errorInfo?.componentStack,
       errorInfo,
+    })
+    // Send it somewhere we can actually see it (admin console → Errors),
+    // rather than only into the browser console on the user's device.
+    reportError(error, {
+      componentStack: errorInfo?.componentStack?.slice(0, 2000),
     })
     this.setState({ errorInfo })
 

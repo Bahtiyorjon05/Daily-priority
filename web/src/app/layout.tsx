@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorReporter } from "@/components/shared/ErrorReporter";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -235,6 +236,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${amiri.variable} antialiased bg-background text-foreground preload`}
         suppressHydrationWarning={true}
       >
+        <ErrorReporter />
         <ErrorBoundary>
           <Providers>
             {children}

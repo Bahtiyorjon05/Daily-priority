@@ -50,6 +50,32 @@ model User {
   @@map("users")
 }
 
+/// Captured application errors (client and server), surfaced in the admin
+/// console. Self-hosted so there's no third-party dependency or bundle cost.
+/// `fingerprint` groups repeats of the same fault so the list stays readable.
+model ErrorLog {
+  id          String   @id @default(cuid())
+  fingerprint String
+  level       String   @default("error")
+  message     String
+  stack       String?
+  source      String   @default("client")
+  url         String?
+  userAgent   String?
+  userId      String?
+  /// Arbitrary extra context (route, component, ids…)
+  context     Json?
+  count       Int      @default(1)
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  resolved    Boolean  @default(false)
+
+  @@unique([fingerprint])
+  @@index([lastSeenAt(sort: Desc)])
+  @@index([resolved, lastSeenAt(sort: Desc)])
+  @@map("error_logs")
+}
+
 /// A browser/device push endpoint for background Web Push notifications.
 model PushSubscription {
   id        String   @id @default(cuid())
@@ -209,6 +235,8 @@ model Habit {
   completions   HabitCompletion[]
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([userId, frequency])
   @@map("habits")
 }
 
@@ -247,6 +275,7 @@ model IslamicQuote {
   author    String?
   isArabic  Boolean       @default(false)
   createdAt DateTime      @default(now())
+  @@index([category])
 
   @@map("islamic_quotes")
 }
