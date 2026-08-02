@@ -46,6 +46,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { InstallPrompt } from '@/components/shared/InstallPrompt'
+import { InstallMenuItem } from '@/components/shared/InstallMenuItem'
 import { NotificationBell } from '@/components/shared/NotificationBell'
 import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
@@ -728,6 +729,10 @@ function DashboardLayoutContent({
                           </div>
                         </div>
                       </div>
+
+                      {/* Always-available install entry — the floating banner
+                          snoozes for a week once dismissed, this doesn't. */}
+                      <InstallMenuItem onNavigate={() => setShowProfileDropdown(false)} />
 
                       {/* Owner-only shortcut to the admin console */}
                       {isOwner && (

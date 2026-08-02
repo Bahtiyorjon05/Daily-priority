@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
@@ -27,6 +27,36 @@ interface InstallPromptState {
 const DISMISS_KEY = 'dp-install-dismissed'
 const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000
 
+/**
+ * `beforeinstallprompt` fires once, early in the page's life. Components that
+ * mount later (e.g. the install entry inside the profile dropdown) would miss
+ * it entirely if each hook instance kept its own listener. So the event is
+ * captured once at module scope and shared with every consumer.
+ */
+let deferredPrompt: BeforeInstallPromptEvent | null = null
+let promptListenersAttached = false
+type PromptSignal = { available: boolean; installed?: boolean }
+const promptSubscribers = new Set<(signal: PromptSignal) => void>()
+
+function notifySubscribers(signal: PromptSignal) {
+  promptSubscribers.forEach((fn) => fn(signal))
+}
+
+function attachGlobalPromptListeners() {
+  if (promptListenersAttached || typeof window === 'undefined') return
+  promptListenersAttached = true
+
+  window.addEventListener('beforeinstallprompt', (e: Event) => {
+    e.preventDefault()
+    deferredPrompt = e as BeforeInstallPromptEvent
+    notifySubscribers({ available: true })
+  })
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null
+    notifySubscribers({ available: false, installed: true })
+  })
+}
+
 function isDismissedRecently(): boolean {
   if (typeof window === 'undefined') return false
   try {
@@ -41,7 +71,6 @@ function isDismissedRecently(): boolean {
 }
 
 export function useInstallPrompt(): InstallPromptState {
-  const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null)
   const [hasNativePrompt, setHasNativePrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
@@ -86,30 +115,26 @@ export function useInstallPrompt(): InstallPromptState {
         .catch(() => {})
     }
 
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault()
-      deferredPromptRef.current = e as BeforeInstallPromptEvent
-      setHasNativePrompt(true)
+    // Subscribe to the shared prompt state so late-mounting consumers still
+    // see an event that fired before they existed.
+    attachGlobalPromptListeners()
+    setHasNativePrompt(!!deferredPrompt)
+    const onAvailability = ({ available, installed }: PromptSignal) => {
+      setHasNativePrompt(available)
+      // Only a real 'appinstalled' event means installed — a consumed or
+      // dismissed prompt just means it's no longer offerable this session.
+      if (installed) setIsInstalled(true)
     }
-
-    const handleAppInstalled = () => {
-      setIsInstalled(true)
-      deferredPromptRef.current = null
-      setHasNativePrompt(false)
-    }
+    promptSubscribers.add(onAvailability)
 
     const displayModeQuery = window.matchMedia('(display-mode: standalone)')
     const handleDisplayModeChange = (e: MediaQueryListEvent) => {
       if (e.matches) setIsInstalled(true)
     }
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-    window.addEventListener('appinstalled', handleAppInstalled)
     displayModeQuery.addEventListener('change', handleDisplayModeChange)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', handleAppInstalled)
+      promptSubscribers.delete(onAvailability)
       displayModeQuery.removeEventListener('change', handleDisplayModeChange)
     }
   }, [])
@@ -124,12 +149,14 @@ export function useInstallPrompt(): InstallPromptState {
   const canShow = ready && !isInstalled && !isDismissed && (hasNativePrompt || isIOS)
 
   const promptInstall = useCallback(async (): Promise<boolean> => {
-    const deferredPrompt = deferredPromptRef.current
-    if (!deferredPrompt) return false
+    const prompt = deferredPrompt
+    if (!prompt) return false
     try {
-      await deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
-      deferredPromptRef.current = null
+      await prompt.prompt()
+      const { outcome } = await prompt.userChoice
+      // A deferred prompt can only be used once.
+      deferredPrompt = null
+      notifySubscribers({ available: false })
       setHasNativePrompt(false)
       if (outcome === 'accepted') {
         setIsInstalled(true)
