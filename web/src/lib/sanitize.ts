@@ -14,7 +14,12 @@ export function sanitizeString(input: string | null | undefined): string {
 
   return (
     input
-      // Remove HTML tags
+      // Drop script/style blocks INCLUDING their contents. Stripping only the
+      // tags left the body behind ("<script>alert(1)</script>" became
+      // "alert(1)"), which is noise at best and re-exploitable if the value is
+      // ever placed back inside markup.
+      .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+      // Remove remaining HTML tags
       .replace(/<[^>]*>/g, '')
       // Remove script-like content
       .replace(/javascript:/gi, '')
@@ -104,19 +109,20 @@ export function sanitizeNumber(
   }
 
   const num = Number(input)
-  if (Number.isNaN(num)) {
+  // Number.isNaN alone lets Infinity through, which then blows up (or silently
+  // corrupts) a numeric database column.
+  if (!Number.isFinite(num)) {
     return null
   }
 
-  let result = num
-  if (min !== undefined) {
-    result = Math.max(min, result)
-  }
-  if (max !== undefined) {
-    result = Math.min(max, result)
-  }
+  // Reject out-of-range input rather than clamping it. Clamping silently
+  // rewrote what the user asked for (targetDays: 30 quietly became 7); callers
+  // use `?? default`, so rejecting produces the same safe fallback while being
+  // honest that the value wasn't accepted.
+  if (min !== undefined && num < min) return null
+  if (max !== undefined && num > max) return null
 
-  return result
+  return num
 }
 
 /**
@@ -127,7 +133,8 @@ export function sanitizeBoolean(input: any): boolean {
     return input
   }
   if (typeof input === 'string') {
-    return input.toLowerCase() === 'true' || input === '1'
+    // Accept the forms HTML forms and query strings actually produce.
+    return ['true', '1', 'yes', 'y', 'on'].includes(input.trim().toLowerCase())
   }
   if (typeof input === 'number') {
     return input !== 0

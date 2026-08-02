@@ -55,9 +55,12 @@ Supporting rules:
 Safety net so we stop finding bugs by reading production logs.
 - [x] ✅ Error tracking live — self-hosted (`ErrorLog` + `/api/errors` + admin **Errors** tab). Chose this over an APM SDK: no DSN to manage, no bundle cost. Verified in prod (grouping confirmed: duplicate → count=2, not a second row).
 - [x] ✅ Indexes added: `Habit[userId]`, `Habit[userId, frequency]`, `IslamicQuote[category]`. (`Tag`, `UserPreference`, `NotificationPreference` already covered by unique constraints — no action needed.)
-- [ ] Tests for the paths that already broke: auth/register, streaks, timezone, offline queue, middleware matcher
+- [x] ✅ Test suite green: **59 tests**, up from a *failing* 20. Covers the timezone bug (client + server, incl. DST), streak freezes (incl. the trailing-gap regression), and error fingerprinting.
+  - Found and fixed 4 real bugs in `sanitize.ts` while doing it: `Infinity` passed validation, out-of-range numbers were silently clamped instead of rejected, `<script>` bodies survived tag-stripping, boolean parsing missed `yes`/`on`.
+  - Found and fixed a bug in my own fingerprinting: cuids aren't hex, so per-user errors would have flooded the Errors tab instead of grouping.
 - [ ] Prayer-reminder scheduler (cron-job.org or Vercel Pro) — feature is built and idle
-- [ ] Bundle audit: 3.5 MB client JS, three ~368 KB chunks
+- [x] 🟨 Bundle: **3.5 MB → 3.1 MB**. recharts was statically imported in 3 places (~370 kB each); all are now lazy, so it's out of the initial load everywhere. Deleted a dead duplicate `PrayerChart` (185 lines).
+  - *Remaining:* recharts still emits 3 separate lazy chunks. A shared chart wrapper would collapse them into one.
 
 ### Phase 1 — Design system ⬜
 - [ ] Prayer-time-aware theme tokens (the table above) with a manual override

@@ -113,7 +113,9 @@ describe('sanitize', () => {
     it('should accept Date objects', () => {
       const date = new Date('2024-01-15')
       const result = sanitizeDate(date)
-      expect(result).toBe(date)
+      // sanitizeDate normalises to a new Date instance, so compare the instant
+      // rather than object identity.
+      expect(result?.getTime()).toBe(date.getTime())
     })
 
     it('should return null for invalid dates', () => {
@@ -134,8 +136,14 @@ describe('sanitize', () => {
 
     it('should reject invalid enum values', () => {
       expect(sanitizeEnum('INVALID', validValues)).toBe(null)
-      expect(sanitizeEnum('low', validValues)).toBe(null)
       expect(sanitizeEnum('', validValues)).toBe(null)
+      expect(sanitizeEnum(null, validValues)).toBe(null)
+    })
+
+    it('matches case-insensitively and returns the canonical value', () => {
+      // Intentional: forms and query strings send lowercase.
+      expect(sanitizeEnum('low', validValues)).toBe('LOW')
+      expect(sanitizeEnum('MeDiUm', validValues)).toBe('MEDIUM')
     })
   })
 })

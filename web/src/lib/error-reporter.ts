@@ -25,7 +25,14 @@ export interface CaptureInput {
 /** Stable-ish id for "the same bug", independent of ids/timestamps in the text. */
 export function fingerprint(message: string, stack?: string | null): string {
   const normalisedMessage = message
-    .replace(/\b[0-9a-f]{8,}\b/gi, '<id>') // cuids, uuids, hashes
+    // UUIDs
+    .replace(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, '<id>')
+    // cuid/nanoid-style tokens: long, alphanumeric, mixing letters AND digits.
+    // A plain hex match misses these (cuids contain non-hex letters), which
+    // meant "User <cuid> not found" produced a distinct row per user.
+    .replace(/\b(?=[a-z0-9]*\d)(?=[a-z0-9]*[a-z])[a-z0-9]{16,}\b/gi, '<id>')
+    // Long hex runs (hashes, object ids)
+    .replace(/\b[0-9a-f]{8,}\b/gi, '<id>')
     .replace(/\d+/g, '<n>')
     .slice(0, 200)
 

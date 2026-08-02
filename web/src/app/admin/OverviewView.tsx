@@ -1,18 +1,27 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Cell,
-} from 'recharts'
+import dynamic from 'next/dynamic'
+
+// recharts is ~370 kB; the KPI cards above the charts shouldn't wait for it,
+// and it shouldn't be duplicated into this route's bundle.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const chart = (name: string): React.ComponentType<any> =>
+  dynamic(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => import('recharts').then((m) => (m as any)[name]),
+    { ssr: false }
+  ) as React.ComponentType<any>
+const ResponsiveContainer = chart('ResponsiveContainer')
+const AreaChart = chart('AreaChart')
+const Area = chart('Area')
+const BarChart = chart('BarChart')
+const Bar = chart('Bar')
+const XAxis = chart('XAxis')
+const YAxis = chart('YAxis')
+const Tooltip = chart('Tooltip')
+const CartesianGrid = chart('CartesianGrid')
+const Cell = chart('Cell')
 import {
   Users,
   Activity,

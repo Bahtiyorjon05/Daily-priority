@@ -33,7 +33,12 @@ import PrayerStatistics from './components/PrayerStatistics'
 
 import PrayerHistory from './components/PrayerHistory'
 
-import PrayerChart from './components/PrayerChart'
+import dynamic from 'next/dynamic'
+// Charts are secondary content — keep recharts out of the initial bundle.
+const PrayerChart = dynamic(() => import('./components/PrayerChart'), {
+  ssr: false,
+  loading: () => <div className="h-64 animate-pulse rounded-xl bg-muted" />,
+})
 
 import PrayerStreak from './components/PrayerStreak'
 
