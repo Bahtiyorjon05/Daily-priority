@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Database, LogOut, LayoutDashboard, Users as UsersIcon, Table2 } from 'lucide-react'
+import { Database, LogOut, LayoutDashboard, Users as UsersIcon, Table2, ArrowLeft } from 'lucide-react'
 import type { AdminModel } from '@/lib/admin-models'
 import OverviewView from './OverviewView'
 import UsersView from './UsersView'
@@ -44,6 +44,7 @@ export default function AdminDashboard({
             <div className="truncate text-sm font-semibold leading-tight">Daily Priority</div>
             <div className="truncate text-xs text-muted-foreground">Admin Console</div>
           </div>
+          <a href="/dashboard" aria-label="Back to app" className="rounded-lg p-2 text-foreground/70 hover:bg-muted lg:hidden"><ArrowLeft className="h-4 w-4" /></a>
           {/* Sign out lives inline in the header on mobile */}
           <button
             onClick={handleLogout}
@@ -77,6 +78,13 @@ export default function AdminDashboard({
           <div className="mb-2 px-1 text-xs text-muted-foreground">
             Signed in as <span className="font-medium text-foreground">{username}</span>
           </div>
+          <a
+            href="/dashboard"
+            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to app
+          </a>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted"

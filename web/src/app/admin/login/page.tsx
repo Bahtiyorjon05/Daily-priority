@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Lock, ShieldAlert } from 'lucide-react'
+import { Lock, ShieldAlert, ArrowLeft } from 'lucide-react'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -96,6 +96,16 @@ export default function AdminLoginPage() {
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
+
+          {/* Way out — otherwise this page is a dead end for anyone who lands
+              here by mistake or changes their mind. */}
+          <a
+            href="/dashboard"
+            className="flex items-center justify-center gap-1.5 pt-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to app
+          </a>
         </form>
       </div>
     </div>
