@@ -90,8 +90,8 @@ export default function GoalsPage() {
     deadline: ''
   })
 
-  useModalBehavior(showNewGoal, () => setShowNewGoal(false))
-  useModalBehavior(!!deletingGoal, () => setDeletingGoal(null))
+  const newGoalModal = useModalBehavior(showNewGoal, () => setShowNewGoal(false))
+  const deleteGoalModal = useModalBehavior(!!deletingGoal, () => setDeletingGoal(null))
 
   useEffect(() => {
     fetchGoals()
@@ -838,6 +838,8 @@ export default function GoalsPage() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
+                ref={newGoalModal.ref}
+                {...newGoalModal.dialogProps}
                 onClick={(e) => e.stopPropagation()}
                 className={`bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border-4 ${
                   newGoal.goalType === 'DUNYA' 

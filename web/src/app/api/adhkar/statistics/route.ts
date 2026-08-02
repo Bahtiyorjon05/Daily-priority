@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getUserTimezone, dateKeyInTimeZone } from '@/lib/server-date'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -17,6 +18,8 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
+
+    const userTz = await getUserTimezone(user.id)
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -51,7 +54,7 @@ export async function GET() {
     // Group by date
     const progressByDate = new Map<string, typeof allProgress>()
     allProgress.forEach(p => {
-      const dateKey = p.date.toISOString().split('T')[0]
+      const dateKey = dateKeyInTimeZone(p.date, userTz)
       if (!progressByDate.has(dateKey)) {
         progressByDate.set(dateKey, [])
       }
@@ -66,7 +69,7 @@ export async function GET() {
     for (let i = 0; i < 30; i++) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      const dateKey = date.toISOString().split('T')[0]
+      const dateKey = dateKeyInTimeZone(date, userTz)
 
       const dayProgress = progressByDate.get(dateKey) || []
       const completed = dayProgress.filter(p => p.completed).length

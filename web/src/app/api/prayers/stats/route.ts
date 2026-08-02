@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getUserTimezone, dateKeyInTimeZone } from '@/lib/server-date'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -9,6 +10,9 @@ export async function GET(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Streak/day grouping must use the user's calendar day, not the server's.
+    const userTz = await getUserTimezone(session.user.id)
 
     const { searchParams } = new URL(request.url)
     const days = parseInt(searchParams.get('days') || '30')
@@ -36,7 +40,7 @@ export async function GET(request: NextRequest) {
     // Calculate streak (consecutive days with all 5 prayers completed)
     const prayersByDate = new Map<string, any[]>()
     prayerLogs.forEach((log) => {
-      const dateStr = log.date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(log.date, userTz)
       if (!prayersByDate.has(dateStr)) {
         prayersByDate.set(dateStr, [])
       }
@@ -53,7 +57,7 @@ export async function GET(request: NextRequest) {
     for (let i = 0; i < days; i++) {
       const checkDate = new Date(today)
       checkDate.setDate(checkDate.getDate() - i)
-      const dateStr = checkDate.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(checkDate, userTz)
 
       const dayPrayers = prayersByDate.get(dateStr) || []
       const completedCount = dayPrayers.filter((p) => p.completedAt !== null).length

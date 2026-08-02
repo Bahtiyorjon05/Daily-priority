@@ -13,7 +13,8 @@ import {
   Flame,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Snowflake
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,9 @@ interface Habit {
   longestStreak: number
   currentStreak: number
   createdAt: string
+  freezesRemaining?: number
+  freezesUsed?: number
+  streakProtected?: boolean
   completions: {
     id: string
     date: string
@@ -62,8 +66,8 @@ export default function HabitsPage() {
     targetDays: 7
   })
 
-  useModalBehavior(showNewHabit, () => setShowNewHabit(false))
-  useModalBehavior(!!deletingHabit, () => setDeletingHabit(null))
+  const newHabitModal = useModalBehavior(showNewHabit, () => setShowNewHabit(false))
+  const deleteHabitModal = useModalBehavior(!!deletingHabit, () => setDeletingHabit(null))
 
   useEffect(() => {
     fetchHabits()
@@ -442,11 +446,26 @@ export default function HabitsPage() {
                             <span className="font-semibold text-gray-700 dark:text-gray-300">
                               {habit.currentStreak} day streak
                             </span>
+                            {habit.streakProtected && (
+                              <span
+                                title={`A missed day was covered by a streak freeze. ${habit.freezesRemaining} left this month.`}
+                                className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
+                              >
+                                <Snowflake className="h-3 w-3" />
+                                Saved
+                              </span>
+                            )}
                           </div>
                           <span className="text-gray-500 dark:text-gray-400">
                             Best: {habit.longestStreak}
                           </span>
                         </div>
+                        {typeof habit.freezesRemaining === 'number' && (
+                          <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
+                            <Snowflake className="h-3 w-3" />
+                            {habit.freezesRemaining} streak {habit.freezesRemaining === 1 ? 'freeze' : 'freezes'} left
+                          </div>
+                        )}
 
                         {/* Check-in Button */}
                         <button
@@ -581,6 +600,9 @@ export default function HabitsPage() {
               onClick={() => setShowNewHabit(false)}
             >
               <motion.div
+                ref={newHabitModal.ref}
+                {...newHabitModal.dialogProps}
+                aria-labelledby="new-habit-title"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
@@ -589,7 +611,7 @@ export default function HabitsPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Habit</h3>
+                    <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">Create New Habit</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       🎯 Build a new positive habit
                     </p>

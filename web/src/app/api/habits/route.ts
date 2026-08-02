@@ -40,6 +40,8 @@ export async function GET(request: Request) {
       // Calculate current streak based on frequency
       let currentStreak = 0
       let longestStreak = habit.longestStreak
+      // How many grace days the current streak is leaning on (for the UI).
+      let freezesUsed = 0
       
       // Sort completions by date
       const sortedCompletions = habit.completions.sort((a, b) => 
@@ -54,22 +56,49 @@ export async function GET(request: Request) {
         const currentDate = new Date(today)
         let streak = 0
         
-        // For DAILY habits, check consecutive days
+        // For DAILY habits, check consecutive days.
+        //
+        // Streak freeze: a single missed day no longer resets the streak to
+        // zero — it consumes one of the habit's remaining "freezes" (grace
+        // days) and the streak continues. Only whole missed days are covered,
+        // and we never spend more freezes than the habit has left.
         if (habit.frequency === 'DAILY') {
-          for (const completion of sortedCompletions) {
-            const completionDate = new Date(completion.date)
-            completionDate.setHours(0, 0, 0, 0)
-            
-            // Check if completion is for current date in sequence
-            if (completionDate.getTime() === currentDate.getTime()) {
+          const completedDays = new Set(
+            sortedCompletions.map(c => {
+              const d = new Date(c.date)
+              d.setHours(0, 0, 0, 0)
+              return d.getTime()
+            })
+          )
+
+          const freezesAvailable = habit.freezesRemaining ?? 0
+          freezesUsed = 0
+          // Freezes spent on gaps we haven't yet proven belong to the streak.
+          // They only count once a further completed day is found — otherwise a
+          // habit that simply ended would burn freezes on trailing empty days.
+          let pendingFreezes = 0
+
+          // Today not being done yet shouldn't break the streak — start from
+          // today if it's done, otherwise from yesterday.
+          if (!completedDays.has(currentDate.getTime())) {
+            currentDate.setDate(currentDate.getDate() - 1)
+          }
+
+          // Walk backwards day by day, spending a freeze on each gap.
+          const MAX_LOOKBACK = 366
+          for (let i = 0; i < MAX_LOOKBACK; i++) {
+            if (completedDays.has(currentDate.getTime())) {
               streak++
-              currentDate.setDate(currentDate.getDate() - 1)
-            } else if (completionDate.getTime() < currentDate.getTime()) {
-              // Gap found, streak is broken
+              freezesUsed += pendingFreezes
+              pendingFreezes = 0
+            } else if (freezesAvailable - freezesUsed - pendingFreezes > 0) {
+              pendingFreezes++
+            } else {
               break
             }
+            currentDate.setDate(currentDate.getDate() - 1)
           }
-        } 
+        }
         // For WEEKLY habits, check consecutive weeks
         else if (habit.frequency === 'WEEKLY') {
           // Get the start of current week (Sunday)
@@ -133,7 +162,11 @@ export async function GET(request: Request) {
       return {
         ...habit,
         currentStreak,
-        longestStreak
+        longestStreak,
+        // Streak-freeze state for the UI badge.
+        freezesRemaining: Math.max(0, (habit.freezesRemaining ?? 0) - freezesUsed),
+        freezesUsed,
+        streakProtected: freezesUsed > 0
       }
     })
     

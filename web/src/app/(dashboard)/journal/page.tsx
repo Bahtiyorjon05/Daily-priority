@@ -82,7 +82,7 @@ export default function JournalPage() {
     mood: 'neutral'
   })
 
-  useModalBehavior(showCreateModal, () => setShowCreateModal(false))
+  const createModal = useModalBehavior(showCreateModal, () => setShowCreateModal(false))
 
   useEffect(() => {
     fetchEntries()
@@ -732,6 +732,8 @@ export default function JournalPage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              ref={createModal.ref}
+              {...createModal.dialogProps}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 z-10">

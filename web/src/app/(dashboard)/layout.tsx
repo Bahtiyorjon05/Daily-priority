@@ -46,6 +46,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { InstallPrompt } from '@/components/shared/InstallPrompt'
 import { NotificationBell } from '@/components/shared/NotificationBell'
+import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 
 function DashboardLayoutContent({
   children,
@@ -798,6 +799,9 @@ function DashboardLayoutContent({
           />
         )}
       </AnimatePresence>
+
+      {/* App-wide keyboard shortcuts + "?" cheatsheet */}
+      <GlobalShortcuts />
 
       {/* Install Prompt */}
       {isMobile ? (

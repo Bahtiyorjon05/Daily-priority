@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getUserTimezone, dateKeyInTimeZone } from '@/lib/server-date'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -13,6 +14,7 @@ export async function GET(request: Request) {
     }
 
     const userId = session.user.id
+    const userTz = await getUserTimezone(userId)
     const cacheKey = `analytics:${userId}`
 
     // Check cache first (30 second cache for analytics)
@@ -116,7 +118,7 @@ export async function GET(request: Request) {
     for (let i = 13; i >= 0; i--) { // Extended to 14 days for better visualization
       const date = new Date(now)
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(date, userTz)
 
       const dayStart = new Date(date.setHours(0, 0, 0, 0))
       const dayEnd = new Date(date.setHours(23, 59, 59, 999))

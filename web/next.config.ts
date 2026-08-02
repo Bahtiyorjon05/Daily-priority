@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   devIndicators: false,
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
+    // Strip debug logging in production but KEEP error/warn — otherwise real
+    // failures become invisible in server logs and the browser console.
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
   },
   // TypeScript errors WILL prevent builds (safe defaults)
   typescript: {

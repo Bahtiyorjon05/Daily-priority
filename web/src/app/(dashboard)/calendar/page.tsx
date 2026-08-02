@@ -121,7 +121,7 @@ export default function CalendarPage() {
     recurrencePattern: 'none'
   })
 
-  useModalBehavior(showEventModal, () => setShowEventModal(false))
+  const eventModal = useModalBehavior(showEventModal, () => setShowEventModal(false))
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -979,6 +979,8 @@ export default function CalendarPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              ref={eventModal.ref}
+              {...eventModal.dialogProps}
               onClick={(e) => e.stopPropagation()}
               className="bg-gradient-to-br from-white via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/50 rounded-2xl p-8 w-full max-w-lg shadow-2xl border-2 border-slate-300 dark:border-slate-700"
             >

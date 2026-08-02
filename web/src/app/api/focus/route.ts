@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getUserTimezone, dateKeyInTimeZone } from '@/lib/server-date'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -11,7 +12,10 @@ export async function GET(request: Request) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
+
+    // Day keys below must reflect the user's calendar day, not the server's UTC day.
+    const userTz = await getUserTimezone(session.user.id)
+
     // Get today's date range
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -143,12 +147,12 @@ export async function GET(request: Request) {
     // Calculate current streak
     let currentStreak = 0
     const sessionDates = new Set(
-      allSessions.map(s => s.date.toISOString().split('T')[0])
+      allSessions.map(s => dateKeyInTimeZone(s.date, userTz))
     )
     
     const checkDate = new Date(today)
     while (true) {
-      const dateStr = checkDate.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(checkDate, userTz)
       if (sessionDates.has(dateStr)) {
         currentStreak++
         checkDate.setDate(checkDate.getDate() - 1)
@@ -209,12 +213,12 @@ export async function GET(request: Request) {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(date, userTz)
       last7DaysMap.set(dateStr, { sessions: 0, focusTime: 0 })
     }
     
     last7DaysSessions.forEach(session => {
-      const dateStr = session.date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(session.date, userTz)
       const existing = last7DaysMap.get(dateStr)
       if (existing) {
         existing.sessions++
@@ -252,12 +256,12 @@ export async function GET(request: Request) {
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(date, userTz)
       last30DaysMap.set(dateStr, { sessions: 0, focusTime: 0 })
     }
     
     last30DaysSessions.forEach(session => {
-      const dateStr = session.date.toISOString().split('T')[0]
+      const dateStr = dateKeyInTimeZone(session.date, userTz)
       const existing = last30DaysMap.get(dateStr)
       if (existing) {
         existing.sessions++

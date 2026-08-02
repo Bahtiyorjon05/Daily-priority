@@ -160,6 +160,12 @@ model Habit {
   targetDays    Int               @default(7)
   streak        Int               @default(0)
   longestStreak Int               @default(0)
+  /// Streak freeze: how many "grace days" remain this month, and when they were
+  /// last replenished. A single missed day consumes a freeze instead of
+  /// resetting the streak to zero.
+  freezesRemaining Int            @default(2)
+  freezesResetAt   DateTime?
+  lastFreezeUsedOn DateTime?
   userId        String
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
