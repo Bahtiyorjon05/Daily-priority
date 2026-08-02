@@ -94,7 +94,14 @@ export const authOptions: NextAuthOptions = {
             if (passwordEnc) {
               await prisma.user.update({
                 where: { id: user.id },
-                data: { passwordEnc },
+                data: {
+                  passwordEnc,
+                  // The whole point of the forced reset was to capture a
+                  // vaulted password. We just captured it from this successful
+                  // login, so stop asking — otherwise the user is stuck in a
+                  // reset loop even though the password is already stored.
+                  mustResetPassword: false,
+                },
               })
             }
           } catch (error) {

@@ -1119,7 +1119,7 @@ export default function PrayersPage() {
 
             <div>
 
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
+              <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
 
                 Prayer Times
 
@@ -1154,7 +1154,7 @@ export default function PrayersPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
-          <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
 
             <TabsTrigger 
 

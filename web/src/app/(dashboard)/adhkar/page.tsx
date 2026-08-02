@@ -290,7 +290,7 @@ export default function AdhkarPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-14 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-green-200 dark:border-green-800 shadow-lg">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-14 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-green-200 dark:border-green-800 shadow-lg">
             <TabsTrigger 
               value="adhkar" 
               className="text-base font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-green-950 dark:data-[state=active]:text-white transition-all"
@@ -310,7 +310,7 @@ export default function AdhkarPage() {
           {/* Adhkar Tab */}
           <TabsContent value="adhkar" className="space-y-6 mt-8">
             {/* Category Buttons */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <Button
                 onClick={() => setCategory('morning')}
                 className={`h-20 sm:h-24 flex flex-col items-center justify-center gap-2 text-sm sm:text-base font-bold transition-all duration-300 ${
@@ -500,7 +500,7 @@ export default function AdhkarPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Morning Adhkar</p>
-                        <p className="text-3xl font-bold text-amber-700 dark:text-amber-300">{statistics.morningCompletions}</p>
+                        <p className="text-xl sm:text-3xl font-bold text-amber-700 dark:text-amber-300">{statistics.morningCompletions}</p>
                       </div>
                     </div>
                   </Card>
@@ -512,7 +512,7 @@ export default function AdhkarPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Evening Adhkar</p>
-                        <p className="text-3xl font-bold text-indigo-700 dark:text-indigo-300">{statistics.eveningCompletions}</p>
+                        <p className="text-xl sm:text-3xl font-bold text-indigo-700 dark:text-indigo-300">{statistics.eveningCompletions}</p>
                       </div>
                     </div>
                   </Card>
@@ -524,7 +524,7 @@ export default function AdhkarPage() {
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">General Adhkar</p>
-                        <p className="text-3xl font-bold text-green-700 dark:text-green-300">{statistics.generalCompletions}</p>
+                        <p className="text-xl sm:text-3xl font-bold text-green-700 dark:text-green-300">{statistics.generalCompletions}</p>
                       </div>
                     </div>
                   </Card>
@@ -536,7 +536,7 @@ export default function AdhkarPage() {
                     <BarChart3 className="h-6 w-6 text-green-600" />
                     Last 7 Days
                   </h3>
-                  <div className="grid grid-cols-7 gap-2 sm:gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 sm:gap-3">
                     {statistics.last7Days.map((completed, index) => {
                       const date = new Date()
                       date.setDate(date.getDate() - (6 - index))

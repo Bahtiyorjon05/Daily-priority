@@ -383,7 +383,7 @@ export default function FocusPage() {
               <Brain className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-gray-100 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-white dark:to-gray-100 bg-clip-text [text-shadow:none] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] supports-[background-clip:text]:text-transparent">Focus Session</h1>
+              <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-white dark:to-gray-100 bg-clip-text [text-shadow:none] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] supports-[background-clip:text]:text-transparent">Focus Session</h1>
               <p className="text-slate-600 dark:text-gray-400">Deep work timer with statistics</p>
             </div>
           </div>
@@ -399,7 +399,7 @@ export default function FocusPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
             <TabsTrigger 
               value="timer" 
               className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Bell, BellOff, Loader2, Save } from 'lucide-react'
+import { Bell, BellOff, Loader2, Save, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,7 @@ export function NotificationSettings() {
   const { supported, subscribed, permission, busy, subscribe, unsubscribe } = usePushNotifications()
   const [prefs, setPrefs] = useState<Prefs | null>(null)
   const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
 
   useEffect(() => {
     fetch('/api/notifications/preferences', { cache: 'no-store' })
@@ -37,6 +38,20 @@ export function NotificationSettings() {
 
   const set = <K extends keyof Prefs>(key: K, value: Prefs[K]) =>
     setPrefs((p) => (p ? { ...p, [key]: value } : p))
+
+  async function sendTest() {
+    setTesting(true)
+    try {
+      const res = await fetch('/api/push/test', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.ok) toast.success(data.message || 'Test notification sent')
+      else toast.error(data.error || data.message || 'Could not send test notification')
+    } catch {
+      toast.error('Could not send test notification')
+    } finally {
+      setTesting(false)
+    }
+  }
 
   async function save() {
     if (!prefs) return
@@ -91,6 +106,13 @@ export function NotificationSettings() {
                     ? 'Enabled on this device.'
                     : 'Not enabled on this device.'}
               </span>
+
+              {subscribed && (
+                <Button variant="outline" onClick={sendTest} disabled={testing} className="gap-2">
+                  {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  Send test notification
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

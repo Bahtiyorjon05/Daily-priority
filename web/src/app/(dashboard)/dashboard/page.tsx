@@ -803,10 +803,17 @@ export default function DashboardPageRedesigned() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-xl sm:text-2xl font-bold truncate leading-tight">
-                      {getGreeting()}, {profile?.name || 'User'}!
+                    {/* Greeting and name are stacked so a long name wraps instead
+                        of being clipped by `truncate` on narrow screens. */}
+                    <h1 className="font-bold leading-tight">
+                      <span className="block text-sm font-medium text-white/85 sm:text-base">
+                        {getGreeting()},
+                      </span>
+                      <span className="block break-words text-lg sm:text-2xl">
+                        {profile?.name || 'User'}
+                      </span>
                     </h1>
-                    <p className="text-white/80 text-xs sm:text-sm truncate">Let's be productive today</p>
+                    <p className="text-white/80 text-xs sm:text-sm">Let&apos;s be productive today</p>
                   </div>
                 </div>
 
@@ -979,7 +986,7 @@ export default function DashboardPageRedesigned() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Today's Tasks</h2>
+                        <h2 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">Today's Tasks</h2>
                         <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-800/60 text-emerald-700 dark:text-emerald-200 text-sm font-semibold shadow-sm">
                           {filteredTasks.length}
                         </span>
@@ -1549,7 +1556,7 @@ export default function DashboardPageRedesigned() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="edit-estimated-time">Estimated Time (minutes)</Label>
                       <Input

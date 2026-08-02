@@ -33,20 +33,28 @@ export default function AdminDashboard({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside className="flex w-56 shrink-0 flex-col border-r bg-card">
-        <div className="flex items-center gap-2 border-b px-4 py-4">
+    <div className="flex h-screen flex-col overflow-hidden lg:flex-row">
+      {/* Sidebar — collapses to a top bar + bottom tab row on small screens */}
+      <aside className="flex shrink-0 flex-col border-b bg-card lg:w-56 lg:border-b-0 lg:border-r">
+        <div className="flex items-center gap-2 px-4 py-3 lg:border-b lg:py-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Database className="h-5 w-5" />
           </div>
-          <div>
-            <div className="text-sm font-semibold leading-tight">Daily Priority</div>
-            <div className="text-xs text-muted-foreground">Admin Console</div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold leading-tight">Daily Priority</div>
+            <div className="truncate text-xs text-muted-foreground">Admin Console</div>
           </div>
+          {/* Sign out lives inline in the header on mobile */}
+          <button
+            onClick={handleLogout}
+            aria-label="Sign out"
+            className="rounded-lg p-2 text-foreground/70 hover:bg-muted lg:hidden"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
 
-        <nav className="flex-1 space-y-1 px-2 py-3">
+        <nav className="flex gap-1 overflow-x-auto px-2 pb-2 lg:flex-1 lg:flex-col lg:space-y-1 lg:overflow-visible lg:px-2 lg:py-3">
           {NAV.map((n) => {
             const Icon = n.icon
             const active = view === n.key
@@ -54,7 +62,7 @@ export default function AdminDashboard({
               <button
                 key={n.key}
                 onClick={() => setView(n.key)}
-                className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors lg:w-full lg:gap-2.5 ${
                   active ? 'bg-primary/10 font-medium text-primary' : 'text-foreground/80 hover:bg-muted'
                 }`}
               >
@@ -65,7 +73,7 @@ export default function AdminDashboard({
           })}
         </nav>
 
-        <div className="border-t px-3 py-3">
+        <div className="hidden border-t px-3 py-3 lg:block">
           <div className="mb-2 px-1 text-xs text-muted-foreground">
             Signed in as <span className="font-medium text-foreground">{username}</span>
           </div>
@@ -80,11 +88,11 @@ export default function AdminDashboard({
       </aside>
 
       {/* Main */}
-      <main className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex items-center gap-3 border-b bg-background/80 px-6 py-4 backdrop-blur">
-          <h1 className="text-lg font-semibold capitalize">{view}</h1>
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex items-center gap-3 border-b bg-background/80 px-4 py-3 backdrop-blur sm:px-6 sm:py-4">
+          <h1 className="text-base font-semibold capitalize sm:text-lg">{view}</h1>
         </header>
-        <div className="flex-1 overflow-auto p-4 sm:p-6">
+        <div className="flex-1 overflow-auto p-3 sm:p-6">
           {view === 'overview' && <OverviewView />}
           {view === 'users' && <UsersView />}
           {view === 'tables' && <TablesView models={models} />}

@@ -605,7 +605,7 @@ export default function GoalsPage() {
                     <Target className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold">Goals</h1>
+                    <h1 className="text-2xl sm:text-4xl font-bold">Goals</h1>
                     <p className="text-white/90">Balance your worldly and spiritual aspirations</p>
                   </div>
                 </div>
@@ -872,7 +872,7 @@ export default function GoalsPage() {
                   {selectedType === null ? (
                     <div>
                       <label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300 uppercase tracking-wide">Goal Type</label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {['DUNYA', 'AKHIRAH'].map((type) => {
                           const isSelected = newGoal.goalType === type
                           const isDunya = type === 'DUNYA'

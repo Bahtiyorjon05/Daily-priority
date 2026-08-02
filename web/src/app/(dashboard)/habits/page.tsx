@@ -333,7 +333,7 @@ export default function HabitsPage() {
                     <Target className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold">Habits</h1>
+                    <h1 className="text-2xl sm:text-4xl font-bold">Habits</h1>
                     <p className="text-white/90">Build lasting habits, one day at a time</p>
                   </div>
                 </div>

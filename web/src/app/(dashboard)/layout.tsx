@@ -32,7 +32,8 @@ import {
   Palette,
   CheckCircle2,
   TrendingUp,
-  LayoutDashboard
+  LayoutDashboard,
+  ShieldCheck
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -73,6 +74,7 @@ function DashboardLayoutContent({
   const [checkedPassword, setCheckedPassword] = useState(false)
   const [redirectedToSetPassword, setRedirectedToSetPassword] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const previousIsMobileRef = useRef<boolean>(false)
   const isCollapsed = sidebarCollapsed && !isMobile
@@ -124,6 +126,15 @@ function DashboardLayoutContent({
       checkUserPassword()
     }
   }, [status, router, session, pathname, redirectedToSetPassword])
+
+  // Owner-only admin shortcut. The server decides; this just controls whether
+  // the link is rendered — /admin has its own password + signed-cookie guard.
+  useEffect(() => {
+    fetch('/api/user/is-owner', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((d) => setIsOwner(Boolean(d.isOwner)))
+      .catch(() => {})
+  }, [])
 
   // Mobile detection and responsive sidebar handling
   useEffect(() => {
@@ -717,6 +728,18 @@ function DashboardLayoutContent({
                           </div>
                         </div>
                       </div>
+
+                      {/* Owner-only shortcut to the admin console */}
+                      {isOwner && (
+                        <a
+                          href="/admin"
+                          onClick={() => setShowProfileDropdown(false)}
+                          className="flex items-center gap-3 border-b-2 border-gray-100 px-4 py-3 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-gray-800 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+                        >
+                          <ShieldCheck className="h-4 w-4 shrink-0" />
+                          Admin dashboard
+                        </a>
+                      )}
 
                       {/* Menu Items */}
                       <div className="p-2">

@@ -349,7 +349,7 @@ export default function JournalPage() {
           <CardHeader className={`pb-3 ${mood?.bg || 'bg-gray-100 dark:bg-gray-800'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="text-4xl select-none flex items-center justify-center w-12 h-12" role="img" aria-label={mood?.label || 'Entry'}>
+                <div className="text-2xl sm:text-4xl select-none flex items-center justify-center w-12 h-12" role="img" aria-label={mood?.label || 'Entry'}>
                   {mood?.emoji || '📝'}
                 </div>
                 <div>
@@ -441,7 +441,7 @@ export default function JournalPage() {
             <BookOpen className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-gray-100">Gratitude Journal</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100">Gratitude Journal</h1>
             <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
               {entries.length} {entries.length === 1 ? 'entry' : 'entries'} recorded
             </p>
@@ -566,7 +566,7 @@ export default function JournalPage() {
               <div className="col-span-2 md:col-span-3 p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
                 <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">Mood Breakdown</h4>
                 {stats.moodStats.length > 0 ? (
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {stats.moodStats
                       .filter(({ mood }) => mood && mood.trim())
                       .map(({ mood, count, percentage }) => {
@@ -880,7 +880,7 @@ export default function JournalPage() {
                             border: isSelected ? '2px solid #10b981' : '2px solid #e5e7eb'
                           }}
                         >
-                          <div className="text-4xl mb-2 select-none" role="img" aria-label={mood.label}>
+                          <div className="text-2xl sm:text-4xl mb-2 select-none" role="img" aria-label={mood.label}>
                             {mood.emoji}
                           </div>
                           <p className={`text-xs font-semibold ${
@@ -959,7 +959,7 @@ export default function JournalPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 shadow-lg">
-                      <span className="text-5xl select-none" role="img" aria-label={MOODS.find(m => m.value === viewingEntry.mood)?.label || 'Entry'}>
+                      <span className="text-3xl sm:text-5xl select-none" role="img" aria-label={MOODS.find(m => m.value === viewingEntry.mood)?.label || 'Entry'}>
                         {MOODS.find(m => m.value === viewingEntry.mood)?.emoji || '📝'}
                       </span>
                     </div>
@@ -1127,7 +1127,7 @@ export default function JournalPage() {
             >
               <div className="text-center mb-6">
                 <div className="mx-auto w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                  <span className="text-3xl">✨</span>
+                  <span className="text-xl sm:text-3xl">✨</span>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-gray-100 mb-2">
                   Complete Your Entry

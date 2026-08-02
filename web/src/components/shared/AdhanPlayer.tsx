@@ -108,6 +108,26 @@ export function AdhanPlayer() {
     async (name: string) => {
       firedRef.current.add(name)
       saveFired(firedRef.current)
+
+      // Show a system notification too, so the reminder lands even if the app
+      // is only in the background. This does not depend on the server cron.
+      try {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          const reg = await navigator.serviceWorker?.ready.catch(() => null)
+          const opts: NotificationOptions = {
+            body: `It's time for ${name}. 🕌`,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            tag: `adhan-${todayKey()}-${name}`,
+            data: '/prayers',
+          }
+          if (reg) await reg.showNotification(`${name} time`, opts)
+          else new Notification(`${name} time`, opts)
+        }
+      } catch {
+        /* notification unavailable */
+      }
+
       if (muted) return
       setNowPlaying(name)
       const how = await playAdhan({ isFajr: name === 'Fajr', volume: 0.85 })

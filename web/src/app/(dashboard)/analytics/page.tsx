@@ -301,7 +301,7 @@ export default function AnalyticsPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg">
               <BarChart3 className="h-7 w-7 text-white" />
             </div>
@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
         </div>
         <div className="text-right">
           <div className="text-sm text-slate-500 dark:text-slate-400">Productivity Score</div>
-          <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <div className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             {overview.productivityScore}
           </div>
         </div>
@@ -331,7 +331,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Tasks Completed</p>
-                  <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-emerald-900 dark:text-emerald-100 mt-2">
                     {overview.tasksCompleted}
                   </p>
                   <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
@@ -356,7 +356,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</p>
-                  <p className="text-3xl font-bold text-orange-900 dark:text-orange-100 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-orange-900 dark:text-orange-100 mt-2">
                     {overview.streak}
                   </p>
                   <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
@@ -381,7 +381,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Completion Rate</p>
-                  <p className="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100 mt-2">
                     {formatPercentage(normalizedCompletionRate)}%
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
@@ -406,7 +406,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Focus Time</p>
-                  <p className="text-3xl font-bold text-purple-900 dark:text-purple-100 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100 mt-2">
                     {overview.focusTime.toFixed(1)}h
                   </p>
                   <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
@@ -548,37 +548,37 @@ export default function AnalyticsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
                 <div className="text-center p-4 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border-2 border-red-200 dark:border-red-700/50">
                   <p className="text-xs font-medium text-red-700 dark:text-red-300 uppercase">Urgent</p>
-                  <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
                     {taskStats.priority.urgent}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-700/50">
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase">Important</p>
-                  <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
                     {taskStats.priority.important}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700/50">
                   <p className="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase">Pending</p>
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                     {taskStats.priority.pending}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700/50">
                   <p className="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase">In Progress</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
                     {taskStats.priority.inProgress}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border-2 border-emerald-200 dark:border-emerald-700/50">
                   <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase">Completed</p>
-                  <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
                     {taskStats.priority.completed}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 rounded-xl border-2 border-slate-200 dark:border-slate-700/50">
                   <p className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase">Cancelled</p>
-                  <p className="text-3xl font-bold text-slate-600 dark:text-slate-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-slate-600 dark:text-slate-400 mt-2">
                     {taskStats.priority.cancelled}
                   </p>
                 </div>
@@ -691,7 +691,7 @@ export default function AnalyticsPage() {
                 )}
               </ResponsiveContainer>
               <div className="text-center mt-4">
-                <p className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
+                <p className="text-2xl sm:text-4xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatPercentage(normalizedCompletionRate)}%
                 </p>
                 <p className="text-sm text-slate-600 dark:text-slate-400">Success Rate</p>
@@ -718,28 +718,28 @@ export default function AnalyticsPage() {
               <CardDescription>Last 7 days statistics</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                   <p className="text-sm text-slate-600 dark:text-slate-400">Tasks Created</p>
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                     {weekly.created}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                   <p className="text-sm text-slate-600 dark:text-slate-400">Completed</p>
-                  <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
                     {weekly.completed}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                   <p className="text-sm text-slate-600 dark:text-slate-400">Completion Rate</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
                     {weekly.completionRate}%
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
                   <p className="text-sm text-slate-600 dark:text-slate-400">Avg Per Day</p>
-                  <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
+                  <p className="text-xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
                     {weekly.avgPerDay}
                   </p>
                 </div>

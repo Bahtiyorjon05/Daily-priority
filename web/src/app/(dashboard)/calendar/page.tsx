@@ -485,7 +485,7 @@ export default function CalendarPage() {
         className="flex items-center justify-between mb-8"
       >
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent flex items-center gap-3">
+          <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent flex items-center gap-3">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20">
               <CalendarIcon className="h-7 w-7 text-white" strokeWidth={2.5} />
             </div>
@@ -522,7 +522,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Total Events</p>
-                <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-200">{eventStats.total}</p>
+                <p className="text-xl sm:text-3xl font-bold text-indigo-900 dark:text-indigo-200">{eventStats.total}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-indigo-500 dark:bg-indigo-600 flex items-center justify-center shadow-lg">
                 <CalendarIcon className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -536,7 +536,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">Upcoming</p>
-                <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-200">{eventStats.upcoming}</p>
+                <p className="text-xl sm:text-3xl font-bold text-emerald-900 dark:text-emerald-200">{eventStats.upcoming}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center shadow-lg">
                 <TrendingUp className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -550,7 +550,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">This Week</p>
-                <p className="text-3xl font-bold text-amber-900 dark:text-amber-200">{eventStats.thisWeek}</p>
+                <p className="text-xl sm:text-3xl font-bold text-amber-900 dark:text-amber-200">{eventStats.thisWeek}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-lg">
                 <Clock className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -564,7 +564,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">This Month</p>
-                <p className="text-3xl font-bold text-purple-900 dark:text-purple-200">{eventStats.thisMonth}</p>
+                <p className="text-xl sm:text-3xl font-bold text-purple-900 dark:text-purple-200">{eventStats.thisMonth}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-purple-500 dark:bg-purple-600 flex items-center justify-center shadow-lg">
                 <BarChart3 className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -578,7 +578,7 @@ export default function CalendarPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Past Events</p>
-                <p className="text-3xl font-bold text-slate-900 dark:text-slate-200">{eventStats.past}</p>
+                <p className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-slate-200">{eventStats.past}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-slate-500 dark:bg-slate-600 flex items-center justify-center shadow-lg">
                 <List className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -597,7 +597,7 @@ export default function CalendarPage() {
         <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-900 overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-slate-50 to-indigo-50/50 dark:from-slate-900/50 dark:to-indigo-950/30 border-b-2 border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
+              <CardTitle className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
                 {monthName}
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -638,29 +638,30 @@ export default function CalendarPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {/* Week days header */}
-            <div className="grid grid-cols-7 gap-4 mb-4">
+            {/* Week days header — single letter on phones, full label from sm up */}
+            <div className="grid grid-cols-2 sm:grid-cols-7 gap-1 sm:gap-4 mb-2 sm:mb-4">
               {weekDays.map((day) => (
                 <div
                   key={day}
-                  className="text-center font-bold text-base bg-gradient-to-br from-slate-100 to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 text-slate-700 dark:text-slate-300 py-3 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm"
+                  className="text-center font-bold text-[10px] sm:text-base bg-gradient-to-br from-slate-100 to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 text-slate-700 dark:text-slate-300 py-1.5 sm:py-3 rounded-md sm:rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm"
                 >
-                  {day}
+                  <span className="sm:hidden">{day.charAt(0)}</span>
+                  <span className="hidden sm:inline">{day}</span>
                 </div>
               ))}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-4">{calendarDays.map((dayObj, index) => {
+            <div className="grid grid-cols-2 sm:grid-cols-7 gap-1 sm:gap-4">{calendarDays.map((dayObj, index) => {
                 const day = dayObj.day
                 const isCurrentMonth = dayObj.isCurrentMonth
                 
                 // Skip rendering empty cells (previous/next month placeholders)
                 if (day === 0) {
                   return (
-                    <div 
-                      key={`empty-${index}`} 
-                      className="h-44 rounded-xl bg-slate-50/30 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/50"
+                    <div
+                      key={`empty-${index}`}
+                      className="aspect-square sm:aspect-auto sm:h-44 rounded-md sm:rounded-xl bg-slate-50/30 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/50"
                     />
                   )
                 }
@@ -677,7 +678,7 @@ export default function CalendarPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.01 }}
                     className={`
-                      relative h-44 p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 group overflow-y-auto custom-scrollbar
+                      relative aspect-square sm:aspect-auto sm:h-44 p-0.5 sm:p-3 rounded-md sm:rounded-xl border sm:border-2 cursor-pointer transition-all duration-200 group overflow-hidden sm:overflow-y-auto custom-scrollbar
                       ${isCurrentDay
                         ? 'border-indigo-500 dark:border-indigo-400 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/20 dark:to-pink-900/20 ring-4 ring-indigo-300/50 dark:ring-indigo-500/30 shadow-xl shadow-indigo-200/50 dark:shadow-indigo-500/20'
                         : 'border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-200/30 dark:hover:shadow-indigo-500/20 hover:scale-[1.02] hover:z-10 hover:bg-gradient-to-br hover:from-indigo-50 hover:via-purple-50 hover:to-pink-50 dark:hover:from-indigo-900/20 dark:hover:via-purple-900/15 dark:hover:to-pink-900/15'
@@ -687,20 +688,32 @@ export default function CalendarPage() {
                   >
                     {/* Gregorian Day Number */}
                     <div className={`
-                      text-xl font-bold mb-2 transition-all duration-200
+                      text-xs sm:text-xl font-bold mb-0 sm:mb-2 text-center sm:text-left transition-all duration-200
                       ${isCurrentDay
-                        ? 'text-indigo-700 dark:text-indigo-300 text-2xl'
+                        ? 'text-indigo-700 dark:text-indigo-300 sm:text-2xl'
                         : isCurrentMonth
-                        ? 'text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:text-2xl'
+                        ? 'text-slate-700 dark:text-slate-300 sm:group-hover:text-indigo-600 dark:sm:group-hover:text-indigo-400'
                         : 'text-slate-400 dark:text-slate-600'
                       }
                     `}>
                       {day}
                     </div>
 
+                    {/* Phones: a dot per event instead of unreadable text chips */}
+                    {dayEvents.length > 0 && (
+                      <div className="sm:hidden absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5">
+                        {dayEvents.slice(0, 3).map((event) => (
+                          <span key={event.id} className="h-1 w-1 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                        ))}
+                        {dayEvents.length > 3 && (
+                          <span className="text-[7px] font-bold leading-none text-indigo-500 dark:text-indigo-400">+</span>
+                        )}
+                      </div>
+                    )}
+
                     {/* Hijri Date & Islamic Events */}
                     {hijriInfo ? (
-                      <div className="space-y-2 mb-2">
+                      <div className="hidden sm:block space-y-2 mb-2">
                         {/* Hijri Date Badge */}
                         <div className={`
                           flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-all shadow-sm
@@ -740,7 +753,7 @@ export default function CalendarPage() {
                     ) : null}
 
                     {/* Events */}
-                    <div className="space-y-1.5">
+                    <div className="hidden sm:block space-y-1.5">
                       {dayEvents.slice(0, 2).map((event) => (
                         <div
                           key={event.id}
@@ -985,7 +998,7 @@ export default function CalendarPage() {
               className="bg-gradient-to-br from-white via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/50 rounded-2xl p-8 w-full max-w-lg shadow-2xl border-2 border-slate-300 dark:border-slate-700"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
+                <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
                   {editingEvent ? 'Edit Event' : 'Create Event'}
                 </h3>
                 <Button
