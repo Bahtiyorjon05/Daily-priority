@@ -51,10 +51,10 @@ Supporting rules:
 
 ## Phases
 
-### Phase 0 — Foundation ⬜
+### Phase 0 — Foundation 🟨
 Safety net so we stop finding bugs by reading production logs.
-- [ ] Sentry (or equivalent) actually reporting — `src/lib/error-tracking.ts` has it commented out
-- [ ] Missing DB indexes: `Habit.userId`, `IslamicQuote`, `Tag`, `UserPreference`, `NotificationPreference`
+- [x] ✅ Error tracking live — self-hosted (`ErrorLog` + `/api/errors` + admin **Errors** tab). Chose this over an APM SDK: no DSN to manage, no bundle cost. Verified in prod (grouping confirmed: duplicate → count=2, not a second row).
+- [x] ✅ Indexes added: `Habit[userId]`, `Habit[userId, frequency]`, `IslamicQuote[category]`. (`Tag`, `UserPreference`, `NotificationPreference` already covered by unique constraints — no action needed.)
 - [ ] Tests for the paths that already broke: auth/register, streaks, timezone, offline queue, middleware matcher
 - [ ] Prayer-reminder scheduler (cron-job.org or Vercel Pro) — feature is built and idle
 - [ ] Bundle audit: 3.5 MB client JS, three ~368 KB chunks
@@ -136,4 +136,4 @@ Only after Phase 2 numbers improve.
 ## Session log
 | Date | Work |
 |---|---|
-| 2026-08-02 | Baseline audit; Prisma 7 + Accelerate outage fix; SW stale-cache fix; admin dashboard; AES password vault; notifications/push/adhan; offline queue; streak freeze; mobile pass; this plan |
+| 2026-08-02 | Phase 0 started: error tracking + indexes shipped. Baseline audit; Prisma 7 + Accelerate outage fix; SW stale-cache fix; admin dashboard; AES password vault; notifications/push/adhan; offline queue; streak freeze; mobile pass; this plan |
