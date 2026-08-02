@@ -14,14 +14,27 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-const url = process.env.DATABASE_URL
+const isAccelerateUrl = (u?: string | null): u is string =>
+  !!u && (u.startsWith('prisma://') || u.startsWith('prisma+postgres://'))
 
-// Prisma Postgres / Accelerate connection strings use the prisma:// or
-// prisma+postgres:// scheme and are served over HTTP — they must go through the
-// Accelerate extension, NOT the node-postgres (TCP) driver adapter. A plain
-// postgres:// URL (e.g. a direct Prisma Postgres or local database) uses PrismaPg.
-// This lets the same code run on Vercel (Accelerate) and locally (direct TCP).
-const isAccelerate = url.startsWith('prisma://') || url.startsWith('prisma+postgres://')
+/**
+ * Pick the connection to use at runtime.
+ *
+ * Serverless functions must NOT open direct TCP connections to Prisma Postgres:
+ * each invocation grabs its own connection and the instance's limit is quickly
+ * exhausted, which surfaces as "Failed to connect to upstream database". So an
+ * Accelerate (HTTP, pooled) URL always wins when one is configured, regardless
+ * of which env var happens to hold it — some Vercel setups put the direct URL
+ * in DATABASE_URL and the pooled one in DATABASE_PRISMA_DATABASE_URL.
+ *
+ * Migrations still use DATABASE_URL directly (see prisma.config.ts), which is
+ * correct: Accelerate can't run them.
+ */
+const url =
+  [process.env.DATABASE_URL, process.env.DATABASE_PRISMA_DATABASE_URL].find(isAccelerateUrl) ??
+  process.env.DATABASE_URL
+
+const isAccelerate = isAccelerateUrl(url)
 
 function createPrismaClient(): PrismaClient {
   if (isAccelerate) {
@@ -43,4 +56,6 @@ function createPrismaClient(): PrismaClient {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+// Cache in production too: a warm serverless instance then reuses one client
+// instead of constructing (and, on the TCP path, re-connecting) per request.
+globalForPrisma.prisma = prisma
