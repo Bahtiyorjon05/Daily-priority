@@ -211,6 +211,10 @@ self.addEventListener('push', (event) => {
     icon: '/icon-192.png',
     badge: '/icon-192.png',
     data: data.url || '/',
+    // Stable tag so a repeated reminder replaces the previous one instead of
+    // stacking duplicates on the lock screen.
+    tag: data.tag || undefined,
+    renotify: Boolean(data.tag),
     vibrate: [100, 50, 100],
     actions: [
       { action: 'open', title: 'Open' },

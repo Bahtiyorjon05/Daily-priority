@@ -27,6 +27,8 @@ model User {
   twoFactorEnabled Boolean          @default(false)
   twoFactorSecret  String?
   accounts         Account[]
+  pushSubscriptions PushSubscription[]
+  notificationPreference NotificationPreference?
   adhkarProgress   AdhkarProgress[]
   analytics        Analytics[]
   calendarEvents   CalendarEvent[]
@@ -46,6 +48,41 @@ model User {
   @@index([email])
   @@index([createdAt])
   @@map("users")
+}
+
+/// A browser/device push endpoint for background Web Push notifications.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  lastUsedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+/// Per-user notification preferences (which reminders to send, and when).
+model NotificationPreference {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  prayerReminders   Boolean  @default(true)
+  /// Minutes before each prayer time to notify (0 = at the time).
+  prayerLeadMinutes Int      @default(10)
+  taskReminders     Boolean  @default(true)
+  habitReminders    Boolean  @default(true)
+  habitReminderHour Int      @default(20)
+  weeklyReviewEmail Boolean  @default(true)
+  quietHoursStart   Int?
+  quietHoursEnd     Int?
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }
 
 model Account {

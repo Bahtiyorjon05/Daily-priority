@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { User, Shield, Palette } from 'lucide-react'
+import { User, Shield, Palette, Bell } from 'lucide-react'
 import { ProfileSettings } from './ProfileSettings'
 import { SecuritySettings } from './SecuritySettings'
 import { AppearanceSettings } from './AppearanceSettings'
+import { NotificationSettings } from './NotificationSettings'
 
 export function SettingsLayout() {
   const searchParams = useSearchParams()
@@ -27,10 +28,14 @@ export function SettingsLayout() {
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="profile" className="gap-2">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Profile</span>
+        </TabsTrigger>
+        <TabsTrigger value="notifications" className="gap-2">
+          <Bell className="h-4 w-4" />
+          <span className="hidden sm:inline">Notifications</span>
         </TabsTrigger>
         <TabsTrigger value="security" className="gap-2">
           <Shield className="h-4 w-4" />
@@ -44,6 +49,10 @@ export function SettingsLayout() {
 
       <TabsContent value="profile">
         <ProfileSettings />
+      </TabsContent>
+
+      <TabsContent value="notifications">
+        <NotificationSettings />
       </TabsContent>
 
       <TabsContent value="security">
