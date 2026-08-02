@@ -873,7 +873,7 @@ export default function PrayersPage() {
 
         <div className="relative z-10 text-center space-y-6 p-8">
 
-          <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center gap-3 sm:gap-6">
 
             <LoadingSpinner size="lg" />
 
@@ -1103,21 +1103,21 @@ export default function PrayersPage() {
 
 
 
-      <div className="relative z-10 container mx-auto px-4 py-8 space-y-8">
+      <div className="relative z-10 container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
 
         {/* Header */}
 
-        <div className="bg-white dark:bg-gray-800 rounded-3xl border border-white/20 dark:border-gray-700/40 p-8 shadow-2xl">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-white/20 dark:border-gray-700/40 p-4 sm:p-8 shadow-xl sm:shadow-2xl">
 
           <div className="flex items-center gap-4">
 
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-xl animate-float dark:from-emerald-500 dark:to-teal-500">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-xl animate-float dark:from-emerald-500 dark:to-teal-500">
 
-              <Compass className="h-8 w-8 text-white drop-shadow-sm" />
+              <Compass className="h-6 w-6 sm:h-8 sm:w-8 text-white drop-shadow-sm" />
 
             </div>
 
-            <div>
+            <div className="min-w-0 flex-1">
 
               <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
 
@@ -1125,9 +1125,9 @@ export default function PrayersPage() {
 
               </h1>
 
-              <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mt-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300 mt-1 min-w-0">
                 <MapPin className="h-4 w-4" />
-                <span className="font-medium">
+                <span className="font-medium text-xs sm:text-base truncate">
                   {formatLocationForDisplay(location)}
                 </span>
                 <Button
@@ -1137,7 +1137,7 @@ export default function PrayersPage() {
                   title="Refresh location"
                   onClick={handleRefreshLocation}
                   disabled={isRefreshingLocation}
-                  className="h-8 w-8 text-gray-600 dark:text-gray-300 hover:text-emerald-600"
+                  className="h-8 w-8 shrink-0 text-gray-600 dark:text-gray-300 hover:text-emerald-600"
                 >
                   <RefreshCw className={`h-4 w-4 ${isRefreshingLocation ? 'animate-spin' : ''}`} />
                 </Button>
@@ -1154,17 +1154,17 @@ export default function PrayersPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
 
             <TabsTrigger 
 
               value="today" 
 
-              className="rounded-lg data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
+              className="rounded-lg text-xs sm:text-sm px-1 sm:px-3 data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
 
             >
 
-              <Clock className="h-4 w-4 mr-2" />
+              <Clock className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
               Today
 
@@ -1174,11 +1174,11 @@ export default function PrayersPage() {
 
               value="history" 
 
-              className="rounded-lg data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
+              className="rounded-lg text-xs sm:text-sm px-1 sm:px-3 data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
 
             >
 
-              <History className="h-4 w-4 mr-2" />
+              <History className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
               History
 
@@ -1188,13 +1188,14 @@ export default function PrayersPage() {
 
               value="statistics" 
 
-              className="rounded-lg data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
+              className="rounded-lg text-xs sm:text-sm px-1 sm:px-3 data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
 
             >
 
-              <BarChart3 className="h-4 w-4 mr-2" />
+              <BarChart3 className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
-              Statistics
+              <span className="sm:hidden">Stats</span>
+              <span className="hidden sm:inline">Statistics</span>
 
             </TabsTrigger>
 
@@ -1210,7 +1211,7 @@ export default function PrayersPage() {
 
             {specialDay && (
 
-              <Card className="p-6 border-l-4 border-emerald-500 dark:border-emerald-400 bg-white dark:bg-gray-800 shadow-lg border border-white/30 dark:border-gray-700/50">
+              <Card className="p-4 sm:p-6 border-l-4 border-emerald-500 dark:border-emerald-400 bg-white dark:bg-gray-800 shadow-lg border border-white/30 dark:border-gray-700/50">
 
                 <div className="flex items-start gap-4">
 
@@ -1242,11 +1243,11 @@ export default function PrayersPage() {
 
       {/* Hijri Date & Next Prayer */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
 
         {/* Hijri Calendar */}
 
-        <Card className="p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all">
+        <Card className="p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all">
 
           <div className="flex items-center gap-3">
 
@@ -1276,7 +1277,7 @@ export default function PrayersPage() {
 
         {/* Next Prayer Countdown */}
 
-        <Card className="p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all ring-1 ring-emerald-500/10 dark:ring-emerald-500/20">
+        <Card className="p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all ring-1 ring-emerald-500/10 dark:ring-emerald-500/20">
 
           <div className="flex items-center gap-3">
 
@@ -1322,7 +1323,7 @@ export default function PrayersPage() {
 
         {/* Progress Card */}
 
-        <Card className="bg-white dark:bg-gray-800 rounded-2xl border border-white/30 dark:border-gray-700/50 p-6 shadow-lg">
+        <Card className="bg-white dark:bg-gray-800 rounded-2xl border border-white/30 dark:border-gray-700/50 p-4 sm:p-6 shadow-lg">
 
           <div className="space-y-4">
 
@@ -1364,7 +1365,7 @@ export default function PrayersPage() {
 
         {/* Prayer Times Grid */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
 
           {prayers.map((prayer, index) => {
 
@@ -1489,7 +1490,7 @@ export default function PrayersPage() {
 
       {/* Qibla Direction */}
 
-      <Card className="p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
+      <Card className="p-4 sm:p-6 space-y-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
 
         <div className="flex items-center justify-between flex-wrap gap-4">
 

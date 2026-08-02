@@ -11,7 +11,7 @@ export default function StatsGrid() {
   // Return loading skeleton if data is not available
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="animate-pulse">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-5 h-32">
@@ -77,7 +77,7 @@ export default function StatsGrid() {
     }
   ] as const
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {statsData.map((stat, index) => (
         <motion.div
           key={stat.title}

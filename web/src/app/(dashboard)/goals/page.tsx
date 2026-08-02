@@ -443,7 +443,7 @@ export default function GoalsPage() {
             </div>
           )}
           
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1 pr-20">
@@ -591,14 +591,14 @@ export default function GoalsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <Card className="border-none shadow-xl bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 dark:from-amber-600 dark:via-yellow-600 dark:to-orange-600 text-white">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -650,7 +650,7 @@ export default function GoalsPage() {
         />
 
         {/* Goals Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-8">
           {/* Dunya Goals */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -1019,7 +1019,7 @@ export default function GoalsPage() {
                         setShowNewGoal(false)
                         setSelectedType(null)
                       }}
-                      className="h-12 px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
+                      className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
                       Cancel
                     </button>
@@ -1045,7 +1045,7 @@ export default function GoalsPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-gray-900 rounded-3xl p-8 w-full max-w-md shadow-2xl border-4 border-red-400 dark:border-red-600"
+                className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-8 w-full max-w-md shadow-2xl border-4 border-red-400 dark:border-red-600"
               >
                 {/* Warning Icon */}
                 <div className="flex justify-center mb-6">

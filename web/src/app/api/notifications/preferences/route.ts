@@ -33,7 +33,11 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
 
+    // NOTE: must reject null/''/undefined explicitly — Number(null) and
+    // Number('') are both 0, so "Off" in the UI used to be stored as hour 0.
+    // Paired with an end hour that silently muted notifications all night.
     const clampHour = (v: unknown): number | null => {
+      if (v === null || v === undefined || v === '') return null
       const n = Number(v)
       return Number.isInteger(n) && n >= 0 && n <= 23 ? n : null
     }

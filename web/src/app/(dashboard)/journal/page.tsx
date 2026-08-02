@@ -434,7 +434,7 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
@@ -672,7 +672,7 @@ export default function JournalPage() {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {paginatedEntries.map((entry) => (
                 <EntryCard key={entry.id} entry={entry} />
@@ -737,7 +737,7 @@ export default function JournalPage() {
               {...createModal.dialogProps}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 z-10">
+              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">New Journal Entry</h2>
@@ -752,7 +752,7 @@ export default function JournalPage() {
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <div>
                   <Label className="text-slate-700 dark:text-gray-300 font-semibold">Date</Label>
                   <Input
@@ -907,7 +907,7 @@ export default function JournalPage() {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3">
+              <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 sm:p-6 flex gap-3">
                 <Button
                   onClick={createEntry}
                   disabled={saving}
@@ -955,7 +955,7 @@ export default function JournalPage() {
               className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 z-10">
+              <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 shadow-lg">
@@ -986,7 +986,7 @@ export default function JournalPage() {
                 </div>
               </div>
 
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-900/20 border-2 border-pink-300 dark:border-pink-700">
                   <h3 className="text-lg font-bold text-pink-700 dark:text-pink-300 flex items-center gap-2 mb-3">
                     <Heart className="h-5 w-5" />
@@ -1068,7 +1068,7 @@ export default function JournalPage() {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-md w-full"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-2">Delete Entry?</h3>
@@ -1122,7 +1122,7 @@ export default function JournalPage() {
               initial={{ scale: 0.8, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 20 }}
-              className="bg-gradient-to-br from-white to-orange-50 dark:from-gray-800 dark:to-orange-900/20 rounded-2xl shadow-2xl p-8 max-w-md w-full border-2 border-orange-300 dark:border-orange-700"
+              className="bg-gradient-to-br from-white to-orange-50 dark:from-gray-800 dark:to-orange-900/20 rounded-2xl shadow-2xl p-4 sm:p-8 max-w-md w-full border-2 border-orange-300 dark:border-orange-700"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center mb-6">
@@ -1165,7 +1165,7 @@ export default function JournalPage() {
                   color: 'white',
                   border: 'none'
                 }}
-                className="w-full shadow-lg hover:opacity-90 font-semibold py-6"
+                className="w-full shadow-lg hover:opacity-90 font-semibold py-4 sm:py-6"
               >
                 Got it! Let me complete them
               </Button>

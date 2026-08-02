@@ -319,14 +319,14 @@ export default function HabitsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <Card className="border-none shadow-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600 text-white">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -353,7 +353,7 @@ export default function HabitsPage() {
                     border: 'none',
                     outline: 'none'
                   }}
-                  className="px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
+                  className="px-3 sm:px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
                 >
                   <Plus className="h-5 w-5" />
                   New Habit
@@ -382,7 +382,7 @@ export default function HabitsPage() {
         />
 
         {/* Habits Grid */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Results count */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -395,7 +395,7 @@ export default function HabitsPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {paginatedHabits.map(habit => {
                 const completions = habit.completions || []
@@ -412,7 +412,7 @@ export default function HabitsPage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                 >
                   <Card className="group hover:shadow-lg transition-all relative overflow-hidden border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="space-y-4">
                         {/* Header */}
                         <div className="flex items-start justify-between">
@@ -708,7 +708,7 @@ export default function HabitsPage() {
                     </button>
                     <button
                       onClick={() => setShowNewHabit(false)}
-                      className="h-12 px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
+                      className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
                       Cancel
                     </button>
@@ -734,7 +734,7 @@ export default function HabitsPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-gray-900 rounded-3xl p-8 w-full max-w-md shadow-2xl border-4 border-red-400 dark:border-red-600"
+                className="bg-white dark:bg-gray-900 rounded-3xl p-4 sm:p-8 w-full max-w-md shadow-2xl border-4 border-red-400 dark:border-red-600"
               >
                 <div className="flex justify-center mb-6">
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">

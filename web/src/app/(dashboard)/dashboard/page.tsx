@@ -843,7 +843,7 @@ export default function DashboardPageRedesigned() {
         </motion.div>
 
         {/* Stats Grid - Compact */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Tasks Completed */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -973,12 +973,12 @@ export default function DashboardPageRedesigned() {
 
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-3 sm:gap-8">
           {/* Tasks Section */}
-          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-4 sm:space-y-6">
             {/* Task Header */}
             <Card className="border-2 border-emerald-200 dark:border-emerald-700/50 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 shadow-xl">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
@@ -1308,7 +1308,7 @@ export default function DashboardPageRedesigned() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Quick Actions */}
             <Card className="border-2 border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-300/70 dark:shadow-slate-500/30 bg-white dark:bg-slate-800">
               <CardHeader>
@@ -1386,7 +1386,7 @@ export default function DashboardPageRedesigned() {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Create New Task</h3>
@@ -1429,7 +1429,7 @@ export default function DashboardPageRedesigned() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3 sm:gap-6">
                     <label className="flex items-center gap-3 cursor-pointer group">
                       <div className="relative">
                         <input
@@ -1513,7 +1513,7 @@ export default function DashboardPageRedesigned() {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
+                className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
               >
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Task</h3>
@@ -1581,7 +1581,7 @@ export default function DashboardPageRedesigned() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-3 sm:gap-6">
                     <label className="flex items-center gap-3 cursor-pointer group">
                       <div className="relative">
                         <input

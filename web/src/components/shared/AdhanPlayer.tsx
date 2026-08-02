@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Volume2, VolumeX, X, Info } from 'lucide-react'
+import { Volume2, VolumeX, X } from 'lucide-react'
 import { playAdhan, stopAdhan, unlockAdhanAudio } from '@/lib/adhan-audio'
 import { todayKey } from '@/lib/date-utils'
 
@@ -51,7 +51,6 @@ export function AdhanPlayer() {
   const [times, setTimes] = useState<PrayerTimes | null>(null)
   const [muted, setMuted] = useState(false)
   const [nowPlaying, setNowPlaying] = useState<string | null>(null)
-  const [usedFallback, setUsedFallback] = useState(false)
   const firedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
@@ -130,8 +129,7 @@ export function AdhanPlayer() {
 
       if (muted) return
       setNowPlaying(name)
-      const how = await playAdhan({ isFajr: name === 'Fajr', volume: 0.85 })
-      setUsedFallback(how !== 'adhan')
+      await playAdhan({ isFajr: name === 'Fajr', volume: 0.85 })
     },
     [muted]
   )
@@ -177,7 +175,6 @@ export function AdhanPlayer() {
   const dismiss = () => {
     stopAdhan()
     setNowPlaying(null)
-    setUsedFallback(false)
   }
 
   const toggleMute = () => {
@@ -212,7 +209,7 @@ export function AdhanPlayer() {
                   It&apos;s time for {nowPlaying}
                 </p>
                 <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                  {muted ? 'Adhan muted' : 'Playing adhan…'}
+                  {muted ? 'Muted' : 'Adhan playing'}
                 </p>
               </div>
               <button
@@ -230,13 +227,7 @@ export function AdhanPlayer() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {usedFallback && (
-              <p className="flex items-start gap-1.5 border-t border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[11px] text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-300">
-                <Info className="mt-0.5 h-3 w-3 shrink-0" />
-                Playing a chime — add <code className="mx-1">public/audio/adhan.mp3</code> for the full adhan.
-              </p>
-            )}
-          </div>
+                      </div>
         </motion.div>
       )}
     </AnimatePresence>

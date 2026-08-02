@@ -150,6 +150,11 @@ export const authOptions: NextAuthOptions = {
         session.user.image = null
         // Pass 2FA verification status to client-side session
         ;(session as unknown as { needs2FA?: boolean }).needs2FA = token.needs2FA as boolean | undefined
+        // Expose the password-setup requirement so the app shell can bail out
+        // immediately instead of rendering the dashboard and firing data
+        // requests that would only come back as 403 PASSWORD_SETUP_REQUIRED.
+        ;(session as unknown as { needsPasswordSetup?: boolean }).needsPasswordSetup =
+          token.needsPasswordSetup as boolean | undefined
       }
       return session
     },

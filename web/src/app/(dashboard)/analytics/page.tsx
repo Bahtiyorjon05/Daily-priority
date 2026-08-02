@@ -293,7 +293,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-4 sm:space-y-6 pb-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
           transition={{ delay: 0.1 }}
         >
           <Card className="border-2 border-emerald-200 dark:border-emerald-700/50 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 shadow-lg hover:shadow-xl transition-all">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Tasks Completed</p>
@@ -352,7 +352,7 @@ export default function AnalyticsPage() {
           transition={{ delay: 0.2 }}
         >
           <Card className="border-2 border-orange-200 dark:border-orange-700/50 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 shadow-lg hover:shadow-xl transition-all">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</p>
@@ -377,7 +377,7 @@ export default function AnalyticsPage() {
           transition={{ delay: 0.3 }}
         >
           <Card className="border-2 border-blue-200 dark:border-blue-700/50 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-lg hover:shadow-xl transition-all">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Completion Rate</p>
@@ -402,7 +402,7 @@ export default function AnalyticsPage() {
           transition={{ delay: 0.4 }}
         >
           <Card className="border-2 border-purple-200 dark:border-purple-700/50 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 shadow-lg hover:shadow-xl transition-all">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Focus Time</p>
@@ -589,7 +589,7 @@ export default function AnalyticsPage() {
       )}
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {/* Daily Trends Chart - Extended to 14 Days */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -702,7 +702,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Weekly & Monthly Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
         {/* Weekly Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -56,6 +56,14 @@ export function useUserProfile() {
       return
     }
 
+    // A user who still has to create a password can't read app data yet — the
+    // API answers 403 PASSWORD_SETUP_REQUIRED. Skip the request entirely so we
+    // don't spam the logs while the redirect to /set-password happens.
+    if ((session as unknown as { needsPasswordSetup?: boolean }).needsPasswordSetup) {
+      setLoading(false)
+      return
+    }
+
     // If we already have cached data, use it immediately
     if (profileCache) {
       setProfile(profileCache)

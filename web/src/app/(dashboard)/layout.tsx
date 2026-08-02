@@ -91,10 +91,25 @@ function DashboardLayoutContent({
   })()
   const isSidebarVisible = isMobile ? effectiveSidebarOpen : true
 
+  // Does this session still owe us a password? The flag rides on the session
+  // itself, so it's known synchronously on the very first render — no request,
+  // no window where the dashboard mounts and fires calls that 403.
+  const needsPasswordSetup = Boolean(
+    (session as unknown as { needsPasswordSetup?: boolean } | null)?.needsPasswordSetup
+  )
+
+  // Send them straight to /set-password. Uses replace() so Back doesn't drop
+  // them onto a dashboard they aren't allowed to use yet.
+  useEffect(() => {
+    if (status === 'authenticated' && needsPasswordSetup && pathname !== '/set-password') {
+      router.replace('/set-password?required=true')
+    }
+  }, [status, needsPasswordSetup, pathname, router])
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/signin')
-    } else if (status === 'authenticated' && session?.user?.email) {
+    } else if (status === 'authenticated' && !needsPasswordSetup && session?.user?.email) {
       // Check if user needs to set password (Google signup users)
       const checkUserPassword = async () => {
         try {
@@ -294,7 +309,10 @@ function DashboardLayoutContent({
     }
   }
 
-  if (status === 'loading' || (status === 'authenticated' && !checkedPassword)) {
+  // Never render the dashboard shell for a user who owes us a password — that
+  // is what previously mounted the pages and produced a burst of 403s while the
+  // redirect was still in flight.
+  if (status === 'loading' || needsPasswordSetup || (status === 'authenticated' && !checkedPassword)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-950 dark:via-emerald-950/20 dark:to-teal-950/20">
         <LoadingSpinner size="xl" message="Loading your dashboard..." />

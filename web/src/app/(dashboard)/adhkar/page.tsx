@@ -272,7 +272,7 @@ export default function AdhkarPage() {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50 dark:from-gray-950 dark:via-emerald-950/10 dark:to-gray-950">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="text-center space-y-3 py-4">
           <div className="flex items-center justify-center gap-3">
@@ -290,7 +290,7 @@ export default function AdhkarPage() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-14 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-green-200 dark:border-green-800 shadow-lg">
+          <TabsList className="grid w-full grid-cols-2 h-14 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-2 border-green-200 dark:border-green-800 shadow-lg">
             <TabsTrigger 
               value="adhkar" 
               className="text-base font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-green-950 dark:data-[state=active]:text-white transition-all"
@@ -308,9 +308,9 @@ export default function AdhkarPage() {
           </TabsList>
 
           {/* Adhkar Tab */}
-          <TabsContent value="adhkar" className="space-y-6 mt-8">
+          <TabsContent value="adhkar" className="space-y-4 sm:space-y-6 mt-8">
             {/* Category Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <Button
                 onClick={() => setCategory('morning')}
                 className={`h-20 sm:h-24 flex flex-col items-center justify-center gap-2 text-sm sm:text-base font-bold transition-all duration-300 ${
@@ -457,7 +457,7 @@ export default function AdhkarPage() {
           </TabsContent>
 
           {/* Statistics Tab */}
-          <TabsContent value="stats" className="space-y-6 mt-8">
+          <TabsContent value="stats" className="space-y-4 sm:space-y-6 mt-8">
             {statistics && (
               <>
                 {/* Main Stats */}
@@ -492,8 +492,8 @@ export default function AdhkarPage() {
                 </div>
 
                 {/* Category Breakdown */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Card className="p-6 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-300 dark:border-amber-700 shadow-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-300 dark:border-amber-700 shadow-xl">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
                         <Sun className="h-8 w-8 text-amber-600 dark:text-amber-400" />
@@ -505,7 +505,7 @@ export default function AdhkarPage() {
                     </div>
                   </Card>
 
-                  <Card className="p-6 bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-950/30 dark:to-purple-950/30 border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
+                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-950/30 dark:to-purple-950/30 border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
                         <Moon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
@@ -517,7 +517,7 @@ export default function AdhkarPage() {
                     </div>
                   </Card>
 
-                  <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-green-300 dark:border-green-700 shadow-xl">
+                  <Card className="p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-green-300 dark:border-green-700 shadow-xl">
                     <div className="flex items-center gap-4">
                       <div className="p-4 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
                         <Sparkles className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -577,7 +577,7 @@ export default function AdhkarPage() {
                       />
                     ))}
                   </div>
-                  <div className="flex items-center justify-center gap-6 mt-6 text-sm">
+                  <div className="flex items-center justify-center gap-3 sm:gap-6 mt-6 text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded bg-gradient-to-br from-green-500 to-emerald-600" />
                       <span className="text-gray-600 dark:text-gray-400">Completed</span>

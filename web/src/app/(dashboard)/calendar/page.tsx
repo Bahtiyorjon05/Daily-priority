@@ -495,7 +495,7 @@ export default function CalendarPage() {
             Plan your days with Islamic calendar integration
           </p>
         </div>
-        <div className="text-right bg-gradient-to-br from-white to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 rounded-2xl px-6 py-4 shadow-lg border border-indigo-100 dark:border-indigo-900/50">
+        <div className="text-right bg-gradient-to-br from-white to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 rounded-2xl px-3 sm:px-6 py-4 shadow-lg border border-indigo-100 dark:border-indigo-900/50">
           {hijriDate && (
             <>
               <div className="flex items-center gap-2 justify-end text-sm text-slate-600 dark:text-slate-400 mb-1">
@@ -781,7 +781,7 @@ export default function CalendarPage() {
       </motion.div>
 
       {/* Events List - Split into Upcoming and Past */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {/* Upcoming Events */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -995,7 +995,7 @@ export default function CalendarPage() {
               ref={eventModal.ref}
               {...eventModal.dialogProps}
               onClick={(e) => e.stopPropagation()}
-              className="bg-gradient-to-br from-white via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/50 rounded-2xl p-8 w-full max-w-lg shadow-2xl border-2 border-slate-300 dark:border-slate-700"
+              className="bg-gradient-to-br from-white via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/50 rounded-2xl p-4 sm:p-8 w-full max-w-lg shadow-2xl border-2 border-slate-300 dark:border-slate-700"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
@@ -1060,7 +1060,7 @@ export default function CalendarPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowEventModal(false)}
-                  className="text-slate-900 dark:text-slate-100 font-bold border-2 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 h-12 px-6 rounded-xl transition-all hover:scale-105"
+                  className="text-slate-900 dark:text-slate-100 font-bold border-2 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 h-12 px-3 sm:px-6 rounded-xl transition-all hover:scale-105"
                 >
                   <span className="text-slate-900 dark:text-slate-100">Cancel</span>
                 </Button>

@@ -375,7 +375,7 @@ export default function FocusPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/40 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 text-slate-900 dark:text-gray-100">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -399,7 +399,7 @@ export default function FocusPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
+          <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
             <TabsTrigger 
               value="timer" 
               className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
@@ -414,7 +414,7 @@ export default function FocusPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="timer" className="space-y-6">
+          <TabsContent value="timer" className="space-y-4 sm:space-y-6">
             <FocusSettingsPanel
               show={showSettings}
               settings={settings}
@@ -437,7 +437,7 @@ export default function FocusPage() {
             />
           </TabsContent>
 
-          <TabsContent value="statistics" className="space-y-6">
+          <TabsContent value="statistics" className="space-y-4 sm:space-y-6">
             {stats && stats.allTime.totalSessions > 0 ? (
               <FocusStatistics stats={stats} />
             ) : (
