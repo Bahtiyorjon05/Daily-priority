@@ -438,7 +438,22 @@ export default function FocusPage() {
           </TabsContent>
 
           <TabsContent value="statistics" className="space-y-6">
-            <FocusStatistics stats={stats} />
+            {stats && stats.allTime.totalSessions > 0 ? (
+              <FocusStatistics stats={stats} />
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
+                  <Brain className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 className="text-lg font-semibold">No focus sessions yet</h3>
+                <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+                  Run your first session and your streaks, totals and daily breakdown will appear here.
+                </p>
+                <Button className="mt-5" onClick={() => setActiveTab('timer')}>
+                  Start a session
+                </Button>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

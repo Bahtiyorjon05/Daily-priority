@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toLocalDateKey, todayKey } from '@/lib/date-utils'
+import { queueableFetch } from '@/lib/offline-queue'
 import {
   Target,
   Plus,
@@ -191,11 +192,20 @@ export default function HabitsPage() {
     }))
 
     try {
-      const response = await fetch(`/api/habits/${habitId}/complete`, {
+      // queueableFetch keeps the tick working offline: the write is stored in
+      // IndexedDB and replayed on reconnect (202 = queued).
+      const response = await queueableFetch(`/api/habits/${habitId}/complete`, {
         method: completedToday ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: today })
+        body: JSON.stringify({ date: today }),
+        label: 'habit-toggle'
       })
+
+      if (response.status === 202) {
+        // Saved locally; the optimistic update above already reflects it.
+        toast.success(completedToday ? 'Completion removed (offline)' : '✅ Habit completed (offline)')
+        return
+      }
 
       if (response.ok) {
         // Fetch only the updated habit to sync streak calculation

@@ -47,6 +47,7 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { InstallPrompt } from '@/components/shared/InstallPrompt'
 import { NotificationBell } from '@/components/shared/NotificationBell'
 import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
+import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
 
 function DashboardLayoutContent({
   children,
@@ -802,6 +803,9 @@ function DashboardLayoutContent({
 
       {/* App-wide keyboard shortcuts + "?" cheatsheet */}
       <GlobalShortcuts />
+
+      {/* Offline status + replay of writes queued while disconnected */}
+      <OfflineIndicator />
 
       {/* Install Prompt */}
       {isMobile ? (
