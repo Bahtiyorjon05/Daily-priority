@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       where: { email: sanitizedEmail },
     })
 
-    if (existingUser && existingUser.password) {
+    if (existingUser?.password) {
       // Delete the verification code
       await deleteVerificationCode(sanitizedEmail)
 
@@ -84,16 +84,30 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Create user with verified email
-    const user = await prisma.user.create({
-      data: {
-        email: sanitizedEmail,
-        password: hashedPassword,
-        passwordEnc: encryptPassword(password),
-        name: sanitizedName || sanitizedEmail.split('@')[0],
-        emailVerified: new Date(), // Mark email as verified
-      },
-    })
+    // An account can already exist without a password — that's a Google
+    // sign-up. Creating a second row would violate the unique email index (it
+    // used to throw a 500 here), so attach the password to the existing
+    // account instead. Safe because the email was just verified by code.
+    const user = existingUser
+      ? await prisma.user.update({
+          where: { id: existingUser.id },
+          data: {
+            password: hashedPassword,
+            passwordEnc: encryptPassword(password),
+            mustResetPassword: false,
+            name: existingUser.name || sanitizedName || sanitizedEmail.split('@')[0],
+            emailVerified: existingUser.emailVerified ?? new Date(),
+          },
+        })
+      : await prisma.user.create({
+          data: {
+            email: sanitizedEmail,
+            password: hashedPassword,
+            passwordEnc: encryptPassword(password),
+            name: sanitizedName || sanitizedEmail.split('@')[0],
+            emailVerified: new Date(), // Mark email as verified
+          },
+        })
 
     // Delete the verification code after successful registration
     await deleteVerificationCode(sanitizedEmail)
@@ -110,6 +124,15 @@ export async function POST(request: Request) {
       { status: 201 }
     )
   } catch (error) {
+    // P2002 = unique constraint. Two concurrent sign-ups for the same email can
+    // still race past the check above; surface that as a clear 400 rather than
+    // a 500 the user can't act on.
+    if ((error as { code?: string }).code === 'P2002') {
+      return NextResponse.json(
+        { error: 'An account with this email already exists. Try signing in instead.' },
+        { status: 400 }
+      )
+    }
     logger.error('Registration failed', error)
     return NextResponse.json(
       { error: 'Something went wrong. Please try again.' },
