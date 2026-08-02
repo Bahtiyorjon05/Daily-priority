@@ -118,7 +118,7 @@ export const config = {
     // Skip Next internals, and any static asset with a file extension (icons,
     // sw.js, images, fonts, manifest, etc.) so PWA/static files aren't
     // redirected to sign-in by the auth guard.
-    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|js|css|txt|xml|woff|woff2|ttf|map)).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest.json|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|js|css|txt|xml|json|md|woff|woff2|ttf|otf|eot|map|mp3|ogg|wav|m4a|aac|mp4|webm|pdf)).*)',
     // Admin API needs the auth guard too (the pattern above skips /api).
     '/api/admin/:path*',
   ],
