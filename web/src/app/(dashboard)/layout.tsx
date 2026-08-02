@@ -130,12 +130,34 @@ function DashboardLayoutContent({
 
   // Owner-only admin shortcut. The server decides; this just controls whether
   // the link is rendered — /admin has its own password + signed-cookie guard.
+  //
+  // The answer is cached per session so a page refresh shows the link
+  // immediately instead of flashing it away while the request is in flight,
+  // and a failed/slow request falls back to the cached value rather than
+  // silently hiding the link.
   useEffect(() => {
+    const CACHE_KEY = 'dp-is-owner'
+    try {
+      if (sessionStorage.getItem(CACHE_KEY) === '1') setIsOwner(true)
+    } catch {}
+
+    let cancelled = false
     fetch('/api/user/is-owner', { cache: 'no-store' })
-      .then((r) => r.json())
-      .then((d) => setIsOwner(Boolean(d.isOwner)))
-      .catch(() => {})
-  }, [])
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || d == null) return // keep cached value on error
+        const owner = Boolean(d.isOwner)
+        setIsOwner(owner)
+        try {
+          if (owner) sessionStorage.setItem(CACHE_KEY, '1')
+          else sessionStorage.removeItem(CACHE_KEY)
+        } catch {}
+      })
+      .catch(() => {}) // network blip: keep whatever we already had
+    return () => {
+      cancelled = true
+    }
+  }, [session?.user?.email])
 
   // Mobile detection and responsive sidebar handling
   useEffect(() => {

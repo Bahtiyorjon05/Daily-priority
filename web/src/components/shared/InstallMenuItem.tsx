@@ -12,12 +12,17 @@ import { useInstallPrompt } from '@/hooks/useInstallPrompt'
  * — it stays available for as long as the app isn't installed.
  */
 export function InstallMenuItem({ onNavigate }: { onNavigate?: () => void }) {
-  const { ready, isInstalled, isIOS, isAndroid, hasNativePrompt, promptInstall } =
+  const { isStandalone, isIOS, isAndroid, hasNativePrompt, promptInstall } =
     useInstallPrompt()
   const [tip, setTip] = useState('')
 
-  // Nothing to offer once it's already installed.
-  if (!ready || isInstalled) return null
+  // Only hide when this page IS the installed app — installing from inside it
+  // is meaningless. Deliberately NOT gated on `isInstalled`/`ready`:
+  //   - `isInstalled` also flips from getInstalledRelatedApps(), which resolves
+  //     asynchronously and made the entry appear then vanish on refresh.
+  //   - `ready` starts false, and this component only mounts when the dropdown
+  //     opens, so gating on it caused a flash of nothing.
+  if (isStandalone) return null
 
   const handleClick = async () => {
     if (hasNativePrompt) {

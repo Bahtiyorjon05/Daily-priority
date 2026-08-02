@@ -14,6 +14,8 @@ interface BeforeInstallPromptEvent extends Event {
 interface InstallPromptState {
   canShow: boolean
   isInstalled: boolean
+  /** True only when this page IS the installed app (standalone display mode). */
+  isStandalone: boolean
   isIOS: boolean
   isAndroid: boolean
   isMobile: boolean
@@ -73,6 +75,7 @@ function isDismissedRecently(): boolean {
 export function useInstallPrompt(): InstallPromptState {
   const [hasNativePrompt, setHasNativePrompt] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
+  const [isStandalone, setIsStandalone] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isAndroid, setIsAndroid] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -95,6 +98,7 @@ export function useInstallPrompt(): InstallPromptState {
       document.referrer.includes('android-app://')
 
     setIsInstalled(isStandalone)
+    setIsStandalone(isStandalone)
     setIsDismissed(isDismissedRecently())
     setReady(true)
 
@@ -129,7 +133,10 @@ export function useInstallPrompt(): InstallPromptState {
 
     const displayModeQuery = window.matchMedia('(display-mode: standalone)')
     const handleDisplayModeChange = (e: MediaQueryListEvent) => {
-      if (e.matches) setIsInstalled(true)
+      if (e.matches) {
+        setIsInstalled(true)
+        setIsStandalone(true)
+      }
     }
     displayModeQuery.addEventListener('change', handleDisplayModeChange)
 
@@ -178,6 +185,7 @@ export function useInstallPrompt(): InstallPromptState {
   return {
     canShow,
     isInstalled,
+    isStandalone,
     isIOS,
     isAndroid,
     isMobile,
