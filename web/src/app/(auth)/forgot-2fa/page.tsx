@@ -428,6 +428,7 @@ export default function Forgot2FAPage() {
                 <Input
                   id="newPassword"
                   type="password"
+                  autoComplete="new-password"
                   placeholder="Enter new 2FA password (min. 6 characters)"
                   value={newPassword}
                   onChange={(e) => {
@@ -456,6 +457,7 @@ export default function Forgot2FAPage() {
                 <Input
                   id="confirmPassword"
                   type="password"
+                  autoComplete="new-password"
                   placeholder="Re-enter your new 2FA password"
                   value={confirmPassword}
                   onChange={(e) => {

@@ -255,6 +255,7 @@ export default function ResetPasswordPage() {
                       id="password"
                       name="password"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Create a strong password"
                       value={resetData.password}
                       onChange={(e) => {
@@ -284,6 +285,7 @@ export default function ResetPasswordPage() {
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
+                      autoComplete="new-password"
                       placeholder="Confirm your new password"
                       value={resetData.confirmPassword}
                       onChange={(e) => {

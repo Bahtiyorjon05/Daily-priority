@@ -48,6 +48,7 @@ import { InstallPrompt } from '@/components/shared/InstallPrompt'
 import { NotificationBell } from '@/components/shared/NotificationBell'
 import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
+import { AdhanPlayer } from '@/components/shared/AdhanPlayer'
 
 function DashboardLayoutContent({
   children,
@@ -806,6 +807,9 @@ function DashboardLayoutContent({
 
       {/* Offline status + replay of writes queued while disconnected */}
       <OfflineIndicator />
+
+      {/* Plays the adhan when a prayer time arrives (app open) */}
+      <AdhanPlayer />
 
       {/* Install Prompt */}
       {isMobile ? (

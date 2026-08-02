@@ -246,12 +246,32 @@ export function NotificationBell() {
 
       <AnimatePresence>
         {open && (
+          <>
+            {/* Dimmed backdrop on mobile so the panel reads as a sheet and it's
+                obvious that tapping away closes it. Hidden from sm up. */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[65] bg-black/40 backdrop-blur-[2px] sm:hidden"
+              aria-hidden="true"
+            />
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden z-50"
+            /*
+             * Mobile: the bell isn't the right-most header item, so anchoring a
+             * near-full-width panel with `right-0` pushed it off the left edge.
+             * Use symmetric left/right insets (not a translate — Framer Motion
+             * owns `transform` and would override it), then switch to the
+             * button-anchored dropdown from `sm` up where there's room.
+             */
+            className="fixed left-3 right-3 top-[4.5rem] mx-auto max-w-sm
+                       sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 sm:max-w-none
+                       bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden z-[70]"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2">
@@ -325,6 +345,7 @@ export function NotificationBell() {
               )}
             </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

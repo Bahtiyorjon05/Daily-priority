@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
 import { todayKey } from '@/lib/date-utils'
+import { toast } from 'sonner'
 import {
   BookOpen,
   Plus,
@@ -151,11 +152,11 @@ export default function JournalPage() {
         })
       } else {
         const error = await response.json()
-        alert(error.error || 'Failed to create entry')
+        toast.error(error.error || 'Failed to create entry')
       }
     } catch (error) {
       console.error('Failed to create entry:', error)
-      alert('Failed to create entry. Please try again.')
+      toast.error('Failed to create entry. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -177,11 +178,11 @@ export default function JournalPage() {
         }
       } else {
         const error = await response.json()
-        alert(error.error || 'Failed to delete entry')
+        toast.error(error.error || 'Failed to delete entry')
       }
     } catch (error) {
       console.error('Failed to delete entry:', error)
-      alert('Failed to delete entry. Please try again.')
+      toast.error('Failed to delete entry. Please try again.')
     } finally {
       setSaving(false)
     }
