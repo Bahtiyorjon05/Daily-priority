@@ -69,12 +69,14 @@ Safety net so we stop finding bugs by reading production logs.
 - [ ] Type scale, spacing scale, motion language; Arabic font pairing (`--font-amiri` already loaded)
 - [ ] Rebuild core primitives: Card, Button, Tile, EmptyState, PageHeader, Sheet
 
-### Phase 2 — Activation ⬜
+### Phase 2 — Activation 🟨
 The highest-leverage work in the whole plan.
-- [ ] First-run onboarding: city → prayers to track → one habit → land on a *populated* dashboard
+- [x] ✅ First-run onboarding shipped: location → first habit → reminders, all three steps skippable. `onboardedAt` migration backfills `createdAt` so no existing user is ever trapped in it.
+- [x] ✅ Landing page now *shows* the differentiator instead of asserting it (`PrayerDayShowcase` cycles all six phases). Homepage ambient background works on phones for the first time.
 - [ ] Starter content so the app is never empty
 - [ ] Prayer streak as the hero element of the dashboard
 - [ ] Re-measure the activation table above; target ≥60% of new users creating something
+  · **Not yet measurable** — onboarding shipped 2026-08-03, needs a cohort of new signups before the numbers mean anything.
 
 ### Phase 2.5 — Bilingual (Uzbek + English) ⬜
 Every visible string in both languages, switchable from the top of any page.
@@ -140,3 +142,4 @@ Only after Phase 2 numbers improve.
 | Date | Work |
 |---|---|
 | 2026-08-02 | Phase 0 started: error tracking + indexes shipped. Baseline audit; Prisma 7 + Accelerate outage fix; SW stale-cache fix; admin dashboard; AES password vault; notifications/push/adhan; offline queue; streak freeze; mobile pass; this plan |
+| 2026-08-03 | Phase 1: fixed the white Prayer Day surfaces — root cause was `background:` shorthand with an undefined var wiping `background-image`; split `--phase-accent` (hue) from `--phase-ink-on-surface` (readable) after all 6 phases failed WCAG AA. Restored keyboard focus rings (`ring:` isn't a CSS property). Phase 2: onboarding shipped. Landing page: `PrayerDayShowcase`, mobile ambient background, reduced-motion honoured. Habits restored to the mobile More menu. Suite 20 failing → 79 passing |
