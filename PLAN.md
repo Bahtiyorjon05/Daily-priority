@@ -63,11 +63,11 @@ Safety net so we stop finding bugs by reading production logs.
   - *Remaining:* recharts still emits 3 separate lazy chunks. A shared chart wrapper would collapse them into one.
 
 ### Phase 1 — Design system 🟨  ·  see DESIGN.md
-- [x] ✅ Prayer-time-aware tokens + provider + header control (), 15 tests. Additive: never overrides surface/foreground, so light/dark keeps contrast.
-- [ ] Type scale, spacing scale, motion language; Arabic font pairing
+- [x] ✅ Prayer-time-aware tokens + provider + header control (`PhaseIndicator`), 15 tests. Additive: never overrides surface/foreground, so light/dark keeps contrast.
+- [x] ✅ `DESIGN.md` written — the system, restraint rules, Arabic typography, a11y constraints
+- [x] 🟨 Dashboard hero converted off the fixed emerald gradient onto `.phase-hero`. Remaining surfaces convert during their Phase 3 deep-dive.
+- [ ] Type scale, spacing scale, motion language; Arabic font pairing (`--font-amiri` already loaded)
 - [ ] Rebuild core primitives: Card, Button, Tile, EmptyState, PageHeader, Sheet
-- [x] 🟨 Dashboard hero converted off the fixed emerald gradient onto . Remaining surfaces convert during their Phase 3 deep-dive.
-- [x] ✅  written
 
 ### Phase 2 — Activation ⬜
 The highest-leverage work in the whole plan.
