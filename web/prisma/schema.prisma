@@ -20,6 +20,10 @@ model User {
   /// When true, the user is forced to set a new password before using the app
   /// (used to capture a fresh vaulted password for every existing account).
   mustResetPassword Boolean         @default(false)
+  /// When the first-run onboarding was completed. Null means the user has never
+  /// been through it and should be routed there. Backfilled for accounts that
+  /// existed before onboarding shipped, so nobody is sent back through it.
+  onboardedAt      DateTime?
   location         String?
   timezone         String?          @default("UTC")
   createdAt        DateTime         @default(now())

@@ -32,7 +32,8 @@ import {
   Lightbulb,
   Eye,
   EyeOff,
-  Edit2
+  Edit2,
+  Repeat
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -1328,6 +1329,15 @@ export default function DashboardPageRedesigned() {
                   <Activity className="h-4 w-4 mr-3 text-emerald-600 dark:text-emerald-400 group-hover/btn:scale-110 transition-transform" />
                   <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-emerald-700 dark:group-hover/btn:text-emerald-300">Prayer Times</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-emerald-600 dark:group-hover/btn:text-emerald-300 group-hover/btn:translate-x-1 transition-all" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start group/btn hover:bg-teal-50/80 dark:hover:bg-teal-900/30 hover:border-teal-200 dark:hover:border-teal-700/70 border border-slate-100 dark:border-slate-700 hover:shadow-md hover:shadow-teal-100/50 dark:hover:shadow-teal-500/30 transition-all rounded-xl hover:-translate-x-1"
+                  onClick={() => window.location.href = '/habits'}
+                >
+                  <Repeat className="h-4 w-4 mr-3 text-teal-600 dark:text-teal-400 group-hover/btn:scale-110 transition-transform" />
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-teal-700 dark:group-hover/btn:text-teal-300">Habits</span>
+                  <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-teal-600 dark:group-hover/btn:text-teal-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
                   variant="ghost"

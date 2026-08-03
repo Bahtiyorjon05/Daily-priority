@@ -155,6 +155,10 @@ export const authOptions: NextAuthOptions = {
         // requests that would only come back as 403 PASSWORD_SETUP_REQUIRED.
         ;(session as unknown as { needsPasswordSetup?: boolean }).needsPasswordSetup =
           token.needsPasswordSetup as boolean | undefined
+        // Same idea for first-run onboarding: known on the first render, so the
+        // shell can route without an extra request or a visible flash.
+        ;(session as unknown as { needsOnboarding?: boolean }).needsOnboarding =
+          token.needsOnboarding as boolean | undefined
       }
       return session
     },
@@ -191,6 +195,7 @@ export const authOptions: NextAuthOptions = {
               id: true,
               password: true,
               mustResetPassword: true,
+              onboardedAt: true,
               twoFactorEnabled: true,
               twoFactorSecret: true
             }
@@ -199,6 +204,8 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             // ⚠️ CRITICAL: force a password reset when flagged, else base it on
             // whether a password exists (Google users with no password).
+            token.needsOnboarding = dbUser.onboardedAt == null
+
             if (dbUser.mustResetPassword) {
               logger.info('[JWT Refresh] User must reset password, forcing set-password', {
                 userId: dbUser.id

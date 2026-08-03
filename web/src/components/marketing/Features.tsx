@@ -1,236 +1,272 @@
 'use client'
 
-import { Moon, CheckSquare, BarChart3, Target, Calendar, Heart, Sparkles, ArrowUpRight } from 'lucide-react'
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import Image from 'next/image'
+import { motion } from 'framer-motion'
+import {
+  Moon, BookHeart, Compass, Repeat, Timer, CheckSquare,
+  BookOpen, Target, BarChart3, Bell, WifiOff, Download, Sunrise, Heart,
+  ArrowUpRight,
+} from 'lucide-react'
 
-const features = [
+/**
+ * Feature overview.
+ *
+ * Rewritten against DESIGN.md's restraint rules. The previous version stacked
+ * four floating orbs, a noise texture and several radial gradients, which
+ * flattened the hierarchy — when everything is emphasised, nothing is. It also
+ * listed only 6 of the 9 things the app does: Adhkar, Habits and Focus were
+ * missing entirely, as were reminders, offline and install.
+ *
+ * Grouped by what someone is trying to do, not by feature name.
+ */
+
+const GROUPS = [
   {
-    icon: Moon,
-    title: 'Prayer Times First',
-    description: 'Never miss Salah with intelligent prayer time notifications. Your day organized around the five daily prayers.',
-    gradient: 'from-emerald-500 to-teal-500',
-    shadowColor: 'emerald'
+    id: 'worship',
+    eyebrow: 'Worship',
+    title: 'Built around the five prayers',
+    blurb: 'Your day already has a shape. The app follows it instead of fighting it.',
+    accent: 'emerald',
+    items: [
+      {
+        icon: Moon,
+        title: 'Prayer times & tracking',
+        body: 'Accurate times for your location, one tap to log each prayer and whether it was on time. Streaks show your consistency at a glance.',
+      },
+      {
+        icon: Bell,
+        title: 'Adhan & reminders',
+        body: 'A quiet nudge before each prayer, and the adhan when the time arrives. Set your own lead time, or quiet hours to hear nothing at all.',
+      },
+      {
+        icon: BookHeart,
+        title: 'Adhkar',
+        body: 'Morning and evening remembrance with a counter that keeps your place, so you can finish where you left off.',
+      },
+      {
+        icon: Compass,
+        title: 'Qibla & Hijri calendar',
+        body: 'Qibla direction from wherever you are, plus Hijri dates and Islamic occasions alongside your own events.',
+      },
+    ],
   },
   {
-    icon: Target,
-    title: 'Dunya & Akhirah Goals',
-    description: 'Set and track both worldly and spiritual goals. Balance success in this life and the hereafter.',
-    gradient: 'from-teal-500 to-cyan-500',
-    shadowColor: 'teal'
+    id: 'discipline',
+    eyebrow: 'Discipline',
+    title: 'Small things, done consistently',
+    blurb: 'Consistency beats ambition, so these are deliberately simple.',
+    accent: 'teal',
+    items: [
+      {
+        icon: Repeat,
+        title: 'Habits with streak freezes',
+        body: 'Daily habits with streaks — and two grace days a month, so one missed day doesn’t erase weeks of effort.',
+      },
+      {
+        icon: Timer,
+        title: 'Focus sessions',
+        body: 'A Pomodoro timer with optional ambient sound. It runs on the wall clock, so it stays accurate even if you switch away.',
+      },
+      {
+        icon: CheckSquare,
+        title: 'Tasks & priorities',
+        body: 'Plan the day with priorities, due dates and subtasks. Overdue work surfaces in the morning instead of getting buried.',
+      },
+      {
+        icon: Heart,
+        title: 'Gentle, not nagging',
+        body: 'Reminders you control, streaks that forgive, and no guilt-tripping when life gets in the way.',
+      },
+    ],
   },
   {
-    icon: BarChart3,
-    title: 'Progress Analytics',
-    description: 'Beautiful insights into your productivity journey with comprehensive charts and tracking.',
-    gradient: 'from-cyan-500 to-blue-500',
-    shadowColor: 'cyan'
+    id: 'reflection',
+    eyebrow: 'Reflection',
+    title: 'See how the week actually went',
+    blurb: 'Honest numbers rather than vanity charts.',
+    accent: 'violet',
+    items: [
+      {
+        icon: BookOpen,
+        title: 'Journal',
+        body: 'Gratitude, lessons and du‘ā in one place, dated in both calendars, with a mood you can look back on.',
+      },
+      {
+        icon: Target,
+        title: 'Dunya & Akhirah goals',
+        body: 'Track worldly and spiritual goals side by side, with milestones and progress, so the balance stays visible.',
+      },
+      {
+        icon: BarChart3,
+        title: 'Analytics',
+        body: 'Trends across prayers, habits, focus and tasks — enough to spot a pattern, not so much that it becomes homework.',
+      },
+      {
+        icon: Sunrise,
+        title: 'Weekly review',
+        body: 'A short Sunday email summarising your week, with your streaks and on-time prayer rate.',
+      },
+    ],
+  },
+] as const
+
+const PLATFORM = [
+  {
+    icon: Sunrise,
+    title: 'Follows the prayer day',
+    body: 'The interface shifts with the day — still and blue at Fajr, warm at Asr, quiet after Isha.',
   },
   {
-    icon: CheckSquare,
-    title: 'Smart Task Management',
-    description: 'Prioritize tasks with energy levels, deadlines, and Islamic productivity principles.',
-    gradient: 'from-blue-500 to-indigo-500',
-    shadowColor: 'blue'
+    icon: WifiOff,
+    title: 'Works offline',
+    body: 'Tick a habit with no signal; it syncs the moment you reconnect.',
   },
   {
-    icon: Calendar,
-    title: 'Islamic Calendar',
-    description: 'Stay connected with Hijri dates, Islamic events, and important religious occasions.',
-    gradient: 'from-violet-500 to-purple-500',
-    shadowColor: 'violet'
+    icon: Download,
+    title: 'Installs like an app',
+    body: 'Add it to your home screen — full screen, offline capable, no app store needed.',
   },
   {
     icon: Heart,
-    title: 'Gratitude Journal',
-    description: 'Daily reflection and gratitude practice to strengthen your connection with Allah.',
-    gradient: 'from-pink-500 to-rose-500',
-    shadowColor: 'pink'
-  }
+    title: 'Free, no ads',
+    body: 'No adverts, no selling your data, no paywall on the things that matter.',
+  },
 ]
 
+const ACCENT: Record<string, string> = {
+  emerald:
+    'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 ring-emerald-200/70 dark:ring-emerald-800/50',
+  teal:
+    'text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/40 ring-teal-200/70 dark:ring-teal-800/50',
+  violet:
+    'text-violet-700 dark:text-violet-300 bg-violet-50 dark:bg-violet-950/40 ring-violet-200/70 dark:ring-violet-800/50',
+}
+
 export function Features() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-
   return (
-    <section id="features" className="relative py-12 sm:py-16 md:py-20 lg:py-32 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60 scroll-mt-16 sm:scroll-mt-20 overflow-hidden">
-
-      {/* Decorative Illustration */}
-      <div className="absolute bottom-10 right-10 w-96 h-96 opacity-5 dark:opacity-[0.03] pointer-events-none hidden xl:block">
-        <Image 
-          src="/productivity-illustration.png" 
-          alt="Productivity Illustration" 
-          width={384} 
-          height={384}
-          className="w-full h-full object-contain" 
-        />
-      </div>
-
-      {/* Enhanced gradient background with subtle animation */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-emerald-50/40 dark:from-[#0a0a0a] dark:via-[#0f1f1a] dark:to-emerald-950/60" />
-
-      {/* Floating orbs for background effect with enhanced depth */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/25 dark:to-teal-600/25 rounded-full blur-3xl animate-float-slow" />
-        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-gradient-to-tr from-teal-400/20 to-cyan-400/20 dark:from-teal-600/25 dark:to-cyan-600/25 rounded-full blur-3xl animate-float-slower" />
-        {/* Additional orbs for enhanced depth */}
-        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-gradient-to-br from-cyan-400/15 to-emerald-400/15 dark:from-cyan-600/20 dark:to-emerald-600/20 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-gradient-to-tr from-emerald-400/15 to-teal-400/15 dark:from-emerald-600/20 dark:to-teal-600/20 rounded-full blur-3xl animate-pulse-medium" />
-      </div>
-
-      {/* Enhanced noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] mix-blend-overlay hidden lg:block" aria-hidden="true">
-        <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")' }} />
-      </div>
-
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl relative z-10 overflow-hidden">
-
-        {/* Header with enhanced glow effect */}
+    <section
+      id="features"
+      className="scroll-mt-16 bg-slate-50 py-16 sm:py-20 lg:py-28 dark:bg-[#080c10]"
+    >
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* Section header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-6 sm:mb-8 md:mb-12 lg:mb-20 space-y-2 sm:space-y-3 md:space-y-5"
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-2xl text-center"
         >
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-50/90 to-teal-50/90 dark:bg-emerald-950/60 border border-emerald-200/50 dark:border-emerald-800/60 shadow-lg shadow-emerald-500/15 dark:shadow-emerald-900/20 backdrop-blur-sm"
-          >
-            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/15 to-teal-400/15 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300 relative z-10">Features</span>
-          </motion.div>
-
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black leading-tight tracking-tight">
-            <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">Everything You Need</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
-              To Be Productive
-            </span>
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Everything in one place
           </h2>
-
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed text-pretty px-2">
-            Built with Islamic principles at the core
+          <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-400">
+            Prayer, habits and work in a single app — so your day isn’t split across three
+            that don’t know about each other.
           </p>
         </motion.div>
 
-        {/* Features Grid with enhanced hover effects */}
-        <motion.div
-          ref={ref}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6"
-        >
-          {features.map((feature, index) => {
-            const Icon = feature.icon
-
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.1,
-                  type: "spring",
-                  stiffness: 100
-                }}
-              >
-                <motion.div
-                  whileHover={{ y: -12, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative h-full"
+        {/* Groups */}
+        <div className="mt-14 space-y-16 sm:mt-20 sm:space-y-20">
+          {GROUPS.map((group, gi) => (
+            <motion.div
+              key={group.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.5, delay: gi * 0.05 }}
+            >
+              <div className="mb-8 max-w-2xl">
+                <span
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ring-1 ${ACCENT[group.accent]}`}
                 >
-                  {/* Enhanced glow effect on hover */}
-                  <div className={`absolute -inset-2 bg-gradient-to-br ${feature.gradient} rounded-3xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-500`} />
+                  {group.eyebrow}
+                </span>
+                <h3 className="mt-3 text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
+                  {group.title}
+                </h3>
+                <p className="mt-1.5 text-sm text-slate-600 sm:text-base dark:text-slate-400">
+                  {group.blurb}
+                </p>
+              </div>
 
-                  {/* Card with enhanced glass morphism */}
-                  <div className="relative h-full p-4 sm:p-5 md:p-6 lg:p-7 rounded-xl sm:rounded-2xl lg:rounded-3xl bg-white/80 dark:bg-[#1C1C1C]/80 border border-slate-200/60 dark:border-[#2a2a2a]/60 hover:border-slate-300 dark:hover:border-[#404040]/60 transition-all duration-500 shadow-xl hover:shadow-2xl overflow-hidden backdrop-blur-sm">
-
-                    {/* Gradient overlay on hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-xl sm:rounded-2xl lg:rounded-3xl`} />
-
-                    {/* Icon with enhanced glow and animation */}
-                    <motion.div
-                      whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                      transition={{ duration: 0.5 }}
-                      className="relative mb-3 sm:mb-4 lg:mb-5"
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {group.items.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <div
+                      key={item.title}
+                      className="rounded-2xl border border-slate-200/80 bg-white p-5 transition-colors hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
                     >
-                      <div className={`relative inline-flex p-2.5 sm:p-3 lg:p-4 rounded-lg sm:rounded-xl lg:rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg shadow-${feature.shadowColor}-500/30 dark:shadow-${feature.shadowColor}-900/30`}>
-                        <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur opacity-50 rounded-lg sm:rounded-xl lg:rounded-2xl`} />
-                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" />
-                      </div>
-
-                      {/* Glow effect on icon */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 rounded-lg sm:rounded-xl lg:rounded-2xl`} />
-                    </motion.div>
-
-                    {/* Content */}
-                    <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                      {feature.title}
-                    </h3>
-
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-3 sm:mb-4 lg:mb-5 text-xs sm:text-sm md:text-base text-pretty">
-                      {feature.description}
-                    </p>
-
-                    {/* Enhanced Learn More button with redirect to signup */}
-                    <motion.div
-                      initial={{ x: -10, opacity: 0 }}
-                      whileHover={{ x: 0, opacity: 1 }}
-                      className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-sm cursor-pointer group/btn"
-                      onClick={() => window.location.href = '/signup'}
-                    >
-                      <span className="group-hover/btn:text-emerald-700 dark:group-hover/btn:text-emerald-300 transition-colors duration-300">Learn more</span>
-                      <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-300" />
-                    </motion.div>
-
-                    {/* Enhanced shine effect */}
-                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden rounded-2xl sm:rounded-3xl pointer-events-none">
-                      <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:left-full transition-all duration-1000 skew-x-12" />
+                      <span
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ring-1 ${ACCENT[group.accent]}`}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <h4 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
+                        {item.title}
+                      </h4>
+                      <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                        {item.body}
+                      </p>
                     </div>
+                  )
+                })}
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
-                  </div>
-                </motion.div>
-              </motion.div>
-            )
-          })}
-        </motion.div>
-
-        {/* Bottom CTA with enhanced glow effect */}
+        {/* Platform capabilities */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="mt-16 sm:mt-20 text-center"
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.5 }}
+          className="mt-16 rounded-3xl border border-slate-200/80 bg-white p-6 sm:mt-20 sm:p-8 dark:border-white/10 dark:bg-white/[0.03]"
         >
-          <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 mb-5 sm:mb-6">
-            And many more features to help you be your best self
-          </p>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="inline-block relative"
-          >
-            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 dark:from-emerald-600/25 dark:to-teal-600/25 rounded-2xl sm:rounded-3xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <a
-              href="/signup"
-              className="relative inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-900 dark:text-white font-bold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all duration-200 text-sm sm:text-base transform hover:-translate-y-1 hover:scale-105 group overflow-hidden"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <span className="relative z-10">Get Started</span>
-              <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
-            </a>
-          </motion.div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PLATFORM.map((p) => {
+              const Icon = p.icon
+              return (
+                <div key={p.title}>
+                  <Icon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                  <h4 className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
+                    {p.title}
+                  </h4>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                    {p.body}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
         </motion.div>
 
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-14 text-center sm:mt-16"
+        >
+          <a
+            href="/signup"
+            /* white text in BOTH schemes — the previous button used
+               text-slate-900 in light mode over a saturated emerald gradient,
+               which was close to unreadable */
+            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-700 sm:text-base"
+          >
+            Get started — it’s free
+            <ArrowUpRight className="h-4 w-4" />
+          </a>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">
+            No card, no ads. Takes under a minute to set up.
+          </p>
+        </motion.div>
       </div>
     </section>
   )
 }
+
+export default Features

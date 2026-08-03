@@ -99,13 +99,24 @@ function DashboardLayoutContent({
     (session as unknown as { needsPasswordSetup?: boolean } | null)?.needsPasswordSetup
   )
 
+  // First-run onboarding. Ordered AFTER the password gate: a Google user with
+  // no password must set one before anything else.
+  const needsOnboarding = Boolean(
+    (session as unknown as { needsOnboarding?: boolean } | null)?.needsOnboarding
+  )
+
   // Send them straight to /set-password. Uses replace() so Back doesn't drop
   // them onto a dashboard they aren't allowed to use yet.
   useEffect(() => {
-    if (status === 'authenticated' && needsPasswordSetup && pathname !== '/set-password') {
+    if (status !== 'authenticated') return
+    if (needsPasswordSetup && pathname !== '/set-password') {
       router.replace('/set-password?required=true')
+      return
     }
-  }, [status, needsPasswordSetup, pathname, router])
+    if (!needsPasswordSetup && needsOnboarding && pathname !== '/onboarding') {
+      router.replace('/onboarding')
+    }
+  }, [status, needsPasswordSetup, needsOnboarding, pathname, router])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -313,7 +324,7 @@ function DashboardLayoutContent({
   // Never render the dashboard shell for a user who owes us a password — that
   // is what previously mounted the pages and produced a burst of 403s while the
   // redirect was still in flight.
-  if (status === 'loading' || needsPasswordSetup || (status === 'authenticated' && !checkedPassword)) {
+  if (status === 'loading' || needsPasswordSetup || needsOnboarding || (status === 'authenticated' && !checkedPassword)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-950 dark:via-emerald-950/20 dark:to-teal-950/20">
         <LoadingSpinner size="xl" message="Loading your dashboard..." />
@@ -922,7 +933,7 @@ function DashboardLayoutContent({
                 <div className="p-3">
                   <div className="grid grid-cols-3 gap-2">
                     {navigationItems
-                      .filter(item => !['/dashboard', '/prayers', '/focus', '/goals'].includes(item.path))
+                      .filter(item => !['/dashboard', '/prayers', '/habits', '/focus', '/goals'].includes(item.path))
                       .map((item) => {
                         const Icon = item.icon
                         const isActive = pathname === item.path
