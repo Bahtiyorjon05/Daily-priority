@@ -47,11 +47,20 @@ Set as `data-phase` on `<html>` by `PrayerPhaseProvider`. All atmosphere tokens 
 
 | Token | Use |
 |---|---|
-| `--phase-accent` | primary accent for this period |
+| `--phase-accent` | the period's **hue** — fills, borders, gradients. **Not readable as text.** |
+| `--phase-ink-on-surface` | the **readable** counterpart — all text and icons on light/dark surfaces |
+| `--phase-hero-from` / `--phase-hero-to` | hero gradient stops, dark enough for white text |
 | `--phase-accent-soft` | tinted fills, chips, subtle backgrounds |
 | `--phase-glow` | halos, shadows, gradient highlights |
 | `--phase-from` / `--phase-to` | the quiet page/section wash |
 | `--phase-ink` | text that sits on a phase-tinted surface |
+
+> **Why accent and ink are separate.** The first cut reused `--phase-accent` as both
+> the hero background and the icon colour. Measured, white text on those gradients came
+> out between **1.48:1 and 4.23:1 — all six phases failed WCAG AA**, and the accent
+> failed even the 3:1 icon threshold in four phases. A mid-tone hue can be a fill *or*
+> a text colour, never both. Current values: hero stops ≥ **6.14:1** for white text;
+> ink ≥ **5.85:1** on light surfaces and ≥ **7.36:1** on dark.
 
 ### Utilities
 

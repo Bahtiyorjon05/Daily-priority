@@ -2265,6 +2265,37 @@ button:focus, input:focus, textarea:focus, select:focus {
 .dark[data-phase='dusk']      { --phase-from: 46 16 101; --phase-to: 19 78 74;  --phase-ink: 221 214 254; --phase-accent-soft: 76 29 149; }
 .dark[data-phase='night']     { --phase-from: 2 15 25;   --phase-to: 3 20 30;   --phase-ink: 153 246 228; --phase-accent-soft: 19 78 74; }
 
+
+
+/* Readable counterpart to --phase-accent, for text and icons.
+   Light: >= 5.85:1 on white and gray-100.  Dark: >= 7.36:1 on dark surfaces. */
+:root                    { --phase-ink-on-surface: 4 108 78;   }
+[data-phase='dawn']      { --phase-ink-on-surface: 55 48 163;  }
+[data-phase='morning']   { --phase-ink-on-surface: 4 108 78;   }
+[data-phase='midday']    { --phase-ink-on-surface: 15 94 88;   }
+[data-phase='afternoon'] { --phase-ink-on-surface: 146 64 14;  }
+[data-phase='dusk']      { --phase-ink-on-surface: 91 33 182;  }
+[data-phase='night']     { --phase-ink-on-surface: 17 94 89;   }
+
+.dark[data-phase='dawn']      { --phase-ink-on-surface: 165 180 252; }
+.dark[data-phase='morning']   { --phase-ink-on-surface: 110 231 183; }
+.dark[data-phase='midday']    { --phase-ink-on-surface: 94 234 212;  }
+.dark[data-phase='afternoon'] { --phase-ink-on-surface: 252 211 77;  }
+.dark[data-phase='dusk']      { --phase-ink-on-surface: 196 181 253; }
+.dark[data-phase='night']     { --phase-ink-on-surface: 94 234 212;  }
+.dark                         { --phase-ink-on-surface: 110 231 183; }
+
+/* Hero gradient stops — deliberately separate from --phase-accent, which is a
+   text/icon colour for light surfaces. Verified for white text: worst case
+   6.14:1 (AA), best 18.93:1. */
+:root            { --phase-hero-from: 4 90 66;    --phase-hero-to: 13 110 97; }
+[data-phase='dawn']      { --phase-hero-from: 30 27 75;   --phase-hero-to: 76 29 80;  }
+[data-phase='morning']   { --phase-hero-from: 4 90 66;    --phase-hero-to: 13 110 97; }
+[data-phase='midday']    { --phase-hero-from: 13 110 97;  --phase-hero-to: 12 95 110; }
+[data-phase='afternoon'] { --phase-hero-from: 124 45 18;  --phase-hero-to: 146 64 14; }
+[data-phase='dusk']      { --phase-hero-from: 76 29 149;  --phase-hero-to: 19 78 74;  }
+[data-phase='night']     { --phase-hero-from: 8 17 30;    --phase-hero-to: 15 44 52;  }
+
 /* Atmosphere changes should feel like light moving, not a theme toggle. */
 @media (prefers-reduced-motion: no-preference) {
   :root {
@@ -2275,7 +2306,7 @@ button:focus, input:focus, textarea:focus, select:focus {
 
 @layer components {
   /* Text/fill in the current phase accent. */
-  .phase-accent { color: rgb(var(--phase-accent)); transition: var(--phase-transition); }
+  .phase-accent { color: rgb(var(--phase-ink-on-surface)); transition: var(--phase-transition); }
   .phase-bg-accent { background-color: rgb(var(--phase-accent)); transition: var(--phase-transition); }
   .phase-border { border-color: rgb(var(--phase-accent) / 0.35); transition: var(--phase-transition); }
 
@@ -2296,16 +2327,9 @@ button:focus, input:focus, textarea:focus, select:focus {
      white text at every phase, so contrast doesn't depend on time of day. */
   .phase-hero {
     background-image:
-      radial-gradient(120% 120% at 85% -10%, rgb(var(--phase-glow) / 0.55), transparent 60%),
-      linear-gradient(135deg, rgb(var(--phase-accent)), rgb(var(--phase-glow) / 0.85));
+      radial-gradient(120% 130% at 85% -20%, rgb(var(--phase-glow) / 0.30), transparent 62%),
+      linear-gradient(135deg, rgb(var(--phase-hero-from)), rgb(var(--phase-hero-to)));
     transition: var(--phase-transition);
-  }
-  /* Night/dawn read as genuinely dark rather than a bright accent block. */
-  [data-phase='night'] .phase-hero,
-  [data-phase='dawn'] .phase-hero {
-    background-image:
-      radial-gradient(120% 120% at 85% -10%, rgb(var(--phase-glow) / 0.35), transparent 60%),
-      linear-gradient(135deg, rgb(15 23 42), rgb(var(--phase-accent) / 0.7));
   }
 
   /* Structural Islamic geometry — texture, not decoration. */
