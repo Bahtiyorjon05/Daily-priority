@@ -1,4 +1,7 @@
 import nodemailer from 'nodemailer'
+import { renderEmail, codeBlock } from './email-template'
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://daily-priority.vercel.app'
 import crypto from 'crypto'
 import { prisma } from './prisma'
 
@@ -193,50 +196,17 @@ export const sendVerificationEmail = async (email: string, code: string): Promis
       from: DEFAULT_FROM,
       to: email,
       subject: 'Password Reset Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
-            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">Password Reset Request</p>
-          </div>
-
-          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
-            <h2 style="color: #374151; margin-top: 0;">Verification Code</h2>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              You have requested to reset your password for your Daily Priority account.
-              Please use the verification code below to complete the process:
-            </p>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <div style="display: inline-block; background: #f0fdf4; border: 2px dashed #10b981; padding: 20px 40px; border-radius: 10px;">
-                <div style="font-size: 32px; font-weight: bold; color: #0d9488; letter-spacing: 5px;">
-                  ${code}
-                </div>
-                <div style="color: #6b7280; font-size: 14px; margin-top: 10px;">
-                  This code will expire in 10 minutes
-                </div>
-              </div>
-            </div>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              If you didn't request this password reset, please ignore this email or contact our support team at ${SUPPORT_LINK_HTML}.
-            </p>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
-                This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}.
-              </p>
-            </div>
-          </div>
-
-          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
-            <p>© 2025 Daily Priority. All rights reserved.</p>
-            <p>Made with ❤️ for the Muslim community</p>
-          </div>
-        </div>
-      `,
+      html: renderEmail({
+        title: 'Your verification code',
+        eyebrow: 'Password reset',
+        preheader: `${code} is your Daily Priority verification code. It expires in 10 minutes.`,
+        body: `
+          <p style="margin:0 0 6px;">You asked to reset your Daily Priority password. Enter this code to continue:</p>
+          ${codeBlock(code, 'Expires in 10 minutes')}
+          <p style="margin:0;">If this wasn't you, you can ignore this email — your password stays unchanged.</p>
+        `,
+        footnote: `Need help? Contact us at ${SUPPORT_LINK_HTML}.`,
+      }),
     }
 
     const info = await transporter.sendMail(mailOptions)
@@ -263,60 +233,17 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
       from: DEFAULT_FROM,
       to: email,
       subject: 'Password Successfully Reset',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
-            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">Password Reset Successful</p>
-          </div>
-
-          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
-            <h2 style="color: #374151; margin-top: 0;">Password Changed</h2>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              Your Daily Priority account password has been successfully reset.
-              You can now sign in with your new password.
-            </p>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <div style="display: inline-block; background: #f0fdf4; border: 2px solid #10b981; padding: 20px; border-radius: 10px;">
-                <div style="font-size: 24px; font-weight: bold; color: #0d9488;">
-                  ✅ Password Reset Successful
-                </div>
-              </div>
-            </div>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              For security reasons, we recommend:
-            </p>
-
-            <ul style="color: #6b7280; line-height: 1.6; padding-left: 20px;">
-              <li>Using a strong, unique password</li>
-              <li>Enabling two-factor authentication if available</li>
-              <li>Not sharing your password with anyone</li>
-            </ul>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${APP_BASE_URL}/signin"
-                 style="display: inline-block; background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                Sign In to Your Account
-              </a>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
-                This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}.
-              </p>
-            </div>
-          </div>
-
-          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
-            <p>© 2025 Daily Priority. All rights reserved.</p>
-            <p>Made with ❤️ for the Muslim community</p>
-          </div>
-        </div>
-      `,
+      html: renderEmail({
+        title: 'Your password was changed',
+        eyebrow: 'Security',
+        preheader: 'Your Daily Priority password was successfully changed.',
+        body: `
+          <p style="margin:0 0 12px;">Your Daily Priority password has been changed successfully. You can sign in with it now.</p>
+          <p style="margin:0;"><strong>Didn't do this?</strong> Reset your password immediately and contact us — someone else may have access to your account.</p>
+        `,
+        cta: { label: 'Sign in', url: `${APP_URL}/signin` },
+        footnote: `Questions? Contact us at ${SUPPORT_LINK_HTML}.`,
+      }),
     }
 
     const info = await transporter.sendMail(mailOptions)
@@ -494,55 +421,17 @@ export const sendTwoFactorEmail = async (
       from: DEFAULT_FROM,
       to: email,
       subject: type === 'enable' ? 'Enable Two-Factor Authentication' : 'Your Login Verification Code',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #10b981, #0d9488); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="margin: 0; font-size: 28px;">Daily Priority</h1>
-            <p style="margin: 10px 0 0; font-size: 18px; opacity: 0.9;">${title}</p>
-          </div>
-
-          <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
-            <h2 style="color: #374151; margin-top: 0;">🔐 Verification Code</h2>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              ${description}
-            </p>
-
-            <div style="text-align: center; margin: 30px 0;">
-              <div style="display: inline-block; background: #f0fdf4; border: 2px dashed #10b981; padding: 20px 40px; border-radius: 10px;">
-                <div style="font-size: 36px; font-weight: bold; color: #0d9488; letter-spacing: 8px;">
-                  ${code}
-                </div>
-                <div style="color: #6b7280; font-size: 14px; margin-top: 10px;">
-                  This code will expire in 10 minutes
-                </div>
-              </div>
-            </div>
-
-            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px; margin: 20px 0;">
-              <p style="color: #92400e; margin: 0; font-size: 14px;">
-                <strong>⚠️ Security Notice:</strong> Never share this code with anyone. Daily Priority staff will never ask for your verification code.
-              </p>
-            </div>
-
-            <p style="color: #6b7280; line-height: 1.6;">
-              If you didn't request this ${type === 'enable' ? '2FA setup' : 'login'}, please ignore this email or contact our support team at ${SUPPORT_LINK_HTML}.
-            </p>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="color: #9ca3af; font-size: 14px; margin: 0;">
-                This email was sent from Daily Priority.
-                If you have any questions, please contact our support team at ${SUPPORT_LINK_HTML}
-              </p>
-            </div>
-          </div>
-
-          <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
-            <p>© 2025 Daily Priority. All rights reserved.</p>
-            <p>Made with ❤️ for the Muslim community</p>
-          </div>
-        </div>
-      `,
+      html: renderEmail({
+        title,
+        eyebrow: 'Two-factor authentication',
+        preheader: `${code} is your Daily Priority security code. It expires in 10 minutes.`,
+        body: `
+          <p style="margin:0 0 6px;">${description}</p>
+          ${codeBlock(code, 'Expires in 10 minutes')}
+          <p style="margin:0;">Never share this code. Daily Priority will never ask you for it.</p>
+        `,
+        footnote: `Didn't request this? Contact us at ${SUPPORT_LINK_HTML}.`,
+      }),
     }
 
     const info = await transporter.sendMail(mailOptions)
