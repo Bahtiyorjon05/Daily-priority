@@ -2340,3 +2340,18 @@ button:focus, input:focus, textarea:focus, select:focus {
   }
   .dark .phase-pattern { opacity: 0.07; }
 }
+
+/* ----------------------------------------------------------------------------
+   Per-phase swatches for the phase picker.
+   CSS variables are scoped to the ACTIVE data-phase, so a picker that needs to
+   show all six phases at once can't use them — these carry literal values.
+   Same stops as --phase-hero-*, so a swatch previews exactly what you'll get.
+   -------------------------------------------------------------------------- */
+@layer components {
+  .swatch-dawn      { background-image: linear-gradient(135deg, rgb(30 27 75),   rgb(76 29 80)); }
+  .swatch-morning   { background-image: linear-gradient(135deg, rgb(4 90 66),    rgb(13 110 97)); }
+  .swatch-midday    { background-image: linear-gradient(135deg, rgb(13 110 97),  rgb(12 95 110)); }
+  .swatch-afternoon { background-image: linear-gradient(135deg, rgb(124 45 18),  rgb(146 64 14)); }
+  .swatch-dusk      { background-image: linear-gradient(135deg, rgb(76 29 149),  rgb(19 78 74)); }
+  .swatch-night     { background-image: linear-gradient(135deg, rgb(8 17 30),    rgb(15 44 52)); }
+}
