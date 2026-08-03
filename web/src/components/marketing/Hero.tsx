@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Sparkles, Moon, Star, Users, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion'
 
 const islamicQuotes = [
   {
@@ -62,6 +62,14 @@ const islamicQuotes = [
 
 // Floating orb component
 function FloatingOrb({ delay = 0, duration = 20, className = "" }: { delay?: number; duration?: number; className?: string }) {
+  const reduceMotion = useReducedMotion()
+
+  // Drifting decoration is exactly what reduced-motion is asking us to stop.
+  // Keep the orb — it's the colour of the section — but hold it still.
+  if (reduceMotion) {
+    return <div className={`absolute rounded-full blur-3xl opacity-40 ${className}`} />
+  }
+
   return (
     <motion.div
       className={`absolute rounded-full blur-3xl ${className}`}
@@ -84,6 +92,7 @@ function FloatingOrb({ delay = 0, duration = 20, className = "" }: { delay?: num
 export function Hero() {
   const [currentQuote, setCurrentQuote] = useState(0)
   const cardRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = useReducedMotion()
 
   // Mouse tracking for 3D tilt effect
   const mouseX = useMotionValue(0)
@@ -93,11 +102,15 @@ export function Hero() {
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), { stiffness: 100, damping: 30 })
 
   useEffect(() => {
+    // Auto-advancing text is a reduced-motion problem too: it moves the thing
+    // you're mid-way through reading. The dots below stay, so it's still
+    // browsable by hand.
+    if (reduceMotion) return
     const interval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % islamicQuotes.length)
     }, 10000) // 10 seconds - slower rotation for better reading
     return () => clearInterval(interval)
-  }, [])
+  }, [reduceMotion])
 
   // Handle mouse move for 3D card tilt
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -151,7 +164,7 @@ export function Hero() {
               transition={{ duration: 0.6, delay: 0.2 }}
             />
             <motion.div
-              animate={{ rotate: 360 }}
+              animate={reduceMotion ? undefined : { rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               className="flex items-center justify-center rounded-full border border-emerald-500/40 dark:border-emerald-400/40 p-1"
             >
@@ -211,32 +224,40 @@ export function Hero() {
       />
 
 
-      {/* Enhanced animated gradient orbs background with multi-layered glow effects */}
+      {/*
+        Ambient background, split by capability rather than hidden on mobile.
+
+        Phones get a static radial wash: no blur filter and no animation, so it
+        costs one paint and nothing per frame. Large screens get the animated
+        orbs. Three, not five — blur-3xl on a 700px layer is one of the most
+        expensive things a browser can composite, and past three the extra
+        layers only muddy each other.
+      */}
+      <div
+        className="absolute inset-0 lg:hidden"
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            'radial-gradient(60% 45% at 85% 0%, rgb(16 185 129 / 0.18), transparent 70%),' +
+            'radial-gradient(55% 40% at 5% 100%, rgb(20 184 166 / 0.16), transparent 70%)',
+        }}
+      />
+
       <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
         <FloatingOrb
           delay={0}
           duration={25}
-          className="w-[700px] h-[700px] -top-64 -right-64 bg-gradient-to-br from-emerald-400/40 to-teal-400/40 dark:from-emerald-600/45 dark:to-teal-600/45 shadow-2xl shadow-emerald-500/30 dark:shadow-emerald-500/30"
+          className="w-[700px] h-[700px] -top-64 -right-64 bg-gradient-to-br from-emerald-400/40 to-teal-400/40 dark:from-emerald-600/45 dark:to-teal-600/45"
         />
         <FloatingOrb
           delay={5}
           duration={30}
-          className="w-[600px] h-[600px] -bottom-48 -left-48 bg-gradient-to-tr from-teal-400/40 to-emerald-400/40 dark:from-teal-600/45 dark:to-emerald-600/45 shadow-2xl shadow-teal-500/30 dark:shadow-teal-500/30"
+          className="w-[600px] h-[600px] -bottom-48 -left-48 bg-gradient-to-tr from-teal-400/40 to-emerald-400/40 dark:from-teal-600/45 dark:to-emerald-600/45"
         />
         <FloatingOrb
           delay={10}
           duration={35}
-          className="w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-emerald-400/35 to-teal-400/35 dark:from-emerald-600/35 dark:to-teal-600/35 shadow-2xl shadow-emerald-400/25 dark:shadow-emerald-400/25"
-        />
-        <FloatingOrb
-          delay={15}
-          duration={40}
-          className="w-[300px] h-[300px] top-1/4 right-1/4 bg-gradient-to-br from-cyan-400/20 to-emerald-400/20 dark:from-cyan-600/25 dark:to-emerald-600/25"
-        />
-        <FloatingOrb
-          delay={20}
-          duration={45}
-          className="w-[250px] h-[250px] bottom-1/3 left-1/3 bg-gradient-to-tr from-teal-400/20 to-cyan-400/20 dark:from-teal-600/25 dark:to-cyan-600/25"
+          className="w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-emerald-400/35 to-teal-400/35 dark:from-emerald-600/35 dark:to-teal-600/35"
         />
       </div>
 

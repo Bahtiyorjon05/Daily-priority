@@ -933,7 +933,10 @@ function DashboardLayoutContent({
                 <div className="p-3">
                   <div className="grid grid-cols-3 gap-2">
                     {navigationItems
-                      .filter(item => !['/dashboard', '/prayers', '/habits', '/focus', '/goals'].includes(item.path))
+                      // Only Home is excluded — it's always one tap away in the bottom
+                      // bar. Everything else stays reachable here, so More is a complete
+                      // index rather than a leftovers bin that shifts as the bar changes.
+                      .filter(item => item.path !== '/dashboard')
                       .map((item) => {
                         const Icon = item.icon
                         const isActive = pathname === item.path

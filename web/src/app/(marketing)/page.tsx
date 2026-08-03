@@ -3,6 +3,7 @@
 import { Navbar } from '@/components/marketing/Navbar'
 import { Hero } from '@/components/marketing/Hero'
 import { Features } from '@/components/marketing/Features'
+import { PrayerDayShowcase } from '@/components/marketing/PrayerDayShowcase'
 import { Contact } from '@/components/marketing/Contact'
 import { Footer } from '@/components/marketing/Footer'
 import { BackToTopButton } from '@/components/marketing/BackToTopButton'
@@ -14,6 +15,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
+        <PrayerDayShowcase />
         <InstallSection />
         <Features />
         <Contact />
