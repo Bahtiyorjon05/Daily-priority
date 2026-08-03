@@ -58,7 +58,7 @@ Safety net so we stop finding bugs by reading production logs.
 - [x] ✅ Test suite green: **59 tests**, up from a *failing* 20. Covers the timezone bug (client + server, incl. DST), streak freezes (incl. the trailing-gap regression), and error fingerprinting.
   - Found and fixed 4 real bugs in `sanitize.ts` while doing it: `Infinity` passed validation, out-of-range numbers were silently clamped instead of rejected, `<script>` bodies survived tag-stripping, boolean parsing missed `yes`/`on`.
   - Found and fixed a bug in my own fingerprinting: cuids aren't hex, so per-user errors would have flooded the Errors tab instead of grouping.
-- [ ] Prayer-reminder scheduler (cron-job.org or Vercel Pro) — feature is built and idle
+- [x] 🟨 Prayer-reminder scheduler — endpoint verified in prod, heartbeat + admin health panel added so a dead schedule is visible instead of silent. **Last step is yours:** follow `docs/SCHEDULER.md` to point cron-job.org at it (5 min for the free account).
 - [x] 🟨 Bundle: **3.5 MB → 3.1 MB**. recharts was statically imported in 3 places (~370 kB each); all are now lazy, so it's out of the initial load everywhere. Deleted a dead duplicate `PrayerChart` (185 lines).
   - *Remaining:* recharts still emits 3 separate lazy chunks. A shared chart wrapper would collapse them into one.
 
