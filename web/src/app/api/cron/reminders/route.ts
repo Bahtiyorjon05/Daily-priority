@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendPushToUser, isPushConfigured, isQuietHour } from '@/lib/push'
 import { todayKeyInTimeZone, localDayRange } from '@/lib/server-date'
+import { recordCronRun } from '@/lib/cron-heartbeat'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Push not configured (missing VAPID keys)' }, { status: 503 })
   }
 
+  const startedAt = Date.now()
   const now = new Date()
   const results = { prayer: 0, habit: 0, task: 0, usersChecked: 0, errors: 0 }
 
@@ -138,9 +140,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    await recordCronRun('reminders', true, results, Date.now() - startedAt)
     return NextResponse.json({ ok: true, ...results })
   } catch (error) {
     console.error('[cron/reminders] failed', error)
+    await recordCronRun('reminders', false, { error: (error as Error).message }, Date.now() - startedAt)
     return NextResponse.json({ error: 'Reminder run failed' }, { status: 500 })
   }
 }

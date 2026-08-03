@@ -50,6 +50,21 @@ model User {
   @@map("users")
 }
 
+/// Heartbeat + outcome of each scheduled job, so the admin console can show
+/// whether the external scheduler is actually calling us.
+model CronRun {
+  id        String   @id @default(cuid())
+  job       String   @unique
+  lastRunAt DateTime @default(now())
+  lastOk    Boolean  @default(true)
+  runCount  Int      @default(0)
+  /// Small JSON summary of the last run (counts, errors).
+  lastResult Json?
+  durationMs Int?
+
+  @@map("cron_runs")
+}
+
 /// Captured application errors (client and server), surfaced in the admin
 /// console. Self-hosted so there's no third-party dependency or bundle cost.
 /// `fingerprint` groups repeats of the same fault so the list stays readable.

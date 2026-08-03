@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 import { prisma } from '@/lib/prisma'
+import { recordCronRun } from '@/lib/cron-heartbeat'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
   }
 
   const dryRun = new URL(request.url).searchParams.get('dryRun') === '1'
+  const startedAt = Date.now()
   const since = new Date(Date.now() - 7 * 864e5)
   const results = { considered: 0, sent: 0, skipped: 0, errors: 0 }
 
@@ -89,9 +91,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    await recordCronRun('weekly-review', true, { dryRun, ...results }, Date.now() - startedAt)
     return NextResponse.json({ ok: true, dryRun, ...results })
   } catch (error) {
     console.error('[cron/weekly-review] failed', error)
+    await recordCronRun('weekly-review', false, { error: (error as Error).message }, Date.now() - startedAt)
     return NextResponse.json({ error: 'Weekly review failed' }, { status: 500 })
   }
 }

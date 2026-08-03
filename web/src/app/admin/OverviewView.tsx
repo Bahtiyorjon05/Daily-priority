@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import HealthPanel from './HealthPanel'
 import dynamic from 'next/dynamic'
 
 // recharts is ~370 kB; the KPI cards above the charts shouldn't wait for it,
@@ -161,6 +162,9 @@ export default function OverviewView() {
 
   return (
     <div className="space-y-5">
+      {/* Is the scheduler alive? Most likely thing to break silently. */}
+      <HealthPanel />
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Users} label="Users" value={k.totalUsers} sub={`${k.twoFactorUsers} with 2FA`} tone="emerald" />
