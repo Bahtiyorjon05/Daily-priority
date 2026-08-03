@@ -525,7 +525,7 @@ function DashboardLayoutContent({
 
   return (
     <div 
-      className="min-h-screen text-foreground bg-gradient-to-br from-background/80 via-background to-background dark:from-gray-950 dark:via-gray-900 dark:to-gray-900"
+      className="phase-canvas min-h-screen text-foreground"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -537,7 +537,7 @@ function DashboardLayoutContent({
           x: sidebarX,
         }}
         transition={{ type: "spring", damping: 25, stiffness: 400 }}
-        className="fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r-2 border-gray-200 dark:border-gray-700 shadow-xl shadow-gray-200/60 dark:shadow-black/20 text-foreground z-50 flex flex-col w-[280px]"
+        className="phase-rail fixed left-0 top-0 h-full border-r border-black/5 dark:border-white/10 shadow-xl shadow-gray-200/60 dark:shadow-black/20 text-foreground z-50 flex flex-col w-[280px]"
         id="sidebar-navigation"
         role="navigation"
         aria-label="Main navigation"
@@ -703,7 +703,7 @@ function DashboardLayoutContent({
               : 'ml-0'
       }`}>
         {/* Enhanced Top Bar */}
-        <header className="sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b-2 border-gray-200 dark:border-gray-800 shadow-md shadow-gray-900/5 dark:shadow-gray-950/20">
+        <header className="sticky top-0 z-30 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border-b border-black/5 dark:border-white/10">
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 lg:px-8">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {/* Notifications */}
@@ -848,7 +848,7 @@ function DashboardLayoutContent({
         </header>
 
         {/* Enhanced Main Content */}
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <main className="min-h-screen">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

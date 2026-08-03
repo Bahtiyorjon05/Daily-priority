@@ -1985,11 +1985,14 @@ input, textarea, select {
 
 /* Enhanced background styling for light mode */
 .bg-background {
-  background: rgb(var(--background));
+  /* longhand: the shorthand would reset background-image on anything using it */
+  background-color: rgb(var(--color-background));
 }
 
 .bg-card {
-  background: rgb(var(--card));
+  /* longhand: the shorthand form reset background-image, which blanked any
+     card carrying a gradient (e.g. .phase-hero). */
+  background-color: rgb(var(--color-card));
 }
 
 /* Improved border styling for light mode */
@@ -2325,12 +2328,7 @@ button:focus, input:focus, textarea:focus, select:focus {
 
   /* Saturated hero wash built from the current phase. Stays dark enough for
      white text at every phase, so contrast doesn't depend on time of day. */
-  .phase-hero {
-    background-image:
-      radial-gradient(120% 130% at 85% -20%, rgb(var(--phase-glow) / 0.30), transparent 62%),
-      linear-gradient(135deg, rgb(var(--phase-hero-from)), rgb(var(--phase-hero-to)));
-    transition: var(--phase-transition);
-  }
+  /* moved to @layer utilities — see below */
 
   /* Structural Islamic geometry — texture, not decoration. */
   .phase-pattern {
@@ -2354,4 +2352,45 @@ button:focus, input:focus, textarea:focus, select:focus {
   .swatch-afternoon { background-image: linear-gradient(135deg, rgb(124 45 18),  rgb(146 64 14)); }
   .swatch-dusk      { background-image: linear-gradient(135deg, rgb(76 29 149),  rgb(19 78 74)); }
   .swatch-night     { background-image: linear-gradient(135deg, rgb(8 17 30),    rgb(15 44 52)); }
+}
+
+
+/* ============================================================================
+   Phase paint — in @layer utilities so it wins against bg-card and friends.
+   Each rule sets background-color as a floor AND background-image, so a
+   conflicting shorthand can never leave a surface blank.
+   ========================================================================= */
+@layer utilities {
+  .phase-hero.phase-hero {
+    background-color: rgb(var(--phase-hero-from));
+    background-image:
+      radial-gradient(120% 130% at 85% -20%, rgb(var(--phase-glow) / 0.30), transparent 62%),
+      linear-gradient(135deg, rgb(var(--phase-hero-from)), rgb(var(--phase-hero-to)));
+    transition: var(--phase-transition);
+  }
+
+  /* Quiet wash for the app canvas and sidebar — carries the atmosphere across
+     the whole shell, not just the hero. */
+  .phase-canvas.phase-canvas {
+    background-color: rgb(var(--phase-from));
+    background-image: linear-gradient(160deg, rgb(var(--phase-from)), rgb(var(--phase-to)));
+    transition: var(--phase-transition);
+  }
+
+  /* Sidebar/rail: a touch stronger than the canvas so the shell reads as
+     layered rather than flat. */
+  .phase-rail.phase-rail {
+    background-color: rgb(var(--phase-from));
+    background-image:
+      linear-gradient(180deg, rgb(var(--phase-to)), rgb(var(--phase-from))),
+      radial-gradient(80% 40% at 0% 0%, rgb(var(--phase-glow) / 0.10), transparent 70%);
+    transition: var(--phase-transition);
+  }
+
+  /* Accent chip/pill that stays legible on light and dark surfaces. */
+  .phase-chip.phase-chip {
+    background-color: rgb(var(--phase-accent-soft));
+    color: rgb(var(--phase-ink-on-surface));
+    transition: var(--phase-transition);
+  }
 }
