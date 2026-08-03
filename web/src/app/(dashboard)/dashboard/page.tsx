@@ -783,12 +783,14 @@ export default function DashboardPageRedesigned() {
           animate={{ opacity: 1, y: 0 }}
           className="relative overflow-hidden"
         >
-          <Card className="border-none shadow-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 dark:from-blue-600 dark:via-cyan-600 dark:to-teal-600 text-white relative overflow-hidden shadow-emerald-500/20 dark:shadow-blue-500/30">
+          {/* "The Prayer Day": the hero's colour follows the current period of
+              the Islamic day instead of a fixed brand gradient. */}
+          <Card className="phase-hero border-none shadow-2xl text-white relative overflow-hidden">
             {/* Background patterns */}
             <div className="absolute inset-0">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-              {/* Islamic geometric pattern */}
+              {/* Islamic geometry as structure, not ornament */}
               <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23ffffff' fill-opacity='0.4'/%3E%3C/svg%3E\")", backgroundSize: "30px 30px" }}></div>
             </div>
 

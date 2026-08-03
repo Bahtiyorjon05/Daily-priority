@@ -62,12 +62,12 @@ Safety net so we stop finding bugs by reading production logs.
 - [x] 🟨 Bundle: **3.5 MB → 3.1 MB**. recharts was statically imported in 3 places (~370 kB each); all are now lazy, so it's out of the initial load everywhere. Deleted a dead duplicate `PrayerChart` (185 lines).
   - *Remaining:* recharts still emits 3 separate lazy chunks. A shared chart wrapper would collapse them into one.
 
-### Phase 1 — Design system ⬜
-- [ ] Prayer-time-aware theme tokens (the table above) with a manual override
+### Phase 1 — Design system 🟨  ·  see DESIGN.md
+- [x] ✅ Prayer-time-aware tokens + provider + header control (), 15 tests. Additive: never overrides surface/foreground, so light/dark keeps contrast.
 - [ ] Type scale, spacing scale, motion language; Arabic font pairing
 - [ ] Rebuild core primitives: Card, Button, Tile, EmptyState, PageHeader, Sheet
-- [ ] Kill the generic gradient/shadow stack; one accent per screen
-- [ ] Document in `DESIGN.md` so every later feature inherits it
+- [x] 🟨 Dashboard hero converted off the fixed emerald gradient onto . Remaining surfaces convert during their Phase 3 deep-dive.
+- [x] ✅  written
 
 ### Phase 2 — Activation ⬜
 The highest-leverage work in the whole plan.

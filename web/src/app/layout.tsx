@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorReporter } from "@/components/shared/ErrorReporter";
+import { PrayerPhaseProvider } from "@/components/shared/PrayerPhaseProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -239,10 +240,12 @@ export default function RootLayout({
         <ErrorReporter />
         <ErrorBoundary>
           <Providers>
+            <PrayerPhaseProvider>
             {children}
             <Toaster position="top-center" richColors />
             <Analytics />
             <SpeedInsights />
+            </PrayerPhaseProvider>
           </Providers>
         </ErrorBoundary>
       </body>

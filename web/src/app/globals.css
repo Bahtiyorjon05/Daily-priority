@@ -2176,3 +2176,143 @@ button:focus, input:focus, textarea:focus, select:focus {
 .nav-active-indicator {
   animation: nav-indicator 0.2s ease-out forwards;
 }
+
+/* ============================================================================
+   "THE PRAYER DAY" — atmosphere tokens
+   ----------------------------------------------------------------------------
+   The app's accent/atmosphere follows the rhythm of the Islamic day. These are
+   ADDITIVE: they never override --color-background/foreground/card, so light
+   and dark mode keep full control of surfaces and text contrast. Components
+   opt in via the utilities at the bottom of this block.
+
+   Applied as data-phase on <html> by PrayerPhaseProvider.
+   ========================================================================= */
+:root {
+  /* Default (morning) so there is never an unstyled flash before hydration. */
+  --phase-accent: 16 185 129;
+  --phase-accent-soft: 209 250 229;
+  --phase-glow: 16 185 129;
+  --phase-from: 236 253 245;
+  --phase-to: 240 253 250;
+  --phase-ink: 6 78 59;
+}
+
+/* Fajr → sunrise: still, blue hour */
+[data-phase='dawn'] {
+  --phase-accent: 129 140 248;      /* indigo-400 */
+  --phase-accent-soft: 224 231 255;
+  --phase-glow: 165 180 252;
+  --phase-from: 238 242 255;
+  --phase-to: 255 241 242;          /* soft rose */
+  --phase-ink: 55 48 163;
+}
+
+/* Sunrise → Dhuhr: clean, productive */
+[data-phase='morning'] {
+  --phase-accent: 16 185 129;       /* emerald-500 */
+  --phase-accent-soft: 209 250 229;
+  --phase-glow: 52 211 153;
+  --phase-from: 236 253 245;
+  --phase-to: 240 253 250;
+  --phase-ink: 6 78 59;
+}
+
+/* Dhuhr → Asr: bright, high sun */
+[data-phase='midday'] {
+  --phase-accent: 13 148 136;       /* teal-600 */
+  --phase-accent-soft: 204 251 241;
+  --phase-glow: 45 212 191;
+  --phase-from: 240 253 250;
+  --phase-to: 236 254 255;
+  --phase-ink: 17 94 89;
+}
+
+/* Asr → Maghrib: warm, golden */
+[data-phase='afternoon'] {
+  --phase-accent: 217 119 6;        /* amber-600 */
+  --phase-accent-soft: 254 243 199;
+  --phase-glow: 251 191 36;
+  --phase-from: 255 251 235;
+  --phase-to: 255 247 237;          /* terracotta drift */
+  --phase-ink: 120 53 15;
+}
+
+/* Maghrib → Isha: dusk */
+[data-phase='dusk'] {
+  --phase-accent: 139 92 246;       /* violet-500 */
+  --phase-accent-soft: 237 233 254;
+  --phase-glow: 167 139 250;
+  --phase-from: 245 243 255;
+  --phase-to: 240 253 250;          /* deep teal drift */
+  --phase-ink: 76 29 149;
+}
+
+/* Isha → Fajr: quiet night */
+[data-phase='night'] {
+  --phase-accent: 45 212 191;       /* muted jewel teal */
+  --phase-accent-soft: 204 251 241;
+  --phase-glow: 94 234 212;
+  --phase-from: 248 250 252;
+  --phase-to: 241 245 249;
+  --phase-ink: 19 78 74;
+}
+
+/* In dark mode the atmosphere gets deeper, not brighter. */
+.dark[data-phase='dawn']      { --phase-from: 30 27 75;  --phase-to: 63 24 45;  --phase-ink: 199 210 254; --phase-accent-soft: 49 46 129; }
+.dark[data-phase='morning']   { --phase-from: 6 44 38;   --phase-to: 6 40 42;   --phase-ink: 167 243 208; --phase-accent-soft: 6 78 59; }
+.dark[data-phase='midday']    { --phase-from: 8 47 45;   --phase-to: 8 51 60;   --phase-ink: 153 246 228; --phase-accent-soft: 17 94 89; }
+.dark[data-phase='afternoon'] { --phase-from: 69 39 10;  --phase-to: 67 33 15;  --phase-ink: 253 230 138; --phase-accent-soft: 120 53 15; }
+.dark[data-phase='dusk']      { --phase-from: 46 16 101; --phase-to: 19 78 74;  --phase-ink: 221 214 254; --phase-accent-soft: 76 29 149; }
+.dark[data-phase='night']     { --phase-from: 2 15 25;   --phase-to: 3 20 30;   --phase-ink: 153 246 228; --phase-accent-soft: 19 78 74; }
+
+/* Atmosphere changes should feel like light moving, not a theme toggle. */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    --phase-transition: color 600ms ease, background-color 600ms ease,
+                        border-color 600ms ease;
+  }
+}
+
+@layer components {
+  /* Text/fill in the current phase accent. */
+  .phase-accent { color: rgb(var(--phase-accent)); transition: var(--phase-transition); }
+  .phase-bg-accent { background-color: rgb(var(--phase-accent)); transition: var(--phase-transition); }
+  .phase-border { border-color: rgb(var(--phase-accent) / 0.35); transition: var(--phase-transition); }
+
+  /* The signature surface: a quiet wash of the current period. */
+  .phase-surface {
+    background-image: linear-gradient(135deg, rgb(var(--phase-from)), rgb(var(--phase-to)));
+    transition: var(--phase-transition);
+  }
+
+  /* Soft halo used behind hero numbers/icons. */
+  .phase-glow {
+    box-shadow: 0 0 0 1px rgb(var(--phase-accent) / 0.15),
+                0 18px 40px -18px rgb(var(--phase-glow) / 0.55);
+    transition: var(--phase-transition);
+  }
+
+  /* Saturated hero wash built from the current phase. Stays dark enough for
+     white text at every phase, so contrast doesn't depend on time of day. */
+  .phase-hero {
+    background-image:
+      radial-gradient(120% 120% at 85% -10%, rgb(var(--phase-glow) / 0.55), transparent 60%),
+      linear-gradient(135deg, rgb(var(--phase-accent)), rgb(var(--phase-glow) / 0.85));
+    transition: var(--phase-transition);
+  }
+  /* Night/dawn read as genuinely dark rather than a bright accent block. */
+  [data-phase='night'] .phase-hero,
+  [data-phase='dawn'] .phase-hero {
+    background-image:
+      radial-gradient(120% 120% at 85% -10%, rgb(var(--phase-glow) / 0.35), transparent 60%),
+      linear-gradient(135deg, rgb(15 23 42), rgb(var(--phase-accent) / 0.7));
+  }
+
+  /* Structural Islamic geometry — texture, not decoration. */
+  .phase-pattern {
+    background-image: url('/islamic-pattern.svg');
+    background-size: 120px 120px;
+    opacity: 0.04;
+  }
+  .dark .phase-pattern { opacity: 0.07; }
+}

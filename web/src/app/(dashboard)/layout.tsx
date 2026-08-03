@@ -48,6 +48,7 @@ import { useUserProfile } from '@/hooks/useUserProfile'
 import { InstallPrompt } from '@/components/shared/InstallPrompt'
 import { InstallMenuItem } from '@/components/shared/InstallMenuItem'
 import { NotificationBell } from '@/components/shared/NotificationBell'
+import { PhaseIndicator } from '@/components/shared/PhaseIndicator'
 import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
 import { AdhanPlayer } from '@/components/shared/AdhanPlayer'
@@ -707,6 +708,9 @@ function DashboardLayoutContent({
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               {/* Notifications */}
               <NotificationBell />
+
+              {/* Time-of-day atmosphere ("The Prayer Day") */}
+              <PhaseIndicator />
 
               {/* Theme Toggle */}
               <Button
