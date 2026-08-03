@@ -785,7 +785,7 @@ export default function DashboardPageRedesigned() {
         >
           {/* "The Prayer Day": the hero's colour follows the current period of
               the Islamic day instead of a fixed brand gradient. */}
-          <Card className="phase-hero border-none shadow-2xl text-white relative overflow-hidden">
+          <Card variant="bare" className="phase-hero shadow-2xl text-white relative overflow-hidden rounded-xl">
             {/* Background patterns */}
             <div className="absolute inset-0">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

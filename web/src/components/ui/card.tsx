@@ -4,7 +4,10 @@ import { cn } from '@/lib/utils'
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & {
   role?: string; // Add role support for accessibility
   ariaLabel?: string; // Add aria-label support
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'destructive' | 'premium';
+  /** `bare` applies no background/border — use when the caller paints the surface
+   *  itself (phase gradients, custom washes). Prevents the background conflict
+   *  that silently blanked gradient cards. */
+  variant?: 'default' | 'bare' | 'primary' | 'secondary' | 'success' | 'warning' | 'destructive' | 'premium';
   hoverEffect?: boolean;
 }
 
@@ -12,6 +15,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, role, ariaLabel, variant = 'default', hoverEffect = true, ...props }, ref) => {
     const variants = {
       default: 'border bg-card text-card-foreground shadow-sm',
+      bare: '',
       primary: 'border border-blue-200 bg-blue-50/50 text-card-foreground shadow-sm dark:border-blue-800/50 dark:bg-blue-950/20',
       secondary: 'border border-gray-200 bg-gray-50/50 text-card-foreground shadow-sm dark:border-gray-700/50 dark:bg-gray-900/20',
       success: 'border border-emerald-200 bg-emerald-50/50 text-card-foreground shadow-sm dark:border-emerald-800/50 dark:bg-emerald-950/20',
@@ -22,6 +26,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
     const hoverEffects = {
       default: hoverEffect ? 'hover:shadow-md transition-shadow duration-300' : '',
+      bare: hoverEffect ? 'transition-shadow duration-300' : '',
       primary: hoverEffect ? 'hover:shadow-md hover:border-blue-300 transition-all duration-300 dark:hover:border-blue-700' : '',
       secondary: hoverEffect ? 'hover:shadow-md hover:border-gray-300 transition-all duration-300 dark:hover:border-gray-600' : '',
       success: hoverEffect ? 'hover:shadow-md hover:border-emerald-300 transition-all duration-300 dark:hover:border-emerald-700' : '',

@@ -1976,11 +1976,11 @@ input, textarea, select {
 
 /* Improved text contrast for light mode */
 .text-foreground {
-  color: rgb(var(--foreground));
+  color: rgb(var(--color-foreground));
 }
 
 .text-muted-foreground {
-  color: rgb(var(--muted-foreground));
+  color: rgb(var(--color-muted-foreground));
 }
 
 /* Enhanced background styling for light mode */
@@ -1997,11 +1997,11 @@ input, textarea, select {
 
 /* Improved border styling for light mode */
 .border {
-  border-color: rgb(var(--border));
+  border-color: rgb(var(--color-border));
 }
 
 .border-input {
-  border-color: rgb(var(--input));
+  border-color: rgb(var(--color-input));
 }
 
 /* Enhanced glass panel styling */
@@ -2039,15 +2039,20 @@ button:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-/* Enhanced focus states */
-button:focus, input:focus, textarea:focus, select:focus {
-  outline: none;
-  ring: 2px solid rgba(var(--ring), 0.5);
-  ring-offset: 2px;
-}
-
-.dark button:focus, .dark input:focus, .dark textarea:focus, .dark select:focus {
-  ring: 2px solid rgba(var(--ring), 0.7);
+/* Focus states.
+   NOTE: the previous rules used `ring: …`, which is a Tailwind utility name and
+   not a CSS property, so they were inert — while the `outline: none` beside
+   them applied, leaving keyboard users with no visible focus indicator at all.
+   :focus-visible keeps pointer clicks clean without sacrificing keyboard a11y. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid rgb(var(--color-ring));
+  outline-offset: 2px;
+  border-radius: inherit;
 }
 
 /* ========================================
