@@ -75,7 +75,7 @@ export function CalendarGrid({ currentDate, selectedDate, onDateSelect, tasks, l
     <div className="space-y-2">
       {/* Day headers */}
       <div className="grid grid-cols-7 gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+        {[t('ui.sun'), t('ui.mon'), t('ui.tue'), t('ui.wed'), t('ui.thu'), t('ui.fri'), t('ui.sat')].map(day => (
           <div key={day} className="text-center py-2">
             {day}
           </div>

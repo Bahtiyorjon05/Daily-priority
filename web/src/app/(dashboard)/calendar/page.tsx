@@ -444,7 +444,7 @@ export default function CalendarPage() {
 
   const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
   const calendarDays = generateCalendarDays()
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const weekDays = [tr('ui.sun'), tr('ui.mon'), tr('ui.tue'), tr('ui.wed'), tr('ui.thu'), tr('ui.fri'), tr('ui.sat')]
 
   // Separate events into upcoming and past
   const today = new Date()

@@ -49,6 +49,10 @@ const CALL = /\b(?:t|tr|tI18n|tMsg)\(\s*'([^']+)'/g
 describe('translation key coverage', () => {
   it('every translated key referenced in code exists in the dictionary', () => {
     const missing: string[] = []
+    // Copy that lives in plain modules is passed through as English text and
+    // resolved by value, so an argument is valid as either a key or a known
+    // English string.
+    const englishValues = new Set(Object.values(en as Record<string, string>))
 
     for (const file of FILES) {
       const src = readFileSync(file, 'utf8')
@@ -56,7 +60,9 @@ describe('translation key coverage', () => {
         const key = m[1]
         // Namespaced keys only — plain t('x') elsewhere isn't ours.
         if (!key.includes('.')) continue
-        if (!(key in en)) missing.push(`${file.replace(SRC, 'src')} -> ${key}`)
+        if (!(key in en) && !englishValues.has(key)) {
+          missing.push(`${file.replace(SRC, 'src')} -> ${key}`)
+        }
       }
     }
 
@@ -87,6 +93,47 @@ describe('translation key coverage', () => {
           const text = node.text.trim()
           if (text && /[A-Za-z]{3,}/.test(text) && !ALLOWED.has(text)) {
             offenders.push(`${file.replace(SRC, 'src')} -> ${text}`)
+          }
+        }
+        ts.forEachChild(node, visit)
+      }
+      visit(sf)
+    }
+
+    expect(offenders).toEqual([])
+  })
+
+  it('no user-facing copy is left hard-coded in data', () => {
+    // The third blind spot. Copy stored as `{ title: 'Yours to override' }` in
+    // an array that gets .map()ed into JSX renders exactly like a text node,
+    // but to the parser it is a plain string, so the JsxText check above walks
+    // straight past it. That is how the showcase panel stayed English after two
+    // sweeps that both reported themselves complete.
+    const COPY_KEYS = new Set([
+      'title', 'label', 'body', 'description', 'subtitle', 'blurb', 'note',
+      'metric', 'eyebrow', 'heading', 'placeholder', 'tooltip', 'hint', 'cta',
+    ])
+    const known = new Set(Object.values(en as Record<string, string>))
+    const offenders: string[] = []
+
+    for (const file of FILES) {
+      if (!file.endsWith('.tsx')) continue
+      const src = readFileSync(file, 'utf8')
+      if (!src.includes("'use client'") && !src.includes('"use client"')) continue
+
+      const sf = ts.createSourceFile(file, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+      const visit = (node: ts.Node) => {
+        if (
+          ts.isPropertyAssignment(node) &&
+          node.name &&
+          ts.isStringLiteralLike(node.initializer)
+        ) {
+          const key = node.name.getText().replace(/['"]/g, '')
+          const text = node.initializer.text
+          const looksLikeCopy =
+            /\s/.test(text) && /[A-Za-z]{3}/.test(text) && !/^[a-z-]+(?:\s[a-z-]+)*$/.test(text)
+          if (COPY_KEYS.has(key) && looksLikeCopy && !known.has(text) && !ALLOWED.has(text)) {
+            offenders.push(`${file.replace(SRC, 'src')} -> ${key}: ${text.slice(0, 60)}`)
           }
         }
         ts.forEachChild(node, visit)

@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import StatCard from './StatCard'
 import { CheckCircle2, TrendingUp, Target, Clock } from 'lucide-react'
 import { useUserStats } from '@/hooks/use-user-stats'
 
 export default function StatsGrid() {
+  const { t } = useT()
   const { stats, loading } = useUserStats()
   
   // Return loading skeleton if data is not available
@@ -45,7 +47,7 @@ export default function StatsGrid() {
     {
       title: 'Productivity Score',
       value: `${stats?.productivityScore || 0}%`,
-      subtitle: 'Overall performance',
+      subtitle: t('ui.overallPerformance'),
       icon: TrendingUp,
       color: 'emerald',
       progress: stats?.productivityScore || 0,

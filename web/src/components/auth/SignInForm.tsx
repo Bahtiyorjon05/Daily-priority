@@ -98,7 +98,7 @@ export function SignInForm() {
         toast.error(t('ui.invalidCredentials'))
       } else if (result?.ok) {
         toast.success(t('ui.welcomeBack'), {
-          description: 'Redirecting to your dashboard...',
+          description: t('ui.redirectingToYourDashboard'),
           duration: 2000,
         })
         router.push('/dashboard')
@@ -152,7 +152,7 @@ export function SignInForm() {
         toast.error(t('auth.signInFailed'))
       } else if (result?.ok) {
         toast.success(t('ui.welcomeBack'), {
-          description: '2FA verified successfully',
+          description: t('ui.2faVerifiedSuccessfully'),
           duration: 2000,
         })
         router.push('/dashboard')

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useT } from '@/lib/i18n/client'
 import { 
   fetchPrayerTimes, 
   getCityFromCoordinates, 
@@ -12,6 +13,7 @@ import {
 } from '@/lib/prayer-times'
 
 export function usePrayerTimes() {
+  const { t } = useT()
   const [prayers, setPrayers] = useState<PrayerTime[]>([])
   const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null)
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null)
@@ -59,11 +61,11 @@ export function usePrayerTimes() {
         setLocationDenied(true)
         setError('Location access denied. Please enable location services to see accurate prayer times for your current location.')
       } else if (err.message.includes('unavailable') || err.code === 2) {
-        setError('Location unavailable. Please check your device settings.')
+        setError(t('Location unavailable. Please check your device settings.'))
       } else if (err.message.includes('timeout') || err.code === 3) {
-        setError('Location request timed out. Please try again.')
+        setError(t('Location request timed out. Please try again.'))
       } else {
-        setError('Failed to load prayer times. Please enable location services.')
+        setError(t('Failed to load prayer times. Please enable location services.'))
       }
     } finally {
       setLoading(false)

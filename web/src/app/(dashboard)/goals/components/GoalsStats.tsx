@@ -30,7 +30,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
 
   const statCards = [
     {
-      title: 'Total Goals',
+      title: t('ui.totalGoals'),
       value: stats.total,
       icon: Target,
       gradient: 'from-blue-500 to-cyan-500',

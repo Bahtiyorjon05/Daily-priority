@@ -12,9 +12,9 @@ export function AppearanceSettings() {
   const { theme, setTheme } = useTheme()
 
   const themes = [
-    { value: 'light', label: 'Light', icon: Sun, description: 'Clean and bright interface' },
-    { value: 'dark', label: 'Dark', icon: Moon, description: 'Easy on the eyes at night' },
-    { value: 'system', label: 'System', icon: Monitor, description: 'Follow system settings' },
+    { value: 'light', label: tr('ui.light'), icon: Sun, description: tr('ui.cleanAndBrightInterface') },
+    { value: 'dark', label: tr('ui.dark'), icon: Moon, description: tr('ui.easyOnTheEyesAtNight') },
+    { value: 'system', label: tr('ui.system'), icon: Monitor, description: tr('ui.followSystemSettings') },
   ]
 
   return (

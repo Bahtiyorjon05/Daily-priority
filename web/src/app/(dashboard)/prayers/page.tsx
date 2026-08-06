@@ -93,11 +93,9 @@ type ChartPoint = {
 
 const PRAYER_SEQUENCE: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha']
 const LOCATION_REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000 // 2 hours
-const STREAK_MILESTONES = [
-  { days: 7, label: '7 day streak' },
-  { days: 30, label: '30 day streak' },
-  { days: 100, label: '100 day streak' }
-]
+// Days only — the label is built at render, so "{n} day streak" stays one
+// translatable sentence instead of three that can't be reordered.
+const STREAK_MILESTONES = [{ days: 7 }, { days: 30 }, { days: 100 }]
 
 
 
@@ -162,9 +160,10 @@ export default function PrayersPage() {
     () =>
       STREAK_MILESTONES.map(milestone => ({
         ...milestone,
+        label: t('ui.dayStreakMilestone', { count: milestone.days }),
         achieved: statistics.longestStreak >= milestone.days
       })),
-    [statistics.longestStreak]
+    [statistics.longestStreak, t]
   )
 
   const loadPrayerData = useCallback(

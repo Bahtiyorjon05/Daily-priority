@@ -37,12 +37,12 @@ function Verify2FAGoogleContent() {
     setError('')
     
     if (!twoFactorPassword) {
-      setError('2FA password is required')
+      setError(t('ui.2faPasswordIsRequired'))
       return
     }
 
     if (!email) {
-      setError('Email not found. Please try signing in again.')
+      setError(t('ui.emailNotFoundPleaseTrySigningInAgain'))
       return
     }
 
@@ -81,7 +81,7 @@ function Verify2FAGoogleContent() {
       await update({ forceRefresh: true })
       
       toast.success(t('ui.2faVerified'), {
-        description: 'Redirecting to dashboard...',
+        description: t('ui.redirectingToDashboard'),
         duration: 1500,
       })
 

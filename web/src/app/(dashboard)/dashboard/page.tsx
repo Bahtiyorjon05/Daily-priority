@@ -373,7 +373,7 @@ export default function DashboardPageRedesigned() {
       })
 
       const quoteData = data.quote || {
-        text: "And Allah is with those who are patient.",
+        text: tI18n('ui.andAllahIsWithThoseWhoArePatient'),
         source: "Quran 2:153"
       }
 
@@ -383,7 +383,7 @@ export default function DashboardPageRedesigned() {
     } catch (error: any) {
       // Silently use fallback quote, don't log as error (not critical)
       setDailyQuote({
-        text: "And Allah is with those who are patient.",
+        text: tI18n('ui.andAllahIsWithThoseWhoArePatient'),
         source: "Quran 2:153"
       })
     }
@@ -839,7 +839,7 @@ export default function DashboardPageRedesigned() {
               {dailyQuote && (
                 <div className="mt-4 sm:mt-6 bg-white/10 backdrop-blur-md rounded-xl p-3 sm:p-4 border border-white/20">
                   <p className="text-white/95 text-xs sm:text-sm font-medium italic leading-relaxed">
-                    "{dailyQuote.text}"
+                    "{tI18n(dailyQuote.text)}"
                   </p>
                   <p className="text-white/70 text-[10px] sm:text-xs mt-1.5">-- {dailyQuote.source}</p>
                 </div>

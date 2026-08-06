@@ -370,9 +370,9 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               {[
-                { icon: CheckCircle2, text: 'Free', longText: 'Always Available', color: 'emerald' },
-                { icon: Users, text: 'Muslims', longText: 'For Muslims', color: 'teal' },
-                { icon: Moon, text: 'Prayer', longText: 'Prayer First', color: 'emerald' }
+                { icon: CheckCircle2, text: t('ui.free'), longText: 'Always Available', color: 'emerald' },
+                { icon: Users, text: t('ui.muslims'), longText: 'For Muslims', color: 'teal' },
+                { icon: Moon, text: t('ui.prayer'), longText: 'Prayer First', color: 'emerald' }
               ].map((item, index) => (
                 <motion.div
                   key={item.text}

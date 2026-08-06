@@ -70,7 +70,7 @@ export default function Forgot2FAPage() {
 
       if (response.ok) {
         toast.success(t('ui.recoveryCodeSent'), {
-          description: 'Check your email for the recovery code.',
+          description: t('ui.checkYourEmailForTheRecoveryCode'),
           duration: 4000,
         })
         setStep('code')
@@ -123,13 +123,13 @@ export default function Forgot2FAPage() {
 
       if (response.ok) {
         toast.success(t('ui.codeVerified'), {
-          description: 'Now enter your new 2FA password.',
+          description: t('ui.nowEnterYourNew2faPassword'),
           duration: 3000,
         })
         setStep('password')
       } else {
         setErrors(prev => ({ ...prev, general: data.error || 'Invalid recovery code' }))
-        toast.error(data.error || 'Invalid recovery code')
+        toast.error(t(data.error || 'Invalid recovery code'))
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
@@ -189,13 +189,13 @@ export default function Forgot2FAPage() {
 
       if (response.ok) {
         toast.success(t('ui.2faPasswordReset'), {
-          description: 'You can now sign in with your new 2FA password.',
+          description: t('ui.youCanNowSignInWithYourNew2faPassword'),
           duration: 4000,
         })
         router.push('/signin')
       } else {
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to reset 2FA password' }))
-        toast.error(data.error || 'Invalid recovery code')
+        toast.error(t(data.error || 'Invalid recovery code'))
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))

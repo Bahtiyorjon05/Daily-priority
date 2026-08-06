@@ -30,7 +30,7 @@ export function Contact() {
 
     if (!trimmedData.name || !trimmedData.email || !trimmedData.message) {
       toast.error(t('ui.pleaseFillInAllFields'), {
-        description: 'Name, email, and message are required.',
+        description: t('ui.nameEmailAndMessageAreRequired'),
         duration: 3000,
       })
       return
@@ -38,7 +38,7 @@ export function Contact() {
 
     if (trimmedData.message.length < 5) {
       toast.error(t('ui.messageTooShort'), {
-        description: 'Please write at least 5 characters.',
+        description: t('ui.pleaseWriteAtLeast5Characters'),
         duration: 3000,
       })
       return
@@ -48,7 +48,7 @@ export function Contact() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(trimmedData.email)) {
       toast.error(t('ui.invalidEmail'), {
-        description: 'Please enter a valid email address.',
+        description: t('ui.pleaseEnterAValidEmailAddress'),
         duration: 3000,
       })
       return

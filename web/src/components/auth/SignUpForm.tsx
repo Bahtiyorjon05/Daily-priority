@@ -64,7 +64,7 @@ export function SignUpForm() {
     } else if (timeLeft === 0) {
       setTimerActive(false)
       toast.error(t('ui.verificationCodeExpired'), {
-        description: 'Please request a new code',
+        description: t('ui.pleaseRequestANewCode'),
       })
     }
   }, [timerActive, timeLeft])
@@ -120,7 +120,7 @@ export function SignUpForm() {
       }
 
       toast.success(t('ui.verificationCodeSent'), {
-        description: 'Check your email for the 6-digit code',
+        description: t('ui.checkYourEmailForThe6DigitCode'),
       })
 
       setCurrentStep('code')
@@ -155,7 +155,7 @@ export function SignUpForm() {
       }
 
       toast.success(t('ui.newCodeSent'), {
-        description: 'Check your email',
+        description: t('ui.checkYourEmail2'),
       })
 
       setTimeLeft(600)
@@ -198,7 +198,7 @@ export function SignUpForm() {
       }
 
       toast.success(t('ui.emailVerified3'), {
-        description: 'Now create your password',
+        description: t('ui.nowCreateYourPassword'),
       })
 
       setCurrentStep('password')
@@ -229,7 +229,7 @@ export function SignUpForm() {
       setErrors(prev => ({ ...prev, name: 'Name is required' }))
       hasErrors = true
     } else if (formData.name.trim().length < 2) {
-      setErrors(prev => ({ ...prev, name: 'Name must be at least 2 characters' }))
+      setErrors(prev => ({ ...prev, name: t('ui.nameMustBeAtLeast2Characters') }))
       hasErrors = true
     }
 
@@ -273,7 +273,7 @@ export function SignUpForm() {
       }
 
       toast.success(t('ui.accountCreated'), {
-        description: 'Signing you in...',
+        description: t('ui.signingYouIn'),
         duration: 2000,
       })
 
@@ -312,7 +312,7 @@ export function SignUpForm() {
   // Progress steps
   const steps = [
     { id: 'email', label: 'Email', number: 1 },
-    { id: 'code', label: 'Verify', number: 2 },
+    { id: 'code', label: t('ui.verify'), number: 2 },
     { id: 'password', label: 'Password', number: 3 },
   ]
 

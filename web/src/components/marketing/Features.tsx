@@ -23,88 +23,88 @@ import {
 const GROUPS = [
   {
     id: 'worship',
-    eyebrow: 'Worship',
-    title: 'Built around the five prayers',
-    blurb: 'Your day already has a shape. The app follows it instead of fighting it.',
+    eyebrowKey: 'feat.worship',
+    titleKey: 'feat.builtAroundTheFivePrayers',
+    blurbKey: 'feat.yourDayAlreadyHasAShapeTheAppFollowsItInstea',
     accent: 'emerald',
     items: [
       {
         icon: Moon,
-        title: 'Prayer times & tracking',
-        body: 'Accurate times for your location, one tap to log each prayer and whether it was on time. Streaks show your consistency at a glance.',
+        titleKey: 'ui.prayerTimesTracking',
+        bodyKey: 'feat.accurateTimesForYourLocationOneTapToLogEachP',
       },
       {
         icon: Bell,
-        title: 'Adhan & reminders',
-        body: 'A quiet nudge before each prayer, and the adhan when the time arrives. Set your own lead time, or quiet hours to hear nothing at all.',
+        titleKey: 'feat.adhanReminders',
+        bodyKey: 'feat.aQuietNudgeBeforeEachPrayerAndTheAdhanWhenTh',
       },
       {
         icon: BookHeart,
-        title: 'Adhkar',
-        body: 'Morning and evening remembrance with a counter that keeps your place, so you can finish where you left off.',
+        titleKey: 'nav.adhkar',
+        bodyKey: 'feat.morningAndEveningRemembranceWithACounterThat',
       },
       {
         icon: Compass,
-        title: 'Qibla & Hijri calendar',
-        body: 'Qibla direction from wherever you are, plus Hijri dates and Islamic occasions alongside your own events.',
+        titleKey: 'feat.qiblaHijriCalendar',
+        bodyKey: 'feat.qiblaDirectionFromWhereverYouArePlusHijriDat',
       },
     ],
   },
   {
     id: 'discipline',
-    eyebrow: 'Discipline',
-    title: 'Small things, done consistently',
-    blurb: 'Consistency beats ambition, so these are deliberately simple.',
+    eyebrowKey: 'feat.discipline',
+    titleKey: 'feat.smallThingsDoneConsistently',
+    blurbKey: 'feat.consistencyBeatsAmbitionSoTheseAreDeliberate',
     accent: 'teal',
     items: [
       {
         icon: Repeat,
-        title: 'Habits with streak freezes',
-        body: 'Daily habits with streaks — and two grace days a month, so one missed day doesn’t erase weeks of effort.',
+        titleKey: 'feat.habitsWithStreakFreezes',
+        bodyKey: 'feat.dailyHabitsWithStreaksAndTwoGraceDaysAMonthS',
       },
       {
         icon: Timer,
-        title: 'Focus sessions',
-        body: 'A Pomodoro timer with optional ambient sound. It runs on the wall clock, so it stays accurate even if you switch away.',
+        titleKey: 'feat.focusSessions',
+        bodyKey: 'feat.aPomodoroTimerWithOptionalAmbientSoundItRuns',
       },
       {
         icon: CheckSquare,
-        title: 'Tasks & priorities',
-        body: 'Plan the day with priorities, due dates and subtasks. Overdue work surfaces in the morning instead of getting buried.',
+        titleKey: 'feat.tasksPriorities',
+        bodyKey: 'feat.planTheDayWithPrioritiesDueDatesAndSubtasksO',
       },
       {
         icon: Heart,
-        title: 'Gentle, not nagging',
-        body: 'Reminders you control, streaks that forgive, and no guilt-tripping when life gets in the way.',
+        titleKey: 'feat.gentleNotNagging',
+        bodyKey: 'feat.remindersYouControlStreaksThatForgiveAndNoGu',
       },
     ],
   },
   {
     id: 'reflection',
-    eyebrow: 'Reflection',
-    title: 'See how the week actually went',
-    blurb: 'Honest numbers rather than vanity charts.',
+    eyebrowKey: 'feat.reflection',
+    titleKey: 'feat.seeHowTheWeekActuallyWent',
+    blurbKey: 'feat.honestNumbersRatherThanVanityCharts',
     accent: 'violet',
     items: [
       {
         icon: BookOpen,
-        title: 'Journal',
-        body: 'Gratitude, lessons and du‘ā in one place, dated in both calendars, with a mood you can look back on.',
+        titleKey: 'nav.journal',
+        bodyKey: 'feat.gratitudeLessonsAndDuInOnePlaceDatedInBothCa',
       },
       {
         icon: Target,
-        title: 'Dunya & Akhirah goals',
-        body: 'Track worldly and spiritual goals side by side, with milestones and progress, so the balance stays visible.',
+        titleKey: 'feat.dunyaAkhirahGoals',
+        bodyKey: 'feat.trackWorldlyAndSpiritualGoalsSideBySideWithM',
       },
       {
         icon: BarChart3,
-        title: 'Analytics',
-        body: 'Trends across prayers, habits, focus and tasks — enough to spot a pattern, not so much that it becomes homework.',
+        titleKey: 'nav.analytics',
+        bodyKey: 'feat.trendsAcrossPrayersHabitsFocusAndTasksEnough',
       },
       {
         icon: Sunrise,
-        title: 'Weekly review',
-        body: 'A short Sunday email summarising your week, with your streaks and on-time prayer rate.',
+        titleKey: 'feat.weeklyReview',
+        bodyKey: 'feat.aShortSundayEmailSummarisingYourWeekWithYour',
       },
     ],
   },
@@ -113,23 +113,23 @@ const GROUPS = [
 const PLATFORM = [
   {
     icon: Sunrise,
-    title: 'Follows the prayer day',
-    body: 'The interface shifts with the day — still and blue at Fajr, warm at Asr, quiet after Isha.',
+    titleKey: 'feat.followsThePrayerDay',
+    bodyKey: 'feat.theInterfaceShiftsWithTheDayStillAndBlueAtFa',
   },
   {
     icon: WifiOff,
-    title: 'Works offline',
-    body: 'Tick a habit with no signal; it syncs the moment you reconnect.',
+    titleKey: 'feat.worksOffline',
+    bodyKey: 'feat.tickAHabitWithNoSignalItSyncsTheMomentYouRec',
   },
   {
     icon: Download,
-    title: 'Installs like an app',
-    body: 'Add it to your home screen — full screen, offline capable, no app store needed.',
+    titleKey: 'feat.installsLikeAnApp',
+    bodyKey: 'feat.addItToYourHomeScreenFullScreenOfflineCapabl',
   },
   {
     icon: Heart,
-    title: 'Free, no ads',
-    body: 'No adverts, no selling your data, no paywall on the things that matter.',
+    titleKey: 'feat.freeNoAds',
+    bodyKey: 'feat.noAdvertsNoSellingYourDataNoPaywallOnTheThin',
   },
 ]
 
@@ -181,13 +181,13 @@ export function Features() {
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ring-1 ${ACCENT[group.accent]}`}
                 >
-                  {group.eyebrow}
+                  {t(group.eyebrowKey)}
                 </span>
                 <h3 className="mt-3 text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
-                  {group.title}
+                  {t(group.titleKey)}
                 </h3>
                 <p className="mt-1.5 text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                  {group.blurb}
+                  {t(group.blurbKey)}
                 </p>
               </div>
 
@@ -196,7 +196,7 @@ export function Features() {
                   const Icon = item.icon
                   return (
                     <div
-                      key={item.title}
+                      key={item.titleKey}
                       className="rounded-2xl border border-slate-200/80 bg-white p-5 transition-colors hover:border-slate-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/20"
                     >
                       <span
@@ -205,10 +205,10 @@ export function Features() {
                         <Icon className="h-5 w-5" />
                       </span>
                       <h4 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
-                        {item.title}
+                        {t(item.titleKey)}
                       </h4>
                       <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                        {item.body}
+                        {t(item.bodyKey)}
                       </p>
                     </div>
                   )
@@ -230,13 +230,13 @@ export function Features() {
             {PLATFORM.map((p) => {
               const Icon = p.icon
               return (
-                <div key={p.title}>
+                <div key={p.titleKey}>
                   <Icon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                   <h4 className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
-                    {p.title}
+                    {t(p.titleKey)}
                   </h4>
                   <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                    {p.body}
+                    {t(p.bodyKey)}
                   </p>
                 </div>
               )

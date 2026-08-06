@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
           localStorage.setItem('resetCodeCountdown', '600') // 10 minutes
         }
         toast.success(t('ui.verificationCodeSent'), {
-          description: 'Check your email inbox for the 6-digit code.',
+          description: t('ui.checkYourEmailInboxForThe6DigitCode'),
           duration: 5000,
         })
         // Small delay before redirect for better UX
@@ -89,9 +89,9 @@ export default function ForgotPasswordPage() {
         }, 1000)
       } else {
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to send verification code. Please try again.' }))
-        toast.error(data.error || 'Failed to send code', {
+        toast.error(t(data.error || 'Failed to send code', {
           duration: 4000,
-        })
+        }))
       }
     } catch (error) {
       console.error('Forgot password error:', error)

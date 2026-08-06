@@ -50,10 +50,10 @@ export default function NewTaskModalEnhanced({
   const [errors, setErrors] = useState<Record<string, string>>({})
   
   const taskTemplates = [
-    { name: 'Quick Call', icon: '📞', template: { title: 'Quick phone call', estimatedTime: 15, energyLevel: 'low' } },
-    { name: 'Deep Work', icon: '🧠', template: { title: 'Deep work session', estimatedTime: 120, energyLevel: 'high', important: true } },
-    { name: 'Email Check', icon: '📧', template: { title: 'Check and respond to emails', estimatedTime: 30, energyLevel: 'medium' } },
-    { name: 'Exercise', icon: '💪', template: { title: 'Workout session', estimatedTime: 45, energyLevel: 'high', category: 'Health' } }
+    { name: t('ui.quickCall'), icon: '📞', template: { title: t('ui.quickPhoneCall'), estimatedTime: 15, energyLevel: 'low' } },
+    { name: t('ui.deepWork'), icon: '🧠', template: { title: t('ui.deepWorkSession'), estimatedTime: 120, energyLevel: 'high', important: true } },
+    { name: t('ui.emailCheck'), icon: '📧', template: { title: t('ui.checkAndRespondToEmails'), estimatedTime: 30, energyLevel: 'medium' } },
+    { name: t('ui.exercise'), icon: '💪', template: { title: t('ui.workoutSession'), estimatedTime: 45, energyLevel: 'high', category: 'Health' } }
   ]
   
   const validateForm = () => {

@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
         localStorage.removeItem('resetCodeCountdown')
         
         toast.success(t('ui.passwordResetSuccessful'), {
-          description: 'You can now sign in with your new password.',
+          description: t('ui.youCanNowSignInWithYourNewPassword'),
           duration: 3000,
         })
         
@@ -113,7 +113,7 @@ export default function ResetPasswordPage() {
         }, 1500)
       } else {
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to reset password. Please try again.' }))
-        toast.error(data.error || 'Failed to reset password')
+        toast.error(t(data.error || 'Failed to reset password'))
       }
     } catch (error) {
       console.error('Password reset error:', error)

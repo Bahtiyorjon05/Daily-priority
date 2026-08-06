@@ -4,6 +4,7 @@
  */
 
 import { useCallback, useState } from 'react'
+import { useT } from '@/lib/i18n/client'
 import { toast } from 'sonner'
 import type { Task } from '@/types/models'
 import { TaskStatus } from '@/types/models'
@@ -15,6 +16,7 @@ interface UseTaskOperationsProps {
 }
 
 export function useTaskOperations({ onSuccess, onError }: UseTaskOperationsProps = {}) {
+  const { t } = useT()
   const [isLoading, setIsLoading] = useState(false)
 
   // Create task
@@ -33,7 +35,7 @@ export function useTaskOperations({ onSuccess, onError }: UseTaskOperationsProps
         }
 
         const result = await response.json()
-        toast.success('Task created successfully')
+        toast.success(t('Task created successfully'))
         onSuccess?.()
         return result.data
       } catch (error) {
@@ -64,7 +66,7 @@ export function useTaskOperations({ onSuccess, onError }: UseTaskOperationsProps
         }
 
         const result = await response.json()
-        toast.success('Task updated successfully')
+        toast.success(t('Task updated successfully'))
         onSuccess?.()
         return result.data
       } catch (error) {
@@ -92,7 +94,7 @@ export function useTaskOperations({ onSuccess, onError }: UseTaskOperationsProps
           throw new Error('Failed to delete task')
         }
 
-        toast.success('Task deleted successfully')
+        toast.success(t('Task deleted successfully'))
         onSuccess?.()
       } catch (error) {
         const err = error as Error

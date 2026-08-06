@@ -21,57 +21,57 @@ import { useT } from '@/lib/i18n/client'
 const PHASES = [
   {
     id: 'dawn',
-    label: 'Fajr',
-    time: 'Dawn',
+    labelKey: 'prayer.fajr',
+    timeKey: 'phase.dawn',
     icon: Sunrise,
     gradient: 'linear-gradient(135deg, rgb(30 27 75), rgb(76 29 80))',
-    note: 'Still and blue. The day opens quietly.',
-    metric: 'Fajr · 05:12',
+    noteKey: 'showcase.note.dawn',
+    metricKey: 'showcase.metric.dawn',
   },
   {
     id: 'morning',
-    label: 'Duha',
-    time: 'Morning',
+    labelKey: 'showcase.duha',
+    timeKey: 'phase.morning',
     icon: Sun,
     gradient: 'linear-gradient(135deg, rgb(4 90 66), rgb(13 110 97))',
-    note: 'Clear and focused — the working hours.',
-    metric: '3 tasks planned',
+    noteKey: 'showcase.note.morning',
+    metricKey: 'showcase.metric.morning',
   },
   {
     id: 'midday',
-    label: 'Dhuhr',
-    time: 'Midday',
+    labelKey: 'prayer.dhuhr',
+    timeKey: 'phase.midday',
     icon: CloudSun,
     gradient: 'linear-gradient(135deg, rgb(13 110 97), rgb(12 95 110))',
-    note: 'High sun. A pause in the middle of the work.',
-    metric: 'Dhuhr · 12:45',
+    noteKey: 'showcase.note.midday',
+    metricKey: 'showcase.metric.midday',
   },
   {
     id: 'afternoon',
-    label: 'Asr',
-    time: 'Afternoon',
+    labelKey: 'prayer.asr',
+    timeKey: 'phase.afternoon',
     icon: Sunset,
     gradient: 'linear-gradient(135deg, rgb(124 45 18), rgb(146 64 14))',
-    note: 'Warm and golden. The day starts to turn.',
-    metric: 'Habit streak · 12 days',
+    noteKey: 'showcase.note.afternoon',
+    metricKey: 'showcase.metric.afternoon',
   },
   {
     id: 'dusk',
-    label: 'Maghrib',
-    time: 'Dusk',
+    labelKey: 'prayer.maghrib',
+    timeKey: 'phase.dusk',
     icon: Moon,
     gradient: 'linear-gradient(135deg, rgb(76 29 149), rgb(19 78 74))',
-    note: 'The light goes. Time to close things off.',
-    metric: 'Maghrib · 19:05',
+    noteKey: 'showcase.note.dusk',
+    metricKey: 'showcase.metric.dusk',
   },
   {
     id: 'night',
-    label: 'Isha',
-    time: 'Night',
+    labelKey: 'prayer.isha',
+    timeKey: 'phase.night',
     icon: Stars,
     gradient: 'linear-gradient(135deg, rgb(8 17 30), rgb(15 44 52))',
-    note: 'Quiet and dark. Reflect, then rest.',
-    metric: 'Journal · 1 entry',
+    noteKey: 'showcase.note.night',
+    metricKey: 'showcase.metric.night',
   },
 ] as const
 
@@ -166,7 +166,7 @@ export function PrayerDayShowcase() {
                         transition={{ duration: 0.35 }}
                         className="text-xs font-medium uppercase tracking-widest text-white/70"
                       >
-                        {phase.time}
+                        {t(phase.timeKey)}
                       </motion.p>
                     </AnimatePresence>
                     <AnimatePresence mode="wait">
@@ -178,7 +178,7 @@ export function PrayerDayShowcase() {
                         transition={{ duration: 0.35, delay: 0.04 }}
                         className="mt-1 text-2xl font-bold text-white sm:text-3xl"
                       >
-                        {phase.label}
+                        {t(phase.labelKey)}
                       </motion.h3>
                     </AnimatePresence>
                   </div>
@@ -210,11 +210,11 @@ export function PrayerDayShowcase() {
                       transition={{ duration: 0.35 }}
                       className="max-w-[16rem] text-sm leading-snug text-white/85"
                     >
-                      {phase.note}
+                      {t(phase.noteKey)}
                     </motion.p>
                   </AnimatePresence>
                   <span className="shrink-0 rounded-full bg-white/15 px-3 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-                    {phase.metric}
+                    {t(phase.metricKey)}
                   </span>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export function PrayerDayShowcase() {
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10'
                     }`}
                   >
-                    {p.label}
+                    {t(p.labelKey)}
                   </button>
                 )
               })}
@@ -250,16 +250,16 @@ export function PrayerDayShowcase() {
           <div className="order-1 space-y-5 lg:order-2">
             {[
               {
-                title: 'It knows where you are in the day',
-                body: 'Times come from your own location, so the shift happens at your Fajr and your Maghrib — not a generic clock.',
+                title: t('ui.itKnowsWhereYouAreInTheDay'),
+                body: t('ui.timesComeFromYourOwnLocationSoTheShiftHappen'),
               },
               {
-                title: 'Calm at night, sharp at midday',
-                body: 'Deep and quiet after Isha so you’re not staring into a bright screen; clear and high-contrast when you’re working.',
+                title: t('ui.calmAtNightSharpAtMidday'),
+                body: t('ui.deepAndQuietAfterIshaSoYouReNotStaringIntoAB'),
               },
               {
-                title: 'Yours to override',
-                body: 'Prefer one look all day? Pin any phase from the header and it stays put.',
+                title: t('ui.yoursToOverride'),
+                body: t('ui.preferOneLookAllDayPinAnyPhaseFromTheHeaderA'),
               },
             ].map((row, i) => (
               <motion.div

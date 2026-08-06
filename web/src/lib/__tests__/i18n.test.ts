@@ -168,11 +168,18 @@ describe('dictionary parity', () => {
     expect(identical.sort()).toEqual([
       'auth.email', // "Email" is the same word in both
       'prayer.asr', // proper noun
+      'ui.adminDailyPriority', // brand name
       'ui.dailyPriority', // brand name
       'ui.dailyPriorityV10', // brand name + version
-      'ui.esc', // keyboard key, printed on the key itself
+      'ui.emailAZ', // "Email A–Z", a sort order
+      'ui.enter', // keyboard key, printed on the key itself
+      'ui.esc', // keyboard key
+      'ui.escape', // keyboard key
+      'ui.muharram', // Hijri month, same name in Uzbek
       'ui.push', // technical term, borrowed as-is
       'ui.qibla', // Arabic term, identical in Uzbek
+      'ui.rajab', // Hijri month, same name in Uzbek
+      'ui.safar', // Hijri month, same name in Uzbek
       'ui.shift', // keyboard key
     ])
   })

@@ -63,9 +63,9 @@ export default function PrayerTimesWidget() {
 
       if (err.message.includes('denied')) {
         setLocationDenied(true)
-        setError('Location access denied. Please enable location services to see prayer times.')
+        setError(t('ui.locationAccessDeniedPleaseEnableLocationServ'))
       } else {
-        setError('Failed to load prayer times. Please try again.')
+        setError(t('ui.failedToLoadPrayerTimesPleaseTryAgain'))
       }
     } finally {
       setLoading(false)

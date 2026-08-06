@@ -126,7 +126,7 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || 'Failed to send verification code')
+        toast.error(t(data.error || 'Failed to send verification code'))
         throw new Error(data.error || 'Failed to enable 2FA')
       }
 
@@ -161,7 +161,7 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data.error || 'Invalid or expired verification code')
+        toast.error(t(data.error || 'Invalid or expired verification code'))
         return
       }
 
@@ -209,7 +209,7 @@ export function SecuritySettings() {
           setTwoFactorPassword('')
           setTwoFactorPasswordConfirm('')
         } else {
-          toast.error(data.error || 'Failed to enable 2FA')
+          toast.error(t(data.error || 'Failed to enable 2FA'))
         }
         throw new Error(data.error || 'Failed to verify code')
       }

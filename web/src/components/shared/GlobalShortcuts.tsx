@@ -21,16 +21,16 @@ export function GlobalShortcuts() {
   const shortcuts = useMemo<KeyboardShortcut[]>(
     () => [
       { key: 'd', description: 'Go to Dashboard', handler: () => router.push('/dashboard') },
-      { key: 'p', description: 'Go to Prayers', handler: () => router.push('/prayers') },
-      { key: 'h', description: 'Go to Habits', handler: () => router.push('/habits') },
-      { key: 'g', description: 'Go to Goals', handler: () => router.push('/goals') },
-      { key: 'f', description: 'Go to Focus', handler: () => router.push('/focus') },
-      { key: 'j', description: 'Go to Journal', handler: () => router.push('/journal') },
-      { key: 'c', description: 'Go to Calendar', handler: () => router.push('/calendar') },
-      { key: 'a', description: 'Go to Analytics', handler: () => router.push('/analytics') },
-      { key: 'r', description: 'Go to Adhkar', handler: () => router.push('/adhkar') },
-      { key: ',', description: 'Open Settings', handler: () => router.push('/settings') },
-      { key: '?', shift: true, description: 'Show this help', handler: () => setShowHelp((v) => !v) },
+      { key: 'p', description: t('ui.goToPrayers'), handler: () => router.push('/prayers') },
+      { key: 'h', description: t('ui.goToHabits'), handler: () => router.push('/habits') },
+      { key: 'g', description: t('ui.goToGoals'), handler: () => router.push('/goals') },
+      { key: 'f', description: t('ui.goToFocus'), handler: () => router.push('/focus') },
+      { key: 'j', description: t('ui.goToJournal'), handler: () => router.push('/journal') },
+      { key: 'c', description: t('ui.goToCalendar'), handler: () => router.push('/calendar') },
+      { key: 'a', description: t('ui.goToAnalytics'), handler: () => router.push('/analytics') },
+      { key: 'r', description: t('ui.goToAdhkar'), handler: () => router.push('/adhkar') },
+      { key: ',', description: t('ui.openSettings'), handler: () => router.push('/settings') },
+      { key: '?', shift: true, description: t('ui.showThisHelp'), handler: () => setShowHelp((v) => !v) },
     ],
     [router]
   )

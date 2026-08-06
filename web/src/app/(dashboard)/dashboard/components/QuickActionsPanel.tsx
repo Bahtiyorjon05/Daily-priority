@@ -17,7 +17,7 @@ export default function QuickActionsPanel() {
     {
       icon: Plus,
       label: 'Add Task',
-      description: 'Create new task',
+      description: t('ui.createNewTask2'),
       color: 'from-emerald-500 to-teal-500',
       action: () => {
         // Trigger task creation modal through event
@@ -27,28 +27,28 @@ export default function QuickActionsPanel() {
     {
       icon: Timer,
       label: 'Focus Session',
-      description: 'Start Pomodoro',
+      description: t('ui.startPomodoro'),
       color: 'from-orange-500 to-red-500',
       action: () => router.push('/focus')
     },
     {
       icon: Calendar,
-      label: 'Schedule Event',
-      description: 'Add to calendar',
+      label: t('ui.scheduleEvent'),
+      description: t('ui.addToCalendar'),
       color: 'from-blue-500 to-cyan-500',
       action: () => router.push('/calendar')
     },
     {
       icon: Target,
-      label: 'Set Goal',
-      description: 'Create new goal',
+      label: t('ui.setGoal'),
+      description: t('ui.createNewGoal2'),
       color: 'from-purple-500 to-violet-500',
       action: () => router.push('/goals')
     },
     {
       icon: BookOpen,
-      label: 'Journal Entry',
-      description: 'Write reflection',
+      label: t('ui.journalEntry'),
+      description: t('ui.writeReflection'),
       color: 'from-pink-500 to-rose-500',
       action: () => router.push('/journal')
     }

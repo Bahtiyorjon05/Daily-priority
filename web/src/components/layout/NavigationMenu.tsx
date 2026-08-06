@@ -33,7 +33,7 @@ export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenu
             <Link
               href={item.path}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={item.label}
+              aria-label={t(item.label)}
               className={`
                 group relative flex h-14 w-full items-center gap-4 overflow-hidden rounded-2xl transition-all duration-300
                 ${isActive
@@ -69,13 +69,13 @@ export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenu
 
               {!isCollapsed && (
                 <div className="flex-1 text-left min-w-0 relative z-10">
-                  <p className="font-bold text-sm truncate mb-0.5">{item.label}</p>
+                  <p className="font-bold text-sm truncate mb-0.5">{t(item.label)}</p>
                   <p
                     className={`text-xs truncate font-medium ${
                       isActive ? 'text-white/90' : 'text-slate-500 dark:text-slate-400 group-hover:text-current'
                     }`}
                   >
-                    {item.description}
+                    {t(item.description)}
                   </p>
                 </div>
               )}

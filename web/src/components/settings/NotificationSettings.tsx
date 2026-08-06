@@ -47,7 +47,7 @@ export function NotificationSettings() {
       const res = await fetch('/api/push/test', { method: 'POST' })
       const data = await res.json().catch(() => ({}))
       if (res.ok && data.ok) toast.success(data.message || 'Test notification sent')
-      else toast.error(data.error || data.message || 'Could not send test notification')
+      else toast.error(t(data.error || data.message || 'Could not send test notification'))
     } catch {
       toast.error(t('ui.couldNotSendTestNotification'))
     } finally {

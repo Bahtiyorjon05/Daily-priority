@@ -107,7 +107,7 @@ export default function VerifyCodePage() {
         localStorage.setItem('verifiedEmail', data.email || email)
         localStorage.setItem('verifiedCode', codeData.code)
         toast.success(t('ui.codeVerified'), {
-          description: 'Redirecting to password reset...',
+          description: t('ui.redirectingToPasswordReset'),
           duration: 2000,
         })
         setTimeout(() => {
@@ -116,7 +116,7 @@ export default function VerifyCodePage() {
       } else {
         const data = await response.json()
         setErrors(prev => ({ ...prev, general: data.error || 'Invalid or expired verification code. Please try again.' }))
-        toast.error(data.error || 'Invalid code')
+        toast.error(t(data.error || 'Invalid code'))
       }
     } catch (error) {
       console.error('Code verification error:', error)
@@ -147,14 +147,14 @@ export default function VerifyCodePage() {
         setCountdown(600) // 10 minutes
         localStorage.setItem('resetCodeCountdown', '600')
         toast.success(t('ui.newCodeSent'), {
-          description: 'Check your email for the new verification code.',
+          description: t('ui.checkYourEmailForTheNewVerificationCode'),
           duration: 3000,
         })
         setErrors({ code: '', general: '' })
       } else {
         const data = await response.json()
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to resend code. Please try again.' }))
-        toast.error(data.error || 'Failed to resend code')
+        toast.error(t(data.error || 'Failed to resend code'))
       }
     } catch (error) {
       console.error('Resend code error:', error)

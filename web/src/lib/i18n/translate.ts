@@ -29,13 +29,31 @@ export function getMessages(locale: Locale): Record<string, string> {
  * whereas an empty string looks like an intentionally blank label and survives
  * to production.
  */
+/**
+ * English text → key, built once.
+ *
+ * A lot of copy lives in plain modules — Hijri month names, the quote pool,
+ * validation messages, API error strings. Those can't call a hook, and
+ * rewriting thirty modules to carry keys would touch far more code than it's
+ * worth. Looking a string up by its English value lets a render site wrap the
+ * value it already has, whichever form it arrives in.
+ */
+const KEY_BY_ENGLISH: Record<string, string> = Object.fromEntries(
+  Object.entries(en as Record<string, string>).map(([k, v]) => [v, k])
+)
+
 export function translate(
   locale: Locale,
   key: MessageKey | (string & {}),
   params?: Record<string, string | number>
 ): string {
   const dict = getMessages(locale)
-  const template = dict[key] ?? DICTIONARIES[DEFAULT_LOCALE][key] ?? key
+  const fallbackKey = dict[key] === undefined ? KEY_BY_ENGLISH[key] : undefined
+  const template =
+    dict[key] ??
+    (fallbackKey ? dict[fallbackKey] : undefined) ??
+    DICTIONARIES[DEFAULT_LOCALE][key] ??
+    key
 
   if (!params) return template
 

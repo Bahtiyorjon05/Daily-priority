@@ -344,70 +344,70 @@ function DashboardLayoutContent({
       path: '/dashboard',
       icon: LayoutDashboard,
       label: t('nav.dashboard'),
-      description: 'Overview & stats',
+      description: t('ui.overviewStats'),
       color: 'from-blue-500 to-cyan-500'
     },
     {
       path: '/analytics',
       icon: TrendingUp,
       label: t('nav.analytics'),
-      description: 'Insights & reports',
+      description: t('ui.insightsReports'),
       color: 'from-indigo-500 to-purple-500'
     },
     {
       path: '/prayers',
       icon: Heart,
       label: t('nav.prayers'),
-      description: 'Prayer times & tracking',
+      description: t('ui.prayerTimesTracking'),
       color: 'from-emerald-500 to-teal-500'
     },
     {
       path: '/adhkar',
       icon: Sparkles,
       label: t('nav.adhkar'),
-      description: 'Daily remembrance',
+      description: t('ui.dailyRemembrance'),
       color: 'from-purple-500 to-violet-500'
     },
     {
       path: '/focus',
       icon: Zap,
       label: t('nav.focus'),
-      description: 'Pomodoro & deep work',
+      description: t('ui.pomodoroDeepWork'),
       color: 'from-orange-500 to-amber-500'
     },
     {
       path: '/calendar',
       icon: Calendar,
       label: t('nav.calendar'),
-      description: 'Schedule & events',
+      description: t('ui.scheduleEvents'),
       color: 'from-teal-500 to-cyan-500'
     },
     {
       path: '/goals',
       icon: Target,
       label: t('nav.goals'),
-      description: 'Track your progress',
+      description: t('ui.trackYourProgress'),
       color: 'from-amber-500 to-yellow-500'
     },
     {
       path: '/habits',
       icon: CheckCircle2,
       label: t('nav.habits'),
-      description: 'Build positive habits',
+      description: t('ui.buildPositiveHabits'),
       color: 'from-green-500 to-emerald-500'
     },
     {
       path: '/journal',
       icon: BookHeart,
       label: t('nav.journal'),
-      description: 'Reflect & grow',
+      description: t('ui.reflectGrow'),
       color: 'from-pink-500 to-rose-500'
     },
     {
       path: '/settings',
       icon: Settings,
       label: t('nav.settings'),
-      description: 'Preferences & profile',
+      description: t('ui.preferencesProfile'),
       color: 'from-slate-500 to-gray-500'
     },
   ]

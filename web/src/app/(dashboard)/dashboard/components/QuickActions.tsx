@@ -52,7 +52,7 @@ const QuickActions = memo<QuickActionsProps>(({
   const defaultActions: QuickAction[] = [
     {
       id: 'new-task',
-      label: 'New Task',
+      label: t('ui.newTask'),
       icon: Plus,
       color: 'blue',
       onClick: onNewTask || (() => {}),
@@ -80,7 +80,7 @@ const QuickActions = memo<QuickActionsProps>(({
     },
     {
       id: 'ai-suggestions',
-      label: 'AI Insights',
+      label: t('ui.aiInsights'),
       icon: Brain,
       color: 'rose',
       onClick: onAISuggestions || (() => {}),

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useT } from '@/lib/i18n/client'
 import { useSession } from 'next-auth/react'
 
 interface LocationData {
@@ -10,6 +11,7 @@ interface LocationData {
 }
 
 export function useUserLocation() {
+  const { t } = useT()
   const { data: session, status } = useSession()
   const [location, setLocation] = useState<LocationData | null>(null)
   const [loading, setLoading] = useState(false)
@@ -17,7 +19,7 @@ export function useUserLocation() {
 
   const detectLocation = async () => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser')
+      setError(t('Geolocation is not supported by your browser'))
       return
     }
 

@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
         setError(data.error || 'Login failed')
       }
     } catch {
-      setError('Something went wrong. Try again.')
+      setError(t('ui.somethingWentWrongTryAgain'))
     } finally {
       setLoading(false)
     }

@@ -33,7 +33,7 @@ function VerifyEmailContent() {
         if (res.ok) {
           setStatus('success')
           setEmail(data.email)
-          setMessage('Your email has been verified successfully!')
+          setMessage(t('ui.yourEmailHasBeenVerifiedSuccessfully'))
           
           // Redirect to sign in after 3 seconds
           setTimeout(() => {
@@ -45,13 +45,13 @@ function VerifyEmailContent() {
         }
       } catch (error) {
         setStatus('error')
-        setMessage('An error occurred during verification')
+        setMessage(t('ui.anErrorOccurredDuringVerification'))
       }
     }
 
     if (!token) {
       setStatus('error')
-      setMessage('No verification token provided')
+      setMessage(t('ui.noVerificationTokenProvided'))
       return
     }
 
@@ -76,7 +76,7 @@ function VerifyEmailContent() {
       if (res.ok) {
         toast.success(t('ui.verificationEmailSentCheckYourInbox'))
       } else {
-        toast.error(data.error || 'Failed to resend email')
+        toast.error(t(data.error || 'Failed to resend email'))
       }
     } catch (error) {
       toast.error(t('ui.anErrorOccurred'))

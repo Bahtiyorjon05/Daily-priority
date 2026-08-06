@@ -50,13 +50,13 @@ export default function TasksSection() {
       })
       setShowNewTask(false)
       toast({
-        title: 'Success',
+        title: t('ui.success'),
         description: 'Task created successfully!',
       })
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create task. Please try again.',
+        title: t('ui.error'),
+        description: t('ui.failedToCreateTaskPleaseTryAgain'),
         variant: 'destructive'
       })
     }
@@ -66,13 +66,13 @@ export default function TasksSection() {
     try {
       await toggleTask(taskId)
       toast({
-        title: 'Success',
+        title: t('ui.success'),
         description: 'Task updated successfully!',
       })
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update task. Please try again.',
+        title: t('ui.error'),
+        description: t('ui.failedToUpdateTaskPleaseTryAgain'),
         variant: 'destructive'
       })
     }
@@ -82,13 +82,13 @@ export default function TasksSection() {
     try {
       await deleteTask(taskId)
       toast({
-        title: 'Success',
-        description: 'Task deleted successfully!',
+        title: t('ui.success'),
+        description: t('ui.taskDeletedSuccessfully'),
       })
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to delete task. Please try again.',
+        title: t('ui.error'),
+        description: t('ui.failedToDeleteTaskPleaseTryAgain'),
         variant: 'destructive'
       })
     }

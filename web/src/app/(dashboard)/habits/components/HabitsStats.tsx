@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Target, CheckCircle2, Flame, TrendingUp, Calendar } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,9 +13,10 @@ interface HabitsStatsProps {
 }
 
 export function HabitsStats({ totalHabits, completedToday, activeStreak, weeklyCompletion }: HabitsStatsProps) {
+  const { t } = useT()
   const statCards = [
     {
-      title: 'Total Habits',
+      title: t('ui.totalHabits'),
       value: totalHabits,
       icon: Target,
       gradient: 'from-emerald-500 to-teal-500',
@@ -38,7 +40,7 @@ export function HabitsStats({ totalHabits, completedToday, activeStreak, weeklyC
       iconColor: 'text-orange-600 dark:text-orange-400'
     },
     {
-      title: 'Weekly Rate',
+      title: t('ui.weeklyRate'),
       value: `${weeklyCompletion}%`,
       icon: TrendingUp,
       gradient: 'from-blue-500 to-cyan-500',
