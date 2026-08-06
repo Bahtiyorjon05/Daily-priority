@@ -78,26 +78,36 @@ The highest-leverage work in the whole plan.
 - [ ] Re-measure the activation table above; target ≥60% of new users creating something
   · **Not yet measurable** — onboarding shipped 2026-08-03, needs a cohort of new signups before the numbers mean anything.
 
-### Phase 2.5 — Bilingual (Uzbek + English) ⬜
+### Phase 2.5 — Bilingual (Uzbek + English) 🟨
 Every visible string in both languages, switchable from the top of any page.
 The user base is clearly not English-first, so this is an activation lever, not a nice-to-have.
 
-**Infrastructure (do once, up front):**
-- [ ] `next-intl` wired for the App Router with `uz` (default for existing users) and `en`
-- [ ] Locale switcher in the dashboard header — visible on every page, one tap, no reload
-- [ ] Persist choice: `User.locale` in the DB + localStorage so it survives devices and refreshes
-- [ ] Detect from `Accept-Language` on first visit; never guess again after the user chooses
+**Infrastructure — done 2026-08-06:**
+- [x] ✅ Custom cookie-based i18n, **not `next-intl`**. next-intl wants a `/[locale]/` segment, which
+      would have rewritten all 25 routes plus `start_url`, the SW cache keys, the NextAuth callbacks
+      and the new SEO work. Same result without touching routing.
+- [x] ✅ Locale switcher in the dashboard header and the marketing navbar (desktop + mobile drawer)
+- [x] ✅ Persisted to a cookie **and** `UserPreferences.language` — the column already existed, so no migration
+- [x] ✅ `Accept-Language` / `navigator.languages` on first visit only; the guess is never written to
+      the cookie, so an explicit choice stays distinguishable from one made for the user
+- [x] ✅ `messages/en.json` + `messages/uz.json`, flat namespaced keys; `en` is the typed source of truth
+- [x] ✅ 25 tests: header weighting (incl. `q=0`, wildcard), precedence, interpolation, dictionary parity
 - [ ] Locale-aware dates/numbers; keep Hijri formatting correct in both
-- [ ] `messages/en.json` + `messages/uz.json`, namespaced per feature
 - [ ] Lint rule / CI check that fails on a hard-coded user-facing string
+
+**Measured constraint worth keeping:** resolving the locale in the root layout via `cookies()` opts the
+entire app out of static rendering — the build flipped every route, including the marketing page, from
+○ to ƒ. The provider renders the default and corrects itself in a *layout* effect instead: before paint,
+so no flash, and the pages stay on the CDN.
 
 **Translation itself is done per feature, inside Phase 3.** Each feature deep-dive extracts and
 translates its own strings as part of its definition of done — a single 24-page translation
 sweep would be error-prone and would rot immediately. Auth, marketing and error/empty states
 are translated with the infrastructure since they sit outside Phase 3.
 
-- [ ] Auth pages + marketing + global empty/error states
-- [ ] Emails (verification, weekly review) follow the user's locale
+- [x] ✅ Auth pages + marketing + global empty/error states + navigation + prayer names (Bomdod,
+      Peshin, Shom, Xufton — the Uzbek terms, not transliterated Arabic)
+- [ ] Emails (verification, weekly review) follow the user's locale — `getUserTranslator()` is ready
 - [ ] Notification/push copy follows the user's locale
 
 ### Phase 3 — Feature deep-dives ⬜
@@ -142,4 +152,5 @@ Only after Phase 2 numbers improve.
 | Date | Work |
 |---|---|
 | 2026-08-02 | Phase 0 started: error tracking + indexes shipped. Baseline audit; Prisma 7 + Accelerate outage fix; SW stale-cache fix; admin dashboard; AES password vault; notifications/push/adhan; offline queue; streak freeze; mobile pass; this plan |
+| 2026-08-06 | Phase 2.5 infrastructure shipped: cookie-based uz/en, switcher on every page, nav + auth + marketing translated. Backed out a static-rendering regression found in the build (root-layout `cookies()` made all 25 routes dynamic). Fixed `/api/user/locale` 401ing before its handler ran, and the navbar's emerald-gradient contrast bug. Suite 79 -> 104 |
 | 2026-08-03 | Phase 1: fixed the white Prayer Day surfaces — root cause was `background:` shorthand with an undefined var wiping `background-image`; split `--phase-accent` (hue) from `--phase-ink-on-surface` (readable) after all 6 phases failed WCAG AA. Restored keyboard focus rings (`ring:` isn't a CSS property). Phase 2: onboarding shipped. Landing page: `PrayerDayShowcase`, mobile ambient background, reduced-motion honoured. Habits restored to the mobile More menu. Suite 20 failing → 79 passing |
