@@ -381,8 +381,8 @@ export default function AdhkarPage() {
                 {completedCount === totalCount && (
                   <div className="pt-4 border-t border-green-300 dark:border-green-700">
                     <p className="text-center text-lg font-semibold text-green-700 dark:text-green-300">
-                      🎉 Alhamdulillah! All {category} adhkar completed! 🎉
-                    </p>
+{t('ui.alhamdulillahAll')} {category} {t('ui.adhkarCompleted')}
+</p>
                   </div>
                 )}
               </div>
@@ -445,7 +445,7 @@ export default function AdhkarPage() {
                       {/* Footer Tags */}
                       <div className="flex flex-wrap gap-2 pt-2">
                         <span className="inline-flex items-center bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-200 text-xs sm:text-sm px-3 py-1.5 rounded-full border border-blue-200 dark:border-blue-800 font-semibold">
-                          Repeat {item.target}x
+{t('ui.repeat')} {item.target}x
                         </span>
                         <span className="inline-flex items-center bg-purple-100 dark:bg-purple-950/50 text-purple-800 dark:text-purple-200 text-xs sm:text-sm px-3 py-1.5 rounded-full border border-purple-200 dark:border-purple-800">
                           {item.source}
@@ -468,28 +468,28 @@ export default function AdhkarPage() {
                     <Flame className="h-10 w-10 text-orange-600 dark:text-orange-400" />
                     <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.currentStreak')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-orange-600 dark:text-orange-400">{statistics.currentStreak}</p>
-                    <p className="text-xs text-gray-500">consecutive days</p>
+                    <p className="text-xs text-gray-500">{t('ui.consecutiveDays')}</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 border-2 border-purple-300 dark:border-purple-700 hover:scale-105 transition-transform shadow-xl">
                     <Award className="h-10 w-10 text-purple-600 dark:text-purple-400" />
                     <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.bestStreak')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-purple-600 dark:text-purple-400">{statistics.longestStreak}</p>
-                    <p className="text-xs text-gray-500">days record</p>
+                    <p className="text-xs text-gray-500">{t('ui.daysRecord')}</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-950/40 dark:to-cyan-950/40 border-2 border-blue-300 dark:border-blue-700 hover:scale-105 transition-transform shadow-xl">
                     <Calendar className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                     <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.totalCompleted')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-blue-600 dark:text-blue-400">{statistics.totalCompletions}</p>
-                    <p className="text-xs text-gray-500">adhkar</p>
+                    <p className="text-xs text-gray-500">{t('ui.adhkar')}</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/40 dark:to-emerald-950/40 border-2 border-green-300 dark:border-green-700 hover:scale-105 transition-transform shadow-xl">
                     <TrendingUp className="h-10 w-10 text-green-600 dark:text-green-400" />
                     <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.successRate')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-green-600 dark:text-green-400">{statistics.completionRate}%</p>
-                    <p className="text-xs text-gray-500">last 30 days</p>
+                    <p className="text-xs text-gray-500">{t('ui.last30Days2')}</p>
                   </Card>
                 </div>
 

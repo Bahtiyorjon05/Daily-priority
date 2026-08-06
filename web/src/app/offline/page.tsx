@@ -27,9 +27,8 @@ export default function OfflinePage() {
 
         {/* Description */}
         <p className="text-lg text-slate-600 dark:text-slate-400">
-          It looks like you've lost your internet connection. Don't worry, your
-          data is safe and will sync when you're back online.
-        </p>
+{t('ui.itLooksLikeYouVeLostYourInternetConnectionDo')}
+</p>
 
         {/* Features available offline */}
         <div className="bg-white dark:bg-slate-800 rounded-lg p-6 text-left">

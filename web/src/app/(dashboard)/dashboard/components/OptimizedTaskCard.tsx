@@ -171,7 +171,7 @@ function TaskCard({
                 {task.estimatedTime && (
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    <span>{task.estimatedTime}min</span>
+                    <span>{task.estimatedTime}{t('ui.min')}</span>
                   </div>
                 )}
                 {task.energyLevel && (

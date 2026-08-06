@@ -72,7 +72,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
                 <p className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                   {currentStreak}
                 </p>
-                <p className="text-lg text-gray-600 dark:text-gray-400">days</p>
+                <p className="text-lg text-gray-600 dark:text-gray-400">{t('ui.days')}</p>
               </div>
             </div>
             <motion.div
@@ -106,7 +106,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
                 <p className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   {longestStreak}
                 </p>
-                <p className="text-lg text-gray-600 dark:text-gray-400">days</p>
+                <p className="text-lg text-gray-600 dark:text-gray-400">{t('ui.days')}</p>
               </div>
             </div>
             <div className="p-3 rounded-full bg-gradient-to-br from-purple-500 to-pink-500">
@@ -157,8 +157,8 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
                   {milestone.label ?? `${milestone.days} day streak`}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {milestone.days} consecutive days
-                </p>
+                  {milestone.days} {t('ui.consecutiveDays')}
+</p>
               </div>
             </div>
             {milestone.achieved && (

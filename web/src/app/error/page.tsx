@@ -53,7 +53,7 @@ function ErrorContent() {
             </p>
             {error && (
               <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                Error code: {error}
+{t('ui.errorCode')} {error}
               </p>
             )}
           </div>

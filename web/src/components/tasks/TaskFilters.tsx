@@ -142,8 +142,8 @@ const TaskFilters = memo<TaskFiltersProps>(({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Filter className="h-4 w-4" />
-                  Category
-                  {selectedCategory && (
+{t('ui.category')}
+{selectedCategory && (
                     <Badge variant="secondary" className="ml-1">
                       1
                     </Badge>

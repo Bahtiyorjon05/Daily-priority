@@ -85,14 +85,14 @@ export function FocusSession() {
           {/* Preset Times */}
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => { setMinutes(25); setSeconds(0); setIsActive(false); }}>
-              25 min
-            </Button>
+{t('ui.25Min')}
+</Button>
             <Button variant="outline" onClick={() => { setMinutes(5); setSeconds(0); setIsActive(false); }}>
-              5 min
-            </Button>
+{t('ui.5Min')}
+</Button>
             <Button variant="outline" onClick={() => { setMinutes(15); setSeconds(0); setIsActive(false); }}>
-              15 min
-            </Button>
+{t('ui.15Min')}
+</Button>
           </div>
         </div>
       </CardContent>

@@ -67,8 +67,8 @@ export default function PrayerStatistics({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">{t('ui.prayerStatistics')}</h3>
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            {completedPrayers} / {totalPrayers} Total Prayers
-          </div>
+            {completedPrayers} / {totalPrayers} {t('ui.totalPrayers')}
+</div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -119,8 +119,8 @@ export default function PrayerStatistics({
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">{t('ui.todaySProgress')}</h4>
           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            {todayCompleted} of 5 prayers
-          </span>
+            {todayCompleted} {t('ui.of5Prayers')}
+</span>
         </div>
         
         <div className="space-y-3">
@@ -141,8 +141,8 @@ export default function PrayerStatistics({
               animate={{ opacity: 1, scale: 1 }}
               className="text-center text-sm text-emerald-700 dark:text-emerald-300 font-medium"
             >
-              ✨ Alhamdulillah! All prayers completed today.
-            </motion.p>
+{t('ui.alhamdulillahAllPrayersCompletedToday')}
+</motion.p>
           )}
         </div>
       </Card>

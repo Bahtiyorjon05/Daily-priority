@@ -269,7 +269,7 @@ export default function VerifyCodePage() {
                   <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800 dark:text-blue-300">
                     <p className="font-semibold mb-1">{t('ui.checkYourEmailInbox')}</p>
-                    <p className="text-blue-700 dark:text-blue-400">The code may take a few moments to arrive. Don't forget to check your spam folder!</p>
+                    <p className="text-blue-700 dark:text-blue-400">{t('ui.theCodeMayTakeAFewMomentsToArriveDonTForgetT')}</p>
                   </div>
                 </div>
               </div>
@@ -375,7 +375,7 @@ export default function VerifyCodePage() {
                 </div>
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 dark:text-gray-400">
-                    Wrong email?{' '}
+{t('ui.wrongEmail')}{' '}
                     <button 
                       type="button"
                       onClick={() => {

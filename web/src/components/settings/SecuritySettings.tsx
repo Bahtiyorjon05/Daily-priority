@@ -318,8 +318,8 @@ export function SecuritySettings() {
                   {t('ui.wantToEnablePasswordLoginAnd2fa')}
                 </p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  You're currently using Google to sign in. To enable two-factor authentication or password-based login, you need to set a password first.
-                </p>
+{t('ui.youReCurrentlyUsingGoogleToSignInToEnableTwo')}
+</p>
                 <Button
                   onClick={() => window.location.href = '/set-password'}
                   className="mt-3 gap-2"
@@ -401,10 +401,10 @@ export function SecuritySettings() {
                     {t('ui.disable2fa')}
                   </Button>
                   <p className="text-sm text-slate-500">
-                    Lost access? You can{' '}
+{t('ui.lostAccessYouCan')}{' '}
                     <a href="/forgot-2fa" className="text-blue-600 hover:underline">
-                      recover your account via email
-                    </a>
+{t('ui.recoverYourAccountViaEmail')}
+</a>
                   </p>
                 </div>
               ) : (
@@ -584,7 +584,7 @@ export function SecuritySettings() {
                   aria-hidden="true"
                 />
                 <div className="space-y-2">
-                  <Label htmlFor="twoFactorPassword">2FA Password</Label>
+                  <Label htmlFor="twoFactorPassword">{t('auth.twoFactorPassword')}</Label>
                   <Input
                     id="twoFactorPassword"
                     name="two-factor-password"
@@ -620,8 +620,8 @@ export function SecuritySettings() {
             <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                This password will be required each time you sign in, after entering your regular password.
-              </p>
+{t('ui.thisPasswordWillBeRequiredEachTimeYouSignInA')}
+</p>
             </div>
           )}
           
@@ -686,8 +686,8 @@ export function SecuritySettings() {
           <DialogHeader>
             <DialogTitle>{t('ui.disableTwoFactorAuthentication')}</DialogTitle>
             <DialogDescription>
-              Enter your password to confirm disabling 2FA. This will make your account less secure.
-            </DialogDescription>
+{t('ui.enterYourPasswordToConfirmDisabling2faThisWi')}
+</DialogDescription>
           </DialogHeader>
           <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
             <div className="space-y-4 py-4">
@@ -717,8 +717,8 @@ export function SecuritySettings() {
               <div className="flex items-start gap-2 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
                 <ShieldAlert className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Disabling 2FA will reduce your account security. Only your password will be required to sign in.
-                </p>
+{t('ui.disabling2faWillReduceYourAccountSecurityOnl')}
+</p>
               </div>
             </div>
           </form>

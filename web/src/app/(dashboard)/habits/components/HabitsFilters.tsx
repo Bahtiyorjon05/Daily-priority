@@ -55,9 +55,9 @@ export function HabitsFilters({
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
               <SelectItem value="ALL" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.allFrequencies')}</SelectItem>
-              <SelectItem value="DAILY" className="text-emerald-700 dark:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-900/20">📅 Daily</SelectItem>
-              <SelectItem value="WEEKLY" className="text-blue-700 dark:text-blue-400 focus:bg-blue-50 dark:focus:bg-blue-900/20">📆 Weekly</SelectItem>
-              <SelectItem value="CUSTOM" className="text-purple-700 dark:text-purple-400 focus:bg-purple-50 dark:focus:bg-purple-900/20">⚙️ Custom</SelectItem>
+              <SelectItem value="DAILY" className="text-emerald-700 dark:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.daily2')}</SelectItem>
+              <SelectItem value="WEEKLY" className="text-blue-700 dark:text-blue-400 focus:bg-blue-50 dark:focus:bg-blue-900/20">{t('ui.weekly2')}</SelectItem>
+              <SelectItem value="CUSTOM" className="text-purple-700 dark:text-purple-400 focus:bg-purple-50 dark:focus:bg-purple-900/20">{t('ui.custom')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -72,9 +72,9 @@ export function HabitsFilters({
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
-              <SelectItem value="date" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">📅 Date Created</SelectItem>
-              <SelectItem value="streak" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">🔥 Streak</SelectItem>
-              <SelectItem value="name" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">🔤 Name</SelectItem>
+              <SelectItem value="date" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.dateCreated2')}</SelectItem>
+              <SelectItem value="streak" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.streak')}</SelectItem>
+              <SelectItem value="name" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.name')}</SelectItem>
             </SelectContent>
           </Select>
         </div>

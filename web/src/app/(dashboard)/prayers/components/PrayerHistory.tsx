@@ -53,8 +53,8 @@ export default function PrayerHistory({
               onClick={() => handleDaysChange(option)}
               className={selectedDays === option ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
             >
-              {option} Days
-            </Button>
+              {option} {t('ui.days2')}
+</Button>
           ))}
         </div>
       </div>

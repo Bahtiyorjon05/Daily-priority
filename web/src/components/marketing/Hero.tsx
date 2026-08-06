@@ -1,6 +1,7 @@
 'use client'
 
 import { useT } from '@/lib/i18n/client'
+import { RichText } from '@/lib/i18n/rich'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -60,6 +61,21 @@ const islamicQuotes = [
     reference: "Quran 11:115"
   }
 ]
+
+/** The underlined emphasis used inside the hero sentence. */
+function HeroHighlight({ children, delay }: { children: React.ReactNode; delay: number }) {
+  return (
+    <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
+      {children}
+      <motion.span
+        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.6, delay }}
+      />
+    </span>
+  )
+}
 
 // Floating orb component
 function FloatingOrb({ delay = 0, duration = 20, className = "" }: { delay?: number; duration?: number; className?: string }) {
@@ -330,27 +346,19 @@ export function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Organize your life around{' '}
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
-                  prayer times
-                  <motion.span
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.6, delay: 0.8 }}
-                  />
-                </span>
-                , achieve goals with{' '}
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
-                  {t('ui.islamicPrinciples')}
-                  <motion.span
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.6, delay: 1 }}
-                  />
-                </span>
-                , and grow spiritually every day.
+                {/*
+                  One key, not five fragments. The highlighted words sit in the
+                  middle of the sentence, and Uzbek orders the clause
+                  differently — translating each <span> on its own is what
+                  produced a half-English sentence.
+                */}
+                <RichText
+                  id="hero.subtitle"
+                  parts={{
+                    prayer: text => <HeroHighlight delay={0.8}>{text}</HeroHighlight>,
+                    principles: text => <HeroHighlight delay={1}>{text}</HeroHighlight>,
+                  }}
+                />
               </motion.p>
             </div>
 
@@ -444,7 +452,7 @@ export function Hero() {
                       <div className="absolute top-2 right-2 w-12 h-12 sm:w-16 sm:h-16 opacity-20 dark:opacity-10">
                         <Image 
                           src="/islamic-ornament.png" 
-                          alt="Islamic Ornament" 
+                          alt={t('ui.islamicOrnamentAlt')} 
                           width={64} 
                           height={64}
                           className="w-full h-full object-contain" 
@@ -470,7 +478,7 @@ export function Hero() {
                         <div className="absolute -right-12 -top-12 w-64 h-64 opacity-15 dark:opacity-10 pointer-events-none">
                           <Image 
                             src="/prayer-illustration.png" 
-                            alt="Prayer Illustration" 
+                            alt={t('ui.prayerIllustrationAlt')} 
                             width={256} 
                             height={256}
                             className="w-full h-full object-contain" 

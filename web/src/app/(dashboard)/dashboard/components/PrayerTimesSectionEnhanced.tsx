@@ -36,7 +36,7 @@ export default function PrayerTimesSectionEnhanced({
       <div className="bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">🕌 Prayer Times</h2>
+            <h2 className="text-xl font-bold text-white mb-1">{t('ui.prayerTimes2')}</h2>
             {locationLoading ? (
               <div className="text-white/80 flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
@@ -58,7 +58,7 @@ export default function PrayerTimesSectionEnhanced({
                 </Button>
               </div>
             ) : (
-              <p className="text-white/80">📍 Default Location</p>
+              <p className="text-white/80">{t('ui.defaultLocation')}</p>
             )}
           </div>
           <div className="flex items-center gap-3">

@@ -125,7 +125,7 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
 
                 {settings.enableMusic && (
                   <div className="space-y-2 p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-slate-300 dark:border-gray-700 shadow-sm">
-                    <Label className="text-slate-700 dark:text-gray-300 font-semibold">Volume: {settings.musicVolume}%</Label>
+                    <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.volume')} {settings.musicVolume}%</Label>
                     <Slider
                       value={[settings.musicVolume]}
                       onValueChange={(value) => onSettingsChange({ ...settings, musicVolume: value[0] })}

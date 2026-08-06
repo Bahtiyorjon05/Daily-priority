@@ -1,8 +1,22 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import en from '@/messages/en.json'
 import uz from '@/messages/uz.json'
+
+/**
+ * Literal text that is the same in every language: identifiers, addresses and
+ * the product name. Keep this list short and justified — anything added here
+ * stops being checked.
+ */
+const ALLOWED = new Set([
+  'Daily Priority', // product name
+  '/api/cron/reminders', // API path shown to the admin
+  'dailypriorityapp@gmail.com', // support address
+  '@Bahtiyorjon05', // Telegram handle
+  'null', // rendered literal in the admin table viewer
+])
 
 /**
  * Guards the bilingual sweep against drift.
@@ -54,21 +68,30 @@ describe('translation key coverage', () => {
   })
 
   it('no user-facing JSX text is left hard-coded', () => {
-    // Matches a capitalised text node between tags. Deliberately narrow: it
-    // catches the `>Some Label<` shape the sweep replaced, without flagging
-    // interpolations, punctuation-only nodes, or lowercase fragments.
-    const TEXT = /(?<![=-])>\s*([A-Z][A-Za-z0-9 ,.'’!?&:%/()—–-]{2,80})\s*</g
+    // Parsed, not pattern-matched. The first version of this test used a
+    // `>text<` regex and passed while 216 strings were still English — it
+    // couldn't see text adjacent to a `{expr}`, which is exactly the shape of a
+    // sentence broken up by a styled <span>. That's how the landing page ended
+    // up reading "achieve goals with Islomiy tamoyillar". The parser reports
+    // JsxText spans directly, so there is nothing to miss.
     const offenders: string[] = []
 
     for (const file of FILES) {
       if (!file.endsWith('.tsx')) continue
       const src = readFileSync(file, 'utf8')
       if (!src.includes("'use client'") && !src.includes('"use client"')) continue
-      for (const m of src.matchAll(TEXT)) {
-        const text = m[1].trim()
-        if (!/[A-Za-z]{3,}/.test(text)) continue
-        offenders.push(`${file.replace(SRC, 'src')} -> ${text}`)
+
+      const sf = ts.createSourceFile(file, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+      const visit = (node: ts.Node) => {
+        if (ts.isJsxText(node)) {
+          const text = node.text.trim()
+          if (text && /[A-Za-z]{3,}/.test(text) && !ALLOWED.has(text)) {
+            offenders.push(`${file.replace(SRC, 'src')} -> ${text}`)
+          }
+        }
+        ts.forEachChild(node, visit)
       }
+      visit(sf)
     }
 
     expect(offenders).toEqual([])

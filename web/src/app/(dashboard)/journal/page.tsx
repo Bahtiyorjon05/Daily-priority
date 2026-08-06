@@ -384,23 +384,23 @@ export default function JournalPage() {
             <div className="space-y-2">
               {entry.gratitude1 && (
                 <p className="text-sm text-slate-700 dark:text-gray-300 line-clamp-1">
-                  <span className="font-semibold">💛 Gratitude:</span> {entry.gratitude1}
+                  <span className="font-semibold">{t('ui.gratitude')}</span> {entry.gratitude1}
                 </p>
               )}
               {entry.goodDeeds && (
                 <p className="text-sm text-slate-700 dark:text-gray-300 line-clamp-1">
-                  <span className="font-semibold">✨ Good Deed:</span> {entry.goodDeeds}
+                  <span className="font-semibold">{t('ui.goodDeed')}</span> {entry.goodDeeds}
                 </p>
               )}
               {entry.reflection && (
                 <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-1">
-                  <span className="font-semibold">💭 Reflection:</span> {entry.reflection}
+                  <span className="font-semibold">{t('ui.reflection')}</span> {entry.reflection}
                 </p>
               )}
               <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
                 <span className="text-xs text-slate-500 dark:text-gray-500 font-medium">
-                  Complete entry with {contentCount} sections
-                </span>
+{t('ui.completeEntryWith')} {contentCount} {t('ui.sections')}
+</span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -445,8 +445,8 @@ export default function JournalPage() {
           <div>
             <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100">{t('ui.gratitudeJournal')}</h1>
             <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-              {entries.length} {entries.length === 1 ? 'entry' : 'entries'} recorded
-            </p>
+              {entries.length} {entries.length === 1 ? 'entry' : 'entries'} {t('ui.recorded')}
+</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -461,8 +461,8 @@ export default function JournalPage() {
             className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 hover:bg-slate-50 dark:hover:bg-gray-700"
           >
             <BarChart3 className="h-4 w-4 mr-2" />
-            {showStats ? 'Hide' : 'Show'} Stats
-          </Button>
+            {showStats ? 'Hide' : 'Show'} {t('ui.stats')}
+</Button>
           <Button
             onClick={() => setShowCreateModal(true)}
             style={{
@@ -514,7 +514,7 @@ export default function JournalPage() {
                     <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                     <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.currentStreak')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{stats.currentStreak} days</p>
+                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{stats.currentStreak} {t('ui.days')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-pink-100 dark:bg-pink-900/30">
@@ -554,7 +554,7 @@ export default function JournalPage() {
                     <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                     <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.longestStreak')}</span>
                   </div>
-                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.longestStreak} days</p>
+                  <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.longestStreak} {t('ui.days')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-cyan-100 dark:bg-cyan-900/30">
@@ -699,7 +699,7 @@ export default function JournalPage() {
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-                Page {currentPage} of {totalPages}
+{t('ui.page')} {currentPage} of {totalPages}
               </span>
               <Button
                 variant="outline"
@@ -902,7 +902,7 @@ export default function JournalPage() {
                     <div className="mt-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-700">
                       <p className="text-sm text-center text-emerald-700 dark:text-emerald-300 font-medium flex items-center justify-center gap-2">
                         <span className="text-2xl">{MOODS.find(m => m.value === newEntry.mood)?.emoji}</span>
-                        <span>You feel {MOODS.find(m => m.value === newEntry.mood)?.label?.toLowerCase()} today</span>
+                        <span>{t('ui.youFeel')} {MOODS.find(m => m.value === newEntry.mood)?.label?.toLowerCase()} {t('ui.today')}</span>
                       </p>
                     </div>
                   )}
@@ -978,7 +978,7 @@ export default function JournalPage() {
                         <p className="text-sm text-slate-600 dark:text-gray-400">{viewingEntry.hijriDate}</p>
                       )}
                       <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">
-                        Feeling: {MOODS.find(m => m.value === viewingEntry.mood)?.label || 'Unknown'}
+{t('ui.feeling')} {MOODS.find(m => m.value === viewingEntry.mood)?.label || 'Unknown'}
                       </p>
                     </div>
                   </div>
@@ -1035,7 +1035,7 @@ export default function JournalPage() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                   <span className="text-xs text-slate-500 dark:text-gray-500">
-                    Created {new Date(viewingEntry.createdAt).toLocaleDateString()}
+{t('ui.created')} {new Date(viewingEntry.createdAt).toLocaleDateString()}
                   </span>
                   <Button
                     variant="outline"

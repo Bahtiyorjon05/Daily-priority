@@ -53,7 +53,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                 <p className="text-3xl font-bold text-purple-900 dark:text-purple-100 mt-2">
                   {formatTime(stats.today.focusTime)}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">{stats.today.sessions} sessions</p>
+                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">{stats.today.sessions} {t('ui.sessions2')}</p>
               </div>
               <Clock className="h-10 w-10 text-purple-600 dark:text-purple-500" />
             </div>
@@ -68,7 +68,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                 <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100 mt-2">
                   {formatTime(stats.week.focusTime)}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">{stats.week.sessions} sessions</p>
+                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">{stats.week.sessions} {t('ui.sessions2')}</p>
               </div>
               <TrendingUp className="h-10 w-10 text-emerald-600 dark:text-emerald-500" />
             </div>
@@ -83,7 +83,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                 <p className="text-3xl font-bold text-orange-900 dark:text-orange-100 mt-2">
                   {stats.allTime.currentStreak}
                 </p>
-                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">days</p>
+                <p className="text-xs text-slate-600 dark:text-gray-400 mt-1 font-medium">{t('ui.days')}</p>
               </div>
               <Flame className="h-10 w-10 text-orange-600 dark:text-orange-500" />
             </div>
@@ -293,7 +293,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                             {type.type === 'shortBreak' ? 'Short Break' : type.type === 'longBreak' ? 'Long Break' : type.type}
                           </span>
                           <span className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-                            {type.count} sessions • {formatTime(type.totalTime)}
+                            {type.count} {t('ui.sessions3')} {formatTime(type.totalTime)}
                           </span>
                         </div>
                         <div className="h-3 bg-slate-200 dark:bg-gray-700 rounded-full overflow-hidden">

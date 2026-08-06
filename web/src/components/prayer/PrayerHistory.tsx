@@ -50,7 +50,7 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
     <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">{t('ui.prayerHistory')}</h3>
-        <span className="text-sm text-gray-600 dark:text-gray-400">Last {daysToShow} days</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{t('ui.last')} {daysToShow} {t('ui.days')}</span>
       </div>
 
       <div className="space-y-4">
@@ -74,7 +74,7 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
                     <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                       {day.completionRate}%
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">completed</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">{t('ui.completed3')}</div>
                   </div>
                 </div>
 

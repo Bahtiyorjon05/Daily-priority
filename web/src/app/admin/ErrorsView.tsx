@@ -83,13 +83,13 @@ export default function ErrorsView() {
           onClick={() => setShowResolved(false)}
           className={`rounded-full px-3 py-1 text-xs font-medium ${!showResolved ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
         >
-          Open ({openCount})
+{t('ui.open')}{openCount})
         </button>
         <button
           onClick={() => setShowResolved(true)}
           className={`rounded-full px-3 py-1 text-xs font-medium ${showResolved ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
         >
-          Resolved ({resolvedCount})
+{t('ui.resolved')}{resolvedCount})
         </button>
         <button onClick={load} className="ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> {t('ui.refresh')}
@@ -102,7 +102,7 @@ export default function ErrorsView() {
       </div>
 
       {loading && rows.length === 0 ? (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">Loading…</div>
+        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{t('common.loading')}</div>
       ) : rows.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
           <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
@@ -158,9 +158,9 @@ export default function ErrorsView() {
                       </pre>
                     )}
                     <div className="grid grid-cols-1 gap-1 text-xs text-muted-foreground sm:grid-cols-2">
-                      <div>First seen: {new Date(e.firstSeenAt).toLocaleString()}</div>
-                      <div>Last seen: {new Date(e.lastSeenAt).toLocaleString()}</div>
-                      {e.userId && <div>User: {e.userId}</div>}
+                      <div>{t('ui.firstSeen')} {new Date(e.firstSeenAt).toLocaleString()}</div>
+                      <div>{t('ui.lastSeen')} {new Date(e.lastSeenAt).toLocaleString()}</div>
+                      {e.userId && <div>{t('ui.user')} {e.userId}</div>}
                       {e.userAgent && <div className="truncate">UA: {e.userAgent}</div>}
                     </div>
                   </div>

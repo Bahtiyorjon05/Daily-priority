@@ -770,8 +770,8 @@ export default function CalendarPage() {
                       ))}
                       {dayEvents.length > 2 && (
                         <div className="text-[11px] text-slate-700 dark:text-slate-300 px-2 font-bold bg-slate-100 dark:bg-slate-800 rounded-lg py-1 border border-slate-300 dark:border-slate-700 text-center">
-                          +{dayEvents.length - 2} more events
-                        </div>
+                          +{dayEvents.length - 2} {tr('ui.moreEvents')}
+</div>
                       )}
                     </div>
                   </motion.div>
@@ -801,8 +801,8 @@ export default function CalendarPage() {
                 </CardTitle>
                 {upcomingEvents.length > 0 && (
                   <div className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50 px-3 py-1 rounded-full">
-                    {upcomingEvents.length} total
-                  </div>
+                    {upcomingEvents.length} {tr('ui.total')}
+</div>
                 )}
               </div>
             </CardHeader>
@@ -871,8 +871,8 @@ export default function CalendarPage() {
                         variant="outline"
                         className="border-2 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 font-semibold shadow-sm transition-all hover:scale-105"
                       >
-                        Load More ({upcomingEvents.length - upcomingPage * ITEMS_PER_PAGE} remaining)
-                      </Button>
+{tr('ui.loadMore')}{upcomingEvents.length - upcomingPage * ITEMS_PER_PAGE} {tr('ui.remaining')}
+</Button>
                     </div>
                   )}
                 </>
@@ -898,8 +898,8 @@ export default function CalendarPage() {
                 </CardTitle>
                 {pastEvents.length > 0 && (
                   <div className="text-sm font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
-                    {pastEvents.length} total
-                  </div>
+                    {pastEvents.length} {tr('ui.total')}
+</div>
                 )}
               </div>
             </CardHeader>
@@ -968,8 +968,8 @@ export default function CalendarPage() {
                         variant="outline"
                         className="border-2 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 font-semibold shadow-sm transition-all hover:scale-105"
                       >
-                        Load More ({pastEvents.length - pastPage * ITEMS_PER_PAGE} remaining)
-                      </Button>
+{tr('ui.loadMore')}{pastEvents.length - pastPage * ITEMS_PER_PAGE} {tr('ui.remaining')}
+</Button>
                     </div>
                   )}
                 </>
@@ -1015,7 +1015,7 @@ export default function CalendarPage() {
 
               <div className="space-y-5">
                 <div>
-                  <Label htmlFor="event-title" className="text-slate-900 dark:text-slate-100 font-bold text-sm">Event Title *</Label>
+                  <Label htmlFor="event-title" className="text-slate-900 dark:text-slate-100 font-bold text-sm">{tr('ui.eventTitle')}</Label>
                   <Input
                     id="event-title"
                     value={eventForm.title}
@@ -1027,7 +1027,7 @@ export default function CalendarPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="event-date" className="text-slate-900 dark:text-slate-100 font-bold text-sm">Date *</Label>
+                  <Label htmlFor="event-date" className="text-slate-900 dark:text-slate-100 font-bold text-sm">{tr('ui.date2')}</Label>
                   <Input
                     id="event-date"
                     type="date"

@@ -60,8 +60,8 @@ export function Footer() {
             <div className="flex items-center justify-center gap-2 sm:gap-3">
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
               <p className="text-base sm:text-lg md:text-xl font-semibold text-emerald-800 dark:text-emerald-200">
-                {t('ui.thisPlatformIsOur')} <span className="text-emerald-700 dark:text-emerald-300 font-black">{t('ui.sadaqahJariyah')}</span> for you
-              </p>
+                {t('ui.thisPlatformIsOur')} <span className="text-emerald-700 dark:text-emerald-300 font-black">{t('ui.sadaqahJariyah')}</span> {t('ui.forYou')}
+</p>
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
@@ -75,8 +75,8 @@ export function Footer() {
           {/* Copyright */}
           <div className="space-y-3">
             <p className="text-slate-800 dark:text-slate-200 text-sm sm:text-base md:text-lg font-bold">
-              © {new Date().getFullYear()} Daily Priority • For Muslims Worldwide
-            </p>
+              © {new Date().getFullYear()} {t('ui.dailyPriorityForMuslimsWorldwide')}
+</p>
             <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-medium">
               {t('ui.mayAllahAcceptThisWorkAndBenefitTheUmmah')}
             </p>

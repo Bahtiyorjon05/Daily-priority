@@ -127,8 +127,8 @@ export function InstallSection() {
               {t('ui.getTheApp')}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-              Free • No app store needed • Works offline
-            </p>
+{t('ui.freeNoAppStoreNeededWorksOffline')}
+</p>
 
             <motion.button
               whileHover={{ scale: 1.03 }}

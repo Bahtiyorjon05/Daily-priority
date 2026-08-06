@@ -138,7 +138,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300">{error}</div>
       ) : loading && !data ? (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">Loading…</div>
+        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{t('common.loading')}</div>
       ) : data && filtered.length > 0 ? (
         <DataTable columns={data.columns} rows={filtered} isUserTable={isUserTable} reveal={reveal} />
       ) : (
@@ -154,7 +154,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
             </select>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-muted-foreground">Page {data.page} / {data.totalPages}</span>
+            <span className="text-muted-foreground">{t('ui.page')} {data.page} / {data.totalPages}</span>
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={data.page <= 1} className="rounded-md border p-1.5 hover:bg-muted disabled:opacity-40"><ChevronLeft className="h-4 w-4" /></button>
             <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={data.page >= data.totalPages} className="rounded-md border p-1.5 hover:bg-muted disabled:opacity-40"><ChevronRight className="h-4 w-4" /></button>
           </div>
@@ -197,8 +197,10 @@ function DataTable({ columns, rows, isUserTable, reveal }: { columns: string[]; 
 }
 
 function Cell({ column, value, isUserTable, reveal }: { column: string; value: unknown; isUserTable: boolean; reveal: boolean }) {
+  const { t } = useT()
+
   if (isUserTable && column === 'password (decrypted)') {
-    if (value == null || value === '') return <span className="text-xs italic text-muted-foreground">— pending</span>
+    if (value == null || value === '') return <span className="text-xs italic text-muted-foreground">{t('ui.pending2')}</span>
     return (
       <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2 py-0.5 font-mono text-xs font-medium text-primary">
         <KeyRound className="h-3 w-3" />{reveal ? String(value) : '•'.repeat(Math.min(12, String(value).length))}

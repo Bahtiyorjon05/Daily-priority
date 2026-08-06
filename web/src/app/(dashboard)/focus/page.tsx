@@ -449,8 +449,8 @@ export default function FocusPage() {
                 </div>
                 <h3 className="text-lg font-semibold">{t('ui.noFocusSessionsYet')}</h3>
                 <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-                  Run your first session and your streaks, totals and daily breakdown will appear here.
-                </p>
+{t('ui.runYourFirstSessionAndYourStreaksTotalsAndDa')}
+</p>
                 <Button className="mt-5" onClick={() => setActiveTab('timer')}>
                   {t('ui.startASession')}
                 </Button>
@@ -473,9 +473,9 @@ export default function FocusPage() {
                   <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                   <div>
                     <p className="font-semibold text-emerald-900 dark:text-emerald-100">
-                      {completedSessions} Session{completedSessions > 1 ? 's' : ''}!
+                      {completedSessions} {t('ui.session')}{completedSessions > 1 ? 's' : ''}!
                     </p>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300">Keep going! 🔥</p>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">{t('ui.keepGoing')}</p>
                   </div>
                 </CardContent>
               </Card>

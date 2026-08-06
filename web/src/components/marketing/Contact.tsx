@@ -421,8 +421,8 @@ export function Contact() {
                           className="space-y-2"
                         >
                           <h3 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
-                            Message Sent! 🎉
-                          </h3>
+{t('ui.messageSent')}
+</h3>
                           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xs mx-auto text-pretty">
                             {t('ui.thankYouForReachingOutWeLlGetBackToYouWithin')}
                           </p>

@@ -122,13 +122,13 @@ export default function UsersView() {
             {f.label}
           </button>
         ))}
-        <span className="ml-auto self-center text-xs text-muted-foreground">{visible.length} users</span>
+        <span className="ml-auto self-center text-xs text-muted-foreground">{visible.length} {tr('ui.users2')}</span>
       </div>
 
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300">{error}</div>
       ) : loading ? (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">Loading users…</div>
+        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{tr('ui.loadingUsers')}</div>
       ) : (
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
           {visible.map((u) => (
@@ -259,7 +259,7 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
         </div>
 
         {loading || !data ? (
-          <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">Loading…</div>
+          <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">{tr('common.loading')}</div>
         ) : (
           <div className="flex-1 overflow-y-auto p-5">
             {/* Profile + password */}
@@ -285,7 +285,7 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
                   </button>
                 </>
               ) : (
-                <span className="text-sm italic text-muted-foreground">— pending (captured on next reset/sign-in)</span>
+                <span className="text-sm italic text-muted-foreground">{tr('ui.pendingCapturedOnNextResetSignIn')}</span>
               )}
             </div>
 

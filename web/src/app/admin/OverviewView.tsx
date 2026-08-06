@@ -153,7 +153,7 @@ export default function OverviewView() {
     })()
   }, [])
 
-  if (loading) return <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">Loading overview…</div>
+  if (loading) return <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">{t('ui.loadingOverview')}</div>
   if (error) return <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300">{error}</div>
   if (!data) return null
 
@@ -254,7 +254,7 @@ export default function OverviewView() {
             <div key={u.userId} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/50">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>
               <span className="min-w-0 flex-1 truncate text-sm">{u.name || u.email}</span>
-              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{u.tasks} tasks</span>
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{u.tasks} {t('ui.tasks')}</span>
             </div>
           ))}
         </div>

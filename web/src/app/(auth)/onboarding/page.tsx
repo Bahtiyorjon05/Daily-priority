@@ -154,7 +154,7 @@ export default function OnboardingPage() {
         <div className="overflow-hidden rounded-3xl border border-black/5 bg-white shadow-xl dark:border-white/10 dark:bg-gray-900">
           <div className="phase-hero px-6 py-5">
             <p className="text-xs font-medium uppercase tracking-wide text-white/80">
-              Step {index + 1} of {STEPS.length}
+{tr('ui.step')} {index + 1} of {STEPS.length}
             </p>
             <h1 className="mt-0.5 text-xl font-bold text-white">
               {step === 'location' && 'Where are you praying from?'}
@@ -168,8 +168,8 @@ export default function OnboardingPage() {
               {step === 'location' && (
                 <motion.div key="location" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}>
                   <p className="mb-4 text-sm text-muted-foreground">
-                    Your city sets accurate prayer times. Nothing is shared — it stays on your account.
-                  </p>
+{tr('ui.yourCitySetsAccuratePrayerTimesNothingIsShar')}
+</p>
 
                   <button
                     onClick={detectLocation}
@@ -243,8 +243,8 @@ export default function OnboardingPage() {
               {step === 'reminders' && (
                 <motion.div key="reminders" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}>
                   <p className="mb-4 text-sm text-muted-foreground">
-                    A quiet reminder shortly before each prayer. You can change or turn this off any time in Settings.
-                  </p>
+{tr('ui.aQuietReminderShortlyBeforeEachPrayerYouCanC')}
+</p>
 
                   <div className="mb-4 space-y-2">
                     <button
@@ -256,8 +256,8 @@ export default function OnboardingPage() {
                       className="phase-bg-accent flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />}
-                      Yes, remind me
-                    </button>
+{tr('ui.yesRemindMe')}
+</button>
                     <button
                       onClick={() => finish()}
                       disabled={saving}

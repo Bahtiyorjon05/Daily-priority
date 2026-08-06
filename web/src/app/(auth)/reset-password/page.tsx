@@ -345,7 +345,7 @@ export default function ResetPasswordPage() {
                 </div>
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 dark:text-gray-400">
-                    Changed your mind?{' '}
+{t('ui.changedYourMind')}{' '}
                     <button 
                       type="button"
                       onClick={() => {

@@ -280,7 +280,7 @@ export function ProfileSettings() {
 
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-base font-semibold">Display Name *</Label>
+            <Label htmlFor="name" className="text-base font-semibold">{tr('ui.displayName')}</Label>
             <Input
               id="name"
               value={formData.name}
@@ -330,16 +330,15 @@ export function ProfileSettings() {
                 ) : (
                   <MapPin className="h-4 w-4" />
                 )}
-                Detect
-              </Button>
+{tr('ui.detect')}
+</Button>
             </div>
             {locationError && (
               <p className="text-xs text-red-500">{locationError}</p>
             )}
             <p className="text-xs text-slate-500">
-              📍 <strong>{tr('ui.homeLocation')}</strong> This is your default/home location saved for your profile. 
-              Prayer times always use your CURRENT location (detected automatically) for accuracy.
-            </p>
+              📍 <strong>{tr('ui.homeLocation')}</strong> {tr('ui.thisIsYourDefaultHomeLocationSavedForYourPro')}
+</p>
           </div>
 
           {/* Timezone */}

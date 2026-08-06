@@ -481,7 +481,7 @@ export function SignUpForm() {
               {formatTime(timeLeft)}
             </p>
             <p className="text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-400">
-              Expires in {formatTime(timeLeft)}
+{t('ui.expiresIn')} {formatTime(timeLeft)}
             </p>
           </div>
 
@@ -761,7 +761,7 @@ export function SignUpForm() {
       {/* Sign In Link */}
       <div className="pt-2 text-center">
         <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400">
-          Already have an account?{' '}
+{t('auth.haveAccount')}{' '}
           <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
             {t('ui.signIn')}
             <Shield className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />

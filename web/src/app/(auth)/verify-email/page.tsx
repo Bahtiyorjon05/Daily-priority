@@ -131,9 +131,9 @@ function VerifyEmailContent() {
                 {t('ui.commonIssues')}
               </p>
               <ul className="text-sm text-slate-500 space-y-1">
-                <li>• The link may have expired (valid for 24 hours)</li>
-                <li>• The link may have already been used</li>
-                <li>• The link may be invalid or incomplete</li>
+                <li>{t('ui.theLinkMayHaveExpiredValidFor24Hours')}</li>
+                <li>{t('ui.theLinkMayHaveAlreadyBeenUsed')}</li>
+                <li>{t('ui.theLinkMayBeInvalidOrIncomplete')}</li>
               </ul>
 
               <div className="pt-4">

@@ -106,8 +106,8 @@ export function KeyboardShortcutsHelp() {
                   {/* Footer */}
                   <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                     <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
-                      {t('ui.press')} <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">{t('ui.shift')}</kbd> + <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">?</kbd> anytime to view shortcuts
-                    </p>
+                      {t('ui.press')} <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">{t('ui.shift')}</kbd> + <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">?</kbd> {t('ui.anytimeToViewShortcuts')}
+</p>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

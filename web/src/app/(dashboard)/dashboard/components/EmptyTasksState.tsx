@@ -30,8 +30,8 @@ export default function EmptyTasksState() {
           </h3>
           
           <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
-            Great! You're all caught up. Start by creating your first task to stay organized and productive.
-          </p>
+{t('ui.greatYouReAllCaughtUpStartByCreatingYourFirs')}
+</p>
           
           <motion.div
             initial={{ opacity: 0 }}

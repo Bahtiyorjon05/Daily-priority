@@ -87,9 +87,8 @@ export default function HealthPanel() {
           <div>
             <p className="font-semibold">{t('ui.reminderSchedulerHasNeverRun')}</p>
             <p className="mt-0.5">
-              Prayer and habit reminders won&apos;t be delivered until an external scheduler
-              calls <code>/api/cron/reminders</code> every 5 minutes.
-            </p>
+{t('ui.prayerAndHabitRemindersWonTBeDeliveredUntilA')} <code>/api/cron/reminders</code> {t('ui.every5Minutes')}
+</p>
           </div>
         </div>
       ) : reminders?.stale ? (
@@ -97,7 +96,7 @@ export default function HealthPanel() {
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="font-semibold">{t('ui.schedulerLooksStopped')}</p>
-            <p className="mt-0.5">Last run {rel(reminders.ageMs)} — expected every few minutes.</p>
+            <p className="mt-0.5">{t('ui.lastRun')} {rel(reminders.ageMs)} {t('ui.expectedEveryFewMinutes')}</p>
           </div>
         </div>
       ) : null}
@@ -136,7 +135,7 @@ export default function HealthPanel() {
                 {rel(j.ageMs)}
               </span>
               <span className="ml-auto text-muted-foreground">
-                {j.runCount} runs{j.durationMs != null ? ` · ${j.durationMs}ms` : ''}
+                {j.runCount} {t('ui.runs')}{j.durationMs != null ? ` · ${j.durationMs}ms` : ''}
               </span>
             </div>
           ))}

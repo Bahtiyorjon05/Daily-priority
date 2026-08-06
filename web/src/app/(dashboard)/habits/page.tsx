@@ -388,11 +388,11 @@ export default function HabitsPage() {
           {/* Results count */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {paginatedHabits.length} of {filteredAndSortedHabits.length} habit{filteredAndSortedHabits.length !== 1 ? 's' : ''}
+{t('ui.showing')} {paginatedHabits.length} of {filteredAndSortedHabits.length} {t('ui.habit')}{filteredAndSortedHabits.length !== 1 ? 's' : ''}
             </p>
             {totalPages > 1 && (
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Page {currentPage} of {totalPages}
+{t('ui.page')} {currentPage} of {totalPages}
               </p>
             )}
           </div>
@@ -456,8 +456,8 @@ export default function HabitsPage() {
                           <div className="flex items-center gap-2">
                             <Flame className="h-4 w-4 text-orange-500" />
                             <span className="font-semibold text-gray-700 dark:text-gray-300">
-                              {habit.currentStreak} day streak
-                            </span>
+                              {habit.currentStreak} {t('ui.dayStreak2')}
+</span>
                             {habit.streakProtected && (
                               <span
                                 title={`A missed day was covered by a streak freeze. ${habit.freezesRemaining} left this month.`}
@@ -469,14 +469,14 @@ export default function HabitsPage() {
                             )}
                           </div>
                           <span className="text-gray-500 dark:text-gray-400">
-                            Best: {habit.longestStreak}
+{t('ui.best')} {habit.longestStreak}
                           </span>
                         </div>
                         {typeof habit.freezesRemaining === 'number' && (
                           <div className="mt-1 flex items-center gap-1 text-[11px] text-gray-400 dark:text-gray-500">
                             <Snowflake className="h-3 w-3" />
-                            {habit.freezesRemaining} streak {habit.freezesRemaining === 1 ? 'freeze' : 'freezes'} left
-                          </div>
+                            {habit.freezesRemaining} {t('ui.streak2')} {habit.freezesRemaining === 1 ? 'freeze' : 'freezes'} {t('ui.left')}
+</div>
                         )}
 
                         {/* Check-in Button */}
@@ -625,8 +625,8 @@ export default function HabitsPage() {
                   <div>
                     <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewHabit')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      🎯 Build a new positive habit
-                    </p>
+{t('ui.buildANewPositiveHabit')}
+</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -654,7 +654,7 @@ export default function HabitsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      {t('ui.description')} <span className="text-gray-400 text-xs">(Optional)</span>
+                      {t('ui.description')} <span className="text-gray-400 text-xs">{t('ui.optional')}</span>
                     </label>
                     <Textarea
                       value={newHabit.description}
@@ -673,9 +673,9 @@ export default function HabitsPage() {
                       onChange={(e) => setNewHabit(prev => ({ ...prev, frequency: e.target.value as 'DAILY' | 'WEEKLY' | 'CUSTOM' }))}
                       className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-500"
                     >
-                      <option value="DAILY">📅 Daily</option>
-                      <option value="WEEKLY">📆 Weekly</option>
-                      <option value="CUSTOM">⚙️ Custom</option>
+                      <option value="DAILY">{t('ui.daily2')}</option>
+                      <option value="WEEKLY">{t('ui.weekly2')}</option>
+                      <option value="CUSTOM">{t('ui.custom')}</option>
                     </select>
                   </div>
 
@@ -749,22 +749,22 @@ export default function HabitsPage() {
                     {t('ui.deleteHabit')}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Are you sure you want to delete{' '}
+{t('ui.areYouSureYouWantToDelete')}{' '}
                     <span className="font-semibold text-gray-900 dark:text-white">
                       "{deletingHabit.title}"
                     </span>
                     ?
                   </p>
                   <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                    ⚠️ This will delete all completion history!
-                  </p>
+{t('ui.thisWillDeleteAllCompletionHistory')}
+</p>
 
                   <div className="p-4 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600 dark:text-gray-400">{t('ui.currentStreak2')}</span>
                       <span className="font-semibold text-gray-900 dark:text-white">
-                        🔥 {deletingHabit.currentStreak} days
-                      </span>
+                        🔥 {deletingHabit.currentStreak} {t('ui.days')}
+</span>
                     </div>
                   </div>
                 </div>

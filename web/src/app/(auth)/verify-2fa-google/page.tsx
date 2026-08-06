@@ -158,8 +158,8 @@ function Verify2FAGoogleContent() {
             <div className="space-y-2">
               <Label htmlFor="twoFactorPassword" className="text-xs sm:text-sm lg:text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
                 <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-emerald-600 dark:text-emerald-400" />
-                2FA Password
-              </Label>
+{t('auth.twoFactorPassword')}
+</Label>
               <div className="relative">
                 <Input
                   id="twoFactorPassword"
@@ -201,8 +201,8 @@ function Verify2FAGoogleContent() {
             <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 rounded-xl border-2 border-blue-300 dark:border-blue-600/50 shadow-sm">
               <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-300 flex-shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm lg:text-base text-blue-800 dark:text-blue-100 font-medium leading-relaxed">
-                Your account is protected with two-factor authentication. Enter your 2FA password to continue.
-              </p>
+{t('ui.yourAccountIsProtectedWithTwoFactorAuthentic')}
+</p>
             </div>
 
             {/* Buttons */}

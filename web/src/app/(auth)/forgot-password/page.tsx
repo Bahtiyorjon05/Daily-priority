@@ -289,7 +289,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <div className="mt-4 sm:mt-5 md:mt-6 text-center">
                   <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400">
-                    Remember your password?{' '}
+{t('ui.rememberYourPassword')}{' '}
                     <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
                       {t('ui.signIn')}
                       <Shield className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />

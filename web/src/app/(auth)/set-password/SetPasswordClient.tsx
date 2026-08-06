@@ -271,9 +271,8 @@ export default function SetPasswordClient() {
                           {t('ui.whyIsAPasswordRequired')}
                         </p>
                         <p className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed">
-                          All users must have a password for security purposes. This ensures you can always access your account,
-                          even if your Google sign-in is unavailable. You'll be able to sign in with either Google or your password.
-                        </p>
+{t('ui.allUsersMustHaveAPasswordForSecurityPurposes')}
+</p>
                       </div>
                     </div>
                   </div>
@@ -407,8 +406,8 @@ export default function SetPasswordClient() {
                 </div>
                 <div className="mt-6 text-center space-y-3">
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-                    After setting your password, you'll be able to sign in with {isRequired ? 'both Google and' : ''} email/password.
-                  </p>
+{t('ui.afterSettingYourPasswordYouLlBeAbleToSignInW')} {isRequired ? 'both Google and' : ''} {t('ui.emailPassword')}
+</p>
                   {isRequired && (
                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                       <button

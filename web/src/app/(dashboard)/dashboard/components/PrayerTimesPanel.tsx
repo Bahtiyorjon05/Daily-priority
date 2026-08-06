@@ -88,7 +88,7 @@ export default function PrayerTimesPanel() {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">
             <span>{t('ui.todaySPrayers')}</span>
-            <span className="text-emerald-600 dark:text-emerald-400">{completedCount}/5 completed</span>
+            <span className="text-emerald-600 dark:text-emerald-400">{completedCount}{t('ui.5Completed')}</span>
           </div>
 
           {prayerTimes.map((prayer, index) => (

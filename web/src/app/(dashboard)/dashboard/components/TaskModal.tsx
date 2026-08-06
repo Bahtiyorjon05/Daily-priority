@@ -93,8 +93,8 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                 {/* Title */}
                 <div>
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                    Task Title *
-                  </label>
+{t('ui.taskTitle2')}
+</label>
                   <Input
                     autoFocus
                     placeholder={t('ui.whatNeedsToBeDone')}

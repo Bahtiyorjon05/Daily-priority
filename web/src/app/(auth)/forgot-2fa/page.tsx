@@ -548,10 +548,10 @@ export default function Forgot2FAPage() {
         {/* Help Text */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Need help? Contact{' '}
+{t('ui.needHelpContact')}{' '}
             <a href={`mailto:${SUPPORT_EMAIL}`} className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-semibold hover:underline">
-              support
-            </a>
+{t('ui.support')}
+</a>
           </p>
         </div>
       </div>

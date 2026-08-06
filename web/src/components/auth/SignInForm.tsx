@@ -386,7 +386,7 @@ export function SignInForm() {
       {/* Sign Up Link */}
       <div className="pt-4 text-center">
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-          Don't have an account?{' '}
+{t('auth.noAccount')}{' '}
           <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
             {t('ui.signUp')}
             <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />

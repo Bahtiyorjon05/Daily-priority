@@ -206,9 +206,8 @@ export default function AnalyticsPage() {
         </div>
         <h2 className="text-xl font-semibold">{t('ui.noAnalyticsYet')}</h2>
         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-          Complete a few tasks, log a prayer, or run a focus session — your trends and
-          insights will show up here.
-        </p>
+{t('ui.completeAFewTasksLogAPrayerOrRunAFocusSessio')}
+</p>
         <Link
           href="/dashboard"
           className="mt-5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
@@ -337,8 +336,8 @@ export default function AnalyticsPage() {
                     {overview.tasksCompleted}
                   </p>
                   <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                    of {overview.totalTasks} total
-                  </p>
+                    of {overview.totalTasks} {t('ui.total')}
+</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
                   <CheckCircle2 className="h-7 w-7 text-white" />
@@ -362,8 +361,8 @@ export default function AnalyticsPage() {
                     {overview.streak}
                   </p>
                   <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                    days in a row
-                  </p>
+{t('ui.daysInARow')}
+</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg">
                   <Flame className="h-7 w-7 text-white" />
@@ -387,8 +386,8 @@ export default function AnalyticsPage() {
                     {formatPercentage(normalizedCompletionRate)}%
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    task success rate
-                  </p>
+{t('ui.taskSuccessRate')}
+</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
                   <TrendingUp className="h-7 w-7 text-white" />
@@ -412,8 +411,8 @@ export default function AnalyticsPage() {
                     {overview.focusTime.toFixed(1)}h
                   </p>
                   <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-                    average per day
-                  </p>
+{t('ui.averagePerDay')}
+</p>
                 </div>
                 <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
                   <Brain className="h-7 w-7 text-white" />
@@ -514,11 +513,11 @@ export default function AnalyticsPage() {
                       {bestDay.day}
                     </p>
                     <p className="text-sm text-rose-600 dark:text-rose-400">
-                      {bestDay.rate.toFixed(0)}% completion rate
-                    </p>
+                      {bestDay.rate.toFixed(0)}{t('ui.completionRate3')}
+</p>
                     <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                      {bestDay.completed} of {bestDay.created} tasks
-                    </p>
+                      {bestDay.completed} of {bestDay.created} {t('ui.tasks')}
+</p>
                   </div>
                 ) : (
                   <p className="text-center text-sm text-slate-500 py-4">
@@ -765,12 +764,12 @@ export default function AnalyticsPage() {
               <CardDescription>
                 {monthly.growth >= 0 ? (
                   <span className="text-emerald-600 dark:text-emerald-400">
-                    ↑ {monthly.growth.toFixed(1)}% growth vs last month
-                  </span>
+                    ↑ {monthly.growth.toFixed(1)}{t('ui.growthVsLastMonth')}
+</span>
                 ) : (
                   <span className="text-rose-600 dark:text-rose-400">
-                    ↓ {Math.abs(monthly.growth).toFixed(1)}% vs last month
-                  </span>
+                    ↓ {Math.abs(monthly.growth).toFixed(1)}{t('ui.vsLastMonth')}
+</span>
                 )}
               </CardDescription>
             </CardHeader>
@@ -780,14 +779,14 @@ export default function AnalyticsPage() {
                   <span className="text-sm text-slate-600 dark:text-slate-400">{t('ui.tasksCreated')}</span>
                   <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {monthly.created}
-                    <span className="text-sm text-slate-500 ml-2">({lastMonth.created} last month)</span>
+                    <span className="text-sm text-slate-500 ml-2">({lastMonth.created} {t('ui.lastMonth')}</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-slate-600 dark:text-slate-400">{t('ui.completed')}</span>
                   <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                     {monthly.completed}
-                    <span className="text-sm text-slate-500 ml-2">({lastMonth.completed} last month)</span>
+                    <span className="text-sm text-slate-500 ml-2">({lastMonth.completed} {t('ui.lastMonth')}</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
@@ -825,7 +824,7 @@ export default function AnalyticsPage() {
               {bestDay && worstDay ? (
                 <>
                   {t('ui.best')} <span className="font-semibold text-emerald-600">{bestDay.day}</span> ({bestDay.rate.toFixed(0)}%) |{' '}
-                  Worst: <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
+{t('ui.worst')} <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
                 </>
               ) : (
                 'Complete tasks across the week to reveal your patterns'

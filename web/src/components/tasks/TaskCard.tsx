@@ -261,7 +261,7 @@ const TaskCard = memo<TaskCardProps>(({
                 >
                   <Calendar className="h-3 w-3" />
                   <span>{format(new Date(task.dueDate), 'MMM d')}</span>
-                  {isOverdue && <span className="ml-1">(Overdue)</span>}
+                  {isOverdue && <span className="ml-1">{t('ui.overdue2')}</span>}
                 </div>
               )}
 
@@ -269,8 +269,8 @@ const TaskCard = memo<TaskCardProps>(({
               {task.subtasks && task.subtasks.length > 0 && (
                 <div className="flex items-center gap-1">
                   <span>
-                    {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} subtasks
-                  </span>
+                    {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} {t('ui.subtasks')}
+</span>
                 </div>
               )}
             </div>

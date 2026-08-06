@@ -60,8 +60,8 @@ export default function PrayerStreak({
                 {currentStreak}
               </motion.p>
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                {currentStreak === 1 ? 'day' : 'days'} of perfect prayers
-              </p>
+                {currentStreak === 1 ? 'day' : 'days'} {t('ui.ofPerfectPrayers')}
+</p>
             </div>
           </div>
 
@@ -71,8 +71,8 @@ export default function PrayerStreak({
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600 dark:text-gray-400">{t('ui.nextMilestone')}</span>
                 <span className="font-bold text-orange-700 dark:text-orange-300">
-                  {nextMilestone} days
-                </span>
+                  {nextMilestone} {t('ui.days')}
+</span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                 <motion.div
@@ -85,8 +85,8 @@ export default function PrayerStreak({
                 </motion.div>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 text-right">
-                {nextMilestone - currentStreak} days to go
-              </p>
+                {nextMilestone - currentStreak} {t('ui.daysToGo')}
+</p>
             </div>
           )}
 
@@ -101,10 +101,10 @@ export default function PrayerStreak({
                 <Award className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                 <div>
                   <p className="font-bold text-yellow-900 dark:text-yellow-200">
-                    🎉 Milestone Achieved!
-                  </p>
+{t('ui.milestoneAchieved')}
+</p>
                   <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                    You've reached {currentStreak} days! Keep it up!
+{t('ui.streakReached', { count: currentStreak })}
                   </p>
                 </div>
               </div>
@@ -125,8 +125,8 @@ export default function PrayerStreak({
           </div>
           <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{longestStreak}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-            {longestStreak === 1 ? 'day' : 'days'} record
-          </p>
+            {longestStreak === 1 ? 'day' : 'days'} {t('ui.record')}
+</p>
         </Card>
 
         {/* Comparison */}
@@ -140,7 +140,7 @@ export default function PrayerStreak({
           <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
             {longestStreak > 0 ? Math.round((currentStreak / longestStreak) * 100) : 0}%
           </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">of best streak</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{t('ui.ofBestStreak')}</p>
         </Card>
 
         {/* Last Missed */}
@@ -194,7 +194,7 @@ export default function PrayerStreak({
                 }`}>
                   {milestone}
                 </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">days</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">{t('ui.days')}</p>
               </motion.div>
             )
           })}

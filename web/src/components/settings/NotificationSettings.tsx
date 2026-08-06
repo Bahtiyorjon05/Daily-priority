@@ -82,14 +82,14 @@ export function NotificationSettings() {
             <Bell className="h-5 w-5 text-emerald-600" /> {t('ui.deviceNotifications')}
           </CardTitle>
           <CardDescription>
-            Get reminders on this device even when the app is closed. Works in the installed app too.
-          </CardDescription>
+{t('ui.getRemindersOnThisDeviceEvenWhenTheAppIsClos')}
+</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {!supported ? (
             <p className="text-sm text-muted-foreground">
-              This browser doesn&apos;t support push notifications. Try installing the app, or use Chrome/Edge/Safari 16.4+.
-            </p>
+{t('ui.thisBrowserDoesnTSupportPushNotificationsTry')}
+</p>
           ) : (
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -112,8 +112,8 @@ export function NotificationSettings() {
               {subscribed && (
                 <Button variant="outline" onClick={sendTest} disabled={testing} className="gap-2">
                   {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  Send test notification
-                </Button>
+{t('ui.sendTestNotification')}
+</Button>
               )}
             </div>
           )}
@@ -129,8 +129,8 @@ export function NotificationSettings() {
         <CardContent className="space-y-5">
           {!prefs ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-            </div>
+              <Loader2 className="h-4 w-4 animate-spin" /> {t('common.loading')}
+</div>
           ) : (
             <>
               <Row
@@ -218,8 +218,8 @@ export function NotificationSettings() {
 
               <Button onClick={save} disabled={saving} className="gap-2">
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Save preferences
-              </Button>
+{t('ui.savePreferences')}
+</Button>
             </>
           )}
         </CardContent>

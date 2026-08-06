@@ -957,10 +957,8 @@ export default function PrayersPage() {
               </p>
 
               <p className="text-sm text-gray-600 dark:text-gray-400">
-
-                This app requires your location to calculate precise prayer times based on your geographic coordinates.
-
-              </p>
+{t('ui.thisAppRequiresYourLocationToCalculatePrecis')}
+</p>
 
             </div>
 
@@ -1029,10 +1027,8 @@ export default function PrayersPage() {
               </h2>
 
               <p className="text-gray-700 dark:text-gray-300 mb-2">
-
-                We couldn&apos;t fetch the latest timings. Please check your connection and try again.
-
-              </p>
+{t('ui.weCouldnTFetchTheLatestTimingsPleaseCheckYou')}
+</p>
 
               <p className="text-sm text-gray-600 dark:text-gray-400">
 
@@ -1338,7 +1334,7 @@ export default function PrayersPage() {
 
               <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">{t('ui.todaySProgress')}</h3>
 
-              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{completedPrayers} of 5 prayers</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{completedPrayers} {t('ui.of5Prayers')}</p>
 
             </div>
 
@@ -1358,7 +1354,7 @@ export default function PrayersPage() {
 
               <p className="text-center text-sm text-emerald-700 dark:text-emerald-300 font-medium">
 
-                ? All prayers completed! May Allah accept your prayers.
+                {t('ui.allPrayersCompletedDua')}
 
               </p>
 
@@ -1461,7 +1457,7 @@ export default function PrayersPage() {
                 {isNext && (
                   <div className="text-sm text-emerald-600 dark:text-emerald-500 font-semibold flex items-center gap-2 animate-pulse mt-3">
                     <Clock className="h-4 w-4" />
-                    <span className="font-medium">Up next &rarr;</span>
+                    <span className="font-medium">{t('ui.upNext')}</span>
                     <span className="sr-only">{t('ui.timeUntilNextPrayer')}</span>
                     <span>{nextPrayer?.timeUntil}</span>
                   </div>

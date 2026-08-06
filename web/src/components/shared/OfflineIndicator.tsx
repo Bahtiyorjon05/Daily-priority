@@ -85,12 +85,12 @@ export function OfflineIndicator() {
             {!online ? (
               <>
                 <CloudOff className="h-3.5 w-3.5" />
-                Offline{pending > 0 ? ` — ${pending} change${pending === 1 ? '' : 's'} saved locally` : ' — changes will sync'}
+{t('ui.offline')}{pending > 0 ? ` — ${pending} change${pending === 1 ? '' : 's'} saved locally` : ' — changes will sync'}
               </>
             ) : pending > 0 ? (
               <>
                 <RefreshCw className={`h-3.5 w-3.5 ${syncing ? 'animate-spin' : ''}`} />
-                Syncing {pending} change{pending === 1 ? '' : 's'}…
+{t('ui.syncing')} {pending} {t('ui.change')}{pending === 1 ? '' : 's'}…
               </>
             ) : (
               <>

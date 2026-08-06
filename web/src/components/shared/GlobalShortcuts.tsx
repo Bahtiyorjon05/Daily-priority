@@ -86,9 +86,9 @@ export function GlobalShortcuts() {
             </ul>
 
             <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
-              Shortcuts are ignored while typing in a field. Press{' '}
-              <kbd className="rounded border px-1">{t('ui.esc')}</kbd> to close.
-            </p>
+{t('ui.shortcutsAreIgnoredWhileTypingInAFieldPress')}{' '}
+              <kbd className="rounded border px-1">{t('ui.esc')}</kbd> {t('ui.toClose')}
+</p>
           </motion.div>
         </motion.div>
       )}

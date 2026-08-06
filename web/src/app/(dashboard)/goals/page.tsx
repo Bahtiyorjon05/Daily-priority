@@ -511,8 +511,8 @@ export default function GoalsPage() {
                   <div className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border-2 border-green-500 dark:border-green-400">
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <span className="text-sm font-semibold text-green-700 dark:text-green-400">
-                      Goal Achieved! May Allah reward your efforts! 🎉
-                    </span>
+{t('ui.goalAchievedMayAllahRewardYourEfforts')}
+</span>
                   </div>
                 ) : (
                   /* Active State - Allow progress updates */
@@ -732,8 +732,8 @@ export default function GoalsPage() {
                   </Button>
 
                   <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                    {dunyaGoals.length} goals
-                  </span>
+                    {dunyaGoals.length} {t('ui.goals')}
+</span>
                 </div>
               )}
             </div>
@@ -818,8 +818,8 @@ export default function GoalsPage() {
                   </Button>
 
                   <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-                    {akhirahGoals.length} goals
-                  </span>
+                    {akhirahGoals.length} {t('ui.goals')}
+</span>
                 </div>
               )}
             </div>
@@ -956,7 +956,7 @@ export default function GoalsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      {t('ui.description')} <span className="text-gray-400 text-xs">(Optional)</span>
+                      {t('ui.description')} <span className="text-gray-400 text-xs">{t('ui.optional')}</span>
                     </label>
                     <Textarea
                       value={newGoal.description}
@@ -976,13 +976,13 @@ export default function GoalsPage() {
                       className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-500"
                       required
                     >
-                      <option value="IBADAH">🤲 Ibadah (Worship)</option>
-                      <option value="KNOWLEDGE">📚 Knowledge (Learning)</option>
-                      <option value="FAMILY">👨‍👩‍👧‍👦 Family</option>
-                      <option value="WORK">💼 Work (Career)</option>
-                      <option value="HEALTH">💪 Health (Fitness)</option>
-                      <option value="COMMUNITY">🤝 Community (Service)</option>
-                      <option value="PERSONAL">⭐ Personal (Development)</option>
+                      <option value="IBADAH">{t('ui.ibadahWorship')}</option>
+                      <option value="KNOWLEDGE">{t('ui.knowledgeLearning')}</option>
+                      <option value="FAMILY">{t('ui.family2')}</option>
+                      <option value="WORK">{t('ui.workCareer')}</option>
+                      <option value="HEALTH">{t('ui.healthFitness')}</option>
+                      <option value="COMMUNITY">{t('ui.communityService')}</option>
+                      <option value="PERSONAL">{t('ui.personalDevelopment')}</option>
                     </select>
                   </div>
 
@@ -999,8 +999,8 @@ export default function GoalsPage() {
                       required
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
-                      📅 Choose when you want to complete this goal
-                    </p>
+{t('ui.chooseWhenYouWantToCompleteThisGoal')}
+</p>
                   </div>
 
                   <div className="flex gap-3 mt-6">
@@ -1062,15 +1062,15 @@ export default function GoalsPage() {
                     {t('ui.deleteGoal')}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Are you sure you want to delete{' '}
+{t('ui.areYouSureYouWantToDelete')}{' '}
                     <span className="font-semibold text-gray-900 dark:text-white">
                       "{deletingGoal.title}"
                     </span>
                     ?
                   </p>
                   <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                    ⚠️ This action cannot be undone!
-                  </p>
+{t('ui.thisActionCannotBeUndone')}
+</p>
 
                   {/* Goal Info */}
                   <div className={`p-4 rounded-xl border-2 ${

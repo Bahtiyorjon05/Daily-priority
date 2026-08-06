@@ -120,8 +120,8 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
                     {stats.dunya.completed}/{stats.dunya.total}
                   </p>
                   <p className="text-xs text-amber-600 dark:text-amber-400">
-                    {stats.dunya.total > 0 ? Math.round((stats.dunya.completed / stats.dunya.total) * 100) : 0}% done
-                  </p>
+                    {stats.dunya.total > 0 ? Math.round((stats.dunya.completed / stats.dunya.total) * 100) : 0}{t('ui.done2')}
+</p>
                 </div>
               </div>
               
@@ -168,8 +168,8 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
                     {stats.akhirah.completed}/{stats.akhirah.total}
                   </p>
                   <p className="text-xs text-purple-600 dark:text-purple-400">
-                    {stats.akhirah.total > 0 ? Math.round((stats.akhirah.completed / stats.akhirah.total) * 100) : 0}% done
-                  </p>
+                    {stats.akhirah.total > 0 ? Math.round((stats.akhirah.completed / stats.akhirah.total) * 100) : 0}{t('ui.done2')}
+</p>
                 </div>
               </div>
               

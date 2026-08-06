@@ -819,7 +819,7 @@ export default function DashboardPageRedesigned() {
                         {profile?.name || 'User'}
                       </span>
                     </h1>
-                    <p className="text-white/80 text-xs sm:text-sm">Let&apos;s be productive today</p>
+                    <p className="text-white/80 text-xs sm:text-sm">{tI18n('ui.letSBeProductiveToday')}</p>
                   </div>
                 </div>
 
@@ -829,7 +829,7 @@ export default function DashboardPageRedesigned() {
                     <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-orange-300" />
                     <div className="text-left">
                       <div className="text-xl sm:text-2xl font-bold leading-none">{stats?.streak || 0}</div>
-                      <div className="text-xs text-white/80">day streak</div>
+                      <div className="text-xs text-white/80">{tI18n('ui.dayStreak2')}</div>
                     </div>
                   </div>
                 </div>
@@ -999,7 +999,7 @@ export default function DashboardPageRedesigned() {
                       </div>
                       <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
                         {filteredTasks.length > tasksPerPage ? (
-                          <>Showing {startIndex + 1}-{Math.min(endIndex, filteredTasks.length)} of {filteredTasks.length} tasks</>
+                          <>{tI18n('ui.showing')} {startIndex + 1}-{Math.min(endIndex, filteredTasks.length)} of {filteredTasks.length} {tI18n('ui.tasks')}</>
                         ) : (
                           <>{tI18n('ui.focusOnWhatTrulyMattersTasksResetDaily')}</>
                         )}

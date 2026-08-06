@@ -97,7 +97,7 @@ export function FocusTimer({
             }
           >
             <Zap className="h-4 w-4 mr-2" />
-            Focus ({settings.focusDuration}m)
+{t('ui.focus')}{settings.focusDuration}m)
           </Button>
           <Button
             variant={mode === 'shortBreak' ? 'default' : 'outline'}
@@ -109,7 +109,7 @@ export function FocusTimer({
             }
           >
             <Coffee className="h-4 w-4 mr-2" />
-            Short ({settings.shortBreakDuration}m)
+{t('ui.short')}{settings.shortBreakDuration}m)
           </Button>
           <Button
             variant={mode === 'longBreak' ? 'default' : 'outline'}
@@ -121,7 +121,7 @@ export function FocusTimer({
             }
           >
             <Coffee className="h-4 w-4 mr-2" />
-            Long ({settings.longBreakDuration}m)
+{t('ui.long')}{settings.longBreakDuration}m)
           </Button>
         </div>
       </CardHeader>
@@ -156,7 +156,7 @@ export function FocusTimer({
               </p>
               {completedSessions > 0 && (
                 <p className="text-xs text-slate-500 dark:text-gray-500 mt-2 font-medium">
-                  Session {completedSessions + 1}
+{t('ui.session')} {completedSessions + 1}
                 </p>
               )}
             </div>
