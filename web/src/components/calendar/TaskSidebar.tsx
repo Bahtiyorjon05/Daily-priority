@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle2, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -11,12 +12,13 @@ interface TaskSidebarProps {
 }
 
 export function TaskSidebar({ selectedDate, tasks, onTaskUpdate }: TaskSidebarProps) {
+  const { t } = useT()
   if (!selectedDate) {
     return (
       <Card>
         <CardContent className="pt-6">
           <div className="text-center text-slate-500 py-12">
-            Select a date to view tasks
+            {t('ui.selectADateToViewTasks')}
           </div>
         </CardContent>
       </Card>
@@ -40,7 +42,7 @@ export function TaskSidebar({ selectedDate, tasks, onTaskUpdate }: TaskSidebarPr
       <CardContent>
         {dayTasks.length === 0 ? (
           <div className="text-center text-slate-500 py-8">
-            No tasks for this day
+            {t('ui.noTasksForThisDay')}
           </div>
         ) : (
           <div className="space-y-3">

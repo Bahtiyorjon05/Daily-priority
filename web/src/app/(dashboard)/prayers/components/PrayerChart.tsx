@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -17,6 +18,7 @@ interface PrayerChartProps {
 }
 
 export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps) {
+  const { t } = useT()
   const [chartType, setChartType] = useState<'line' | 'bar'>('line')
 
   // Transform data for chart display
@@ -45,11 +47,11 @@ export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps
   if (!data || data.length === 0) {
     return (
       <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Prayer Completion Trends</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('ui.prayerCompletionTrends')}</h3>
         <div className="flex items-center justify-center h-80 text-gray-500 dark:text-gray-400">
           <div className="text-center">
-            <p>No prayer data available yet.</p>
-            <p className="text-sm mt-2">Start tracking your prayers to see trends here.</p>
+            <p>{t('ui.noPrayerDataAvailableYet')}</p>
+            <p className="text-sm mt-2">{t('ui.startTrackingYourPrayersToSeeTrendsHere')}</p>
           </div>
         </div>
       </Card>
@@ -60,9 +62,9 @@ export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps
     <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Prayer Completion Trends</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('ui.prayerCompletionTrends')}</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Track your prayer completion and punctuality over time
+            {t('ui.trackYourPrayerCompletionAndPunctualityOverT')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -72,7 +74,7 @@ export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps
             onClick={() => setChartType('line')}
             className={chartType === 'line' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
           >
-            Line
+            {t('ui.line')}
           </Button>
           <Button
             variant={chartType === 'bar' ? 'default' : 'outline'}
@@ -80,7 +82,7 @@ export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps
             onClick={() => setChartType('bar')}
             className={chartType === 'bar' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
           >
-            Bar
+            {t('ui.bar')}
           </Button>
         </div>
       </div>
@@ -166,13 +168,13 @@ export default function PrayerChart({ data, period = 'daily' }: PrayerChartProps
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-emerald-500"></div>
           <span className="text-sm text-gray-700 dark:text-gray-300">
-            <strong>Completion Rate:</strong> Percentage of prayers completed each day
+            <strong>{t('ui.completionRate2')}</strong> {t('ui.percentageOfPrayersCompletedEachDay')}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-amber-500"></div>
           <span className="text-sm text-gray-700 dark:text-gray-300">
-            <strong>On-Time Rate:</strong> Percentage of completed prayers prayed on time
+            <strong>{t('ui.onTimeRate')}</strong> {t('ui.percentageOfCompletedPrayersPrayedOnTime')}
           </span>
         </div>
       </div>

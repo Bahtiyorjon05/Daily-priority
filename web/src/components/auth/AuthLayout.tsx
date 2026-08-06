@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import Link from 'next/link'
 import { ArrowLeft, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,6 +15,7 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
+  const { t } = useT()
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900">
       {/* SPECTACULAR Background Effects */}
@@ -52,7 +54,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
                     <Home className="h-3 w-3 text-teal-600 dark:text-teal-400" />
                   </div>
                   <span className="hidden md:inline text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Back
+                    {t('common.back')}
                   </span>
                 </Link>
                 
@@ -60,7 +62,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
                   <Logo showText={false} className="scale-75 sm:scale-90" />
                   <div className="hidden xs:block">
                     <span className="font-bold text-sm sm:text-base md:text-lg bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-300 bg-clip-text text-transparent whitespace-nowrap">
-                      Daily Priority
+                      {t('ui.dailyPriority')}
                     </span>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { Flame, Award, TrendingUp, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -17,6 +18,7 @@ export default function PrayerStreak({
   lastMissedDate,
   milestones = [7, 30, 100, 365]
 }: PrayerStreakProps) {
+  const { t } = useT()
   // Find next milestone
   const nextMilestone = milestones.find(m => m > currentStreak) || milestones[milestones.length - 1]
   const progressToMilestone = (currentStreak / nextMilestone) * 100
@@ -47,7 +49,7 @@ export default function PrayerStreak({
               <Flame className="h-8 w-8 text-white drop-shadow-lg" />
             </motion.div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Current Streak</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('ui.currentStreak')}</p>
               <motion.p 
                 className="text-5xl font-bold bg-gradient-to-r from-orange-600 via-red-600 to-orange-700 bg-clip-text text-transparent dark:from-orange-400 dark:via-red-400 dark:to-orange-500"
                 key={currentStreak}
@@ -67,7 +69,7 @@ export default function PrayerStreak({
           {currentStreak < nextMilestone && (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">Next milestone:</span>
+                <span className="text-gray-600 dark:text-gray-400">{t('ui.nextMilestone')}</span>
                 <span className="font-bold text-orange-700 dark:text-orange-300">
                   {nextMilestone} days
                 </span>
@@ -119,7 +121,7 @@ export default function PrayerStreak({
             <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
               <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Best Streak</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('ui.bestStreak')}</span>
           </div>
           <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{longestStreak}</p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -133,7 +135,7 @@ export default function PrayerStreak({
             <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
               <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Performance</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('ui.performance')}</span>
           </div>
           <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
             {longestStreak > 0 ? Math.round((currentStreak / longestStreak) * 100) : 0}%
@@ -147,7 +149,7 @@ export default function PrayerStreak({
             <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
               <Calendar className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Missed</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('ui.lastMissed')}</span>
           </div>
           <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
             {lastMissedDate 
@@ -166,7 +168,7 @@ export default function PrayerStreak({
 
       {/* Milestone Badges */}
       <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50">
-        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Achievements</h4>
+        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('ui.achievements')}</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {milestones.map((milestone) => {
             const achieved = currentStreak >= milestone || longestStreak >= milestone

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { useSession } from 'next-auth/react'
@@ -89,6 +90,7 @@ const EVENT_COLORS = {
 }
 
 export default function CalendarPage() {
+  const { t: tr } = useT()
   const { data: session } = useSession()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -156,7 +158,7 @@ export default function CalendarPage() {
       }
     } catch (error) {
       console.error('Failed to fetch events:', error)
-      toast.error('Failed to load events')
+      toast.error(tr('ui.failedToLoadEvents'))
     } finally {
       setLoading(false)
     }
@@ -211,7 +213,7 @@ export default function CalendarPage() {
 
   const createEvent = async () => {
     if (!eventForm.title.trim() || !eventForm.date) {
-      toast.error('Please provide event title and date')
+      toast.error(tr('ui.pleaseProvideEventTitleAndDate'))
       return
     }
 
@@ -224,7 +226,7 @@ export default function CalendarPage() {
       })
 
       if (response.ok) {
-        toast.success('✅ Event created successfully!')
+        toast.success(tr('ui.eventCreatedSuccessfully'))
         setShowEventModal(false)
         resetForm()
         await fetchEvents()
@@ -233,13 +235,13 @@ export default function CalendarPage() {
       }
     } catch (error) {
       console.error('Error creating event:', error)
-      toast.error('Failed to create event')
+      toast.error(tr('ui.failedToCreateEvent'))
     }
   }
 
   const updateEvent = async () => {
     if (!editingEvent || !eventForm.title.trim()) {
-      toast.error('Please provide event title')
+      toast.error(tr('ui.pleaseProvideEventTitle'))
       return
     }
 
@@ -252,7 +254,7 @@ export default function CalendarPage() {
       })
 
       if (response.ok) {
-        toast.success('✅ Event updated successfully!')
+        toast.success(tr('ui.eventUpdatedSuccessfully'))
         setEditingEvent(null)
         setShowEventModal(false)
         resetForm()
@@ -262,7 +264,7 @@ export default function CalendarPage() {
       }
     } catch (error) {
       console.error('Error updating event:', error)
-      toast.error('Failed to update event')
+      toast.error(tr('ui.failedToUpdateEvent'))
     }
   }
 
@@ -277,10 +279,10 @@ export default function CalendarPage() {
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-slate-900 dark:text-white mb-1 text-base">
-                Delete Event?
+                {tr('ui.deleteEvent')}
               </h4>
               <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">
-                Are you sure you want to delete <span className="font-semibold text-slate-900 dark:text-white">"{eventTitle}"</span>?
+                {tr('ui.areYouSureYouWantToDelete')} <span className="font-semibold text-slate-900 dark:text-white">"{eventTitle}"</span>?
               </p>
               <div className="flex gap-2">
                 <button
@@ -293,26 +295,26 @@ export default function CalendarPage() {
                       })
 
                       if (response.ok) {
-                        toast.success('Event deleted successfully')
+                        toast.success(tr('ui.eventDeletedSuccessfully'))
                         await fetchEvents()
                       } else {
                         throw new Error('Failed to delete event')
                       }
                     } catch (error) {
                       console.error('Error deleting event:', error)
-                      toast.error('Failed to delete event')
+                      toast.error(tr('ui.failedToDeleteEvent'))
                     }
                   }}
                   style={{ background: 'linear-gradient(to right, rgb(220 38 38), rgb(185 28 28))', color: 'white' }}
                   className="flex-1 px-4 py-2 rounded-md text-sm font-bold transition-all shadow-md hover:shadow-lg hover:scale-[1.02]"
                 >
-                  <span style={{ color: 'white' }} className="font-bold">Delete</span>
+                  <span style={{ color: 'white' }} className="font-bold">{tr('common.delete')}</span>
                 </button>
                 <button
                   onClick={() => toast.dismiss(t)}
                   className="flex-1 px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-900 dark:text-white rounded-md text-sm font-bold transition-all border-2 border-slate-300 dark:border-slate-600"
                 >
-                  <span className="text-slate-900 dark:text-white font-bold">Cancel</span>
+                  <span className="text-slate-900 dark:text-white font-bold">{tr('common.cancel')}</span>
                 </button>
               </div>
             </div>
@@ -489,10 +491,10 @@ export default function CalendarPage() {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20">
               <CalendarIcon className="h-7 w-7 text-white" strokeWidth={2.5} />
             </div>
-            Calendar
+            {tr('nav.calendar')}
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-2 ml-1 font-medium">
-            Plan your days with Islamic calendar integration
+            {tr('ui.planYourDaysWithIslamicCalendarIntegration')}
           </p>
         </div>
         <div className="text-right bg-gradient-to-br from-white to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 rounded-2xl px-3 sm:px-6 py-4 shadow-lg border border-indigo-100 dark:border-indigo-900/50">
@@ -500,7 +502,7 @@ export default function CalendarPage() {
             <>
               <div className="flex items-center gap-2 justify-end text-sm text-slate-600 dark:text-slate-400 mb-1">
                 <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" strokeWidth={2.5} />
-                <span className="font-semibold">Hijri Date</span>
+                <span className="font-semibold">{tr('ui.hijriDate')}</span>
               </div>
               <div className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
                 {hijriDate.formatted}
@@ -521,7 +523,7 @@ export default function CalendarPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">Total Events</p>
+                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-1">{tr('ui.totalEvents')}</p>
                 <p className="text-xl sm:text-3xl font-bold text-indigo-900 dark:text-indigo-200">{eventStats.total}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-indigo-500 dark:bg-indigo-600 flex items-center justify-center shadow-lg">
@@ -535,7 +537,7 @@ export default function CalendarPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">Upcoming</p>
+                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">{tr('ui.upcoming')}</p>
                 <p className="text-xl sm:text-3xl font-bold text-emerald-900 dark:text-emerald-200">{eventStats.upcoming}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center shadow-lg">
@@ -549,7 +551,7 @@ export default function CalendarPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">This Week</p>
+                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">{tr('ui.thisWeek')}</p>
                 <p className="text-xl sm:text-3xl font-bold text-amber-900 dark:text-amber-200">{eventStats.thisWeek}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-amber-500 dark:bg-amber-600 flex items-center justify-center shadow-lg">
@@ -563,7 +565,7 @@ export default function CalendarPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">This Month</p>
+                <p className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1">{tr('ui.thisMonth')}</p>
                 <p className="text-xl sm:text-3xl font-bold text-purple-900 dark:text-purple-200">{eventStats.thisMonth}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-purple-500 dark:bg-purple-600 flex items-center justify-center shadow-lg">
@@ -577,7 +579,7 @@ export default function CalendarPage() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Past Events</p>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{tr('ui.pastEvents')}</p>
                 <p className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-slate-200">{eventStats.past}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-slate-500 dark:bg-slate-600 flex items-center justify-center shadow-lg">
@@ -608,7 +610,7 @@ export default function CalendarPage() {
                   className="border-2 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-semibold shadow-sm transition-all hover:shadow-md hover:scale-105"
                 >
                   <Clock className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" strokeWidth={2.5} />
-                  Today
+                  {tr('common.today')}
                 </Button>
                 <Button
                   variant="outline"
@@ -632,7 +634,7 @@ export default function CalendarPage() {
                   style={{ background: 'linear-gradient(to right, rgb(99 102 241), rgb(168 85 247), rgb(236 72 153))' }}
                 >
                   <Plus className="h-4 w-4 mr-2 text-white" strokeWidth={3} />
-                  <span className="text-white font-bold">New Event</span>
+                  <span className="text-white font-bold">{tr('ui.newEvent')}</span>
                 </Button>
               </div>
             </div>
@@ -795,7 +797,7 @@ export default function CalendarPage() {
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg">
                     <TrendingUp className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </div>
-                  Upcoming Events
+                  {tr('ui.upcomingEvents')}
                 </CardTitle>
                 {upcomingEvents.length > 0 && (
                   <div className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50 px-3 py-1 rounded-full">
@@ -808,8 +810,8 @@ export default function CalendarPage() {
               {upcomingEvents.length === 0 ? (
                 <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-emerald-50 dark:from-slate-900 dark:to-emerald-950/30 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700">
                   <TrendingUp className="h-16 w-16 mx-auto mb-4 text-slate-400 dark:text-slate-600" strokeWidth={1.5} />
-                  <p className="font-bold text-lg text-slate-700 dark:text-slate-300 mb-2">No upcoming events</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Create events for future dates</p>
+                  <p className="font-bold text-lg text-slate-700 dark:text-slate-300 mb-2">{tr('ui.noUpcomingEvents')}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{tr('ui.createEventsForFutureDates')}</p>
                 </div>
               ) : (
                 <>
@@ -892,7 +894,7 @@ export default function CalendarPage() {
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400 to-gray-500 flex items-center justify-center shadow-lg">
                     <List className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </div>
-                  Past Events
+                  {tr('ui.pastEvents')}
                 </CardTitle>
                 {pastEvents.length > 0 && (
                   <div className="text-sm font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
@@ -905,8 +907,8 @@ export default function CalendarPage() {
               {pastEvents.length === 0 ? (
                 <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-950/30 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700">
                   <List className="h-16 w-16 mx-auto mb-4 text-slate-400 dark:text-slate-600" strokeWidth={1.5} />
-                  <p className="font-bold text-lg text-slate-700 dark:text-slate-300 mb-2">No past events</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Past events will appear here</p>
+                  <p className="font-bold text-lg text-slate-700 dark:text-slate-300 mb-2">{tr('ui.noPastEvents')}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{tr('ui.pastEventsWillAppearHere')}</p>
                 </div>
               ) : (
                 <>
@@ -1018,7 +1020,7 @@ export default function CalendarPage() {
                     id="event-title"
                     value={eventForm.title}
                     onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-                    placeholder="Enter event title"
+                    placeholder={tr('ui.enterEventTitle')}
                     className="mt-2 text-slate-900 dark:text-white bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 dark:focus:border-indigo-400 rounded-xl shadow-sm"
                     autoFocus
                   />
@@ -1036,12 +1038,12 @@ export default function CalendarPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="event-description" className="text-slate-900 dark:text-slate-100 font-bold text-sm">Description</Label>
+                  <Label htmlFor="event-description" className="text-slate-900 dark:text-slate-100 font-bold text-sm">{tr('ui.description')}</Label>
                   <Textarea
                     id="event-description"
                     value={eventForm.description}
                     onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-                    placeholder="Add event details..."
+                    placeholder={tr('ui.addEventDetails')}
                     className="mt-2 min-h-[100px] text-slate-900 dark:text-white bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 dark:focus:border-indigo-400 rounded-xl shadow-sm"
                     rows={4}
                   />
@@ -1062,7 +1064,7 @@ export default function CalendarPage() {
                   onClick={() => setShowEventModal(false)}
                   className="text-slate-900 dark:text-slate-100 font-bold border-2 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 h-12 px-3 sm:px-6 rounded-xl transition-all hover:scale-105"
                 >
-                  <span className="text-slate-900 dark:text-slate-100">Cancel</span>
+                  <span className="text-slate-900 dark:text-slate-100">{tr('common.cancel')}</span>
                 </Button>
               </div>
             </motion.div>

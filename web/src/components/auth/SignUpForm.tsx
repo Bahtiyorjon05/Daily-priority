@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, useCallback } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -18,6 +19,7 @@ import styles from './SignUpForm.module.css'
 type Step = 'email' | 'code' | 'password'
 
 export function SignUpForm() {
+  const { t } = useT()
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>('email')
   const [loading, setLoading] = useState(false)
@@ -61,7 +63,7 @@ export function SignUpForm() {
       return () => clearTimeout(timer)
     } else if (timeLeft === 0) {
       setTimerActive(false)
-      toast.error('Verification code expired', {
+      toast.error(t('ui.verificationCodeExpired'), {
         description: 'Please request a new code',
       })
     }
@@ -117,7 +119,7 @@ export function SignUpForm() {
         throw new Error(data.error || 'Failed to send verification code')
       }
 
-      toast.success('Verification code sent!', {
+      toast.success(t('ui.verificationCodeSent'), {
         description: 'Check your email for the 6-digit code',
       })
 
@@ -152,7 +154,7 @@ export function SignUpForm() {
         throw new Error(data.error || 'Failed to resend code')
       }
 
-      toast.success('New code sent!', {
+      toast.success(t('ui.newCodeSent'), {
         description: 'Check your email',
       })
 
@@ -195,7 +197,7 @@ export function SignUpForm() {
         throw new Error(data.error || 'Invalid verification code')
       }
 
-      toast.success('Email verified!', {
+      toast.success(t('ui.emailVerified3'), {
         description: 'Now create your password',
       })
 
@@ -270,7 +272,7 @@ export function SignUpForm() {
         throw new Error(data.error || 'Registration failed')
       }
 
-      toast.success('Account created!', {
+      toast.success(t('ui.accountCreated'), {
         description: 'Signing you in...',
         duration: 2000,
       })
@@ -303,7 +305,7 @@ export function SignUpForm() {
     try {
       await signIn('google', { callbackUrl: '/dashboard' })
     } catch (error) {
-      toast.error('Google sign-up failed')
+      toast.error(t('ui.googleSignUpFailed'))
     }
   }
 
@@ -387,7 +389,7 @@ export function SignUpForm() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            <span className="truncate">Continue with Google</span>
+            <span className="truncate">{t('auth.continueWithGoogle')}</span>
           </button>
 
           {/* Divider */}
@@ -397,7 +399,7 @@ export function SignUpForm() {
             </div>
             <div className="relative flex justify-center text-[10px] sm:text-xs md:text-sm uppercase">
               <span className="bg-white dark:bg-slate-900 px-2 sm:px-3 text-gray-500 dark:text-gray-400 font-medium">
-                Or continue with email
+                {t('auth.orContinueWithEmail')}
               </span>
             </div>
           </div>
@@ -407,12 +409,12 @@ export function SignUpForm() {
             <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 sm:gap-2">
                 <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-                Email Address
+                {t('auth.emailAddress')}
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('ui.youExampleCom')}
                 value={formData.email}
                 onChange={(e) => {
                   setFormData({ ...formData, email: e.target.value })
@@ -450,12 +452,12 @@ export function SignUpForm() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                    <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Sending...</span>
+                    <span className="font-semibold text-white" style={{ color: '#ffffff' }}>{t('ui.sending')}</span>
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                    <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Send Verification Code</span>
+                    <span className="font-semibold text-white" style={{ color: '#ffffff' }}>{t('ui.sendVerificationCode')}</span>
                   </>
                 )}
               </span>
@@ -472,7 +474,7 @@ export function SignUpForm() {
             <div className="flex items-center justify-center gap-1.5 sm:gap-2">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
               <p className="text-xs sm:text-sm md:text-base text-gray-700 dark:text-gray-300 font-medium truncate">
-                Code sent to <span className="font-bold text-emerald-600 dark:text-emerald-400 break-all">{formData.email}</span>
+                {t('ui.codeSentTo')} <span className="font-bold text-emerald-600 dark:text-emerald-400 break-all">{formData.email}</span>
               </p>
             </div>
             <p className="text-xl sm:text-2xl md:text-3xl font-mono font-bold text-emerald-600 dark:text-emerald-400">
@@ -487,7 +489,7 @@ export function SignUpForm() {
           <form onSubmit={handleVerifyCode} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="code" className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 text-center block">
-                Enter 6-Digit Verification Code
+                {t('ui.enter6DigitVerificationCode')}
               </Label>
               <Input
                 id="code"
@@ -512,7 +514,7 @@ export function SignUpForm() {
                 </p>
               )}
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
-                Check your email for the verification code
+                {t('ui.checkYourEmailForTheVerificationCode')}
               </p>
             </div>
 
@@ -528,12 +530,12 @@ export function SignUpForm() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                  <span>Verifying...</span>
+                  <span>{t('ui.verifying')}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="h-5 w-5" />
-                  <span>Verify Code</span>
+                  <span>{t('ui.verifyCode')}</span>
                 </>
               )}
             </button>
@@ -551,7 +553,7 @@ export function SignUpForm() {
               className="flex-1 h-10 sm:h-11 inline-flex items-center justify-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-xl transition-all duration-300 text-sm font-semibold text-gray-700 dark:text-gray-200"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Change Email</span>
+              <span>{t('ui.changeEmail2')}</span>
             </button>
             <button
               type="button"
@@ -576,7 +578,7 @@ export function SignUpForm() {
                 <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="font-medium text-sm sm:text-base">Email verified successfully!</p>
+                <p className="font-medium text-sm sm:text-base">{t('ui.emailVerifiedSuccessfully')}</p>
                 <p className="text-xs sm:text-sm text-emerald-700 dark:text-emerald-400 mt-1">
                   {formData.email}
                 </p>
@@ -588,12 +590,12 @@ export function SignUpForm() {
           <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="name" className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 sm:gap-2">
               <User className="w-3 h-3 sm:w-4 sm:h-4" />
-              Full Name
+              {t('ui.fullName')}
             </Label>
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder={t('ui.johnDoe')}
               value={formData.name}
               onChange={(e) => {
                 setFormData({ ...formData, name: e.target.value })
@@ -615,13 +617,13 @@ export function SignUpForm() {
           <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="password" className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 sm:gap-2">
               <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
-              Password
+              {t('auth.password')}
             </Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Create a strong password"
+                placeholder={t('ui.createAStrongPassword')}
                 value={formData.password}
                 onChange={(e) => {
                   setFormData({ ...formData, password: e.target.value })
@@ -650,7 +652,7 @@ export function SignUpForm() {
             {passwordStrength && formData.password.length >= 1 && (
               <div className="space-y-1.5 sm:space-y-2 mt-2">
                 <div className="flex items-center justify-between text-[10px] sm:text-xs">
-                  <span className="text-gray-600 dark:text-gray-400 font-medium">Password strength:</span>
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">{t('ui.passwordStrength')}</span>
                   <span className="font-semibold capitalize" style={{ color: passwordStrength.color }}>
                     {passwordStrength.strength.replace('-', ' ')}
                   </span>
@@ -672,13 +674,13 @@ export function SignUpForm() {
           <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="confirmPassword" className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 sm:gap-2">
               <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
-              Confirm Password
+              {t('ui.confirmPassword')}
             </Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Confirm your password"
+                placeholder={t('ui.confirmYourPassword')}
                 value={formData.confirmPassword}
                 onChange={(e) => {
                   setFormData({ ...formData, confirmPassword: e.target.value })
@@ -709,13 +711,13 @@ export function SignUpForm() {
             {passwordsMatch === true && (
               <p className="text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs flex items-center gap-1 mt-1">
                 <CheckCircle2 className="h-3 w-3 flex-shrink-0" />
-                Passwords match
+                {t('ui.passwordsMatch')}
               </p>
             )}
             {passwordsMatch === false && (
               <p className="text-red-500 dark:text-red-400 text-[10px] sm:text-xs flex items-center gap-1 mt-1">
                 <AlertCircle className="h-3 w-3 flex-shrink-0" />
-                Passwords do not match
+                {t('ui.passwordsDoNotMatch')}
               </p>
             )}
           </div>
@@ -741,12 +743,12 @@ export function SignUpForm() {
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                    <span>Creating...</span>
+                    <span>{t('ui.creating')}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-5 w-5 flex-shrink-0" />
-                    <span>Create Account</span>
+                    <span>{t('auth.createAccount')}</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                   </>
                 )}
@@ -761,7 +763,7 @@ export function SignUpForm() {
         <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400">
           Already have an account?{' '}
           <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
-            Sign In
+            {t('ui.signIn')}
             <Shield className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />
           </Link>
         </p>
@@ -775,19 +777,19 @@ export function SignUpForm() {
               <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
                 <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span>Free Forever</span>
+              <span>{t('ui.freeForever')}</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-400">
               <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
                 <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-teal-600 dark:text-teal-400" />
               </div>
-              <span>Email Verified</span>
+              <span>{t('ui.emailVerified2')}</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-400">
               <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
                 <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
               </div>
-              <span>Secure</span>
+              <span>{t('ui.secure')}</span>
             </div>
           </div>
         </div>

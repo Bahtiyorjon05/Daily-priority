@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -61,6 +62,7 @@ interface GoalsStats {
 }
 
 export default function GoalsPage() {
+  const { t } = useT()
   const [goals, setGoals] = useState<Goal[]>([])
   const [stats, setStats] = useState<GoalsStats | null>(null)
   const [loading, setLoading] = useState(false)
@@ -115,11 +117,11 @@ export default function GoalsPage() {
       } else {
         const error = await response.json()
         console.error('API error:', error)
-        toast.error('Failed to load goals')
+        toast.error(t('ui.failedToLoadGoals'))
       }
     } catch (error) {
       console.error('Error fetching goals:', error)
-      toast.error('Failed to load goals')
+      toast.error(t('ui.failedToLoadGoals'))
     } finally {
       setLoading(false)
     }
@@ -128,17 +130,17 @@ export default function GoalsPage() {
   async function createGoal() {
     // Validate required fields
     if (!newGoal.title.trim()) {
-      toast.error('Please enter a goal title')
+      toast.error(t('ui.pleaseEnterAGoalTitle'))
       return
     }
 
     if (!newGoal.category) {
-      toast.error('Please select a category')
+      toast.error(t('ui.pleaseSelectACategory'))
       return
     }
 
     if (!newGoal.deadline) {
-      toast.error('Please select a deadline')
+      toast.error(t('ui.pleaseSelectADeadline'))
       return
     }
 
@@ -148,7 +150,7 @@ export default function GoalsPage() {
     today.setHours(0, 0, 0, 0)
     
     if (deadlineDate < today) {
-      toast.error('Deadline must be in the future')
+      toast.error(t('ui.deadlineMustBeInTheFuture'))
       return
     }
 
@@ -173,7 +175,7 @@ export default function GoalsPage() {
         })
         setShowNewGoal(false)
         setSelectedType(null)
-        toast.success('🎯 Goal created successfully!')
+        toast.success(t('ui.goalCreatedSuccessfully'))
         // Refresh stats only
         const statsResponse = await fetch('/api/goals')
         if (statsResponse.ok) {
@@ -187,7 +189,7 @@ export default function GoalsPage() {
       }
     } catch (error) {
       console.error('Error creating goal:', error)
-      toast.error('Failed to create goal')
+      toast.error(t('ui.failedToCreateGoal'))
     }
   }
 
@@ -243,7 +245,7 @@ export default function GoalsPage() {
             if (filterStatus === 'ACTIVE') {
               setFilterStatus('ALL')
             }
-            toast.success('🎉 Goal completed! May Allah reward your efforts!')
+            toast.success(t('ui.goalCompletedMayAllahRewardYourEfforts'))
             // Refresh stats only on completion
             const statsResponse = await fetch('/api/goals')
             if (statsResponse.ok) {
@@ -254,7 +256,7 @@ export default function GoalsPage() {
         } else {
           // Revert optimistic update on error
           await fetchGoals()
-          toast.error('Failed to update progress')
+          toast.error(t('ui.failedToUpdateProgress'))
         }
       }
 
@@ -272,7 +274,7 @@ export default function GoalsPage() {
       console.error('Error updating goal:', error)
       // Revert optimistic update on error
       await fetchGoals()
-      toast.error('Failed to update progress')
+      toast.error(t('ui.failedToUpdateProgress'))
     }
   }
 
@@ -287,7 +289,7 @@ export default function GoalsPage() {
       if (response.ok) {
         // Remove from state immediately
         setGoals(prev => prev.filter(g => g.id !== deletingGoal.id))
-        toast.success('Goal deleted successfully')
+        toast.success(t('ui.goalDeletedSuccessfully'))
         setDeletingGoal(null)
         
         // Refresh stats after delete
@@ -297,12 +299,12 @@ export default function GoalsPage() {
           setStats(data.stats || null)
         }
       } else {
-        toast.error('Failed to delete goal')
+        toast.error(t('ui.failedToDeleteGoal'))
         setDeletingGoal(null)
       }
     } catch (error) {
       console.error('Error deleting goal:', error)
-      toast.error('Failed to delete goal')
+      toast.error(t('ui.failedToDeleteGoal'))
       setDeletingGoal(null)
     }
   }
@@ -439,7 +441,7 @@ export default function GoalsPage() {
           {isCompleted && (
             <div className="absolute top-0 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3" />
-              COMPLETED
+              {t('ui.completed2')}
             </div>
           )}
           
@@ -485,7 +487,7 @@ export default function GoalsPage() {
                   <span className={`font-medium ${
                     isDunya ? 'text-amber-700 dark:text-amber-400' : 'text-purple-700 dark:text-purple-400'
                   }`}>
-                    Progress
+                    {t('ui.progress')}
                   </span>
                   <span className={`font-bold ${isCompleted ? 'text-green-600 dark:text-green-400' : ''}`}>
                     {goal.progress}%
@@ -517,7 +519,7 @@ export default function GoalsPage() {
                   <div className="space-y-2">
                     {/* Input Field */}
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
-                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Set:</span>
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{t('ui.set')}</span>
                       <Input
                         type="number"
                         min="0"
@@ -581,7 +583,7 @@ export default function GoalsPage() {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">Loading your goals...</p>
+              <p className="text-gray-600 dark:text-gray-400 font-medium">{t('ui.loadingYourGoals')}</p>
             </div>
           </div>
         </div>
@@ -605,8 +607,8 @@ export default function GoalsPage() {
                     <Target className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-4xl font-bold">Goals</h1>
-                    <p className="text-white/90">Balance your worldly and spiritual aspirations</p>
+                    <h1 className="text-2xl sm:text-4xl font-bold">{t('nav.goals')}</h1>
+                    <p className="text-white/90">{t('ui.balanceYourWorldlyAndSpiritualAspirations')}</p>
                   </div>
                 </div>
                 <Button
@@ -627,7 +629,7 @@ export default function GoalsPage() {
                   className="bg-white text-amber-600 hover:bg-white/90"
                 >
                   <Plus className="h-5 w-5 mr-2" />
-                  New Goal
+                  {t('ui.newGoal')}
                 </Button>
               </div>
             </CardContent>
@@ -655,7 +657,7 @@ export default function GoalsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-300">
-                Dunya (Worldly)
+                {t('ui.dunyaWorldly')}
               </h2>
               <button
                 onClick={() => {
@@ -671,7 +673,7 @@ export default function GoalsPage() {
                 className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add
+                {t('common.add')}
               </button>
             </div>
             <div className="space-y-4">
@@ -684,9 +686,9 @@ export default function GoalsPage() {
                 <Card className="border-dashed border-2 border-amber-200 dark:border-amber-800/50 bg-amber-50/30 dark:bg-amber-950/10">
                   <CardContent className="p-12 text-center">
                     <Target className="h-12 w-12 text-amber-400 mx-auto mb-4" />
-                    <p className="text-amber-600 dark:text-amber-400">No Dunya goals yet</p>
+                    <p className="text-amber-600 dark:text-amber-400">{t('ui.noDunyaGoalsYet')}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                      Set goals for career, health, skills, and relationships
+                      {t('ui.setGoalsForCareerHealthSkillsAndRelationship')}
                     </p>
                   </CardContent>
                 </Card>
@@ -741,7 +743,7 @@ export default function GoalsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-purple-800 dark:text-purple-300">
-                Akhirah (Hereafter)
+                {t('ui.akhirahHereafter')}
               </h2>
               <button
                 onClick={() => {
@@ -757,7 +759,7 @@ export default function GoalsPage() {
                 className="inline-flex items-center justify-center px-4 py-2 rounded-lg text-white font-medium shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add
+                {t('common.add')}
               </button>
             </div>
             <div className="space-y-4">
@@ -770,9 +772,9 @@ export default function GoalsPage() {
                 <Card className="border-dashed border-2 border-purple-200 dark:border-purple-800/50 bg-purple-50/30 dark:bg-purple-950/10">
                   <CardContent className="p-12 text-center">
                     <Award className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-                    <p className="text-purple-600 dark:text-purple-400">No Akhirah goals yet</p>
+                    <p className="text-purple-600 dark:text-purple-400">{t('ui.noAkhirahGoalsYet')}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                      Set goals for Quran, prayers, charity, and good deeds
+                      {t('ui.setGoalsForQuranPrayersCharityAndGoodDeeds')}
                     </p>
                   </CardContent>
                 </Card>
@@ -849,7 +851,7 @@ export default function GoalsPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Goal</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewGoal')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {newGoal.goalType === 'DUNYA' ? '🌍 Creating Dunya goal' : '🕌 Creating Akhirah goal'}
                     </p>
@@ -871,7 +873,7 @@ export default function GoalsPage() {
                   {/* Goal Type Selector - Show only when user clicked main "New Goal" button */}
                   {selectedType === null ? (
                     <div>
-                      <label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300 uppercase tracking-wide">Goal Type</label>
+                      <label className="text-sm font-semibold mb-3 block text-gray-700 dark:text-gray-300 uppercase tracking-wide">{t('ui.goalType')}</label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {['DUNYA', 'AKHIRAH'].map((type) => {
                           const isSelected = newGoal.goalType === type
@@ -941,12 +943,12 @@ export default function GoalsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Title <span className="text-red-500">*</span>
+                      {t('ui.title')} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       value={newGoal.title}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="e.g., Complete Quran memorization"
+                      placeholder={t('ui.eGCompleteQuranMemorization')}
                       className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
                       required
                     />
@@ -954,19 +956,19 @@ export default function GoalsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Description <span className="text-gray-400 text-xs">(Optional)</span>
+                      {t('ui.description')} <span className="text-gray-400 text-xs">(Optional)</span>
                     </label>
                     <Textarea
                       value={newGoal.description}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Describe your goal in detail..."
+                      placeholder={t('ui.describeYourGoalInDetail')}
                       className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Category <span className="text-red-500">*</span>
+                      {t('ui.category')} <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={newGoal.category}
@@ -986,7 +988,7 @@ export default function GoalsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Deadline <span className="text-red-500">*</span>
+                      {t('ui.deadline')} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="date"
@@ -1012,7 +1014,7 @@ export default function GoalsPage() {
                       }}
                       className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                     >
-                      Create Goal
+                      {t('ui.createGoal')}
                     </button>
                     <button
                       onClick={() => {
@@ -1021,7 +1023,7 @@ export default function GoalsPage() {
                       }}
                       className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -1057,7 +1059,7 @@ export default function GoalsPage() {
                 {/* Content */}
                 <div className="text-center space-y-4">
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Delete Goal?
+                    {t('ui.deleteGoal')}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
                     Are you sure you want to delete{' '}
@@ -1077,7 +1079,7 @@ export default function GoalsPage() {
                       : 'bg-purple-50 dark:bg-purple-950/30 border-purple-300 dark:border-purple-700'
                   }`}>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ui.type')}</span>
                       <span className={`font-semibold ${
                         deletingGoal.goalType === 'DUNYA'
                           ? 'text-amber-700 dark:text-amber-400'
@@ -1087,7 +1089,7 @@ export default function GoalsPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm mt-2">
-                      <span className="text-gray-600 dark:text-gray-400">Progress:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ui.progress2')}</span>
                       <span className="font-semibold text-gray-900 dark:text-white">
                         {deletingGoal.progress}%
                       </span>
@@ -1101,7 +1103,7 @@ export default function GoalsPage() {
                     onClick={() => setDeletingGoal(null)}
                     className="flex-1 h-12 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold transition-all duration-200"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={confirmDeleteGoal}
@@ -1113,7 +1115,7 @@ export default function GoalsPage() {
                     className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Delete Goal
+                    {t('ui.deleteGoal2')}
                   </button>
                 </div>
               </motion.div>

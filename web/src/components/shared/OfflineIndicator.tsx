@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CloudOff, RefreshCw, CheckCircle2 } from 'lucide-react'
@@ -10,6 +11,7 @@ import { countPending, flushQueue } from '@/lib/offline-queue'
  * Mounted once in the dashboard layout.
  */
 export function OfflineIndicator() {
+  const { t } = useT()
   const [online, setOnline] = useState(true)
   const [pending, setPending] = useState(0)
   const [syncing, setSyncing] = useState(false)
@@ -93,7 +95,7 @@ export function OfflineIndicator() {
             ) : (
               <>
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                All changes synced
+                {t('ui.allChangesSynced')}
               </>
             )}
           </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Flame, Calendar } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -30,6 +31,7 @@ const getTodayDate = () => {
 }
 
 export default function WelcomeSection({ session }: WelcomeSectionProps) {
+  const { t } = useT()
   const { quote, loading: quoteLoading } = useDailyQuote()
   const { stats, loading: statsLoading } = useUserStats()
 
@@ -125,7 +127,7 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
                   <Flame className="h-6 sm:h-8 w-6 sm:w-8 text-orange-300" />
                   <span className="text-3xl sm:text-4xl font-bold">{stats?.currentStreak || 0}</span>
                 </div>
-                <p className="text-white/90 text-sm font-medium">Day Streak</p>
+                <p className="text-white/90 text-sm font-medium">{t('ui.dayStreak')}</p>
                 <p className="text-white/70 text-xs mt-1">
                   {stats?.currentStreak && stats.currentStreak > 0 ? 'Keep it up!' : 'Start your journey!'}
                 </p>

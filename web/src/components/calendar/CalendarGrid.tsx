@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +13,7 @@ interface CalendarGridProps {
 }
 
 export function CalendarGrid({ currentDate, selectedDate, onDateSelect, tasks, loading }: CalendarGridProps) {
+  const { t } = useT()
   const days = useMemo(() => {
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
@@ -66,7 +68,7 @@ export function CalendarGrid({ currentDate, selectedDate, onDateSelect, tasks, l
   }
 
   if (loading) {
-    return <div className="text-center py-12 text-slate-500">Loading calendar...</div>
+    return <div className="text-center py-12 text-slate-500">{t('ui.loadingCalendar')}</div>
   }
 
   return (

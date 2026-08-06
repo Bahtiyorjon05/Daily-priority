@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -32,7 +33,8 @@ import {
   Lightbulb,
   Eye,
   EyeOff,
-  Edit2,
+  Edit2
+,
   Repeat
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -103,6 +105,7 @@ function isTimeoutError(error: Error): boolean {
 }
 
 export default function DashboardPageRedesigned() {
+  const { t: tI18n } = useT()
   const { data: session } = useSession()
   const { profile } = useUserProfile()
   const userCacheKey = session?.user?.id ?? 'guest'
@@ -388,7 +391,7 @@ export default function DashboardPageRedesigned() {
 
   const createTask = async () => {
     if (!newTask.title.trim()) {
-      toast.error('Please enter a task title')
+      toast.error(tI18n('ui.pleaseEnterATaskTitle'))
       return
     }
 
@@ -425,7 +428,7 @@ export default function DashboardPageRedesigned() {
         setTasks(prev => [data.data, ...prev])
         setNewTask({ title: '', description: '', urgent: false, important: false, estimatedTime: '', dueDate: '' })
         setShowNewTask(false)
-        toast.success('Task created successfully!')
+        toast.success(tI18n('ui.taskCreatedSuccessfully'))
         // Clear ALL cache and force immediate refetch
         clientCache.delete(`tasks:${userCacheKey}`)
         clientCache.delete(`user_stats:${userCacheKey}`)
@@ -458,7 +461,7 @@ export default function DashboardPageRedesigned() {
 
   const updateTask = async () => {
     if (!editingTask || !editingTask.title.trim()) {
-      toast.error('Please enter a task title')
+      toast.error(tI18n('ui.pleaseEnterATaskTitle'))
       return
     }
 
@@ -489,7 +492,7 @@ export default function DashboardPageRedesigned() {
         // Optimistic update - update in UI immediately
         setTasks(prev => prev.map(t => t.id === editingTask.id ? data.data : t))
         setEditingTask(null)
-        toast.success('Task updated successfully!')
+        toast.success(tI18n('ui.taskUpdatedSuccessfully'))
         // Clear ALL cache and force immediate refetch
         clientCache.delete(`tasks:${userCacheKey}`)
         clientCache.delete(`user_stats:${userCacheKey}`)
@@ -525,7 +528,7 @@ export default function DashboardPageRedesigned() {
       const task = tasks.find(t => t.id === taskId)
       if (!task || !task.status) {
         console.error('Task not found or invalid:', taskId)
-        toast.error('Task not found')
+        toast.error(tI18n('ui.taskNotFound'))
         return
       }
 
@@ -624,7 +627,7 @@ export default function DashboardPageRedesigned() {
       if (response.ok) {
         // Optimistic update - remove from UI immediately
         setTasks(prev => prev.filter(t => t.id !== taskToDelete))
-        toast.success('Task deleted')
+        toast.success(tI18n('ui.taskDeleted'))
         // Clear ALL cache and force immediate refetch
         clientCache.delete(`tasks:${userCacheKey}`)
         clientCache.delete(`user_stats:${userCacheKey}`)
@@ -742,14 +745,14 @@ export default function DashboardPageRedesigned() {
                   }}
                   className="text-red-600 dark:text-red-300 border-red-200 dark:border-red-600/70 hover:bg-red-100 dark:hover:bg-red-900/50 dark:hover:border-red-500/70"
                 >
-                  Retry
+                  {tI18n('ui.retry')}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setError(null)}
                   className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                  aria-label="Dismiss error"
+                  aria-label={tI18n('ui.dismissError')}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -766,7 +769,7 @@ export default function DashboardPageRedesigned() {
         {/* Error State */}
         {!loading && error && !tasks.length && (
           <ErrorState
-            title="Unable to Load Dashboard"
+            title={tI18n('ui.unableToLoadDashboard')}
             message={error}
             onRetry={() => {
               fetchTasks()
@@ -857,7 +860,7 @@ export default function DashboardPageRedesigned() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-blue-600 dark:text-blue-300 mb-1">Tasks Done</p>
+                    <p className="text-xs font-medium text-blue-600 dark:text-blue-300 mb-1">{tI18n('ui.tasksDone')}</p>
                     <p className="text-2xl font-bold text-blue-700 dark:text-blue-200">{stats?.tasksCompleted || 0}<span className="text-sm text-blue-500 dark:text-blue-300">/{stats?.totalTasks || 0}</span></p>
                   </div>
                   <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-blue-200/80 dark:from-blue-800/70 dark:to-blue-700/70 rounded-xl flex items-center justify-center shadow-inner shadow-blue-300/30 dark:shadow-blue-900/30 ring-1 ring-blue-200/50 dark:ring-blue-600/50">
@@ -891,7 +894,7 @@ export default function DashboardPageRedesigned() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300 mb-1">Productivity</p>
+                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-300 mb-1">{tI18n('ui.productivity')}</p>
                     <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-200">{stats?.productivityScore || 0}%</p>
                   </div>
                   <div className="h-12 w-12 bg-gradient-to-br from-emerald-100 to-emerald-200/80 dark:from-emerald-800/70 dark:to-emerald-700/70 rounded-xl flex items-center justify-center shadow-inner shadow-emerald-300/30 dark:shadow-emerald-900/30 ring-1 ring-emerald-200/50 dark:ring-emerald-600/50">
@@ -919,7 +922,7 @@ export default function DashboardPageRedesigned() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1">Weekly Goals</p>
+                    <p className="text-xs font-medium text-purple-600 dark:text-purple-300 mb-1">{tI18n('ui.weeklyGoals')}</p>
                     <p className="text-2xl font-bold text-purple-700 dark:text-purple-200">{stats?.completedGoals || 0}<span className="text-sm text-purple-500 dark:text-purple-300">/{stats?.weeklyGoals || 0}</span></p>
                   </div>
                   <div className="h-12 w-12 bg-gradient-to-br from-purple-100 to-purple-200/80 dark:from-purple-800/70 dark:to-purple-700/70 rounded-xl flex items-center justify-center shadow-inner shadow-purple-300/30 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-600/50">
@@ -953,7 +956,7 @@ export default function DashboardPageRedesigned() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">
-                    <p className="text-xs font-medium text-orange-600 dark:text-orange-300 mb-1">Focus Time</p>
+                    <p className="text-xs font-medium text-orange-600 dark:text-orange-300 mb-1">{tI18n('ui.focusTime')}</p>
                     <p className="text-2xl font-bold text-orange-700 dark:text-orange-200">
                       {focusStats ? `${Math.floor(focusStats.todayFocusTime / 60)}h ${focusStats.todayFocusTime % 60}m` : '0h 0m'}
                     </p>
@@ -989,7 +992,7 @@ export default function DashboardPageRedesigned() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">Today's Tasks</h2>
+                        <h2 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-white">{tI18n('ui.todaySTasks')}</h2>
                         <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-800/60 text-emerald-700 dark:text-emerald-200 text-sm font-semibold shadow-sm">
                           {filteredTasks.length}
                         </span>
@@ -998,7 +1001,7 @@ export default function DashboardPageRedesigned() {
                         {filteredTasks.length > tasksPerPage ? (
                           <>Showing {startIndex + 1}-{Math.min(endIndex, filteredTasks.length)} of {filteredTasks.length} tasks</>
                         ) : (
-                          <>Focus on what truly matters - Tasks reset daily</>
+                          <>{tI18n('ui.focusOnWhatTrulyMattersTasksResetDaily')}</>
                         )}
                       </p>
                     </div>
@@ -1037,7 +1040,7 @@ export default function DashboardPageRedesigned() {
                       className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-900 dark:text-white shadow-lg border-none"
                     >
                       <Plus className="h-5 w-5 mr-2" />
-                      Add Task
+                      {tI18n('ui.addTask')}
                     </Button>
                   </div>
                 </div>
@@ -1052,7 +1055,7 @@ export default function DashboardPageRedesigned() {
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-700/80 rounded-xl ring-2 ring-slate-200 dark:ring-slate-600 shadow-sm">
                       <Filter className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Filter:</span>
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{tI18n('ui.filter')}</span>
                     </div>
                     {['all', 'pending', 'completed'].map((filterOption) => (
                       <Button
@@ -1154,13 +1157,13 @@ export default function DashboardPageRedesigned() {
                                   {task.urgent && (
                                     <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-red-200 dark:border-red-700/50 shadow-sm">
                                       <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                                      Urgent
+                                      {tI18n('ui.urgent')}
                                     </span>
                                   )}
                                   {task.important && (
                                     <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-200 text-[10px] sm:text-xs md:text-sm font-semibold border border-amber-200 dark:border-amber-700/50 shadow-sm">
                                       <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
-                                      Important
+                                      {tI18n('ui.important')}
                                     </span>
                                   )}
                                   {task.estimatedTime && (
@@ -1184,7 +1187,7 @@ export default function DashboardPageRedesigned() {
                                   size="icon"
                                   onClick={() => setEditingTask(task)}
                                   className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0"
-                                  aria-label="Edit task"
+                                  aria-label={tI18n('ui.editTask2')}
                                 >
                                   <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
@@ -1193,7 +1196,7 @@ export default function DashboardPageRedesigned() {
                                   size="icon"
                                   onClick={() => deleteTask(task.id)}
                                   className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0"
-                                  aria-label="Delete task"
+                                  aria-label={tI18n('ui.deleteTask')}
                                 >
                                   <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
@@ -1236,7 +1239,7 @@ export default function DashboardPageRedesigned() {
                           className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-900 dark:text-white shadow-lg"
                         >
                           <Plus className="h-5 w-5 mr-2" />
-                          Create Your First Task
+                          {tI18n('ui.createYourFirstTask')}
                         </Button>
                       </CardContent>
                     </Card>
@@ -1258,7 +1261,7 @@ export default function DashboardPageRedesigned() {
                       className="text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:border-emerald-300 dark:hover:border-emerald-600 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
                     >
                       <ChevronLeft className="h-4 w-4 mr-1" />
-                      Previous
+                      {tI18n('ui.previous')}
                     </Button>
 
                     <div className="flex items-center gap-1">
@@ -1301,7 +1304,7 @@ export default function DashboardPageRedesigned() {
                       disabled={currentPage === totalPages}
                       className="text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:border-emerald-300 dark:hover:border-emerald-600 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent"
                     >
-                      Next
+                      {tI18n('common.next')}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </motion.div>
@@ -1317,7 +1320,7 @@ export default function DashboardPageRedesigned() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Zap className="h-5 w-5 text-yellow-500" />
-                  Quick Actions
+                  {tI18n('ui.quickActions')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -1327,7 +1330,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/prayers'}
                 >
                   <Activity className="h-4 w-4 mr-3 text-emerald-600 dark:text-emerald-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-emerald-700 dark:group-hover/btn:text-emerald-300">Prayer Times</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-emerald-700 dark:group-hover/btn:text-emerald-300">{tI18n('ui.prayerTimes')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-emerald-600 dark:group-hover/btn:text-emerald-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
@@ -1336,7 +1339,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/habits'}
                 >
                   <Repeat className="h-4 w-4 mr-3 text-teal-600 dark:text-teal-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-teal-700 dark:group-hover/btn:text-teal-300">Habits</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-teal-700 dark:group-hover/btn:text-teal-300">{tI18n('nav.habits')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-teal-600 dark:group-hover/btn:text-teal-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
@@ -1345,7 +1348,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/focus'}
                 >
                   <Brain className="h-4 w-4 mr-3 text-orange-600 dark:text-orange-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-orange-700 dark:group-hover/btn:text-orange-300">Focus Session</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-orange-700 dark:group-hover/btn:text-orange-300">{tI18n('ui.focusSession')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-orange-600 dark:group-hover/btn:text-orange-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
@@ -1354,7 +1357,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/journal'}
                 >
                   <BookOpen className="h-4 w-4 mr-3 text-purple-600 dark:text-purple-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-purple-700 dark:group-hover/btn:text-purple-300">Journal</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-purple-700 dark:group-hover/btn:text-purple-300">{tI18n('nav.journal')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-purple-600 dark:group-hover/btn:text-purple-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
@@ -1363,7 +1366,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/goals'}
                 >
                   <Target className="h-4 w-4 mr-3 text-blue-600 dark:text-blue-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-blue-700 dark:group-hover/btn:text-blue-300">Goals</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-blue-700 dark:group-hover/btn:text-blue-300">{tI18n('nav.goals')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-blue-600 dark:group-hover/btn:text-blue-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
                 <Button
@@ -1372,7 +1375,7 @@ export default function DashboardPageRedesigned() {
                   onClick={() => window.location.href = '/analytics'}
                 >
                   <BarChart3 className="h-4 w-4 mr-3 text-indigo-600 dark:text-indigo-400 group-hover/btn:scale-110 transition-transform" />
-                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-indigo-700 dark:group-hover/btn:text-indigo-300">Analytics</span>
+                  <span className="flex-1 text-left font-medium text-slate-700 dark:text-slate-200 group-hover/btn:text-indigo-700 dark:group-hover/btn:text-indigo-300">{tI18n('nav.analytics')}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-400 group-hover/btn:text-indigo-600 dark:group-hover/btn:text-indigo-300 group-hover/btn:translate-x-1 transition-all" />
                 </Button>
               </CardContent>
@@ -1401,13 +1404,13 @@ export default function DashboardPageRedesigned() {
                 className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Create New Task</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{tI18n('ui.createNewTask')}</h3>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setShowNewTask(false)}
                     className="rounded-full"
-                    aria-label="Close new task form"
+                    aria-label={tI18n('ui.closeNewTaskForm')}
                   >
                     <X className="h-5 w-5" />
                   </Button>
@@ -1417,27 +1420,27 @@ export default function DashboardPageRedesigned() {
                   <div>
                     <Input
                       id="task-title"
-                      label="Task Title"
+                      label={tI18n('ui.taskTitle')}
                       required
                       value={newTask.title}
                       onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="What needs to be done?"
+                      placeholder={tI18n('ui.whatNeedsToBeDone')}
                       className="mt-2 h-12 text-base border-2 border-slate-200 dark:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-500 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-900/30 shadow-sm"
                       autoFocus
-                      description="Enter a clear and specific task title"
+                      description={tI18n('ui.enterAClearAndSpecificTaskTitle')}
                     />
                   </div>
 
                   <div>
                     <Textarea
                       id="task-description"
-                      label="Description"
+                      label={tI18n('ui.description')}
                       value={newTask.description}
                       onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Add details about your task..."
+                      placeholder={tI18n('ui.addDetailsAboutYourTask')}
                       className="mt-2 min-h-[100px] text-base border-2 border-slate-200 dark:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-500 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-900/30 shadow-sm resize-none"
                       rows={4}
-                      description="Optional: Add details about your task"
+                      description={tI18n('ui.optionalAddDetailsAboutYourTask')}
                     />
                   </div>
 
@@ -1449,13 +1452,13 @@ export default function DashboardPageRedesigned() {
                           checked={newTask.urgent}
                           onChange={(e) => setNewTask(prev => ({ ...prev, urgent: e.target.checked }))}
                           className="sr-only peer"
-                          aria-label="Mark as urgent"
+                          aria-label={tI18n('ui.markAsUrgent')}
                         />
                         <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-500 rounded peer-checked:bg-red-500 peer-checked:border-red-500 transition-all"></div>
                         <CheckCircle2 className="absolute inset-0 h-5 w-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                        Urgent
+                        {tI18n('ui.urgent')}
                       </span>
                     </label>
 
@@ -1466,13 +1469,13 @@ export default function DashboardPageRedesigned() {
                           checked={newTask.important}
                           onChange={(e) => setNewTask(prev => ({ ...prev, important: e.target.checked }))}
                           className="sr-only peer"
-                          aria-label="Mark as important"
+                          aria-label={tI18n('ui.markAsImportant')}
                         />
                         <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-500 rounded peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
                         <CheckCircle2 className="absolute inset-0 h-5 w-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                        Important
+                        {tI18n('ui.important')}
                       </span>
                     </label>
                   </div>
@@ -1487,12 +1490,12 @@ export default function DashboardPageRedesigned() {
                     {isCreatingTask ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Creating...
+                        {tI18n('ui.creating')}
                       </>
                     ) : (
                       <>
                         <Plus className="h-5 w-5 mr-2" />
-                        Create Task
+                        {tI18n('ui.createTask')}
                       </>
                     )}
                   </Button>
@@ -1501,7 +1504,7 @@ export default function DashboardPageRedesigned() {
                     onClick={() => setShowNewTask(false)}
                     className="border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    Cancel
+                    {tI18n('common.cancel')}
                   </Button>
                 </div>
               </motion.div>
@@ -1528,13 +1531,13 @@ export default function DashboardPageRedesigned() {
                 className="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-2xl border-2 border-slate-200 dark:border-slate-700"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Task</h3>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{tI18n('ui.editTask')}</h3>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setEditingTask(null)}
                     className="rounded-full"
-                    aria-label="Close edit task form"
+                    aria-label={tI18n('ui.closeEditTaskForm')}
                   >
                     <X className="h-5 w-5" />
                   </Button>
@@ -1544,33 +1547,33 @@ export default function DashboardPageRedesigned() {
                   <div>
                     <Input
                       id="edit-task-title"
-                      label="Task Title"
+                      label={tI18n('ui.taskTitle')}
                       required
                       value={editingTask.title}
                       onChange={(e) => setEditingTask(prev => prev ? { ...prev, title: e.target.value } : null)}
-                      placeholder="What needs to be done?"
+                      placeholder={tI18n('ui.whatNeedsToBeDone')}
                       className="mt-2 h-12 text-base border-2 border-slate-200 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900/30 shadow-sm"
                       autoFocus
-                      description="Enter a clear and specific task title"
+                      description={tI18n('ui.enterAClearAndSpecificTaskTitle')}
                     />
                   </div>
 
                   <div>
                     <Textarea
                       id="edit-task-description"
-                      label="Description"
+                      label={tI18n('ui.description')}
                       value={editingTask.description || ''}
                       onChange={(e) => setEditingTask(prev => prev ? { ...prev, description: e.target.value } : null)}
-                      placeholder="Add details about your task..."
+                      placeholder={tI18n('ui.addDetailsAboutYourTask')}
                       className="mt-2 min-h-[100px] text-base border-2 border-slate-200 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-500 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900/30 shadow-sm resize-none"
                       rows={4}
-                      description="Optional: Add details about your task"
+                      description={tI18n('ui.optionalAddDetailsAboutYourTask')}
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="edit-estimated-time">Estimated Time (minutes)</Label>
+                      <Label htmlFor="edit-estimated-time">{tI18n('ui.estimatedTimeMinutes')}</Label>
                       <Input
                         id="edit-estimated-time"
                         type="number"
@@ -1582,7 +1585,7 @@ export default function DashboardPageRedesigned() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="edit-due-date">Due Date</Label>
+                      <Label htmlFor="edit-due-date">{tI18n('ui.dueDate')}</Label>
                       <Input
                         id="edit-due-date"
                         type="date"
@@ -1601,13 +1604,13 @@ export default function DashboardPageRedesigned() {
                           checked={editingTask.urgent}
                           onChange={(e) => setEditingTask(prev => prev ? { ...prev, urgent: e.target.checked } : null)}
                           className="sr-only peer"
-                          aria-label="Mark as urgent"
+                          aria-label={tI18n('ui.markAsUrgent')}
                         />
                         <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-500 rounded peer-checked:bg-red-500 peer-checked:border-red-500 transition-all"></div>
                         <CheckCircle2 className="absolute inset-0 h-5 w-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                        Urgent
+                        {tI18n('ui.urgent')}
                       </span>
                     </label>
 
@@ -1618,13 +1621,13 @@ export default function DashboardPageRedesigned() {
                           checked={editingTask.important}
                           onChange={(e) => setEditingTask(prev => prev ? { ...prev, important: e.target.checked } : null)}
                           className="sr-only peer"
-                          aria-label="Mark as important"
+                          aria-label={tI18n('ui.markAsImportant')}
                         />
                         <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-500 rounded peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
                         <CheckCircle2 className="absolute inset-0 h-5 w-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                        Important
+                        {tI18n('ui.important')}
                       </span>
                     </label>
                   </div>
@@ -1639,12 +1642,12 @@ export default function DashboardPageRedesigned() {
                     {isEditingTask ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Updating...
+                        {tI18n('ui.updating')}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="h-5 w-5 mr-2" />
-                        Update Task
+                        {tI18n('ui.updateTask')}
                       </>
                     )}
                   </Button>
@@ -1653,7 +1656,7 @@ export default function DashboardPageRedesigned() {
                     onClick={() => setEditingTask(null)}
                     className="border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
-                    Cancel
+                    {tI18n('common.cancel')}
                   </Button>
                 </div>
               </motion.div>
@@ -1666,8 +1669,8 @@ export default function DashboardPageRedesigned() {
           isOpen={!!taskToDelete}
           onClose={() => setTaskToDelete(null)}
           onConfirm={confirmDeleteTask}
-          title="Delete Task"
-          description="Are you sure you want to delete this task? This action cannot be undone."
+          title={tI18n('ui.deleteTask2')}
+          description={tI18n('ui.areYouSureYouWantToDeleteThisTaskThisActionC')}
           confirmText="Delete"
           cancelText="Cancel"
           variant="danger"

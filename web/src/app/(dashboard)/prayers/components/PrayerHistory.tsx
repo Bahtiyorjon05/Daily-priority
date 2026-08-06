@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -26,6 +27,7 @@ export default function PrayerHistory({
   daysToShow = 30,
   onDaysChange
 }: PrayerHistoryProps) {
+  const { t } = useT()
   // Use parent-controlled state if available, otherwise use local state
   const [localDays, setLocalDays] = useState(
     DAY_OPTIONS.includes(daysToShow) ? daysToShow : DAY_OPTIONS[0]
@@ -41,7 +43,7 @@ export default function PrayerHistory({
   return (
     <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Prayer History</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('ui.prayerHistory')}</h3>
         <div className="flex gap-2">
           {DAY_OPTIONS.map(option => (
             <Button
@@ -134,8 +136,8 @@ export default function PrayerHistory({
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <p>No prayer history available yet.</p>
-          <p className="text-sm mt-2">Start tracking your prayers to see your history here.</p>
+          <p>{t('ui.noPrayerHistoryAvailableYet')}</p>
+          <p className="text-sm mt-2">{t('ui.startTrackingYourPrayersToSeeYourHistoryHere')}</p>
         </div>
       )}
 
@@ -143,15 +145,15 @@ export default function PrayerHistory({
       <div className="flex gap-6 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-2">
           <div className="h-4 w-4 rounded border-2 border-emerald-500 bg-emerald-100 dark:bg-emerald-900/30"></div>
-          <span className="text-sm text-gray-700 dark:text-gray-300">On Time</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">{t('ui.onTime')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-4 w-4 rounded border-2 border-amber-500 bg-amber-100 dark:bg-amber-900/30"></div>
-          <span className="text-sm text-gray-700 dark:text-gray-300">Completed Late</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">{t('ui.completedLate')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-4 w-4 rounded border-2 border-gray-400 dark:border-gray-600"></div>
-          <span className="text-sm text-gray-700 dark:text-gray-300">Missed</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">{t('ui.missed')}</span>
         </div>
       </div>
     </Card>

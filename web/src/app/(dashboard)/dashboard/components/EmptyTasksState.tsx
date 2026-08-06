@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default function EmptyTasksState() {
+  const { t } = useT()
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,7 +26,7 @@ export default function EmptyTasksState() {
           </motion.div>
           
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-3">
-            No tasks yet
+            {t('ui.noTasksYet')}
           </h3>
           
           <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
@@ -41,7 +43,7 @@ export default function EmptyTasksState() {
               className="bg-emerald-600 bg-gradient-to-r from-emerald-600 to-teal-600 hover:bg-emerald-700 hover:from-emerald-700 hover:to-teal-700 !text-white hover:!text-white shadow-lg focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Your First Task
+              {t('ui.createYourFirstTask')}
             </Button>
           </motion.div>
         </CardContent>

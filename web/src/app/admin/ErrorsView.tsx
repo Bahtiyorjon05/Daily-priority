@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, Check, RefreshCw, Trash2, ChevronDown, ChevronRight, Bug } from 'lucide-react'
 
@@ -30,6 +31,7 @@ const rel = (iso: string) => {
 }
 
 export default function ErrorsView() {
+  const { t } = useT()
   const [rows, setRows] = useState<ErrorRow[]>([])
   const [openCount, setOpenCount] = useState(0)
   const [resolvedCount, setResolvedCount] = useState(0)
@@ -90,11 +92,11 @@ export default function ErrorsView() {
           Resolved ({resolvedCount})
         </button>
         <button onClick={load} className="ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> {t('ui.refresh')}
         </button>
         {showResolved && resolvedCount > 0 && (
           <button onClick={clearResolved} className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
-            <Trash2 className="h-4 w-4" /> Clear
+            <Trash2 className="h-4 w-4" /> {t('ui.clear')}
           </button>
         )}
       </div>

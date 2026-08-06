@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -46,6 +47,7 @@ interface Habit {
 }
 
 export default function HabitsPage() {
+  const { t } = useT()
   const [habits, setHabits] = useState<Habit[]>([])
   const [loading, setLoading] = useState(false)
   const [showNewHabit, setShowNewHabit] = useState(false)
@@ -84,11 +86,11 @@ export default function HabitsPage() {
       } else {
         const error = await response.json()
         console.error('API error:', error)
-        toast.error('Failed to load habits')
+        toast.error(t('ui.failedToLoadHabits'))
       }
     } catch (error) {
       console.error('Error fetching habits:', error)
-      toast.error('Failed to load habits')
+      toast.error(t('ui.failedToLoadHabits'))
     } finally {
       setLoading(false)
     }
@@ -97,7 +99,7 @@ export default function HabitsPage() {
   async function createHabit() {
     // Validation
     if (!newHabit.title.trim()) {
-      toast.error('Please enter a habit title')
+      toast.error(t('ui.pleaseEnterAHabitTitle'))
       return
     }
 
@@ -118,7 +120,7 @@ export default function HabitsPage() {
           targetDays: 7
         })
         setShowNewHabit(false)
-        toast.success('✅ Habit created successfully!')
+        toast.success(t('ui.habitCreatedSuccessfully'))
       } else {
         const error = await response.json()
         console.error('API error:', error)
@@ -126,7 +128,7 @@ export default function HabitsPage() {
       }
     } catch (error) {
       console.error('Error creating habit:', error)
-      toast.error('Failed to create habit')
+      toast.error(t('ui.failedToCreateHabit'))
     }
   }
 
@@ -140,15 +142,15 @@ export default function HabitsPage() {
 
       if (response.ok) {
         setHabits(prev => prev.filter(h => h.id !== deletingHabit.id))
-        toast.success('Habit deleted successfully')
+        toast.success(t('ui.habitDeletedSuccessfully'))
         setDeletingHabit(null)
       } else {
-        toast.error('Failed to delete habit')
+        toast.error(t('ui.failedToDeleteHabit'))
         setDeletingHabit(null)
       }
     } catch (error) {
       console.error('Error deleting habit:', error)
-      toast.error('Failed to delete habit')
+      toast.error(t('ui.failedToDeleteHabit'))
       setDeletingHabit(null)
     }
   }
@@ -225,13 +227,13 @@ export default function HabitsPage() {
       } else {
         // Revert optimistic update on error
         await fetchHabits()
-        toast.error('Failed to update habit')
+        toast.error(t('ui.failedToUpdateHabit'))
       }
     } catch (error) {
       console.error('Error toggling completion:', error)
       // Revert optimistic update on error
       await fetchHabits()
-      toast.error('Failed to update habit')
+      toast.error(t('ui.failedToUpdateHabit'))
     }
   }
 
@@ -309,7 +311,7 @@ export default function HabitsPage() {
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-gray-600 dark:text-gray-400 font-medium">Loading your habits...</p>
+              <p className="text-gray-600 dark:text-gray-400 font-medium">{t('ui.loadingYourHabits')}</p>
             </div>
           </div>
         </div>
@@ -333,8 +335,8 @@ export default function HabitsPage() {
                     <Target className="h-8 w-8" />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-4xl font-bold">Habits</h1>
-                    <p className="text-white/90">Build lasting habits, one day at a time</p>
+                    <h1 className="text-2xl sm:text-4xl font-bold">{t('nav.habits')}</h1>
+                    <p className="text-white/90">{t('ui.buildLastingHabitsOneDayAtATime')}</p>
                   </div>
                 </div>
                 <button
@@ -356,7 +358,7 @@ export default function HabitsPage() {
                   className="px-3 sm:px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
                 >
                   <Plus className="h-5 w-5" />
-                  New Habit
+                  {t('ui.newHabit')}
                 </button>
               </div>
             </CardContent>
@@ -462,7 +464,7 @@ export default function HabitsPage() {
                                 className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
                               >
                                 <Snowflake className="h-3 w-3" />
-                                Saved
+                                {t('common.saved')}
                               </span>
                             )}
                           </div>
@@ -494,12 +496,12 @@ export default function HabitsPage() {
                           {completedToday ? (
                             <>
                               <CheckCircle2 className="h-5 w-5" />
-                              Completed Today
+                              {t('ui.completedToday')}
                             </>
                           ) : (
                             <>
                               <Circle className="h-5 w-5" />
-                              Mark Complete
+                              {t('ui.markComplete')}
                             </>
                           )}
                         </button>
@@ -516,7 +518,7 @@ export default function HabitsPage() {
               <Card className="border-dashed border-2 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                 <CardContent className="p-12 text-center">
                   <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">No habits found</p>
+                  <p className="text-gray-600 dark:text-gray-400">{t('ui.noHabitsFound')}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
                     {searchQuery || selectedFrequency !== 'ALL' 
                       ? 'Try adjusting your filters'
@@ -546,7 +548,7 @@ export default function HabitsPage() {
                 className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 inline-flex items-center gap-1"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                {t('ui.previous')}
               </button>
 
               <div className="flex items-center gap-2">
@@ -592,7 +594,7 @@ export default function HabitsPage() {
                 }}
                 className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 inline-flex items-center gap-1"
               >
-                Next
+                {t('common.next')}
                 <ChevronRight className="h-4 w-4" />
               </button>
             </motion.div>
@@ -621,7 +623,7 @@ export default function HabitsPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">Create New Habit</h3>
+                    <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewHabit')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       🎯 Build a new positive habit
                     </p>
@@ -639,12 +641,12 @@ export default function HabitsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Title <span className="text-red-500">*</span>
+                      {t('ui.title')} <span className="text-red-500">*</span>
                     </label>
                     <Input
                       value={newHabit.title}
                       onChange={(e) => setNewHabit(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="e.g., Morning exercise, Read Quran"
+                      placeholder={t('ui.eGMorningExerciseReadQuran')}
                       className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
                       required
                     />
@@ -652,19 +654,19 @@ export default function HabitsPage() {
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Description <span className="text-gray-400 text-xs">(Optional)</span>
+                      {t('ui.description')} <span className="text-gray-400 text-xs">(Optional)</span>
                     </label>
                     <Textarea
                       value={newHabit.description}
                       onChange={(e) => setNewHabit(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Why is this habit important to you?"
+                      placeholder={t('ui.whyIsThisHabitImportantToYou')}
                       className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
                     />
                   </div>
 
                   <div>
                     <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                      Frequency
+                      {t('ui.frequency')}
                     </label>
                     <select
                       value={newHabit.frequency}
@@ -680,7 +682,7 @@ export default function HabitsPage() {
                   {newHabit.frequency === 'CUSTOM' && (
                     <div>
                       <label className="text-sm font-semibold mb-2 block text-gray-700 dark:text-gray-300">
-                        Target Days per Week
+                        {t('ui.targetDaysPerWeek')}
                       </label>
                       <Input
                         type="number"
@@ -704,13 +706,13 @@ export default function HabitsPage() {
                       }}
                       className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                     >
-                      Create Habit
+                      {t('ui.createHabit')}
                     </button>
                     <button
                       onClick={() => setShowNewHabit(false)}
                       className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -744,7 +746,7 @@ export default function HabitsPage() {
 
                 <div className="text-center space-y-4">
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Delete Habit?
+                    {t('ui.deleteHabit')}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
                     Are you sure you want to delete{' '}
@@ -759,7 +761,7 @@ export default function HabitsPage() {
 
                   <div className="p-4 rounded-xl border-2 bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">Current Streak:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ui.currentStreak2')}</span>
                       <span className="font-semibold text-gray-900 dark:text-white">
                         🔥 {deletingHabit.currentStreak} days
                       </span>
@@ -772,7 +774,7 @@ export default function HabitsPage() {
                     onClick={() => setDeletingHabit(null)}
                     className="flex-1 h-12 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-semibold transition-all duration-200"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={confirmDeleteHabit}
@@ -784,7 +786,7 @@ export default function HabitsPage() {
                     className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Delete Habit
+                    {t('ui.deleteHabit2')}
                   </button>
                 </div>
               </motion.div>

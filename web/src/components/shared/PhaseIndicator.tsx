@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sunrise, Sun, CloudSun, Sunset, Moon, Stars, Check } from 'lucide-react'
@@ -23,6 +24,7 @@ const ORDER: PrayerPhase[] = ['dawn', 'morning', 'midday', 'afternoon', 'dusk', 
  * Sits in the dashboard header next to the other controls.
  */
 export function PhaseIndicator() {
+  const { t } = useT()
   const { phase, label, prayer, preference, setPreference, usingFallback } = usePrayerPhase()
   const [open, setOpen] = useState(false)
   const modal = useModalBehavior(open, () => setOpen(false))
@@ -55,7 +57,7 @@ export function PhaseIndicator() {
             <motion.div
               ref={modal.ref}
               {...modal.dialogProps}
-              aria-label="Appearance"
+              aria-label={t('ui.appearance')}
               initial={{ opacity: 0, y: 8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
@@ -83,7 +85,7 @@ export function PhaseIndicator() {
                 >
                   <span className="flex items-center gap-2">
                     <Sun className="h-4 w-4 text-muted-foreground" />
-                    Follow the prayer day
+                    {t('ui.followThePrayerDay')}
                   </span>
                   {preference === 'auto' && <Check className="phase-accent h-4 w-4" />}
                 </button>

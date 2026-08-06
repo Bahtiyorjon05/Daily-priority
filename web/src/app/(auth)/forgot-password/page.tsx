@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -19,6 +20,7 @@ import { Logo } from '@/components/marketing/Logo'
 import { toast } from 'sonner'
 
 export default function ForgotPasswordPage() {
+  const { t } = useT()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -77,7 +79,7 @@ export default function ForgotPasswordPage() {
           localStorage.setItem('resetEmail', data.email || emailData.email)
           localStorage.setItem('resetCodeCountdown', '600') // 10 minutes
         }
-        toast.success('Verification code sent!', {
+        toast.success(t('ui.verificationCodeSent'), {
           description: 'Check your email inbox for the 6-digit code.',
           duration: 5000,
         })
@@ -94,7 +96,7 @@ export default function ForgotPasswordPage() {
     } catch (error) {
       console.error('Forgot password error:', error)
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Something went wrong')
+      toast.error(t('error.title'))
     } finally {
       setLoading(false)
     }
@@ -142,7 +144,7 @@ export default function ForgotPasswordPage() {
                     <Home className="h-3 w-3 sm:h-4 sm:w-4 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
                   <span className="hidden sm:inline text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                    Back to Home
+                    {t('ui.backToHome')}
                   </span>
                 </Link>
                 
@@ -150,9 +152,9 @@ export default function ForgotPasswordPage() {
                   <Logo showText={false} className="scale-75 sm:scale-90" />
                   <div className="hidden sm:block">
                     <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-300 bg-clip-text text-transparent">
-                      Daily Priority
+                      {t('ui.dailyPriority')}
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Reset your password</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">{t('ui.resetYourPassword')}</p>
                   </div>
                 </div>
               </div>
@@ -175,8 +177,8 @@ export default function ForgotPasswordPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                     <span className="relative flex items-center gap-1 sm:gap-2 text-white" style={{ color: '#ffffff' }}>
                       <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                      <span className="hidden sm:inline text-white" style={{ color: '#ffffff' }}>Sign In</span>
-                      <span className="sm:hidden text-white" style={{ color: '#ffffff' }}>Sign In</span>
+                      <span className="hidden sm:inline text-white" style={{ color: '#ffffff' }}>{t('ui.signIn')}</span>
+                      <span className="sm:hidden text-white" style={{ color: '#ffffff' }}>{t('ui.signIn')}</span>
                     </span>
                   </button>
                 </Link>
@@ -202,9 +204,9 @@ export default function ForgotPasswordPage() {
                 <div className="flex justify-center mb-3 sm:mb-4 md:mb-5">
                   <Logo showText={false} className="scale-110 sm:scale-125 md:scale-150" />
                 </div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">Forgot Password?</h1>
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">{t('ui.forgotPassword')}</h1>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed px-2">
-                  No worries! Enter your email and we'll send you a verification code.
+                  {t('ui.noWorriesEnterYourEmailAndWeLlSendYouAVerifi')}
                 </p>
               </div>
               
@@ -226,13 +228,13 @@ export default function ForgotPasswordPage() {
                   <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 sm:gap-2">
                       <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span>Email Address</span>
+                      <span>{t('auth.emailAddress')}</span>
                     </Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder={t('ui.enterYourEmailAddress')}
                       value={emailData.email}
                       onChange={(e) => {
                         setEmailData(prev => ({ ...prev, email: e.target.value }))
@@ -273,12 +275,12 @@ export default function ForgotPasswordPage() {
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 border-2 border-white/30 border-t-white"></div>
-                          <span className="text-white" style={{ color: '#ffffff' }}>Sending...</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.sending')}</span>
                         </>
                       ) : (
                         <>
                           <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                          <span className="text-white" style={{ color: '#ffffff' }}>Send Verification Code</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.sendVerificationCode')}</span>
                           <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
@@ -289,7 +291,7 @@ export default function ForgotPasswordPage() {
                   <p className="text-xs sm:text-sm md:text-base text-gray-600 dark:text-gray-400">
                     Remember your password?{' '}
                     <Link href="/signin" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
-                      Sign In
+                      {t('ui.signIn')}
                       <Shield className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />
                     </Link>
                   </p>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { 
@@ -56,6 +57,7 @@ function TaskCard({
   bulkMode,
   viewMode
 }: TaskCardProps) {
+  const { t } = useT()
   const priorityColor = task.urgent 
     ? 'border-l-red-500' 
     : task.important 
@@ -158,7 +160,7 @@ function TaskCard({
                 <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-2 mb-3">
                   <div className="flex items-center gap-1 mb-1">
                     <Sparkles className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-                    <span className="text-purple-700 dark:text-purple-300 font-medium text-xs">AI Insight</span>
+                    <span className="text-purple-700 dark:text-purple-300 font-medium text-xs">{t('ui.aiInsight')}</span>
                   </div>
                   <p className="text-purple-600 dark:text-purple-400 text-xs">{task.aiReason}</p>
                 </div>
@@ -182,7 +184,7 @@ function TaskCard({
                 {task.completedAt && (
                   <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 className="h-3 w-3" />
-                    <span>Completed</span>
+                    <span>{t('ui.completed')}</span>
                   </div>
                 )}
               </div>
@@ -192,19 +194,19 @@ function TaskCard({
                 {task.urgent && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium">
                     <AlertCircle className="h-3 w-3" />
-                    Urgent
+                    {t('ui.urgent')}
                   </span>
                 )}
                 {task.important && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium">
                     <Star className="h-3 w-3" />
-                    Important
+                    {t('ui.important')}
                   </span>
                 )}
                 {task.aiSuggested && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-400 text-xs font-medium border border-purple-200 dark:border-purple-800">
                     <Brain className="h-3 w-3" />
-                    AI Suggested
+                    {t('ui.aiSuggested')}
                   </span>
                 )}
               </div>

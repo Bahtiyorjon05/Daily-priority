@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -47,6 +48,7 @@ const QuickActions = memo<QuickActionsProps>(({
   onAISuggestions,
   className,
 }) => {
+  const { t } = useT()
   const defaultActions: QuickAction[] = [
     {
       id: 'new-task',
@@ -89,7 +91,7 @@ const QuickActions = memo<QuickActionsProps>(({
 
   return (
     <div className={cn(CARD_STYLES.base, 'p-6', className)}>
-      <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
+      <h3 className="text-lg font-semibold mb-4">{t('ui.quickActions')}</h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {actions.map((action, index) => {

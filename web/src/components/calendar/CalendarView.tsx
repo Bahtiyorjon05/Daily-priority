@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,6 +9,7 @@ import { CalendarGrid } from './CalendarGrid'
 import { TaskSidebar } from './TaskSidebar'
 
 export function CalendarView() {
+  const { t } = useT()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [tasks, setTasks] = useState([])
@@ -57,7 +59,7 @@ export function CalendarView() {
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={goToToday}>
-                  Today
+                  {t('common.today')}
                 </Button>
                 <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
                   <ChevronLeft className="h-4 w-4" />

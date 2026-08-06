@@ -1,5 +1,6 @@
 ﻿'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -23,6 +24,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function SetPasswordClient() {
+  const { t } = useT()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status, update } = useSession()
@@ -145,7 +147,7 @@ export default function SetPasswordClient() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">{t('ui.loading')}</p>
         </div>
       </div>
     )
@@ -198,7 +200,7 @@ export default function SetPasswordClient() {
                     <Home className="h-4 w-4 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                    Back to Home
+                    {t('ui.backToHome')}
                   </span>
                 </Link>
                 
@@ -211,9 +213,9 @@ export default function SetPasswordClient() {
                   </div>
                   <div>
                     <span className="font-bold text-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-300 bg-clip-text text-transparent">
-                      Daily Priority
+                      {t('ui.dailyPriority')}
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Secure your account</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">{t('ui.secureYourAccount')}</p>
                   </div>
                 </div>
               </div>
@@ -266,7 +268,7 @@ export default function SetPasswordClient() {
                       </div>
                       <div>
                         <p className="text-blue-800 dark:text-blue-200 text-sm font-semibold mb-1">
-                          Why is a password required?
+                          {t('ui.whyIsAPasswordRequired')}
                         </p>
                         <p className="text-blue-700 dark:text-blue-300 text-sm leading-relaxed">
                           All users must have a password for security purposes. This ensures you can always access your account,
@@ -280,7 +282,7 @@ export default function SetPasswordClient() {
                 {(session?.user?.email) && (
                   <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-500/30 rounded-xl p-4 mb-6">
                     <p className="text-emerald-800 dark:text-emerald-200 text-sm">
-                      Setting password for: <span className="font-semibold">{session.user.email}</span>
+                      {t('ui.settingPasswordFor')} <span className="font-semibold">{session.user.email}</span>
                     </p>
                   </div>
                 )}
@@ -304,14 +306,14 @@ export default function SetPasswordClient() {
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <Lock className="w-4 h-4" />
-                      New Password
+                      {t('ui.newPassword')}
                     </Label>
                     <div className="relative">
                       <Input
                         id="password"
                         name="password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Create a strong password"
+                        placeholder={t('ui.createAStrongPassword')}
                         value={formData.password}
                         onChange={handleChange}
                         onBlur={() => handleBlur('password')}
@@ -337,14 +339,14 @@ export default function SetPasswordClient() {
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Confirm Password
+                      {t('ui.confirmPassword')}
                     </Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
                         name="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm your password"
+                        placeholder={t('ui.confirmYourPassword')}
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         onBlur={() => handleBlur('confirmPassword')}
@@ -391,12 +393,12 @@ export default function SetPasswordClient() {
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                          <span className="text-white" style={{ color: '#ffffff' }}>Setting Password...</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.settingPassword')}</span>
                         </>
                       ) : (
                         <>
                           <Shield className="h-5 w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                          <span className="text-white" style={{ color: '#ffffff' }}>Set Password</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.setPassword')}</span>
                           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
@@ -414,7 +416,7 @@ export default function SetPasswordClient() {
                         onClick={() => signOut({ callbackUrl: '/signin' })}
                         className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                       >
-                        Not now? Sign out instead
+                        {t('ui.notNowSignOutInstead')}
                       </button>
                     </div>
                   )}

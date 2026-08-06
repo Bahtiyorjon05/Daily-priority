@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, X, Moon } from 'lucide-react'
@@ -7,6 +8,7 @@ import { useState } from 'react'
 
 /** Floating install banner — shows on ALL devices (mobile + desktop) */
 export function InstallPrompt() {
+  const { t } = useT()
   const { canShow, isIOS, isAndroid, hasNativePrompt, promptInstall, dismiss } = useInstallPrompt()
   const [showTip, setShowTip] = useState(false)
 
@@ -45,13 +47,13 @@ export function InstallPrompt() {
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold shadow-md shadow-emerald-500/30 transition-all duration-200 min-h-0"
               >
                 <Download className="h-4 w-4" />
-                Install App
+                {t('ui.installApp')}
               </motion.button>
 
               <button
                 onClick={dismiss}
                 className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-h-0 min-w-0 shrink-0"
-                aria-label="Dismiss"
+                aria-label={t('ui.dismiss')}
               >
                 <X className="h-4 w-4 text-gray-400" />
               </button>
@@ -84,6 +86,7 @@ export function InstallPrompt() {
 
 /** Install section for landing page — shows on ALL devices */
 export function InstallSection() {
+  const { t } = useT()
   const { canShow, isIOS, isAndroid, hasNativePrompt, promptInstall } = useInstallPrompt()
   const [showTip, setShowTip] = useState(false)
 
@@ -121,7 +124,7 @@ export function InstallSection() {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
-              Get the App
+              {t('ui.getTheApp')}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
               Free • No app store needed • Works offline
@@ -134,7 +137,7 @@ export function InstallSection() {
               className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-base font-bold shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 transition-all duration-200 min-h-0"
             >
               <Download className="h-5 w-5" />
-              Install Daily Priority
+              {t('install.title')}
             </motion.button>
 
             <AnimatePresence>

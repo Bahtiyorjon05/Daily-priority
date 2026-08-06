@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -10,6 +11,7 @@ import { AppearanceSettings } from './AppearanceSettings'
 import { NotificationSettings } from './NotificationSettings'
 
 export function SettingsLayout() {
+  const { t } = useT()
   const searchParams = useSearchParams()
   const router = useRouter()
   const tabParam = searchParams.get('tab') || 'profile'
@@ -31,19 +33,19 @@ export function SettingsLayout() {
       <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="profile" className="gap-2">
           <User className="h-4 w-4" />
-          <span className="hidden sm:inline">Profile</span>
+          <span className="hidden sm:inline">{t('ui.profile')}</span>
         </TabsTrigger>
         <TabsTrigger value="notifications" className="gap-2">
           <Bell className="h-4 w-4" />
-          <span className="hidden sm:inline">Notifications</span>
+          <span className="hidden sm:inline">{t('nav.notifications')}</span>
         </TabsTrigger>
         <TabsTrigger value="security" className="gap-2">
           <Shield className="h-4 w-4" />
-          <span className="hidden sm:inline">Security</span>
+          <span className="hidden sm:inline">{t('ui.security')}</span>
         </TabsTrigger>
         <TabsTrigger value="appearance" className="gap-2">
           <Palette className="h-4 w-4" />
-          <span className="hidden sm:inline">Appearance</span>
+          <span className="hidden sm:inline">{t('ui.appearance')}</span>
         </TabsTrigger>
       </TabsList>
 

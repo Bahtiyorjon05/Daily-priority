@@ -554,7 +554,7 @@ function DashboardLayoutContent({
         className="phase-rail fixed left-0 top-0 h-full border-r border-black/5 dark:border-white/10 shadow-xl shadow-gray-200/60 dark:shadow-black/20 text-foreground z-50 flex flex-col w-[280px]"
         id="sidebar-navigation"
         role="navigation"
-        aria-label="Main navigation"
+        aria-label={t('ui.mainNavigation')}
         aria-hidden={!isSidebarVisible}
       >
         {/* Sidebar Header */}
@@ -583,7 +583,7 @@ function DashboardLayoutContent({
 
 
         {/* Enhanced Navigation Items */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto" role="menu" aria-label="Navigation menu">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto" role="menu" aria-label={t('ui.navigationMenu')}>
           {navigationItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.path
@@ -645,7 +645,7 @@ function DashboardLayoutContent({
               <div className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  Daily Priority v1.0
+                  {t('ui.dailyPriorityV10')}
                 </p>
               </div>
             </div>
@@ -691,8 +691,8 @@ function DashboardLayoutContent({
               size="icon"
               onClick={() => setSidebarCollapsed(false)}
               className="bg-white dark:bg-gray-900 backdrop-blur-xl shadow-xl shadow-gray-900/10 dark:shadow-gray-950/20 rounded-xl hover:scale-105 transition-all duration-200 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-600 w-12 h-12"
-              aria-label="Expand sidebar"
-              title="Expand sidebar (Ctrl+B)"
+              aria-label={t('ui.expandSidebar')}
+              title={t('ui.expandSidebarCtrlB')}
             >
               <motion.div
                 initial={false}
@@ -808,7 +808,7 @@ function DashboardLayoutContent({
                           className="flex items-center gap-3 border-b-2 border-gray-100 px-4 py-3 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-gray-800 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
                         >
                           <ShieldCheck className="h-4 w-4 shrink-0" />
-                          Admin dashboard
+                          {t('ui.adminDashboard')}
                         </a>
                       )}
 
@@ -857,7 +857,7 @@ function DashboardLayoutContent({
                             <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 group-hover:bg-red-100 dark:group-hover:bg-red-900/50 transition-all duration-200">
                               <LogOut className="h-4 w-4 text-gray-700 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400" />
                             </div>
-                            <span className="font-medium text-sm">Sign Out</span>
+                            <span className="font-medium text-sm">{t('ui.signOut')}</span>
                           </div>
                         </Button>
                       </div>
@@ -991,7 +991,7 @@ function DashboardLayoutContent({
           <nav
             className="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-[55] bg-white/95 dark:bg-gray-900/95 border-t-2 border-gray-200 dark:border-gray-800 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:hidden"
             role="navigation"
-            aria-label="Quick navigation"
+            aria-label={t('ui.quickNavigation')}
           >
             <div className="flex items-stretch justify-around px-1 pt-1.5 pb-1">
               {[
@@ -1041,7 +1041,7 @@ function DashboardLayoutContent({
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
                 }`}
-                aria-label="More navigation options"
+                aria-label={t('ui.moreNavigationOptions')}
                 aria-expanded={showMoreMenu}
               >
                 <motion.div
@@ -1055,7 +1055,7 @@ function DashboardLayoutContent({
                 <span className={`text-[10px] font-medium leading-none ${
                   showMoreMenu ? 'font-bold' : ''
                 }`}>
-                  More
+                  {t('nav.more')}
                 </span>
               </button>
             </div>

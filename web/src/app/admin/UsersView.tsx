@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Search,
@@ -54,6 +55,7 @@ const SORTS = [
 const fmtDate = (s: string) => new Date(s).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 
 export default function UsersView() {
+  const { t: tr } = useT()
   const [rows, setRows] = useState<UserRow[]>([])
   const [q, setQ] = useState('')
   const [filter, setFilter] = useState('all')
@@ -96,7 +98,7 @@ export default function UsersView() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by email or name…"
+            placeholder={tr('ui.searchByEmailOrName')}
             className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none ring-primary/40 focus:ring-2"
           />
         </div>
@@ -104,7 +106,7 @@ export default function UsersView() {
           {SORTS.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
         </select>
         <button onClick={load} className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> {tr('ui.refresh')}
         </button>
       </div>
 
@@ -147,21 +149,21 @@ export default function UsersView() {
               </div>
 
               <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-                <Metric label="Tasks" value={u.tasks} />
-                <Metric label="Done" value={`${u.completionRate}%`} />
-                <Metric label="Habits" value={u.habits} />
-                <Metric label="Goals" value={u.goals} />
+                <Metric label={tr('nav.tasks')} value={u.tasks} />
+                <Metric label={tr('common.done')} value={`${u.completionRate}%`} />
+                <Metric label={tr('nav.habits')} value={u.habits} />
+                <Metric label={tr('nav.goals')} value={u.goals} />
               </div>
 
               <div className="mt-3 flex flex-wrap gap-1">
-                {u.active7d && <Tag tone="emerald" icon={Activity}>Active</Tag>}
-                {u.mustResetPassword && <Tag tone="amber" icon={KeyRound}>Pending reset</Tag>}
-                {u.passwordCaptured && <Tag tone="violet" icon={KeyRound}>Pw captured</Tag>}
+                {u.active7d && <Tag tone="emerald" icon={Activity}>{tr('ui.active')}</Tag>}
+                {u.mustResetPassword && <Tag tone="amber" icon={KeyRound}>{tr('ui.pendingReset')}</Tag>}
+                {u.passwordCaptured && <Tag tone="violet" icon={KeyRound}>{tr('ui.pwCaptured')}</Tag>}
                 {u.twoFactorEnabled && <Tag tone="blue" icon={ShieldCheck}>2FA</Tag>}
               </div>
             </button>
           ))}
-          {visible.length === 0 && <div className="col-span-full py-10 text-center text-sm text-muted-foreground">No users match.</div>}
+          {visible.length === 0 && <div className="col-span-full py-10 text-center text-sm text-muted-foreground">{tr('ui.noUsersMatch')}</div>}
         </div>
       )}
 
@@ -228,6 +230,7 @@ interface UserDetailData {
 const TABS = ['Tasks', 'Habits', 'Goals', 'Journal', 'Prayers', 'Focus'] as const
 
 function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }) {
+  const { t: tr } = useT()
   const [data, setData] = useState<UserDetailData | null>(null)
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<(typeof TABS)[number]>('Tasks')
@@ -261,17 +264,17 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
           <div className="flex-1 overflow-y-auto p-5">
             {/* Profile + password */}
             <div className="mb-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card p-4 text-sm sm:grid-cols-3">
-              <Field icon={Mail} label="Email" value={data.user.email} />
-              <Field icon={Clock} label="Joined" value={fmtDate(data.user.createdAt)} />
-              <Field icon={MapPin} label="Timezone" value={data.user.timezone || '—'} />
+              <Field icon={Mail} label={tr('auth.email')} value={data.user.email} />
+              <Field icon={Clock} label={tr('ui.joined')} value={fmtDate(data.user.createdAt)} />
+              <Field icon={MapPin} label={tr('ui.timezone')} value={data.user.timezone || '—'} />
               <Field icon={ShieldCheck} label="2FA" value={data.user.twoFactorEnabled ? 'Enabled' : 'Off'} />
-              <Field icon={Mail} label="Verified" value={data.user.emailVerified ? 'Yes' : 'No'} />
-              <Field icon={KeyRound} label="Reset pending" value={data.user.mustResetPassword ? 'Yes' : 'No'} />
+              <Field icon={Mail} label={tr('ui.verified')} value={data.user.emailVerified ? 'Yes' : 'No'} />
+              <Field icon={KeyRound} label={tr('ui.resetPending')} value={data.user.mustResetPassword ? 'Yes' : 'No'} />
             </div>
 
             <div className="mb-4 flex items-center gap-2 rounded-2xl border bg-card p-4">
               <KeyRound className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Password:</span>
+              <span className="text-sm font-medium">{tr('ui.password')}</span>
               {data.user.password ? (
                 <>
                   <code className="rounded bg-primary/10 px-2 py-0.5 font-mono text-sm text-primary">
@@ -288,12 +291,12 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
 
             {/* Stat tiles */}
             <div className="mb-4 grid grid-cols-3 gap-2.5 sm:grid-cols-6">
-              <Tile label="Tasks" value={data.stats.tasksTotal} />
-              <Tile label="Done %" value={`${data.stats.completionRate}%`} />
-              <Tile label="Habits" value={data.stats.habitsTotal} />
-              <Tile label="Goals" value={data.stats.goalsTotal} />
-              <Tile label="Prayers" value={data.stats.prayerTotal} />
-              <Tile label="Focus" value={`${Math.round(data.stats.focusMinutes / 60)}h`} />
+              <Tile label={tr('nav.tasks')} value={data.stats.tasksTotal} />
+              <Tile label={tr('ui.done')} value={`${data.stats.completionRate}%`} />
+              <Tile label={tr('nav.habits')} value={data.stats.habitsTotal} />
+              <Tile label={tr('nav.goals')} value={data.stats.goalsTotal} />
+              <Tile label={tr('nav.prayers')} value={data.stats.prayerTotal} />
+              <Tile label={tr('nav.focus')} value={`${Math.round(data.stats.focusMinutes / 60)}h`} />
             </div>
 
             {/* Tabs */}
@@ -374,7 +377,8 @@ function Tile({ label, value }: { label: string; value: string | number }) {
 }
 
 function RecordList({ rows, render }: { rows: any[]; render: (row: any) => { title: string; meta: string } }) {
-  if (!rows || rows.length === 0) return <div className="py-8 text-center text-sm text-muted-foreground">No records.</div>
+  const { t: tr } = useT()
+  if (!rows || rows.length === 0) return <div className="py-8 text-center text-sm text-muted-foreground">{tr('ui.noRecords')}</div>
   return (
     <div className="divide-y rounded-xl border">
       {rows.map((r) => {

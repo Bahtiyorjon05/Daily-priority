@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useCallback } from 'react'
 import { TrendingUp, CheckCircle, Clock, Flame } from 'lucide-react'
 import StatCard, { StatCardSkeleton } from './StatCard'
@@ -17,6 +18,7 @@ const StatsGrid = memo<StatsGridProps>(({
   onStatClick,
   className,
 }) => {
+  const { t } = useT()
   // Memoized click handlers
   const handleTotalClick = useCallback(() => {
     onStatClick?.('total')
@@ -56,7 +58,7 @@ const StatsGrid = memo<StatsGridProps>(({
     <div className={getGridCols(4) + ' ' + className}>
       {/* Total Tasks */}
       <StatCard
-        title="Total Tasks"
+        title={t('ui.totalTasks')}
         value={stats.totalTasks}
         icon={<TrendingUp className="h-6 w-6" />}
         color="blue"
@@ -66,7 +68,7 @@ const StatsGrid = memo<StatsGridProps>(({
 
       {/* Completed Tasks */}
       <StatCard
-        title="Completed"
+        title={t('ui.completed')}
         value={stats.completedTasks}
         icon={<CheckCircle className="h-6 w-6" />}
         color="emerald"
@@ -78,7 +80,7 @@ const StatsGrid = memo<StatsGridProps>(({
 
       {/* Pending Tasks */}
       <StatCard
-        title="In Progress"
+        title={t('ui.inProgress')}
         value={stats.pendingTasks}
         icon={<Clock className="h-6 w-6" />}
         color="amber"
@@ -88,7 +90,7 @@ const StatsGrid = memo<StatsGridProps>(({
 
       {/* Current Streak */}
       <StatCard
-        title="Current Streak"
+        title={t('ui.currentStreak')}
         value={`${stats.currentStreak} days`}
         icon={<Flame className="h-6 w-6" />}
         color="rose"

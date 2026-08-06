@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -52,6 +53,7 @@ function iconFor(type: AppNotification['type']) {
 }
 
 export function NotificationBell() {
+  const { t: tr } = useT()
   const router = useRouter()
   const [items, setItems] = useState<AppNotification[]>([])
   const [open, setOpen] = useState(false)
@@ -229,7 +231,7 @@ export function NotificationBell() {
     <div className="relative" data-notif-root>
       <button
         onClick={handleOpen}
-        aria-label="Notifications"
+        aria-label={tr('nav.notifications')}
         className="relative flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-2xl transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md h-11 w-11 min-h-[44px] min-w-[44px] shrink-0"
       >
         {unreadCount > 0 ? (
@@ -275,7 +277,7 @@ export function NotificationBell() {
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900 dark:text-white">Notifications</span>
+                <span className="font-semibold text-gray-900 dark:text-white">{tr('nav.notifications')}</span>
                 {items.length > 0 && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">{items.length}</span>
                 )}
@@ -290,7 +292,7 @@ export function NotificationBell() {
                 </button>
                 <button
                   onClick={markAllSeen}
-                  title="Mark all read"
+                  title={tr('ui.markAllRead')}
                   className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
                 >
                   <CheckCheck className="h-4 w-4" />

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-react'
 import {
@@ -27,6 +28,7 @@ export function HabitsFilters({
   sortBy,
   onSortChange
 }: HabitsFiltersProps) {
+  const { t } = useT()
   return (
     <div className="space-y-4 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800/50 p-6 rounded-2xl border-2 border-gray-200 dark:border-gray-700 shadow-sm">
       {/* Search */}
@@ -35,7 +37,7 @@ export function HabitsFilters({
         <Input
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search habits..."
+          placeholder={t('ui.searchHabits')}
           className="pl-12 h-12 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 focus:border-emerald-500 dark:focus:border-emerald-500 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 rounded-xl text-sm"
         />
       </div>
@@ -45,14 +47,14 @@ export function HabitsFilters({
         {/* Frequency Filter */}
         <div>
           <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block uppercase tracking-wide">
-            Frequency
+            {t('ui.frequency')}
           </label>
           <Select value={selectedFrequency} onValueChange={onFrequencyChange}>
             <SelectTrigger className="h-11 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors rounded-xl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
-              <SelectItem value="ALL" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">All Frequencies</SelectItem>
+              <SelectItem value="ALL" className="text-gray-900 dark:text-white focus:bg-emerald-50 dark:focus:bg-emerald-900/20">{t('ui.allFrequencies')}</SelectItem>
               <SelectItem value="DAILY" className="text-emerald-700 dark:text-emerald-400 focus:bg-emerald-50 dark:focus:bg-emerald-900/20">📅 Daily</SelectItem>
               <SelectItem value="WEEKLY" className="text-blue-700 dark:text-blue-400 focus:bg-blue-50 dark:focus:bg-blue-900/20">📆 Weekly</SelectItem>
               <SelectItem value="CUSTOM" className="text-purple-700 dark:text-purple-400 focus:bg-purple-50 dark:focus:bg-purple-900/20">⚙️ Custom</SelectItem>
@@ -63,7 +65,7 @@ export function HabitsFilters({
         {/* Sort */}
         <div>
           <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 block uppercase tracking-wide">
-            Sort By
+            {t('ui.sortBy')}
           </label>
           <Select value={sortBy} onValueChange={onSortChange}>
             <SelectTrigger className="h-11 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors rounded-xl">

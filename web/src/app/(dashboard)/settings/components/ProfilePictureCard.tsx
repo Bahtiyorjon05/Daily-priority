@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Camera, Upload } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -15,14 +16,15 @@ interface Props {
 }
 
 export default function ProfilePictureCard({ imageUrl, uploading, onUpload, onRemove, fallbackInitial }: Props) {
+  const { t } = useT()
   return (
     <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
           <Camera className="h-5 w-5 text-emerald-600" />
-          Profile Picture
+          {t('ui.profilePicture')}
         </CardTitle>
-        <CardDescription className="text-gray-700 dark:text-gray-300">Update your profile photo</CardDescription>
+        <CardDescription className="text-gray-700 dark:text-gray-300">{t('ui.updateYourProfilePhoto')}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center gap-6">
@@ -47,12 +49,12 @@ export default function ProfilePictureCard({ imageUrl, uploading, onUpload, onRe
               </Label>
               {imageUrl && !uploading && (
                 <Button variant="ghost" onClick={onRemove} className="text-red-600 hover:text-red-700">
-                  Remove
+                  {t('ui.remove')}
                 </Button>
               )}
             </div>
             <input id="avatar-upload" type="file" accept="image/*" onChange={onUpload} className="hidden" />
-            <p className="text-sm text-gray-600 dark:text-gray-300">JPG, PNG or GIF. Max size 5MB.</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{t('ui.jpgPngOrGifMaxSize5mb')}</p>
           </div>
         </div>
       </CardContent>

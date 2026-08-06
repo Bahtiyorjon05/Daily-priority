@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Loader2 } from 'lucide-react'
@@ -51,6 +52,7 @@ const TaskModal = memo<TaskModalProps>(({
   goals = [],
   isLoading = false,
 }) => {
+  const { t } = useT()
   const {
     register,
     handleSubmit,
@@ -120,11 +122,11 @@ const TaskModal = memo<TaskModalProps>(({
         {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title">
-            Title <span className="text-red-500">*</span>
+            {t('ui.title')} <span className="text-red-500">*</span>
           </Label>
           <Input
             id="title"
-            placeholder="Enter task title..."
+            placeholder={t('ui.enterTaskTitle')}
             {...register('title', { required: 'Title is required' })}
             className={errors.title ? 'border-red-500' : ''}
           />
@@ -135,10 +137,10 @@ const TaskModal = memo<TaskModalProps>(({
 
         {/* Description */}
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t('ui.description')}</Label>
           <Textarea
             id="description"
-            placeholder="Add details about this task..."
+            placeholder={t('ui.addDetailsAboutThisTask')}
             rows={4}
             {...register('description')}
           />
@@ -147,7 +149,7 @@ const TaskModal = memo<TaskModalProps>(({
         {/* Priority & Flags */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
+            <Label htmlFor="priority">{t('ui.priority')}</Label>
             <Select
               value={watchPriority}
               onValueChange={(value) => setValue('priority', value as Priority)}
@@ -174,21 +176,21 @@ const TaskModal = memo<TaskModalProps>(({
           </div>
 
           <div className="space-y-2">
-            <Label>Flags</Label>
+            <Label>{t('ui.flags')}</Label>
             <div className="flex gap-2">
               <Badge
                 variant={watchUrgent ? 'destructive' : 'outline'}
                 className="cursor-pointer"
                 onClick={() => setValue('urgent', !watchUrgent)}
               >
-                Urgent
+                {t('ui.urgent')}
               </Badge>
               <Badge
                 variant={watchImportant ? 'secondary' : 'outline'}
                 className="cursor-pointer"
                 onClick={() => setValue('important', !watchImportant)}
               >
-                Important
+                {t('ui.important')}
               </Badge>
             </div>
           </div>
@@ -197,7 +199,7 @@ const TaskModal = memo<TaskModalProps>(({
         {/* Estimated Time & Energy Level */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="estimatedTime">Estimated Time</Label>
+            <Label htmlFor="estimatedTime">{t('ui.estimatedTime')}</Label>
             <Select
               value={watch('estimatedTime')?.toString() || '0'}
               onValueChange={(value) =>
@@ -205,10 +207,10 @@ const TaskModal = memo<TaskModalProps>(({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select duration" />
+                <SelectValue placeholder={t('ui.selectDuration')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">None</SelectItem>
+                <SelectItem value="0">{t('ui.none')}</SelectItem>
                 {TASK_ESTIMATED_TIMES.map((time) => (
                   <SelectItem key={time.value} value={time.value.toString()}>
                     {time.label}
@@ -219,7 +221,7 @@ const TaskModal = memo<TaskModalProps>(({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="energyLevel">Energy Level</Label>
+            <Label htmlFor="energyLevel">{t('ui.energyLevel')}</Label>
             <Select
               value={watch('energyLevel') || 'NONE'}
               onValueChange={(value) =>
@@ -227,10 +229,10 @@ const TaskModal = memo<TaskModalProps>(({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select energy" />
+                <SelectValue placeholder={t('ui.selectEnergy')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="NONE">None</SelectItem>
+                <SelectItem value="NONE">{t('ui.none')}</SelectItem>
                 {Object.values(EnergyLevel).map((level) => (
                   <SelectItem key={level} value={level}>
                     {level}
@@ -243,7 +245,7 @@ const TaskModal = memo<TaskModalProps>(({
 
         {/* Due Date */}
         <div className="space-y-2">
-          <Label htmlFor="dueDate">Due Date</Label>
+          <Label htmlFor="dueDate">{t('ui.dueDate')}</Label>
           <Input id="dueDate" type="date" {...register('dueDate')} />
         </div>
 
@@ -252,16 +254,16 @@ const TaskModal = memo<TaskModalProps>(({
           <div className="grid grid-cols-2 gap-4">
             {categories.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="categoryId">Category</Label>
+                <Label htmlFor="categoryId">{t('ui.category')}</Label>
                 <Select
                   value={watch('categoryId') || 'none'}
                   onValueChange={(value) => setValue('categoryId', value === 'none' ? '' : value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={t('ui.selectCategory')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="none">{t('ui.none')}</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         <div className="flex items-center gap-2">
@@ -280,16 +282,16 @@ const TaskModal = memo<TaskModalProps>(({
 
             {goals.length > 0 && (
               <div className="space-y-2">
-                <Label htmlFor="goalId">Link to Goal</Label>
+                <Label htmlFor="goalId">{t('ui.linkToGoal')}</Label>
                 <Select
                   value={watch('goalId') || 'none'}
                   onValueChange={(value) => setValue('goalId', value === 'none' ? '' : value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select goal" />
+                    <SelectValue placeholder={t('ui.selectGoal')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="none">{t('ui.none')}</SelectItem>
                     {goals.map((goal) => (
                       <SelectItem key={goal.id} value={goal.id}>
                         {goal.title}
@@ -305,7 +307,7 @@ const TaskModal = memo<TaskModalProps>(({
         {/* Actions */}
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

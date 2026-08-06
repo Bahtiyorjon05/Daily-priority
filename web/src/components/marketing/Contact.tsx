@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, MessageSquare, Send, Sparkles, Loader2, CheckCircle2, PartyPopper } from 'lucide-react'
@@ -7,6 +8,7 @@ import { toast } from 'sonner'
 
 
 export function Contact() {
+  const { t } = useT()
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -27,7 +29,7 @@ export function Contact() {
     }
 
     if (!trimmedData.name || !trimmedData.email || !trimmedData.message) {
-      toast.error('Please fill in all fields', {
+      toast.error(t('ui.pleaseFillInAllFields'), {
         description: 'Name, email, and message are required.',
         duration: 3000,
       })
@@ -35,7 +37,7 @@ export function Contact() {
     }
 
     if (trimmedData.message.length < 5) {
-      toast.error('Message too short', {
+      toast.error(t('ui.messageTooShort'), {
         description: 'Please write at least 5 characters.',
         duration: 3000,
       })
@@ -45,7 +47,7 @@ export function Contact() {
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(trimmedData.email)) {
-      toast.error('Invalid email', {
+      toast.error(t('ui.invalidEmail'), {
         description: 'Please enter a valid email address.',
         duration: 3000,
       })
@@ -75,7 +77,7 @@ export function Contact() {
         // Show success animation
         setShowSuccess(true)
 
-        toast.success('🎉 Message sent successfully!', {
+        toast.success(t('ui.messageSentSuccessfully'), {
           description: 'Thank you for reaching out! We\'ll get back to you within 24-48 hours.',
           duration: 5000,
         })
@@ -92,7 +94,7 @@ export function Contact() {
           statusText: response.statusText,
           data: data
         })
-        toast.error('Failed to send message', {
+        toast.error(t('ui.failedToSendMessage'), {
           description: errorMessage,
           duration: 5000,
         })
@@ -100,7 +102,7 @@ export function Contact() {
     } catch (error) {
       console.error('Contact form error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Please check your connection and try again.'
-      toast.error('Something went wrong', {
+      toast.error(t('error.title'), {
         description: errorMessage,
         duration: 5000,
       })
@@ -194,18 +196,18 @@ export function Contact() {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 dark:from-emerald-600/15 dark:to-teal-600/15 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 relative z-10">Get in Touch</span>
+            <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 relative z-10">{t('ui.getInTouch')}</span>
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold leading-tight text-balance">
-            <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">We're Here to Help</span>
+            <span className="block text-slate-900 dark:text-white mb-1 sm:mb-2">{t('ui.weReHereToHelp')}</span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
-              Reach Out Anytime
+              {t('ui.reachOutAnytime')}
             </span>
           </h2>
 
           <p className="text-xs sm:text-sm md:text-base lg:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed text-pretty px-2">
-            Have questions or feedback? We'd love to hear from you
+            {t('ui.haveQuestionsOrFeedbackWeDLoveToHearFromYou')}
           </p>
         </motion.div>
 
@@ -237,14 +239,14 @@ export function Contact() {
                   >
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 dark:from-emerald-600/5 dark:to-teal-600/5 rounded-xl sm:rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
-                      Your Name
+                      {t('ui.yourName')}
                     </label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="relative w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/90 dark:bg-[#121212]/90 border-2 border-slate-200/60 dark:border-[#404040]/60 rounded-xl sm:rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm backdrop-blur-sm"
-                      placeholder="Enter your name"
+                      placeholder={t('ui.enterYourName')}
                       required
                     />
                   </motion.div>
@@ -257,14 +259,14 @@ export function Contact() {
                   >
                     <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 dark:from-emerald-600/5 dark:to-teal-600/5 rounded-xl sm:rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
-                      Email Address
+                      {t('auth.emailAddress')}
                     </label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="relative w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/90 dark:bg-[#121212]/90 border-2 border-slate-200/60 dark:border-[#404040]/60 rounded-xl sm:rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm backdrop-blur-sm"
-                      placeholder="your@email.com"
+                      placeholder={t('ui.yourEmailCom')}
                       required
                     />
                   </motion.div>
@@ -278,14 +280,14 @@ export function Contact() {
                 >
                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 dark:from-emerald-600/5 dark:to-teal-600/5 rounded-xl sm:rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
-                    Message
+                    {t('ui.message')}
                   </label>
                   <textarea
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={5}
                     className="relative w-full px-4 sm:px-5 py-3 sm:py-4 bg-white/90 dark:bg-[#121212]/90 border-2 border-slate-200/60 dark:border-[#404040]/60 rounded-xl sm:rounded-2xl focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all resize-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm backdrop-blur-sm"
-                    placeholder="How can we help you?"
+                    placeholder={t('ui.howCanWeHelpYou')}
                     required
                   />
                 </motion.div>
@@ -322,7 +324,7 @@ export function Contact() {
                           >
                             <Loader2 className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={3} />
                           </motion.div>
-                          <span className="drop-shadow-lg font-black text-white">Sending...</span>
+                          <span className="drop-shadow-lg font-black text-white">{t('ui.sending')}</span>
                           <motion.div
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 0.5, repeat: Infinity }}
@@ -339,7 +341,7 @@ export function Contact() {
                             <Send className="w-6 h-6 sm:w-7 sm:h-7 text-white" strokeWidth={3} />
                           </motion.div>
                           <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] font-black text-white">
-                            Send Message
+                            {t('ui.sendMessage')}
                           </span>
                           <motion.div
                             animate={{
@@ -422,7 +424,7 @@ export function Contact() {
                             Message Sent! 🎉
                           </h3>
                           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xs mx-auto text-pretty">
-                            Thank you for reaching out! We'll get back to you within 24-48 hours.
+                            {t('ui.thankYouForReachingOutWeLlGetBackToYouWithin')}
                           </p>
                         </motion.div>
 
@@ -457,7 +459,7 @@ export function Contact() {
                       <Mail className="w-5 h-5 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <div className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Email Us</div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">{t('ui.emailUs')}</div>
                       <div className="font-extrabold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors text-sm sm:text-base">dailypriorityapp@gmail.com</div>
                     </div>
                   </motion.a>
@@ -474,7 +476,7 @@ export function Contact() {
                       <MessageSquare className="w-5 h-5 sm:w-7 sm:h-7 text-white" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <div className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">Telegram Support</div>
+                      <div className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">{t('ui.telegramSupport')}</div>
                       <div className="font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors text-sm sm:text-base">@Bahtiyorjon05</div>
                     </div>
                   </motion.a>

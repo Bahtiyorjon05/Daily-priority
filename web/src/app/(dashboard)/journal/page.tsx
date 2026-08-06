@@ -1,5 +1,6 @@
 ﻿'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -57,6 +58,7 @@ const MOODS = [
 ]
 
 export default function JournalPage() {
+  const { t } = useT()
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -156,7 +158,7 @@ export default function JournalPage() {
       }
     } catch (error) {
       console.error('Failed to create entry:', error)
-      toast.error('Failed to create entry. Please try again.')
+      toast.error(t('ui.failedToCreateEntryPleaseTryAgain'))
     } finally {
       setSaving(false)
     }
@@ -182,7 +184,7 @@ export default function JournalPage() {
       }
     } catch (error) {
       console.error('Failed to delete entry:', error)
-      toast.error('Failed to delete entry. Please try again.')
+      toast.error(t('ui.failedToDeleteEntryPleaseTryAgain'))
     } finally {
       setSaving(false)
     }
@@ -412,7 +414,7 @@ export default function JournalPage() {
                   }}
                 >
                   <Eye className="h-4 w-4 mr-1" />
-                  View Full
+                  {t('ui.viewFull')}
                 </Button>
               </div>
             </div>
@@ -427,7 +429,7 @@ export default function JournalPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <BookOpen className="h-12 w-12 text-emerald-600 dark:text-emerald-400 mx-auto mb-4 animate-pulse" />
-          <p className="text-slate-600 dark:text-gray-400">Loading your journal...</p>
+          <p className="text-slate-600 dark:text-gray-400">{t('ui.loadingYourJournal')}</p>
         </div>
       </div>
     )
@@ -441,7 +443,7 @@ export default function JournalPage() {
             <BookOpen className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100">Gratitude Journal</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100">{t('ui.gratitudeJournal')}</h1>
             <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
               {entries.length} {entries.length === 1 ? 'entry' : 'entries'} recorded
             </p>
@@ -471,7 +473,7 @@ export default function JournalPage() {
             className="shadow-lg hover:opacity-90"
           >
             <Plus className="h-4 w-4 mr-2" />
-            New Entry
+            {t('ui.newEntry')}
           </Button>
         </div>
       </div>
@@ -486,7 +488,7 @@ export default function JournalPage() {
             <CardHeader>
               <CardTitle className="text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
                 <PieChart className="h-5 w-5" />
-                Journal Statistics
+                {t('ui.journalStatistics')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -494,7 +496,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-blue-100 dark:bg-blue-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Total Entries</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.totalEntries')}</span>
                   </div>
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{stats.totalEntries}</p>
                 </div>
@@ -502,7 +504,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-purple-100 dark:bg-purple-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">This Month</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.thisMonth')}</span>
                   </div>
                   <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{stats.thisMonthEntries}</p>
                 </div>
@@ -510,7 +512,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-orange-100 dark:bg-orange-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Current Streak</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.currentStreak')}</span>
                   </div>
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">{stats.currentStreak} days</p>
                 </div>
@@ -518,7 +520,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-pink-100 dark:bg-pink-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Heart className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Gratitudes</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.gratitudes')}</span>
                   </div>
                   <p className="text-2xl font-bold text-pink-700 dark:text-pink-300">{stats.totalGratitudes}</p>
                 </div>
@@ -526,7 +528,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Good Deeds</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.goodDeeds')}</span>
                   </div>
                   <p className="text-2xl font-bold text-green-700 dark:text-green-300">{stats.totalGoodDeeds}</p>
                 </div>
@@ -534,7 +536,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <MessageSquare className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Lessons</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.lessons')}</span>
                   </div>
                   <p className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">{stats.totalLessons}</p>
                 </div>
@@ -542,7 +544,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-teal-100 dark:bg-teal-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Heart className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Duas</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.duas')}</span>
                   </div>
                   <p className="text-2xl font-bold text-teal-700 dark:text-teal-300">{stats.totalDuas}</p>
                 </div>
@@ -550,7 +552,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <Award className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Longest Streak</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.longestStreak')}</span>
                   </div>
                   <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.longestStreak} days</p>
                 </div>
@@ -558,13 +560,13 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-cyan-100 dark:bg-cyan-900/30">
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingUp className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
-                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Avg/Month</span>
+                    <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">{t('ui.avgMonth')}</span>
                   </div>
                   <p className="text-2xl font-bold text-cyan-700 dark:text-cyan-300">{stats.avgPerMonth}</p>
                 </div>
 
               <div className="col-span-2 md:col-span-3 p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
-                <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">Mood Breakdown</h4>
+                <h4 className="text-sm font-semibold text-slate-700 dark:text-gray-300 mb-3">{t('ui.moodBreakdown')}</h4>
                 {stats.moodStats.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {stats.moodStats
@@ -582,7 +584,7 @@ export default function JournalPage() {
                   </div>
                 ) : (
                   <p className="text-center text-sm text-slate-500 dark:text-gray-500 py-4">
-                    No mood data yet. Start journaling to track your emotions!
+                    {t('ui.noMoodDataYetStartJournalingToTrackYourEmoti')}
                   </p>
                 )}
               </div>
@@ -597,7 +599,7 @@ export default function JournalPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="Search entries..."
+              placeholder={t('ui.searchEntries')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-white dark:bg-gray-800"
@@ -666,7 +668,7 @@ export default function JournalPage() {
               className="shadow-lg hover:opacity-90"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create First Entry
+              {t('ui.createFirstEntry')}
             </Button>
           )}
         </Card>
@@ -740,10 +742,10 @@ export default function JournalPage() {
               <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">New Journal Entry</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">{t('ui.newJournalEntry')}</h2>
                     <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                       <span className="text-red-500">★</span> 
-                      All fields are required for a complete entry
+                      {t('ui.allFieldsAreRequiredForACompleteEntry')}
                     </p>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
@@ -754,7 +756,7 @@ export default function JournalPage() {
 
               <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <div>
-                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">Date</Label>
+                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.date')}</Label>
                   <Input
                     type="date"
                     value={newEntry.date}
@@ -766,24 +768,24 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-900/20 border-2 border-pink-300 dark:border-pink-700">
                   <Label className="text-pink-700 dark:text-pink-300 font-bold flex items-center gap-2 mb-3">
                     <Heart className="h-5 w-5" />
-                    Three Things I'm Grateful For
+                    {t('ui.threeThingsIMGratefulFor')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <div className="space-y-3">
                     <Input
-                      placeholder="Something that made you smile today..."
+                      placeholder={t('ui.somethingThatMadeYouSmileToday')}
                       value={newEntry.gratitude1}
                       onChange={(e) => setNewEntry({ ...newEntry, gratitude1: e.target.value })}
                       className="bg-white dark:bg-gray-800 border-2"
                     />
                     <Input
-                      placeholder="Someone you appreciate..."
+                      placeholder={t('ui.someoneYouAppreciate')}
                       value={newEntry.gratitude2}
                       onChange={(e) => setNewEntry({ ...newEntry, gratitude2: e.target.value })}
                       className="bg-white dark:bg-gray-800 border-2"
                     />
                     <Input
-                      placeholder="A blessing in your life..."
+                      placeholder={t('ui.aBlessingInYourLife')}
                       value={newEntry.gratitude3}
                       onChange={(e) => setNewEntry({ ...newEntry, gratitude3: e.target.value })}
                       className="bg-white dark:bg-gray-800 border-2"
@@ -794,11 +796,11 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700">
                   <Label className="text-yellow-700 dark:text-yellow-300 font-bold flex items-center gap-2 mb-3">
                     <Sparkles className="h-5 w-5" />
-                    Good Deeds Today
+                    {t('ui.goodDeedsToday')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <Textarea
-                    placeholder="Acts of kindness, help given, charity..."
+                    placeholder={t('ui.actsOfKindnessHelpGivenCharity')}
                     value={newEntry.goodDeeds}
                     onChange={(e) => setNewEntry({ ...newEntry, goodDeeds: e.target.value })}
                     rows={3}
@@ -809,11 +811,11 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700">
                   <Label className="text-blue-700 dark:text-blue-300 font-bold flex items-center gap-2 mb-3">
                     <MessageSquare className="h-5 w-5" />
-                    Lessons Learned
+                    {t('ui.lessonsLearned')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <Textarea
-                    placeholder="What insights or wisdom did you gain today..."
+                    placeholder={t('ui.whatInsightsOrWisdomDidYouGainToday')}
                     value={newEntry.lessons}
                     onChange={(e) => setNewEntry({ ...newEntry, lessons: e.target.value })}
                     rows={3}
@@ -824,11 +826,11 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700">
                   <Label className="text-purple-700 dark:text-purple-300 font-bold flex items-center gap-2 mb-3">
                     <Heart className="h-5 w-5" />
-                    Duas & Prayers
+                    {t('ui.duasPrayers')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <Textarea
-                    placeholder="Prayers you made, spiritual moments..."
+                    placeholder={t('ui.prayersYouMadeSpiritualMoments')}
                     value={newEntry.duas}
                     onChange={(e) => setNewEntry({ ...newEntry, duas: e.target.value })}
                     rows={3}
@@ -839,11 +841,11 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700">
                   <Label className="text-green-700 dark:text-green-300 font-bold flex items-center gap-2 mb-3">
                     <BookOpen className="h-5 w-5" />
-                    Daily Reflection
+                    {t('ui.dailyReflection')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <Textarea
-                    placeholder="How was your day? What stood out..."
+                    placeholder={t('ui.howWasYourDayWhatStoodOut')}
                     value={newEntry.reflection}
                     onChange={(e) => setNewEntry({ ...newEntry, reflection: e.target.value })}
                     rows={4}
@@ -853,7 +855,7 @@ export default function JournalPage() {
 
                 <div>
                   <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 flex items-center gap-2">
-                    How do you feel today?
+                    {t('ui.howDoYouFeelToday')}
                     <span className="text-red-500 text-lg">★</span>
                   </Label>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
@@ -932,7 +934,7 @@ export default function JournalPage() {
                   }}
                   className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-60"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             </motion.div>
@@ -990,7 +992,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-900/20 border-2 border-pink-300 dark:border-pink-700">
                   <h3 className="text-lg font-bold text-pink-700 dark:text-pink-300 flex items-center gap-2 mb-3">
                     <Heart className="h-5 w-5" />
-                    Three Things I'm Grateful For
+                    {t('ui.threeThingsIMGratefulFor')}
                   </h3>
                   <ul className="space-y-2">
                     {viewingEntry.gratitude1 && <li className="text-slate-700 dark:text-gray-300">💛 {viewingEntry.gratitude1}</li>}
@@ -1002,7 +1004,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700">
                   <h3 className="text-lg font-bold text-yellow-700 dark:text-yellow-300 flex items-center gap-2 mb-3">
                     <Sparkles className="h-5 w-5" />
-                    Good Deeds Today
+                    {t('ui.goodDeedsToday')}
                   </h3>
                   <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.goodDeeds || 'No good deeds recorded'}</p>
                 </div>
@@ -1010,7 +1012,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700">
                   <h3 className="text-lg font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2 mb-3">
                     <MessageSquare className="h-5 w-5" />
-                    Lessons Learned
+                    {t('ui.lessonsLearned')}
                   </h3>
                   <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.lessons || 'No lessons recorded'}</p>
                 </div>
@@ -1018,7 +1020,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700">
                   <h3 className="text-lg font-bold text-purple-700 dark:text-purple-300 flex items-center gap-2 mb-3">
                     <Heart className="h-5 w-5" />
-                    Duas & Prayers
+                    {t('ui.duasPrayers')}
                   </h3>
                   <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.duas || 'No duas recorded'}</p>
                 </div>
@@ -1026,7 +1028,7 @@ export default function JournalPage() {
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700">
                   <h3 className="text-lg font-bold text-green-700 dark:text-green-300 flex items-center gap-2 mb-3">
                     <BookOpen className="h-5 w-5" />
-                    Daily Reflection
+                    {t('ui.dailyReflection')}
                   </h3>
                   <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.reflection || 'No reflection recorded'}</p>
                 </div>
@@ -1047,7 +1049,7 @@ export default function JournalPage() {
                     className="dark:bg-gray-800 dark:border-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
+                    {t('common.delete')}
                   </Button>
                 </div>
               </div>
@@ -1071,9 +1073,9 @@ export default function JournalPage() {
               className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-4 sm:p-6 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-2">Delete Entry?</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-gray-100 mb-2">{t('ui.deleteEntry')}</h3>
               <p className="text-slate-600 dark:text-gray-400 mb-6">
-                This will permanently delete this journal entry. This action cannot be undone.
+                {t('ui.thisWillPermanentlyDeleteThisJournalEntryThi')}
               </p>
               <div className="flex gap-3">
                 <Button
@@ -1099,7 +1101,7 @@ export default function JournalPage() {
                   }}
                   className="flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-60"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             </motion.div>
@@ -1130,17 +1132,17 @@ export default function JournalPage() {
                   <span className="text-xl sm:text-3xl">✨</span>
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-gray-100 mb-2">
-                  Complete Your Entry
+                  {t('ui.completeYourEntry')}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-gray-400">
-                  A few more details to capture today's moments
+                  {t('ui.aFewMoreDetailsToCaptureTodaySMoments')}
                 </p>
               </div>
 
               <div className="bg-white dark:bg-gray-900/50 rounded-xl p-4 mb-6 border border-orange-200 dark:border-orange-800">
                 <p className="text-sm font-semibold text-orange-700 dark:text-orange-300 mb-3 flex items-center gap-2">
                   <span className="text-lg">📝</span>
-                  Please fill in:
+                  {t('ui.pleaseFillIn')}
                 </p>
                 <ul className="space-y-2">
                   {validationErrors.map((error, index) => (
@@ -1167,7 +1169,7 @@ export default function JournalPage() {
                 }}
                 className="w-full shadow-lg hover:opacity-90 font-semibold py-4 sm:py-6"
               >
-                Got it! Let me complete them
+                {t('ui.gotItLetMeCompleteThem')}
               </Button>
             </motion.div>
           </motion.div>

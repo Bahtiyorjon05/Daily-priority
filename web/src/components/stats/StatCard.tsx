@@ -6,6 +6,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react'
@@ -26,6 +27,7 @@ const StatCard = memo<StatCardProps>(({
   isLoading = false,
   className,
 }) => {
+  const { t } = useT()
   // Trend icon
   const TrendIcon = trend?.direction === 'up'
     ? TrendingUp
@@ -120,7 +122,7 @@ const StatCard = memo<StatCardProps>(({
         {progress !== undefined && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Progress</span>
+              <span className="text-muted-foreground">{t('ui.progress')}</span>
               <span className="font-medium">{Math.round(progress)}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">

@@ -82,7 +82,7 @@ export function SignInForm() {
         // User has 2FA - show 2FA input
         setRequires2FA(true)
         setLoading(false)
-        toast.info('2FA is enabled. Please enter your 2FA password.')
+        toast.info(t('ui.2faIsEnabledPleaseEnterYour2faPassword'))
         return
       }
 
@@ -95,9 +95,9 @@ export function SignInForm() {
 
       if (result?.error) {
         setErrors(prev => ({ ...prev, general: 'Invalid email or password. Please try again.' }))
-        toast.error('Invalid credentials')
+        toast.error(t('ui.invalidCredentials'))
       } else if (result?.ok) {
-        toast.success('Welcome back!', {
+        toast.success(t('ui.welcomeBack'), {
           description: 'Redirecting to your dashboard...',
           duration: 2000,
         })
@@ -135,7 +135,7 @@ export function SignInForm() {
 
       if (!verify2FAResponse.ok) {
         setErrors(prev => ({ ...prev, twoFactor: 'Invalid 2FA password' }))
-        toast.error('Invalid 2FA password')
+        toast.error(t('ui.invalid2faPassword'))
         setLoading(false)
         return
       }
@@ -151,7 +151,7 @@ export function SignInForm() {
         setErrors(prev => ({ ...prev, general: t('auth.signInFailedAfter2FA') }))
         toast.error(t('auth.signInFailed'))
       } else if (result?.ok) {
-        toast.success('Welcome back!', {
+        toast.success(t('ui.welcomeBack'), {
           description: '2FA verified successfully',
           duration: 2000,
         })
@@ -229,7 +229,7 @@ export function SignInForm() {
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('ui.youExampleCom')}
               value={formData.email}
               onChange={(e) => {
                 setFormData({ ...formData, email: e.target.value })
@@ -341,7 +341,7 @@ export function SignInForm() {
             <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
               <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300">
-                This account has two-factor authentication enabled
+                {t('ui.thisAccountHasTwoFactorAuthenticationEnabled')}
               </p>
             </div>
           </div>
@@ -369,12 +369,12 @@ export function SignInForm() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Signing in...</span>
+                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>{t('ui.signingIn')}</span>
                 </>
               ) : (
                 <>
                   <Shield className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>Sign In</span>
+                  <span className="font-semibold text-white" style={{ color: '#ffffff' }}>{t('ui.signIn')}</span>
                   <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                 </>
               )}
@@ -388,7 +388,7 @@ export function SignInForm() {
         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           Don't have an account?{' '}
           <Link href="/signup" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline inline-flex items-center gap-1 group">
-            Sign Up
+            {t('ui.signUp')}
             <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />
           </Link>
         </p>
@@ -401,19 +401,19 @@ export function SignInForm() {
             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <span>Secure Login</span>
+            <span>{t('ui.secureLogin')}</span>
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-teal-600 dark:text-teal-400" />
             </div>
-            <span>Fast Access</span>
+            <span>{t('ui.fastAccess')}</span>
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
               <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
             </div>
-            <span>Protected</span>
+            <span>{t('ui.protected')}</span>
           </div>
         </div>
       </div>

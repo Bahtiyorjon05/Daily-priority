@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -36,6 +37,7 @@ export function FocusTimer({
   onSwitchMode,
   onToggleMute
 }: FocusTimerProps) {
+  const { t } = useT()
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
   const totalSeconds = mode === 'focus' ? settings.focusDuration * 60 : 
@@ -170,12 +172,12 @@ export function FocusTimer({
               {isActive ? (
                 <>
                   <Pause className="h-5 w-5 mr-2" />
-                  Pause
+                  {t('ui.pause')}
                 </>
               ) : (
                 <>
                   <Play className="h-5 w-5 mr-2" />
-                  Start
+                  {t('ui.start')}
                 </>
               )}
             </Button>
@@ -186,7 +188,7 @@ export function FocusTimer({
               className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-slate-400 dark:border-gray-600 hover:border-slate-600 dark:hover:border-gray-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-gray-700/50 hover:scale-105 transition-all duration-300 font-semibold"
             >
               <RotateCcw className="h-5 w-5 mr-2" />
-              Reset
+              {t('ui.reset')}
             </Button>
             <Button 
               size="lg" 

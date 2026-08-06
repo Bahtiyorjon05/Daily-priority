@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -12,6 +13,7 @@ import { useModalBehavior } from '@/hooks/useModalBehavior'
  * Mounted once from the dashboard layout.
  */
 export function GlobalShortcuts() {
+  const { t } = useT()
   const router = useRouter()
   const [showHelp, setShowHelp] = useState(false)
   const helpModal = useModalBehavior(showHelp, () => setShowHelp(false))
@@ -59,12 +61,12 @@ export function GlobalShortcuts() {
               <div className="flex items-center gap-2">
                 <Keyboard className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <h2 id="shortcuts-title" className="text-base font-semibold text-gray-900 dark:text-white">
-                  Keyboard shortcuts
+                  {t('ui.keyboardShortcuts')}
                 </h2>
               </div>
               <button
                 onClick={() => setShowHelp(false)}
-                aria-label="Close shortcuts help"
+                aria-label={t('ui.closeShortcutsHelp')}
                 className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-4 w-4" />
@@ -85,7 +87,7 @@ export function GlobalShortcuts() {
 
             <p className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
               Shortcuts are ignored while typing in a field. Press{' '}
-              <kbd className="rounded border px-1">Esc</kbd> to close.
+              <kbd className="rounded border px-1">{t('ui.esc')}</kbd> to close.
             </p>
           </motion.div>
         </motion.div>

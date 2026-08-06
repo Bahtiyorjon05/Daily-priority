@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Activity, MapPin, Loader2, AlertCircle, Navigation } from 'lucide-react'
@@ -16,6 +17,7 @@ import {
 } from '@/lib/prayer-times'
 
 export default function PrayerTimesWidget() {
+  const { t } = useT()
   const [prayers, setPrayers] = useState<PrayerTime[]>([])
   const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null)
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null)
@@ -76,7 +78,7 @@ export default function PrayerTimesWidget() {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            <span className="text-emerald-900 dark:text-emerald-100">Prayer Times</span>
+            <span className="text-emerald-900 dark:text-emerald-100">{t('ui.prayerTimes')}</span>
           </div>
           {location && (
             <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
@@ -98,7 +100,7 @@ export default function PrayerTimesWidget() {
               className="flex flex-col items-center justify-center py-12"
             >
               <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-3" />
-              <p className="text-sm text-slate-600 dark:text-slate-400">Loading prayer times...</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.loadingPrayerTimes')}</p>
             </motion.div>
           ) : error ? (
             <motion.div
@@ -112,7 +114,7 @@ export default function PrayerTimesWidget() {
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{error}</p>
               {locationDenied && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                  You can enable location access in your browser settings.
+                  {t('ui.youCanEnableLocationAccessInYourBrowserSetti')}
                 </p>
               )}
               <Button
@@ -120,7 +122,7 @@ export default function PrayerTimesWidget() {
                 size="sm"
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
-                Try Again
+                {t('ui.tryAgain')}
               </Button>
             </motion.div>
           ) : nextPrayer ? (
@@ -134,7 +136,7 @@ export default function PrayerTimesWidget() {
               {/* Next Prayer Highlight */}
               <div className="bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-5 rounded-xl shadow-lg">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-emerald-50">Next Prayer</p>
+                  <p className="text-sm font-medium text-emerald-50">{t('ui.nextPrayer')}</p>
                   <Navigation className="h-4 w-4 text-emerald-50" />
                 </div>
                 <div className="text-center">
@@ -215,7 +217,7 @@ export default function PrayerTimesWidget() {
                 className="w-full"
                 onClick={() => window.location.href = '/prayers'}
               >
-                View All Prayer Times
+                {t('ui.viewAllPrayerTimes')}
               </Button>
             </motion.div>
           ) : null}

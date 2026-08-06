@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SettingsLayout } from '@/components/settings/SettingsLayout'
 import { PageHeader } from '@/components/shared/PageHeader'
 
 export default function SettingsPage() {
+  const { t } = useT()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -21,8 +23,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Settings"
-        description="Manage your account and preferences"
+        title={t('nav.settings')}
+        description={t('ui.manageYourAccountAndPreferences')}
       />
       <SettingsLayout />
     </div>

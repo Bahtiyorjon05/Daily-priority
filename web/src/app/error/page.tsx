@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Link from 'next/link'
 
 function ErrorContent() {
+  const { t } = useT()
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
 
@@ -39,9 +41,9 @@ function ErrorContent() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-red-600">Authentication Error</CardTitle>
+          <CardTitle className="text-2xl font-bold text-red-600">{t('ui.authenticationError')}</CardTitle>
           <CardDescription>
-            There was a problem with your sign in attempt
+            {t('ui.thereWasAProblemWithYourSignInAttempt')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -59,12 +61,12 @@ function ErrorContent() {
           <div className="flex flex-col space-y-2">
             <Link href="/signin">
               <Button className="w-full">
-                Try Again
+                {t('ui.tryAgain')}
               </Button>
             </Link>
             <Link href="/">
               <Button variant="outline" className="w-full">
-                Go Home
+                {t('ui.goHome')}
               </Button>
             </Link>
           </div>

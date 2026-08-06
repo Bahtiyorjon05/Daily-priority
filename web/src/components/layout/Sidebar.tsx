@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { Target, ChevronRight, ChevronLeft } from 'lucide-react'
@@ -23,6 +24,7 @@ export default function Sidebar({
   onCollapse,
   session
 }: SidebarProps) {
+  const { t } = useT()
   const pathname = usePathname()
 
   return (
@@ -42,7 +44,7 @@ export default function Sidebar({
         ${isMobile ? 'w-72' : isCollapsed ? 'w-20' : 'w-72'}
       `}
       role="complementary"
-      aria-label="Primary sidebar"
+      aria-label={t('ui.primarySidebar')}
       aria-hidden={!isOpen}
     >
       {/* Header */}
@@ -63,10 +65,10 @@ export default function Sidebar({
               </motion.div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                  Daily Priority
+                  {t('ui.dailyPriority')}
                 </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Productivity Dashboard
+                  {t('ui.productivityDashboard')}
                 </p>
               </div>
             </motion.div>

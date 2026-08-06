@@ -6,6 +6,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -59,6 +60,7 @@ const TaskCard = memo<TaskCardProps>(({
   onSelect,
   className,
 }) => {
+  const { t } = useT()
   // Memoized handlers
   const handleToggleComplete = useCallback(() => {
     onToggleComplete?.(task.id)
@@ -195,7 +197,7 @@ const TaskCard = memo<TaskCardProps>(({
             {task.urgent && (
               <Badge variant="destructive" className="gap-1 text-xs">
                 <Zap className="h-3 w-3" />
-                Urgent
+                {t('ui.urgent')}
               </Badge>
             )}
 
@@ -203,7 +205,7 @@ const TaskCard = memo<TaskCardProps>(({
             {task.important && (
               <Badge variant="secondary" className="gap-1 text-xs">
                 <Flag className="h-3 w-3" />
-                Important
+                {t('ui.important')}
               </Badge>
             )}
 
@@ -283,13 +285,13 @@ const TaskCard = memo<TaskCardProps>(({
                     className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <MoreVertical className="h-4 w-4" />
-                    <span className="sr-only">Open menu</span>
+                    <span className="sr-only">{t('ui.openMenu')}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleEdit}>
                     <Edit3 className="mr-2 h-4 w-4" />
-                    Edit
+                    {t('common.edit')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleToggleUrgent}>
                     <Zap className="mr-2 h-4 w-4" />
@@ -302,7 +304,7 @@ const TaskCard = memo<TaskCardProps>(({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleDelete} className="text-red-600">
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    {t('common.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

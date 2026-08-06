@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -22,6 +23,7 @@ export default function StatCard({
   color, 
   progress 
 }: StatCardProps) {
+  const { t } = useT()
   const colorClasses = {
     blue: 'from-blue-500 to-indigo-500',
     emerald: 'from-emerald-500 to-teal-500',
@@ -55,7 +57,7 @@ export default function StatCard({
           {progress !== undefined && (
             <div className="mt-4">
               <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                <span>Progress</span>
+                <span>{t('ui.progress')}</span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Volume2, VolumeX, X } from 'lucide-react'
@@ -48,6 +49,7 @@ function saveFired(slots: Set<string>) {
  * Mounted once from the dashboard layout.
  */
 export function AdhanPlayer() {
+  const { t: tr } = useT()
   const [times, setTimes] = useState<PrayerTimes | null>(null)
   const [muted, setMuted] = useState(false)
   const [nowPlaying, setNowPlaying] = useState<string | null>(null)
@@ -221,7 +223,7 @@ export function AdhanPlayer() {
               </button>
               <button
                 onClick={dismiss}
-                aria-label="Dismiss"
+                aria-label={tr('ui.dismiss')}
                 className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <X className="h-4 w-4" />

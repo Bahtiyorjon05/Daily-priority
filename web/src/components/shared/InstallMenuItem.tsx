@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { Download, Check } from 'lucide-react'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
@@ -12,6 +13,7 @@ import { useInstallPrompt } from '@/hooks/useInstallPrompt'
  * — it stays available for as long as the app isn't installed.
  */
 export function InstallMenuItem({ onNavigate }: { onNavigate?: () => void }) {
+  const { t } = useT()
   const { isStandalone, isIOS, isAndroid, hasNativePrompt, promptInstall } =
     useInstallPrompt()
   const [tip, setTip] = useState('')
@@ -48,7 +50,7 @@ export function InstallMenuItem({ onNavigate }: { onNavigate?: () => void }) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
       >
         <Download className="h-4 w-4 shrink-0" />
-        Install app
+        {t('nav.installApp')}
       </button>
       {tip && (
         <p className="flex items-start gap-1.5 bg-emerald-50/70 px-4 pb-2.5 text-[11px] leading-snug text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300">

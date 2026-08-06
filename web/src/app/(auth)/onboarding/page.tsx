@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -33,6 +34,7 @@ type Step = 'location' | 'habits' | 'reminders'
 const STEPS: Step[] = ['location', 'habits', 'reminders']
 
 export default function OnboardingPage() {
+  const { t: tr } = useT()
   const router = useRouter()
   const [step, setStep] = useState<Step>('location')
   const [saving, setSaving] = useState(false)
@@ -183,8 +185,8 @@ export default function OnboardingPage() {
                     <input
                       value={locationLabel}
                       onChange={(e) => setLocationLabel(e.target.value)}
-                      placeholder="Or type your city"
-                      aria-label="Your city"
+                      placeholder={tr('ui.orTypeYourCity')}
+                      aria-label={tr('ui.yourCity')}
                       className="w-full rounded-xl border bg-background py-3 pl-9 pr-3 text-sm outline-none ring-primary/40 focus:ring-2"
                     />
                   </div>
@@ -202,7 +204,7 @@ export default function OnboardingPage() {
               {step === 'habits' && (
                 <motion.div key="habits" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}>
                   <p className="mb-4 text-sm text-muted-foreground">
-                    Start with one — you can add more later. Consistency beats ambition.
+                    {tr('ui.startWithOneYouCanAddMoreLaterConsistencyBea')}
                   </p>
 
                   <div className="mb-4 grid grid-cols-2 gap-2">
@@ -262,7 +264,7 @@ export default function OnboardingPage() {
                       className="flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium hover:bg-muted disabled:opacity-60"
                     >
                       <BellOff className="h-4 w-4" />
-                      Not now
+                      {tr('install.dismiss')}
                     </button>
                   </div>
                 </motion.div>
@@ -276,12 +278,12 @@ export default function OnboardingPage() {
           disabled={saving}
           className="mx-auto mt-5 block text-xs text-muted-foreground underline-offset-2 hover:underline disabled:opacity-60"
         >
-          Skip setup
+          {tr('ui.skipSetup')}
         </button>
 
         <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
           <Sparkles className="h-3 w-3" />
-          Takes under a minute
+          {tr('ui.takesUnderAMinute')}
         </p>
       </div>
     </div>
@@ -291,6 +293,7 @@ export default function OnboardingPage() {
 function StepButtons({
   onNext, nextLabel, onSkip,
 }: { onNext: () => void; nextLabel: string; onSkip: () => void }) {
+  const { t: tr } = useT()
   return (
     <div className="flex items-center gap-2">
       <button
@@ -301,7 +304,7 @@ function StepButtons({
         <ArrowRight className="h-4 w-4" />
       </button>
       <button onClick={onSkip} className="rounded-xl px-3 py-3 text-sm text-muted-foreground hover:bg-muted">
-        Skip
+        {tr('common.skip')}
       </button>
     </div>
   )

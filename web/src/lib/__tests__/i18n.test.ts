@@ -161,10 +161,20 @@ describe('dictionary parity', () => {
       expect(u.trim(), `"${key}" is empty in uz`).not.toBe('')
       if (e === u) identical.push(key)
     }
-    // Proper nouns and shared loanwords legitimately match; anything else means
-    // a line was copied across and never translated.
-    // "Email" is the same word in both; Asr is a proper noun.
-    expect(identical.sort()).toEqual(['auth.email', 'prayer.asr'])
+    // Proper nouns, keyboard keys and shared loanwords legitimately match;
+    // anything else means a line was copied across and never translated. This
+    // list is meant to stay short — if a sweep adds to it, check each addition
+    // is genuinely a word Uzbek borrows rather than one that got missed.
+    expect(identical.sort()).toEqual([
+      'auth.email', // "Email" is the same word in both
+      'prayer.asr', // proper noun
+      'ui.dailyPriority', // brand name
+      'ui.dailyPriorityV10', // brand name + version
+      'ui.esc', // keyboard key, printed on the key itself
+      'ui.push', // technical term, borrowed as-is
+      'ui.qibla', // Arabic term, identical in Uzbek
+      'ui.shift', // keyboard key
+    ])
   })
 
   it('covers every declared locale', () => {

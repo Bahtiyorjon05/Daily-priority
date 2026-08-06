@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,7 @@ import { requestGPSLocation, formatLocationForDisplay, formatLocationDetailed, t
 import { useUserProfile } from '@/hooks/useUserProfile'
 
 export function ProfileSettings() {
+  const { t: tr } = useT()
   const { data: session } = useSession()
   const { profile, refreshProfile } = useUserProfile()
   const [loading, setLoading] = useState(false)
@@ -65,7 +67,7 @@ export function ProfileSettings() {
         timezone: location.timezone || prev.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       }))
 
-      toast.success('Location detected successfully')
+      toast.success(tr('ui.locationDetectedSuccessfully'))
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to detect location'
       setLocationError(errorMessage)
@@ -81,13 +83,13 @@ export function ProfileSettings() {
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB')
+      toast.error(tr('ui.imageMustBeLessThan5mb'))
       return
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
+      toast.error(tr('ui.pleaseSelectAnImageFile'))
       return
     }
 
@@ -129,7 +131,7 @@ export function ProfileSettings() {
       await refreshProfile()
       setImageCacheBuster(Date.now())
       
-      toast.success('Profile picture updated successfully!')
+      toast.success(tr('ui.profilePictureUpdatedSuccessfully'))
       
     } catch (error: any) {
       toast.error(error.message || 'Failed to upload image')
@@ -151,12 +153,12 @@ export function ProfileSettings() {
     
     // Validation
     if (!formData.name || formData.name.trim().length === 0) {
-      toast.error('Name is required')
+      toast.error(tr('ui.nameIsRequired'))
       return
     }
     
     if (formData.name.trim().length > 100) {
-      toast.error('Name must be less than 100 characters')
+      toast.error(tr('ui.nameMustBeLessThan100Characters'))
       return
     }
     
@@ -178,9 +180,9 @@ export function ProfileSettings() {
       // Refresh profile cache to update all components
       await refreshProfile()
       
-      toast.success('Profile updated successfully')
+      toast.success(tr('ui.profileUpdatedSuccessfully'))
     } catch (error) {
-      toast.error('Failed to update profile')
+      toast.error(tr('ui.failedToUpdateProfile'))
     } finally {
       setLoading(false)
     }
@@ -189,14 +191,14 @@ export function ProfileSettings() {
   return (
     <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-lg">
       <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-        <CardTitle className="text-2xl">Profile Information</CardTitle>
-        <CardDescription className="text-base">Update your personal information and preferences</CardDescription>
+        <CardTitle className="text-2xl">{tr('ui.profileInformation')}</CardTitle>
+        <CardDescription className="text-base">{tr('ui.updateYourPersonalInformationAndPreferences')}</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Avatar */}
           <div className="space-y-4">
-            <Label className="text-base font-semibold">Profile Picture</Label>
+            <Label className="text-base font-semibold">{tr('ui.profilePicture')}</Label>
             <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24 ring-4 ring-emerald-200 dark:ring-emerald-800 shadow-lg">
                   <AvatarImage 
@@ -216,7 +218,7 @@ export function ProfileSettings() {
               </Avatar>
               <div className="flex-1 space-y-3">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  JPG, PNG, WebP or GIF. Maximum file size 5MB.
+                  {tr('ui.jpgPngWebpOrGifMaximumFileSize5mb')}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <input
@@ -235,7 +237,7 @@ export function ProfileSettings() {
                     disabled={uploadingImage}
                   >
                     <Upload className="h-4 w-4" />
-                    Choose Image
+                    {tr('ui.chooseImage')}
                   </Button>
                   {imagePreview && (
                     <>
@@ -249,12 +251,12 @@ export function ProfileSettings() {
                         {uploadingImage ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Uploading...
+                            {tr('ui.uploading')}
                           </>
                         ) : (
                           <>
                             <Save className="h-4 w-4" />
-                            Upload
+                            {tr('ui.upload')}
                           </>
                         )}
                       </Button>
@@ -267,7 +269,7 @@ export function ProfileSettings() {
                         className="gap-2"
                       >
                         <X className="h-4 w-4" />
-                        Cancel
+                        {tr('common.cancel')}
                       </Button>
                     </>
                   )}
@@ -283,18 +285,18 @@ export function ProfileSettings() {
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter your name"
+              placeholder={tr('ui.enterYourName')}
               className="h-11 text-base"
               required
               maxLength={100}
               autoComplete="name"
             />
-            <p className="text-xs text-slate-500">Your display name (max 100 characters)</p>
+            <p className="text-xs text-slate-500">{tr('ui.yourDisplayNameMax100Characters')}</p>
           </div>
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-base font-semibold">Email Address</Label>
+            <Label htmlFor="email" className="text-base font-semibold">{tr('auth.emailAddress')}</Label>
             <Input
               id="email"
               type="email"
@@ -302,18 +304,18 @@ export function ProfileSettings() {
               disabled
               className="bg-slate-100 dark:bg-slate-900 h-11 text-base"
             />
-            <p className="text-xs text-slate-500">Email cannot be changed for security reasons</p>
+            <p className="text-xs text-slate-500">{tr('ui.emailCannotBeChangedForSecurityReasons')}</p>
           </div>
 
           {/* Location */}
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-base font-semibold">Location</Label>
+            <Label htmlFor="location" className="text-base font-semibold">{tr('ui.location')}</Label>
             <div className="flex gap-2">
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="City, Country or coordinates"
+                placeholder={tr('ui.cityCountryOrCoordinates')}
                 className="h-11 text-base flex-1"
               />
               <Button
@@ -335,22 +337,22 @@ export function ProfileSettings() {
               <p className="text-xs text-red-500">{locationError}</p>
             )}
             <p className="text-xs text-slate-500">
-              📍 <strong>Home Location:</strong> This is your default/home location saved for your profile. 
+              📍 <strong>{tr('ui.homeLocation')}</strong> This is your default/home location saved for your profile. 
               Prayer times always use your CURRENT location (detected automatically) for accuracy.
             </p>
           </div>
 
           {/* Timezone */}
           <div className="space-y-2">
-            <Label htmlFor="timezone" className="text-base font-semibold">Timezone</Label>
+            <Label htmlFor="timezone" className="text-base font-semibold">{tr('ui.timezone')}</Label>
             <Input
               id="timezone"
               value={formData.timezone}
               onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-              placeholder="e.g. America/New_York"
+              placeholder={tr('ui.eGAmericaNewYork')}
               className="h-11 text-base"
             />
-            <p className="text-xs text-slate-500">Auto-detected from your location</p>
+            <p className="text-xs text-slate-500">{tr('ui.autoDetectedFromYourLocation')}</p>
           </div>
 
           <Button 
@@ -361,12 +363,12 @@ export function ProfileSettings() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                {tr('ui.saving')}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Save Changes
+                {tr('ui.saveChanges')}
               </>
             )}
           </Button>

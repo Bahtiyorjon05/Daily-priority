@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Circle, Trash2, AlertCircle, Flag, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+  const { t } = useT()
   const isCompleted = task.status === TaskStatus.COMPLETED
   
   const getPriorityColor = (priority: Priority) => {
@@ -106,14 +108,14 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
                 {task.urgent && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 text-xs font-medium">
                     <AlertCircle className="h-3 w-3" />
-                    Urgent
+                    {t('ui.urgent')}
                   </span>
                 )}
                 
                 {task.important && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 text-xs font-medium">
                     <Flag className="h-3 w-3" />
-                    Important
+                    {t('ui.important')}
                   </span>
                 )}
 

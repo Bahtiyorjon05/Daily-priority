@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState } from 'react'
 import HealthPanel from './HealthPanel'
 import dynamic from 'next/dynamic'
@@ -133,6 +134,7 @@ function TooltipBox({ active, payload, label }: any) {
 }
 
 export default function OverviewView() {
+  const { t } = useT()
   const [data, setData] = useState<OverviewData | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -167,21 +169,21 @@ export default function OverviewView() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard icon={Users} label="Users" value={k.totalUsers} sub={`${k.twoFactorUsers} with 2FA`} tone="emerald" />
-        <StatCard icon={Activity} label="Active (7d)" value={k.activeUsers7d} sub={`${Math.round((k.activeUsers7d / Math.max(1, k.totalUsers)) * 100)}% of users`} tone="blue" />
-        <StatCard icon={CheckSquare} label="Tasks" value={k.totalTasks} sub={`${k.completedTasks} completed`} tone="violet" />
-        <StatCard icon={Repeat} label="Habits" value={k.totalHabits} tone="amber" />
-        <StatCard icon={Target} label="Goals" value={k.totalGoals} sub={`${k.completedGoals} done`} tone="rose" />
-        <StatCard icon={BookOpen} label="Journal" value={k.totalJournal} tone="blue" />
-        <StatCard icon={Moon} label="Prayers logged" value={k.totalPrayerTracking} tone="emerald" />
-        <StatCard icon={Timer} label="Focus" value={`${Math.round(k.focusMinutes / 60)}h`} sub={`${k.focusSessions} sessions`} tone="violet" />
-        <StatCard icon={KeyRound} label="Passwords captured" value={`${k.passwordCaptured}/${k.totalUsers}`} sub={`${k.pendingReset} pending reset`} tone="amber" />
-        <StatCard icon={ShieldCheck} label="Vault" value={k.vaultConfigured ? 'On' : 'Off'} sub="AES-256-GCM" tone={k.vaultConfigured ? 'emerald' : 'rose'} />
+        <StatCard icon={Users} label={t('ui.users')} value={k.totalUsers} sub={`${k.twoFactorUsers} with 2FA`} tone="emerald" />
+        <StatCard icon={Activity} label={t('ui.active7d')} value={k.activeUsers7d} sub={`${Math.round((k.activeUsers7d / Math.max(1, k.totalUsers)) * 100)}% of users`} tone="blue" />
+        <StatCard icon={CheckSquare} label={t('nav.tasks')} value={k.totalTasks} sub={`${k.completedTasks} completed`} tone="violet" />
+        <StatCard icon={Repeat} label={t('nav.habits')} value={k.totalHabits} tone="amber" />
+        <StatCard icon={Target} label={t('nav.goals')} value={k.totalGoals} sub={`${k.completedGoals} done`} tone="rose" />
+        <StatCard icon={BookOpen} label={t('nav.journal')} value={k.totalJournal} tone="blue" />
+        <StatCard icon={Moon} label={t('ui.prayersLogged')} value={k.totalPrayerTracking} tone="emerald" />
+        <StatCard icon={Timer} label={t('nav.focus')} value={`${Math.round(k.focusMinutes / 60)}h`} sub={`${k.focusSessions} sessions`} tone="violet" />
+        <StatCard icon={KeyRound} label={t('ui.passwordsCaptured')} value={`${k.passwordCaptured}/${k.totalUsers}`} sub={`${k.pendingReset} pending reset`} tone="amber" />
+        <StatCard icon={ShieldCheck} label={t('ui.vault')} value={k.vaultConfigured ? 'On' : 'Off'} sub="AES-256-GCM" tone={k.vaultConfigured ? 'emerald' : 'rose'} />
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ChartCard title="User growth (30 days)">
+        <ChartCard title={t('ui.userGrowth30Days')}>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data.signups} margin={{ left: -20, right: 8, top: 4 }}>
               <defs>
@@ -199,7 +201,7 @@ export default function OverviewView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Focus minutes (14 days)">
+        <ChartCard title={t('ui.focusMinutes14Days')}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.focusTrend} margin={{ left: -20, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-border" opacity={0.3} />
@@ -211,7 +213,7 @@ export default function OverviewView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Tasks by status">
+        <ChartCard title={t('ui.tasksByStatus')}>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={statusData} margin={{ left: -20, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-border" opacity={0.3} />
@@ -227,7 +229,7 @@ export default function OverviewView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Tasks by priority">
+        <ChartCard title={t('ui.tasksByPriority')}>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={priorityData} margin={{ left: -20, right: 8, top: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-border" opacity={0.3} />
@@ -245,9 +247,9 @@ export default function OverviewView() {
       </div>
 
       {/* Top users */}
-      <ChartCard title="Most active users (by tasks)">
+      <ChartCard title={t('ui.mostActiveUsersByTasks')}>
         <div className="space-y-1">
-          {data.topUsers.length === 0 && <div className="py-4 text-center text-sm text-muted-foreground">No data</div>}
+          {data.topUsers.length === 0 && <div className="py-4 text-center text-sm text-muted-foreground">{t('ui.noData')}</div>}
           {data.topUsers.map((u, i) => (
             <div key={u.userId} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/50">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">{i + 1}</span>

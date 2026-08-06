@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RefreshCw, Search, ChevronLeft, ChevronRight, KeyRound, Eye, EyeOff } from 'lucide-react'
 import type { AdminModel } from '@/lib/admin-models'
@@ -24,6 +25,7 @@ const USER_FILTERABLE = new Set([
 ])
 
 export default function TablesView({ models }: { models: AdminModel[] }) {
+  const { t } = useT()
   const [active, setActive] = useState<string>(models[0]?.key ?? 'user')
   const [data, setData] = useState<DataResponse | null>(null)
   const [loading, setLoading] = useState(false)
@@ -107,7 +109,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
           title={USER_FILTERABLE.has(active) ? 'Filter by user' : 'This table has no user link'}
           className="max-w-[220px] rounded-lg border bg-background px-2.5 py-1.5 text-sm outline-none disabled:opacity-40"
         >
-          <option value="">All users</option>
+          <option value="">{t('ui.allUsers')}</option>
           {userOptions.map((u) => <option key={u.id} value={u.id}>{u.email}</option>)}
         </select>
 
@@ -116,7 +118,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter this page…"
+            placeholder={t('ui.filterThisPage')}
             className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none ring-primary/40 focus:ring-2"
           />
         </div>
@@ -127,7 +129,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
           </button>
         )}
         <button onClick={load} className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> {t('ui.refresh')}
         </button>
       </div>
 
@@ -146,7 +148,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
       {data && data.totalPages > 1 && (
         <div className="flex items-center justify-between gap-4 border-t pt-3 text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <span>Rows</span>
+            <span>{t('ui.rows')}</span>
             <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1) }} className="rounded-md border bg-background px-2 py-1 text-foreground">
               {PAGE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>

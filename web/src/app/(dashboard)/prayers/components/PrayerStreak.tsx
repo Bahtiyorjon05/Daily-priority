@@ -1,5 +1,6 @@
 ﻿'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { Flame, Trophy, Star, Award } from 'lucide-react'
@@ -17,6 +18,7 @@ interface PrayerStreakProps {
 }
 
 export default function PrayerStreak({ currentStreak, longestStreak, milestones }: PrayerStreakProps) {
+  const { t } = useT()
   const getStreakColor = (streak: number) => {
     if (streak >= 100) return 'from-purple-500 to-pink-500'
     if (streak >= 30) return 'from-orange-500 to-red-500'
@@ -53,7 +55,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
 
   return (
     <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
-      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Prayer Streak</h3>
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('ui.prayerStreak')}</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Current Streak */}
@@ -65,7 +67,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Streak</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('ui.currentStreak')}</p>
               <div className="flex items-baseline gap-2">
                 <p className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                   {currentStreak}
@@ -90,7 +92,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
           </div>
           {currentStreak >= 3 && (
             <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-4 font-medium">
-              Keep it up! Consistency builds momentum.
+              {t('ui.keepItUpConsistencyBuildsMomentum')}
             </p>
           )}
         </motion.div>
@@ -99,7 +101,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
         <div className="rounded-xl p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200 dark:border-purple-800">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Best Streak</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('ui.bestStreak')}</p>
               <div className="flex items-baseline gap-2">
                 <p className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   {longestStreak}
@@ -113,7 +115,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
           </div>
           {currentStreak === longestStreak && currentStreak > 0 && (
             <p className="text-xs text-purple-700 dark:text-purple-400 mt-4 font-medium">
-              Personal best! Keep pushing forward.
+              {t('ui.personalBestKeepPushingForward')}
             </p>
           )}
         </div>
@@ -121,7 +123,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
 
       {/* Milestones */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Milestones</h4>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{t('ui.milestones')}</h4>
         {normalizedMilestones.map((milestone, index) => (
           <motion.div
             key={`${milestone.days}-${milestone.label || 'milestone'}-${index}`}
@@ -165,7 +167,7 @@ export default function PrayerStreak({ currentStreak, longestStreak, milestones 
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               >
-                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Achieved</span>
+                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t('ui.achieved')}</span>
               </motion.div>
             )}
           </motion.div>

@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import TaskCard from './TaskCard'
@@ -26,6 +27,7 @@ const TaskList = memo<TaskListProps>(({
   emptyState,
   className,
 }) => {
+  const { t } = useT()
   if (isLoading) {
     return <LoadingState text="Loading tasks..." />
   }
@@ -35,8 +37,8 @@ const TaskList = memo<TaskListProps>(({
       emptyState || (
         <EmptyState
           icon={<CheckCircle2 className="h-10 w-10" />}
-          title="No tasks found"
-          description="Create your first task to get started with your productivity journey."
+          title={t('ui.noTasksFound')}
+          description={t('ui.createYourFirstTaskToGetStartedWithYourProdu')}
         />
       )
     )

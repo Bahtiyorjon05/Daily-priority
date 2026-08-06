@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Clock, MapPin, CheckCircle2, Circle } from 'lucide-react'
@@ -22,6 +23,7 @@ const DEFAULT_TIMES: PrayerTime[] = [
 ]
 
 export default function PrayerTimesPanel() {
+  const { t } = useT()
   const [currentTime, setCurrentTime] = useState(new Date())
   const [location, setLocation] = useState('Loading…')
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>(DEFAULT_TIMES)
@@ -51,7 +53,7 @@ export default function PrayerTimesPanel() {
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          Prayer Times
+          {t('ui.prayerTimes')}
         </CardTitle>
       </CardHeader>
 
@@ -71,7 +73,7 @@ export default function PrayerTimesPanel() {
         <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-400">Next Prayer</p>
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-400">{t('ui.nextPrayer')}</p>
               <p className="text-lg font-bold text-amber-900 dark:text-amber-300">
                 {nextPrayer.name} • {nextPrayer.time}
               </p>
@@ -85,7 +87,7 @@ export default function PrayerTimesPanel() {
         {/* Prayer List */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">
-            <span>Today's Prayers</span>
+            <span>{t('ui.todaySPrayers')}</span>
             <span className="text-emerald-600 dark:text-emerald-400">{completedCount}/5 completed</span>
           </div>
 
@@ -125,7 +127,7 @@ export default function PrayerTimesPanel() {
         {/* Progress */}
         <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
           <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-2">
-            <span>Daily Progress</span>
+            <span>{t('ui.dailyProgress')}</span>
             <span>{Math.round((completedCount / 5) * 100)}%</span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">

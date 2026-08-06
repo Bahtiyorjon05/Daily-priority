@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState } from 'react'
 import { Bell, BellOff, Loader2, Save, Send } from 'lucide-react'
 import { toast } from 'sonner'
@@ -24,6 +25,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i)
 const label = (h: number) => `${String(h).padStart(2, '0')}:00`
 
 export function NotificationSettings() {
+  const { t } = useT()
   const { supported, subscribed, permission, busy, subscribe, unsubscribe } = usePushNotifications()
   const [prefs, setPrefs] = useState<Prefs | null>(null)
   const [saving, setSaving] = useState(false)
@@ -33,7 +35,7 @@ export function NotificationSettings() {
     fetch('/api/notifications/preferences', { cache: 'no-store' })
       .then((r) => r.json())
       .then((d) => setPrefs(d.preferences))
-      .catch(() => toast.error('Could not load notification settings'))
+      .catch(() => toast.error(t('ui.couldNotLoadNotificationSettings')))
   }, [])
 
   const set = <K extends keyof Prefs>(key: K, value: Prefs[K]) =>
@@ -47,7 +49,7 @@ export function NotificationSettings() {
       if (res.ok && data.ok) toast.success(data.message || 'Test notification sent')
       else toast.error(data.error || data.message || 'Could not send test notification')
     } catch {
-      toast.error('Could not send test notification')
+      toast.error(t('ui.couldNotSendTestNotification'))
     } finally {
       setTesting(false)
     }
@@ -63,9 +65,9 @@ export function NotificationSettings() {
         body: JSON.stringify(prefs),
       })
       if (!res.ok) throw new Error()
-      toast.success('Notification settings saved')
+      toast.success(t('ui.notificationSettingsSaved'))
     } catch {
-      toast.error('Failed to save settings')
+      toast.error(t('ui.failedToSaveSettings'))
     } finally {
       setSaving(false)
     }
@@ -77,7 +79,7 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <CardTitle level={2} className="flex items-center gap-2 text-lg">
-            <Bell className="h-5 w-5 text-emerald-600" /> Device notifications
+            <Bell className="h-5 w-5 text-emerald-600" /> {t('ui.deviceNotifications')}
           </CardTitle>
           <CardDescription>
             Get reminders on this device even when the app is closed. Works in the installed app too.
@@ -121,8 +123,8 @@ export function NotificationSettings() {
       {/* Preferences */}
       <Card>
         <CardHeader>
-          <CardTitle level={2} className="text-lg">What to send</CardTitle>
-          <CardDescription>These apply across all your devices.</CardDescription>
+          <CardTitle level={2} className="text-lg">{t('ui.whatToSend')}</CardTitle>
+          <CardDescription>{t('ui.theseApplyAcrossAllYourDevices')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           {!prefs ? (
@@ -133,14 +135,14 @@ export function NotificationSettings() {
             <>
               <Row
                 id="prayer"
-                title="Prayer reminders"
+                title={t('ui.prayerReminders')}
                 desc="A nudge shortly before each prayer time."
                 checked={prefs.prayerReminders}
                 onChange={(v) => set('prayerReminders', v)}
               />
               {prefs.prayerReminders && (
                 <div className="ml-1 flex items-center gap-2 text-sm">
-                  <Label htmlFor="lead" className="text-muted-foreground">Notify</Label>
+                  <Label htmlFor="lead" className="text-muted-foreground">{t('ui.notify')}</Label>
                   <select
                     id="lead"
                     value={prefs.prayerLeadMinutes}
@@ -156,14 +158,14 @@ export function NotificationSettings() {
 
               <Row
                 id="habits"
-                title="Habit reminder"
+                title={t('ui.habitReminder')}
                 desc="An evening nudge if habits are still unticked."
                 checked={prefs.habitReminders}
                 onChange={(v) => set('habitReminders', v)}
               />
               {prefs.habitReminders && (
                 <div className="ml-1 flex items-center gap-2 text-sm">
-                  <Label htmlFor="habitHour" className="text-muted-foreground">Send at</Label>
+                  <Label htmlFor="habitHour" className="text-muted-foreground">{t('ui.sendAt')}</Label>
                   <select
                     id="habitHour"
                     value={prefs.habitReminderHour}
@@ -177,29 +179,29 @@ export function NotificationSettings() {
 
               <Row
                 id="tasks"
-                title="Overdue task digest"
+                title={t('ui.overdueTaskDigest')}
                 desc="A morning summary when tasks are past due."
                 checked={prefs.taskReminders}
                 onChange={(v) => set('taskReminders', v)}
               />
               <Row
                 id="weekly"
-                title="Weekly review email"
+                title={t('ui.weeklyReviewEmail')}
                 desc="A Sunday summary of your week."
                 checked={prefs.weeklyReviewEmail}
                 onChange={(v) => set('weeklyReviewEmail', v)}
               />
 
               <div className="border-t pt-4">
-                <Label className="text-sm font-medium">Quiet hours</Label>
-                <p className="mb-2 text-xs text-muted-foreground">No notifications during this window.</p>
+                <Label className="text-sm font-medium">{t('ui.quietHours')}</Label>
+                <p className="mb-2 text-xs text-muted-foreground">{t('ui.noNotificationsDuringThisWindow')}</p>
                 <div className="flex items-center gap-2 text-sm">
                   <select
                     value={prefs.quietHoursStart ?? ''}
                     onChange={(e) => set('quietHoursStart', e.target.value === '' ? null : Number(e.target.value))}
                     className="rounded-lg border bg-background px-2 py-1"
                   >
-                    <option value="">Off</option>
+                    <option value="">{t('common.off')}</option>
                     {HOURS.map((h) => <option key={h} value={h}>{label(h)}</option>)}
                   </select>
                   <span className="text-muted-foreground">to</span>
@@ -208,7 +210,7 @@ export function NotificationSettings() {
                     onChange={(e) => set('quietHoursEnd', e.target.value === '' ? null : Number(e.target.value))}
                     className="rounded-lg border bg-background px-2 py-1"
                   >
-                    <option value="">Off</option>
+                    <option value="">{t('common.off')}</option>
                     {HOURS.map((h) => <option key={h} value={h}>{label(h)}</option>)}
                   </select>
                 </div>

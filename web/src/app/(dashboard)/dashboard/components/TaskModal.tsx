@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Flag, AlertCircle, Target } from 'lucide-react'
@@ -21,6 +22,7 @@ interface TaskModalProps {
 }
 
 export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
+  const { t } = useT()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -74,7 +76,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                    Create New Task
+                    {t('ui.createNewTask')}
                   </CardTitle>
                   <Button
                     variant="ghost"
@@ -95,7 +97,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                   </label>
                   <Input
                     autoFocus
-                    placeholder="What needs to be done?"
+                    placeholder={t('ui.whatNeedsToBeDone')}
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     className="border-slate-300 dark:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-400"
@@ -105,10 +107,10 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                 {/* Description */}
                 <div>
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">
-                    Description
+                    {t('ui.description')}
                   </label>
                   <Textarea
-                    placeholder="Add more details..."
+                    placeholder={t('ui.addMoreDetails')}
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -119,7 +121,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                 {/* Priority */}
                 <div>
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3 block">
-                    Priority Level
+                    {t('ui.priorityLevel')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {(['LOW', 'MEDIUM', 'HIGH'] as const).map((priority) => (
@@ -157,7 +159,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                     `}
                   >
                     <AlertCircle className="h-4 w-4 mr-2" />
-                    Urgent
+                    {t('ui.urgent')}
                   </Button>
 
                   <Button
@@ -172,7 +174,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                     `}
                   >
                     <Flag className="h-4 w-4 mr-2" />
-                    Important
+                    {t('ui.important')}
                   </Button>
                 </div>
 
@@ -183,7 +185,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                     onClick={handleClose}
                     className="flex-1"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={handleSave}
@@ -191,7 +193,7 @@ export default function TaskModal({ isOpen, onClose, onSave }: TaskModalProps) {
                     className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
                   >
                     <Target className="h-4 w-4 mr-2" />
-                    Create Task
+                    {t('ui.createTask')}
                   </Button>
                 </div>
               </CardContent>

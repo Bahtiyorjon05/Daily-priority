@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { CheckCircle2, Circle, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -24,6 +25,7 @@ interface PrayerHistoryProps {
 const PRAYER_NAMES = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 
 export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHistoryProps) {
+  const { t } = useT()
   const displayData = historyData.slice(0, daysToShow)
 
   const formatDate = (date: Date) => {
@@ -47,7 +49,7 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
   return (
     <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">Prayer History</h3>
+        <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">{t('ui.prayerHistory')}</h3>
         <span className="text-sm text-gray-600 dark:text-gray-400">Last {daysToShow} days</span>
       </div>
 
@@ -126,7 +128,7 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
                           {prayer.onTime ? (
                             <Clock className="h-3 w-3 text-emerald-600 dark:text-emerald-400 mx-auto" />
                           ) : (
-                            <div className="text-xs text-yellow-600 dark:text-yellow-400">Late</div>
+                            <div className="text-xs text-yellow-600 dark:text-yellow-400">{t('ui.late')}</div>
                           )}
                         </div>
                       )}
@@ -156,8 +158,8 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
 
         {displayData.length === 0 && (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <p>No prayer history available yet.</p>
-            <p className="text-sm mt-2">Start tracking your prayers to see your history here.</p>
+            <p>{t('ui.noPrayerHistoryAvailableYet')}</p>
+            <p className="text-sm mt-2">{t('ui.startTrackingYourPrayersToSeeYourHistoryHere')}</p>
           </div>
         )}
       </div>
@@ -167,15 +169,15 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
         <div className="flex items-center justify-center gap-6 text-xs text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <span>Completed on time</span>
+            <span>{t('ui.completedOnTime')}</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-            <span>Completed late</span>
+            <span>{t('ui.completedLate2')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Circle className="h-4 w-4 text-gray-400" />
-            <span>Not completed</span>
+            <span>{t('ui.notCompleted')}</span>
           </div>
         </div>
       </div>

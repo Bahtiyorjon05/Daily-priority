@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,6 +12,7 @@ import { LogOut, Lock, Loader2, Shield, ShieldCheck, ShieldAlert, Mail } from 'l
 import { toast } from 'sonner'
 
 export function SecuritySettings() {
+  const { t } = useT()
   const { data: session, status } = useSession()
   const [loading, setLoading] = useState(false)
   const [passwords, setPasswords] = useState({
@@ -73,17 +75,17 @@ export function SecuritySettings() {
     e.preventDefault()
     
     if (!passwords.current || !passwords.new || !passwords.confirm) {
-      toast.error('Please fill in all password fields')
+      toast.error(t('ui.pleaseFillInAllPasswordFields'))
       return
     }
 
     if (passwords.new !== passwords.confirm) {
-      toast.error('New passwords do not match')
+      toast.error(t('ui.newPasswordsDoNotMatch'))
       return
     }
 
     if (passwords.new.length < 8) {
-      toast.error('Password must be at least 8 characters long')
+      toast.error(t('ui.passwordMustBeAtLeast8CharactersLong'))
       return
     }
 
@@ -104,7 +106,7 @@ export function SecuritySettings() {
         throw new Error(data.error || 'Failed to change password')
       }
 
-      toast.success('Password changed successfully')
+      toast.success(t('ui.passwordChangedSuccessfully'))
       setPasswords({ current: '', new: '', confirm: '' })
     } catch (error: any) {
       toast.error(error.message || 'Failed to change password')
@@ -130,7 +132,7 @@ export function SecuritySettings() {
 
       setStep('code')
       setShowEnableModal(true)
-      toast.success('Verification code sent to your email! Check your inbox.')
+      toast.success(t('ui.verificationCodeSentToYourEmailCheckYourInbo'))
     } catch (error: any) {
       console.error('2FA enable error:', error)
       // Error already shown via toast above
@@ -141,7 +143,7 @@ export function SecuritySettings() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode || verificationCode.length !== 6) {
-      toast.error('Please enter the 6-digit code from your email')
+      toast.error(t('ui.pleaseEnterThe6DigitCodeFromYourEmail'))
       return
     }
 
@@ -165,10 +167,10 @@ export function SecuritySettings() {
 
       // Move to password setup step only if code is valid
       setStep('password')
-      toast.success('Code verified! Now set your 2FA password.')
+      toast.success(t('ui.codeVerifiedNowSetYour2faPassword'))
     } catch (error: any) {
       console.error('Code verification error:', error)
-      toast.error('Failed to verify code. Please try again.')
+      toast.error(t('ui.failedToVerifyCodePleaseTryAgain'))
     } finally {
       setLoading(false)
     }
@@ -176,12 +178,12 @@ export function SecuritySettings() {
 
   const handleComplete2FASetup = async () => {
     if (!twoFactorPassword || twoFactorPassword.length < 6) {
-      toast.error('2FA password must be at least 6 characters')
+      toast.error(t('ui.2faPasswordMustBeAtLeast6Characters'))
       return
     }
 
     if (twoFactorPassword !== twoFactorPasswordConfirm) {
-      toast.error('Passwords do not match')
+      toast.error(t('ui.passwordsDoNotMatch'))
       return
     }
 
@@ -200,7 +202,7 @@ export function SecuritySettings() {
 
       if (!response.ok) {
         if (data.error?.includes('expired') || data.error?.includes('Invalid')) {
-          toast.error('Verification code is wrong or expired. Please start over.')
+          toast.error(t('ui.verificationCodeIsWrongOrExpiredPleaseStartO'))
           setShowEnableModal(false)
           setStep('code')
           setVerificationCode('')
@@ -218,7 +220,7 @@ export function SecuritySettings() {
       setVerificationCode('')
       setTwoFactorPassword('')
       setTwoFactorPasswordConfirm('')
-      toast.success('Two-factor authentication enabled! You will need this password when signing in.', {
+      toast.success(t('ui.twoFactorAuthenticationEnabledYouWillNeedThi'), {
         duration: 5000
       })
     } catch (error: any) {
@@ -230,7 +232,7 @@ export function SecuritySettings() {
 
   const handleDisable2FA = async () => {
     if (!disablePassword) {
-      toast.error('Please enter your password to disable 2FA')
+      toast.error(t('ui.pleaseEnterYourPasswordToDisable2fa'))
       return
     }
 
@@ -253,7 +255,7 @@ export function SecuritySettings() {
       setTwoFactorEnabled(false)
       setShowDisableModal(false)
       setDisablePassword('')
-      toast.success('Two-factor authentication disabled')
+      toast.success(t('ui.twoFactorAuthenticationDisabled'))
     } catch (error: any) {
       toast.error(error.message || 'Failed to disable 2FA')
     } finally {
@@ -270,7 +272,7 @@ export function SecuritySettings() {
     return (
       <div className="flex flex-col items-center justify-center p-12 gap-4">
         <Lock className="h-12 w-12 text-slate-400" />
-        <p className="text-sm text-slate-500">Please sign in to manage security settings</p>
+        <p className="text-sm text-slate-500">{t('ui.pleaseSignInToManageSecuritySettings')}</p>
       </div>
     )
   }
@@ -284,12 +286,12 @@ export function SecuritySettings() {
             <div className="flex items-center gap-3">
               <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-900 dark:text-red-100">Failed to load security settings</p>
+                <p className="text-sm font-medium text-red-900 dark:text-red-100">{t('ui.failedToLoadSecuritySettings')}</p>
                 <p className="text-xs text-red-700 dark:text-red-300 mt-1">{loadError}</p>
               </div>
               <Button onClick={loadSecuritySettings} variant="outline" size="sm" className="gap-2">
                 <Loader2 className="h-4 w-4" />
-                Retry
+                {t('ui.retry')}
               </Button>
             </div>
           </CardContent>
@@ -302,10 +304,10 @@ export function SecuritySettings() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <CardTitle className="text-2xl">Google Account Security</CardTitle>
+              <CardTitle className="text-2xl">{t('ui.googleAccountSecurity')}</CardTitle>
             </div>
             <CardDescription className="text-base">
-              Your account is secured through Google OAuth
+              {t('ui.yourAccountIsSecuredThroughGoogleOauth')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -313,7 +315,7 @@ export function SecuritySettings() {
               <ShieldCheck className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1 space-y-2">
                 <p className="font-medium text-gray-900 dark:text-gray-100">
-                  Want to enable password login and 2FA?
+                  {t('ui.wantToEnablePasswordLoginAnd2fa')}
                 </p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   You're currently using Google to sign in. To enable two-factor authentication or password-based login, you need to set a password first.
@@ -324,22 +326,22 @@ export function SecuritySettings() {
                   variant="outline"
                 >
                   <Lock className="h-4 w-4" />
-                  Set Account Password
+                  {t('ui.setAccountPassword')}
                 </Button>
               </div>
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                After setting a password, you can sign in with either Google or email/password
+                {t('ui.afterSettingAPasswordYouCanSignInWithEitherG')}
               </p>
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                Enable two-factor authentication for extra security
+                {t('ui.enableTwoFactorAuthenticationForExtraSecurit')}
               </p>
               <p className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                Your Google sign-in will continue to work normally
+                {t('ui.yourGoogleSignInWillContinueToWorkNormally')}
               </p>
             </div>
           </CardContent>
@@ -357,7 +359,7 @@ export function SecuritySettings() {
                 ) : (
                   <ShieldAlert className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                 )}
-                <CardTitle className="text-2xl">Two-Factor Authentication</CardTitle>
+                <CardTitle className="text-2xl">{t('ui.twoFactorAuthentication')}</CardTitle>
               </div>
               <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                 twoFactorEnabled 
@@ -379,10 +381,10 @@ export function SecuritySettings() {
                 <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                 <div className="flex-1">
                   <p className="font-medium text-blue-900 dark:text-blue-100">
-                    Email-Based 2FA
+                    {t('ui.emailBased2fa')}
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                    When enabled, you'll receive a verification code via email each time you sign in.
+                    {t('ui.whenEnabledYouLlReceiveAVerificationCodeViaE')}
                   </p>
                 </div>
               </div>
@@ -396,7 +398,7 @@ export function SecuritySettings() {
                     disabled={loading}
                   >
                     <ShieldAlert className="h-4 w-4" />
-                    Disable 2FA
+                    {t('ui.disable2fa')}
                   </Button>
                   <p className="text-sm text-slate-500">
                     Lost access? You can{' '}
@@ -414,12 +416,12 @@ export function SecuritySettings() {
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Processing...
+                      {t('ui.processing')}
                     </>
                   ) : (
                     <>
                       <ShieldCheck className="h-4 w-4" />
-                      Enable 2FA
+                      {t('ui.enable2fa')}
                     </>
                   )}
                 </Button>
@@ -435,46 +437,46 @@ export function SecuritySettings() {
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <CardTitle className="text-2xl">Change Password</CardTitle>
+              <CardTitle className="text-2xl">{t('ui.changePassword')}</CardTitle>
             </div>
-            <CardDescription className="text-base">Update your account password for security</CardDescription>
+            <CardDescription className="text-base">{t('ui.updateYourAccountPasswordForSecurity')}</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <form onSubmit={handlePasswordChange} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="current-password" className="text-base font-semibold">Current Password</Label>
+                <Label htmlFor="current-password" className="text-base font-semibold">{t('ui.currentPassword')}</Label>
                 <Input
                   id="current-password"
                   type="password"
                   value={passwords.current}
                   onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                  placeholder="Enter your current password"
+                  placeholder={t('ui.enterYourCurrentPassword')}
                   className="h-11 text-base"
                   disabled={loading}
                   autoComplete="current-password"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-base font-semibold">New Password</Label>
+                <Label htmlFor="new-password" className="text-base font-semibold">{t('ui.newPassword')}</Label>
                 <Input
                   id="new-password"
                   type="password"
                   value={passwords.new}
                   onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                  placeholder="Enter a strong password (min. 8 characters)"
+                  placeholder={t('ui.enterAStrongPasswordMin8Characters')}
                   className="h-11 text-base"
                   disabled={loading}
                   autoComplete="new-password"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-password" className="text-base font-semibold">Confirm New Password</Label>
+                <Label htmlFor="confirm-password" className="text-base font-semibold">{t('ui.confirmNewPassword')}</Label>
                 <Input
                   id="confirm-password"
                   type="password"
                   value={passwords.confirm}
                   onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                  placeholder="Re-enter your new password"
+                  placeholder={t('ui.reEnterYourNewPassword')}
                   className="h-11 text-base"
                   disabled={loading}
                   autoComplete="new-password"
@@ -488,12 +490,12 @@ export function SecuritySettings() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Updating...
+                    {t('ui.updating')}
                   </>
                 ) : (
                   <>
                     <Lock className="h-4 w-4" />
-                    Update Password
+                    {t('ui.updatePassword')}
                   </>
                 )}
               </Button>
@@ -507,9 +509,9 @@ export function SecuritySettings() {
         <CardHeader className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20">
           <div className="flex items-center gap-2">
             <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <CardTitle className="text-2xl">Sign Out</CardTitle>
+            <CardTitle className="text-2xl">{t('ui.signOut')}</CardTitle>
           </div>
-          <CardDescription className="text-base">Sign out of your account on this device</CardDescription>
+          <CardDescription className="text-base">{t('ui.signOutOfYourAccountOnThisDevice')}</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           <Button 
@@ -518,10 +520,10 @@ export function SecuritySettings() {
             className="gap-2 h-11 text-base"
           >
             <LogOut className="h-4 w-4" />
-            Sign Out from All Devices
+            {t('ui.signOutFromAllDevices')}
           </Button>
           <p className="text-sm text-slate-500 mt-3">
-            You'll be redirected to the home page after signing out
+            {t('ui.youLlBeRedirectedToTheHomePageAfterSigningOu')}
           </p>
         </CardContent>
       </Card>
@@ -551,14 +553,14 @@ export function SecuritySettings() {
           {step === 'code' ? (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="verification-code">Verification Code</Label>
+                <Label htmlFor="verification-code">{t('ui.verificationCode')}</Label>
                 <Input
                   id="verification-code"
                   name="otp-code"
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  placeholder="Enter 6-digit code"
+                  placeholder={t('ui.enter6DigitCode')}
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   maxLength={6}
@@ -567,7 +569,7 @@ export function SecuritySettings() {
                 />
               </div>
               <p className="text-sm text-slate-500">
-                The code will expire in 10 minutes. Check your spam folder if you don't see it.
+                {t('ui.theCodeWillExpireIn10MinutesCheckYourSpamFol')}
               </p>
             </div>
           ) : (
@@ -587,7 +589,7 @@ export function SecuritySettings() {
                     id="twoFactorPassword"
                     name="two-factor-password"
                     type="password"
-                    placeholder="Enter 2FA password (min. 6 characters)"
+                    placeholder={t('ui.enter2faPasswordMin6Characters')}
                     value={twoFactorPassword}
                     onChange={(e) => setTwoFactorPassword(e.target.value)}
                     autoComplete="off"
@@ -597,12 +599,12 @@ export function SecuritySettings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="twoFactorPasswordConfirm">Confirm 2FA Password</Label>
+                  <Label htmlFor="twoFactorPasswordConfirm">{t('ui.confirm2faPassword')}</Label>
                   <Input
                     id="twoFactorPasswordConfirm"
                     name="two-factor-password-confirm"
                     type="password"
-                    placeholder="Re-enter 2FA password"
+                    placeholder={t('ui.reEnter2faPassword')}
                     value={twoFactorPasswordConfirm}
                     onChange={(e) => setTwoFactorPasswordConfirm(e.target.value)}
                     autoComplete="off"
@@ -635,7 +637,7 @@ export function SecuritySettings() {
               }}
               disabled={loading}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             {step === 'code' ? (
               <Button 
@@ -646,12 +648,12 @@ export function SecuritySettings() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Verifying...
+                    {t('ui.verifying')}
                   </>
                 ) : (
                   <>
                     <Mail className="h-4 w-4" />
-                    Verify Code
+                    {t('ui.verifyCode')}
                   </>
                 )}
               </Button>
@@ -664,12 +666,12 @@ export function SecuritySettings() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Enabling...
+                    {t('ui.enabling')}
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="h-4 w-4" />
-                    Enable 2FA
+                    {t('ui.enable2fa')}
                   </>
                 )}
               </Button>
@@ -682,7 +684,7 @@ export function SecuritySettings() {
       <Dialog open={showDisableModal} onOpenChange={setShowDisableModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Disable Two-Factor Authentication</DialogTitle>
+            <DialogTitle>{t('ui.disableTwoFactorAuthentication')}</DialogTitle>
             <DialogDescription>
               Enter your password to confirm disabling 2FA. This will make your account less secure.
             </DialogDescription>
@@ -698,12 +700,12 @@ export function SecuritySettings() {
                 aria-hidden="true"
               />
               <div className="space-y-2">
-                <Label htmlFor="disable-password">Current Password</Label>
+                <Label htmlFor="disable-password">{t('ui.currentPassword')}</Label>
                 <Input
                   id="disable-password"
                   name="disable-2fa-password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t('ui.enterYourPassword')}
                   value={disablePassword}
                   onChange={(e) => setDisablePassword(e.target.value)}
                   autoComplete="off"
@@ -729,7 +731,7 @@ export function SecuritySettings() {
               }}
               disabled={loading}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button 
               variant="destructive"
@@ -740,12 +742,12 @@ export function SecuritySettings() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Disabling...
+                  {t('ui.disabling')}
                 </>
               ) : (
                 <>
                   <ShieldAlert className="h-4 w-4" />
-                  Disable 2FA
+                  {t('ui.disable2fa')}
                 </>
               )}
             </Button>

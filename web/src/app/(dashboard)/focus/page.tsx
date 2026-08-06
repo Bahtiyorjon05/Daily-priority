@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -37,6 +38,7 @@ interface FocusSettings {
 type TimerMode = 'focus' | 'shortBreak' | 'longBreak'
 
 export default function FocusPage() {
+  const { t } = useT()
   const { data: session } = useSession()
   const [stats, setStats] = useState<FocusStats | null>(null)
   const [settings, setSettings] = useState<FocusSettings>({
@@ -207,7 +209,7 @@ export default function FocusPage() {
       })
 
       if (response.ok) {
-        toast.success('Settings saved!')
+        toast.success(t('ui.settingsSaved'))
         setShowSettings(false)
         if (!isActive) {
           const durations = {
@@ -219,7 +221,7 @@ export default function FocusPage() {
         }
       }
     } catch (error) {
-      toast.error('Failed to save settings')
+      toast.error(t('ui.failedToSaveSettings'))
     }
   }
 
@@ -261,7 +263,7 @@ export default function FocusPage() {
         if (mode === 'focus') {
           const newCompletedCount = completedSessions + 1
           setCompletedSessions(newCompletedCount)
-          toast.success('🎉 Focus session completed!', {
+          toast.success(t('ui.focusSessionCompleted'), {
             description: `${duration} minutes of deep focus!`
           })
           
@@ -276,7 +278,7 @@ export default function FocusPage() {
           
           // Only show break notification if not auto-starting
           if (!settings.autoStartBreaks) {
-            toast.info('Time for a break! 🧘‍♂️')
+            toast.info(t('ui.timeForABreak'))
           } else {
             setTimeout(() => startTimer(), 3000)
           }
@@ -289,7 +291,7 @@ export default function FocusPage() {
           
           // Only show focus notification if not auto-starting
           if (!settings.autoStartFocus) {
-            toast.info('Break complete! Ready to focus? 💪')
+            toast.info(t('ui.breakCompleteReadyToFocus'))
           } else {
             setTimeout(() => startTimer(), 3000)
           }
@@ -300,7 +302,7 @@ export default function FocusPage() {
         await fetchStats()
       } catch (error) {
         console.error('Failed to record session:', error)
-        toast.error('Failed to save session')
+        toast.error(t('ui.failedToSaveSession'))
       }
     } else {
       console.warn('No session start time recorded')
@@ -383,8 +385,8 @@ export default function FocusPage() {
               <Brain className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-white dark:to-gray-100 bg-clip-text [text-shadow:none] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] supports-[background-clip:text]:text-transparent">Focus Session</h1>
-              <p className="text-slate-600 dark:text-gray-400">Deep work timer with statistics</p>
+              <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-white dark:to-gray-100 bg-clip-text [text-shadow:none] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] supports-[background-clip:text]:text-transparent">{t('ui.focusSession')}</h1>
+              <p className="text-slate-600 dark:text-gray-400">{t('ui.deepWorkTimerWithStatistics')}</p>
             </div>
           </div>
           <Button
@@ -394,7 +396,7 @@ export default function FocusPage() {
             className="bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-2 border-slate-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors shadow-sm"
           >
             <Settings className="h-5 w-5 mr-2 text-slate-700 dark:text-gray-300" />
-            Settings
+            {t('nav.settings')}
           </Button>
         </div>
 
@@ -404,13 +406,13 @@ export default function FocusPage() {
               value="timer" 
               className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
             >
-              Timer
+              {t('ui.timer')}
             </TabsTrigger>
             <TabsTrigger 
               value="statistics" 
               className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
             >
-              Statistics
+              {t('ui.statistics')}
             </TabsTrigger>
           </TabsList>
 
@@ -445,12 +447,12 @@ export default function FocusPage() {
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
                   <Brain className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h3 className="text-lg font-semibold">No focus sessions yet</h3>
+                <h3 className="text-lg font-semibold">{t('ui.noFocusSessionsYet')}</h3>
                 <p className="mt-1 max-w-xs text-sm text-muted-foreground">
                   Run your first session and your streaks, totals and daily breakdown will appear here.
                 </p>
                 <Button className="mt-5" onClick={() => setActiveTab('timer')}>
-                  Start a session
+                  {t('ui.startASession')}
                 </Button>
               </div>
             )}

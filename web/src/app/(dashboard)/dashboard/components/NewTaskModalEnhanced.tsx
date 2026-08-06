@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -31,6 +32,7 @@ export default function NewTaskModalEnhanced({
   onClose, 
   onCreateTask 
 }: NewTaskModalProps) {
+  const { t } = useT()
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -117,8 +119,8 @@ export default function NewTaskModalEnhanced({
                   <Target className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Create New Task</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Add a new task to your priority list</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('ui.createNewTask')}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t('ui.addANewTaskToYourPriorityList')}</p>
                 </div>
               </div>
               <Button
@@ -135,7 +137,7 @@ export default function NewTaskModalEnhanced({
             <div className="mb-6">
               <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block flex items-center gap-2">
                 <Zap className="h-4 w-4" />
-                Quick Templates
+                {t('ui.quickTemplates')}
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 {taskTemplates.map((template, index) => (
@@ -157,7 +159,7 @@ export default function NewTaskModalEnhanced({
               <div>
                 <Label htmlFor="title" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <Target className="h-4 w-4" />
-                  Task Title
+                  {t('ui.taskTitle')}
                   <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -173,7 +175,7 @@ export default function NewTaskModalEnhanced({
                       })
                     }
                   }}
-                  placeholder="What needs to be done?"
+                  placeholder={t('ui.whatNeedsToBeDone')}
                   className={'mt-2 h-11 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 ' + (errors.title ? 'border-red-500' : '')}
                 />
                 {errors.title && (
@@ -188,13 +190,13 @@ export default function NewTaskModalEnhanced({
               <div>
                 <Label htmlFor="description" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
-                  Description (Optional)
+                  {t('ui.descriptionOptional')}
                 </Label>
                 <Textarea
                   id="description"
                   value={newTask.description || ''}
                   onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Add details about your task..."
+                  placeholder={t('ui.addDetailsAboutYourTask')}
                   className="mt-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 resize-none"
                   rows={3}
                 />
@@ -205,7 +207,7 @@ export default function NewTaskModalEnhanced({
                 <div>
                   <Label htmlFor="estimatedTime" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Estimated Time (minutes)
+                    {t('ui.estimatedTimeMinutes')}
                   </Label>
                   <Input
                     id="estimatedTime"
@@ -237,7 +239,7 @@ export default function NewTaskModalEnhanced({
                 <div>
                   <Label htmlFor="energyLevel" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Zap className="h-4 w-4" />
-                    Energy Level
+                    {t('ui.energyLevel')}
                   </Label>
                   <select
                     id="energyLevel"
@@ -245,9 +247,9 @@ export default function NewTaskModalEnhanced({
                     onChange={(e) => setNewTask(prev => ({ ...prev, energyLevel: e.target.value }))}
                     className="mt-2 h-11 w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-md px-3 text-gray-900 dark:text-gray-100 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
                   >
-                    <option value="low">Low Energy</option>
-                    <option value="medium">Medium Energy</option>
-                    <option value="high">High Energy</option>
+                    <option value="low">{t('ui.lowEnergy')}</option>
+                    <option value="medium">{t('ui.mediumEnergy')}</option>
+                    <option value="high">{t('ui.highEnergy')}</option>
                   </select>
                 </div>
               </div>
@@ -256,20 +258,20 @@ export default function NewTaskModalEnhanced({
               <div>
                 <Label htmlFor="category" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                   <Tag className="h-4 w-4" />
-                  Category (Optional)
+                  {t('ui.categoryOptional')}
                 </Label>
                 <Input
                   id="category"
                   value={newTask.category}
                   onChange={(e) => setNewTask(prev => ({ ...prev, category: e.target.value }))}
-                  placeholder="e.g., Work, Personal, Health, Learning"
+                  placeholder={t('ui.eGWorkPersonalHealthLearning')}
                   className="mt-2 h-11 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20"
                 />
               </div>
               
               {/* Priority Options */}
               <div className="space-y-3">
-                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Priority Options</Label>
+                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('ui.priorityOptions')}</Label>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <div className="relative">
@@ -287,7 +289,7 @@ export default function NewTaskModalEnhanced({
                     </div>
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-red-600 dark:group-hover:text-red-400 flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
-                      Urgent
+                      {t('ui.urgent')}
                     </span>
                   </label>
                   
@@ -307,7 +309,7 @@ export default function NewTaskModalEnhanced({
                     </div>
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 flex items-center gap-1">
                       <Star className="h-4 w-4" />
-                      Important
+                      {t('ui.important')}
                     </span>
                   </label>
                 </div>
@@ -324,7 +326,7 @@ export default function NewTaskModalEnhanced({
                         </svg>
                       </div>
                       <div>
-                        <p className="text-purple-700 dark:text-purple-300 font-medium text-sm">AI-Optimized Priority</p>
+                        <p className="text-purple-700 dark:text-purple-300 font-medium text-sm">{t('ui.aiOptimizedPriority')}</p>
                         <p className="text-purple-600 dark:text-purple-400 text-xs mt-1">{newTask.aiReasoning}</p>
                       </div>
                     </div>
@@ -340,14 +342,14 @@ export default function NewTaskModalEnhanced({
                 className="flex-1 h-11 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Create Task
+                {t('ui.createTask')}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={onClose}
                 className="h-11 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </motion.div>

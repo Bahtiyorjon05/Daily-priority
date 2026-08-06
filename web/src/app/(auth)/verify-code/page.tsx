@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -19,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function VerifyCodePage() {
+  const { t } = useT()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -104,7 +106,7 @@ export default function VerifyCodePage() {
         // Store verified email (sanitized from API) and code for next step
         localStorage.setItem('verifiedEmail', data.email || email)
         localStorage.setItem('verifiedCode', codeData.code)
-        toast.success('Code verified!', {
+        toast.success(t('ui.codeVerified'), {
           description: 'Redirecting to password reset...',
           duration: 2000,
         })
@@ -144,7 +146,7 @@ export default function VerifyCodePage() {
         // Reset countdown timer
         setCountdown(600) // 10 minutes
         localStorage.setItem('resetCodeCountdown', '600')
-        toast.success('New code sent!', {
+        toast.success(t('ui.newCodeSent'), {
           description: 'Check your email for the new verification code.',
           duration: 3000,
         })
@@ -210,7 +212,7 @@ export default function VerifyCodePage() {
                     <Home className="h-4 w-4 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                    Back to Home
+                    {t('ui.backToHome')}
                   </span>
                 </Link>
               </div>
@@ -233,7 +235,7 @@ export default function VerifyCodePage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                     <span className="relative flex items-center gap-2 text-white" style={{ color: '#ffffff' }}>
                       <Shield className="h-4 w-4 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                      <span className="text-white" style={{ color: '#ffffff' }}>Sign In</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.signIn')}</span>
                     </span>
                   </button>
                 </Link>
@@ -254,9 +256,9 @@ export default function VerifyCodePage() {
             
             <CardContent className="p-8">
               <CardHeader className="text-center pb-8">
-                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Check Your Email</CardTitle>
+                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('ui.checkYourEmail')}</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-lg">
-                  We sent a 6-digit verification code to<br />
+                  {t('ui.weSentA6DigitVerificationCodeTo')}<br />
                   <strong className="text-emerald-600 dark:text-emerald-400">{email}</strong>
                 </CardDescription>
               </CardHeader>
@@ -266,7 +268,7 @@ export default function VerifyCodePage() {
                 <div className="flex items-start gap-3">
                   <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800 dark:text-blue-300">
-                    <p className="font-semibold mb-1">Check your email inbox</p>
+                    <p className="font-semibold mb-1">{t('ui.checkYourEmailInbox')}</p>
                     <p className="text-blue-700 dark:text-blue-400">The code may take a few moments to arrive. Don't forget to check your spam folder!</p>
                   </div>
                 </div>
@@ -289,14 +291,14 @@ export default function VerifyCodePage() {
                   <div className="space-y-2">
                     <Label htmlFor="code" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Verification Code
+                      {t('ui.verificationCode')}
                     </Label>
                     <Input
                       id="code"
                       name="code"
                       type="text"
                       inputMode="numeric"
-                      placeholder="Enter 6-digit code"
+                      placeholder={t('ui.enter6DigitCode')}
                       value={codeData.code}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 6)
@@ -332,7 +334,7 @@ export default function VerifyCodePage() {
                     </button>
                     <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                       <Clock className="h-4 w-4" />
-                      <span>Code expires in 10 minutes</span>
+                      <span>{t('ui.codeExpiresIn10Minutes')}</span>
                     </div>
                   </div>
                 </div>
@@ -359,12 +361,12 @@ export default function VerifyCodePage() {
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                          <span className="text-white" style={{ color: '#ffffff' }}>Verifying...</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifying')}</span>
                         </>
                       ) : (
                         <>
                           <Shield className="h-5 w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                          <span className="text-white" style={{ color: '#ffffff' }}>Verify Code</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifyCode')}</span>
                           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
@@ -382,7 +384,7 @@ export default function VerifyCodePage() {
                       }}
                       className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
                     >
-                      Change email
+                      {t('ui.changeEmail')}
                     </button>
                   </p>
                 </div>

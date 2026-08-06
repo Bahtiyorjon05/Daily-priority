@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Database, LogOut, LayoutDashboard, Users as UsersIcon, Table2, ArrowLeft, Bug } from 'lucide-react'
@@ -25,6 +26,7 @@ export default function AdminDashboard({
   username: string
   models: AdminModel[]
 }) {
+  const { t } = useT()
   const router = useRouter()
   const [view, setView] = useState<View>('overview')
 
@@ -43,14 +45,14 @@ export default function AdminDashboard({
             <Database className="h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold leading-tight">Daily Priority</div>
-            <div className="truncate text-xs text-muted-foreground">Admin Console</div>
+            <div className="truncate text-sm font-semibold leading-tight">{t('ui.dailyPriority')}</div>
+            <div className="truncate text-xs text-muted-foreground">{t('ui.adminConsole')}</div>
           </div>
-          <a href="/dashboard" aria-label="Back to app" className="rounded-lg p-2 text-foreground/70 hover:bg-muted lg:hidden"><ArrowLeft className="h-4 w-4" /></a>
+          <a href="/dashboard" aria-label={t('ui.backToApp')} className="rounded-lg p-2 text-foreground/70 hover:bg-muted lg:hidden"><ArrowLeft className="h-4 w-4" /></a>
           {/* Sign out lives inline in the header on mobile */}
           <button
             onClick={handleLogout}
-            aria-label="Sign out"
+            aria-label={t('nav.signOut')}
             className="rounded-lg p-2 text-foreground/70 hover:bg-muted lg:hidden"
           >
             <LogOut className="h-4 w-4" />
@@ -78,21 +80,21 @@ export default function AdminDashboard({
 
         <div className="hidden border-t px-3 py-3 lg:block">
           <div className="mb-2 px-1 text-xs text-muted-foreground">
-            Signed in as <span className="font-medium text-foreground">{username}</span>
+            {t('ui.signedInAs')} <span className="font-medium text-foreground">{username}</span>
           </div>
           <a
             href="/dashboard"
             className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to app
+            {t('ui.backToApp')}
           </a>
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            {t('nav.signOut')}
           </button>
         </div>
       </aside>

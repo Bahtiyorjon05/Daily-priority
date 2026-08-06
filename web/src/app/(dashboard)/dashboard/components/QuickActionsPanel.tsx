@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Plus, Target, Timer, Calendar, BookOpen, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useUserStats } from '@/hooks/use-user-stats'
 
 export default function QuickActionsPanel() {
+  const { t } = useT()
   const router = useRouter()
   const { stats } = useUserStats()
   
@@ -56,7 +58,7 @@ export default function QuickActionsPanel() {
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          Quick Actions
+          {t('ui.quickActions')}
         </CardTitle>
       </CardHeader>
       
@@ -105,13 +107,13 @@ export default function QuickActionsPanel() {
               <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {stats?.completedTasks || 0}
               </p>
-              <p className="text-xs text-emerald-700 dark:text-emerald-500">Completed</p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-500">{t('ui.completed')}</p>
             </div>
             <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
               <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                 {stats ? (stats.totalTasks - stats.completedTasks) : 0}
               </p>
-              <p className="text-xs text-blue-700 dark:text-blue-500">Pending</p>
+              <p className="text-xs text-blue-700 dark:text-blue-500">{t('ui.pending')}</p>
             </div>
           </div>
         </div>

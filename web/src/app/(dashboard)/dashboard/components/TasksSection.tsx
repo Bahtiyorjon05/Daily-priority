@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, List, Grid3X3, Eye, EyeOff } from 'lucide-react'
@@ -11,6 +12,7 @@ import { useTasks } from '@/hooks/use-tasks'
 import { useToast } from '@/components/ui/use-toast'
 
 export default function TasksSection() {
+  const { t } = useT()
   const { tasks, loading, createTask, toggleTask, deleteTask } = useTasks()
   const { toast } = useToast()
   const [showNewTask, setShowNewTask] = useState(false)
@@ -98,10 +100,10 @@ export default function TasksSection() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Today's Tasks
+            {t('ui.todaySTasks')}
           </h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Focus on what matters most
+            {t('ui.focusOnWhatMattersMost')}
           </p>
         </div>
         
@@ -132,7 +134,7 @@ export default function TasksSection() {
             className="bg-emerald-600 bg-gradient-to-r from-emerald-600 to-teal-600 hover:bg-emerald-700 hover:from-emerald-700 hover:to-teal-700 !text-white hover:!text-white shadow-lg px-4 focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Task
+            {t('ui.addTask')}
           </Button>
         </div>
       </div>

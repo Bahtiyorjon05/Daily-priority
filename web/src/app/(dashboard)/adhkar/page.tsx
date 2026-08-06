@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -179,6 +180,7 @@ const ADHKAR_DATA: Record<AdhkarCategory, AdhkarItem[]> = {
 }
 
 export default function AdhkarPage() {
+  const { t } = useT()
   const [category, setCategory] = useState<AdhkarCategory>('morning')
   const [progress, setProgress] = useState<Map<string, AdhkarProgress>>(new Map())
   const [statistics, setStatistics] = useState<Statistics | null>(null)
@@ -251,7 +253,7 @@ export default function AdhkarPage() {
 
       if (response.ok) {
         if (newCompleted) {
-          toast.success('Dhikr completed!', {
+          toast.success(t('ui.dhikrCompleted'), {
             description: `Masha Allah! ${item.transliteration}`,
             duration: 2000
           })
@@ -260,7 +262,7 @@ export default function AdhkarPage() {
       }
     } catch (error) {
       console.error('Error saving progress:', error)
-      toast.error('Failed to save progress')
+      toast.error(t('ui.failedToSaveProgress'))
       setProgress(progress)
     }
   }
@@ -281,10 +283,10 @@ export default function AdhkarPage() {
             </div>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
-            Daily Adhkar
+            {t('ui.dailyAdhkar')}
           </h1>
           <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Remember Allah morning and evening - Track your spiritual journey
+            {t('ui.rememberAllahMorningAndEveningTrackYourSpiri')}
           </p>
         </div>
 
@@ -296,14 +298,14 @@ export default function AdhkarPage() {
               className="text-base font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-green-950 dark:data-[state=active]:text-white transition-all"
             >
               <Star className="h-5 w-5 mr-2" />
-              Adhkar
+              {t('nav.adhkar')}
             </TabsTrigger>
             <TabsTrigger 
               value="stats" 
               className="text-base font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-green-950 dark:data-[state=active]:text-white transition-all"
             >
               <BarChart3 className="h-5 w-5 mr-2" />
-              Statistics
+              {t('ui.statistics')}
             </TabsTrigger>
           </TabsList>
 
@@ -320,7 +322,7 @@ export default function AdhkarPage() {
                 }`}
               >
                 <Sun className="h-7 w-7 sm:h-8 sm:w-8" />
-                Morning
+                {t('phase.morning')}
               </Button>
               <Button
                 onClick={() => setCategory('evening')}
@@ -331,7 +333,7 @@ export default function AdhkarPage() {
                 }`}
               >
                 <Moon className="h-7 w-7 sm:h-8 sm:w-8" />
-                Evening
+                {t('ui.evening')}
               </Button>
               <Button
                 onClick={() => setCategory('general')}
@@ -342,7 +344,7 @@ export default function AdhkarPage() {
                 }`}
               >
                 <Sparkles className="h-7 w-7 sm:h-8 sm:w-8" />
-                General
+                {t('ui.general')}
               </Button>
             </div>
 
@@ -354,7 +356,7 @@ export default function AdhkarPage() {
             }`}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Today's Progress</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{t('ui.todaySProgress')}</h3>
                   {completedCount === totalCount && (
                     <Sparkles className="h-8 w-8 text-green-600 dark:text-green-400 animate-pulse" />
                   )}
@@ -435,7 +437,7 @@ export default function AdhkarPage() {
                       {item.benefits && (
                         <div className="pt-2">
                           <p className="text-xs sm:text-sm text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                            ✨ <strong>Benefits:</strong> {item.benefits}
+                            ✨ <strong>{t('ui.benefits')}</strong> {item.benefits}
                           </p>
                         </div>
                       )}
@@ -464,28 +466,28 @@ export default function AdhkarPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950/40 dark:to-red-950/40 border-2 border-orange-300 dark:border-orange-700 hover:scale-105 transition-transform shadow-xl">
                     <Flame className="h-10 w-10 text-orange-600 dark:text-orange-400" />
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Current Streak</p>
+                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.currentStreak')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-orange-600 dark:text-orange-400">{statistics.currentStreak}</p>
                     <p className="text-xs text-gray-500">consecutive days</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950/40 dark:to-pink-950/40 border-2 border-purple-300 dark:border-purple-700 hover:scale-105 transition-transform shadow-xl">
                     <Award className="h-10 w-10 text-purple-600 dark:text-purple-400" />
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Best Streak</p>
+                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.bestStreak')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-purple-600 dark:text-purple-400">{statistics.longestStreak}</p>
                     <p className="text-xs text-gray-500">days record</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-950/40 dark:to-cyan-950/40 border-2 border-blue-300 dark:border-blue-700 hover:scale-105 transition-transform shadow-xl">
                     <Calendar className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Total Completed</p>
+                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.totalCompleted')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-blue-600 dark:text-blue-400">{statistics.totalCompletions}</p>
                     <p className="text-xs text-gray-500">adhkar</p>
                   </Card>
 
                   <Card className="p-5 sm:p-6 space-y-3 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/40 dark:to-emerald-950/40 border-2 border-green-300 dark:border-green-700 hover:scale-105 transition-transform shadow-xl">
                     <TrendingUp className="h-10 w-10 text-green-600 dark:text-green-400" />
-                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Success Rate</p>
+                    <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">{t('ui.successRate')}</p>
                     <p className="text-4xl sm:text-5xl font-bold text-green-600 dark:text-green-400">{statistics.completionRate}%</p>
                     <p className="text-xs text-gray-500">last 30 days</p>
                   </Card>
@@ -499,7 +501,7 @@ export default function AdhkarPage() {
                         <Sun className="h-8 w-8 text-amber-600 dark:text-amber-400" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Morning Adhkar</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('ui.morningAdhkar')}</p>
                         <p className="text-xl sm:text-3xl font-bold text-amber-700 dark:text-amber-300">{statistics.morningCompletions}</p>
                       </div>
                     </div>
@@ -511,7 +513,7 @@ export default function AdhkarPage() {
                         <Moon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Evening Adhkar</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('ui.eveningAdhkar')}</p>
                         <p className="text-xl sm:text-3xl font-bold text-indigo-700 dark:text-indigo-300">{statistics.eveningCompletions}</p>
                       </div>
                     </div>
@@ -523,7 +525,7 @@ export default function AdhkarPage() {
                         <Sparkles className="h-8 w-8 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">General Adhkar</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('ui.generalAdhkar')}</p>
                         <p className="text-xl sm:text-3xl font-bold text-green-700 dark:text-green-300">{statistics.generalCompletions}</p>
                       </div>
                     </div>
@@ -534,7 +536,7 @@ export default function AdhkarPage() {
                 <Card className="p-6 sm:p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border-2 border-gray-200 dark:border-gray-700 shadow-xl">
                   <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                     <BarChart3 className="h-6 w-6 text-green-600" />
-                    Last 7 Days
+                    {t('ui.last7Days')}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 sm:gap-3">
                     {statistics.last7Days.map((completed, index) => {
@@ -562,7 +564,7 @@ export default function AdhkarPage() {
                 <Card className="p-6 sm:p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border-2 border-gray-200 dark:border-gray-700 shadow-xl">
                   <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                     <Calendar className="h-6 w-6 text-green-600" />
-                    Last 30 Days
+                    {t('ui.last30Days')}
                   </h3>
                   <div className="grid grid-cols-10 gap-2">
                     {statistics.last30Days.map((day, index) => (
@@ -580,11 +582,11 @@ export default function AdhkarPage() {
                   <div className="flex items-center justify-center gap-3 sm:gap-6 mt-6 text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded bg-gradient-to-br from-green-500 to-emerald-600" />
-                      <span className="text-gray-600 dark:text-gray-400">Completed</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ui.completed')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-5 h-5 rounded bg-gray-200 dark:bg-gray-700" />
-                      <span className="text-gray-600 dark:text-gray-400">Not completed</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ui.notCompleted')}</span>
                     </div>
                   </div>
                 </Card>

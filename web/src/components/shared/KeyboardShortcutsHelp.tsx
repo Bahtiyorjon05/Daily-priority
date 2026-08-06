@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { Keyboard, X } from 'lucide-react'
 import { SHORTCUTS_HELP, formatShortcut } from '@/hooks/useKeyboardShortcuts'
 
 export function KeyboardShortcutsHelp() {
+  const { t } = useT()
   const [isOpen, setIsOpen] = useState(false)
 
   // Listen for ? key to open
@@ -27,7 +29,7 @@ export function KeyboardShortcutsHelp() {
       <button
         onClick={() => setIsOpen(true)}
         className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-        title="Keyboard shortcuts (?)"
+        title={t('ui.keyboardShortcuts3')}
       >
         <Keyboard className="h-5 w-5" />
       </button>
@@ -64,7 +66,7 @@ export function KeyboardShortcutsHelp() {
                     <div className="flex items-center gap-3">
                       <Keyboard className="h-6 w-6 text-blue-600" />
                       <Dialog.Title className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                        Keyboard Shortcuts
+                        {t('ui.keyboardShortcuts2')}
                       </Dialog.Title>
                     </div>
                     <button
@@ -104,7 +106,7 @@ export function KeyboardShortcutsHelp() {
                   {/* Footer */}
                   <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                     <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
-                      Press <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">Shift</kbd> + <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">?</kbd> anytime to view shortcuts
+                      {t('ui.press')} <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">{t('ui.shift')}</kbd> + <kbd className="px-2 py-1 font-mono text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded">?</kbd> anytime to view shortcuts
                     </p>
                   </div>
                 </Dialog.Panel>

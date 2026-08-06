@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Settings, LogOut, Shield } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -27,6 +28,7 @@ const menuItems: MenuItem[] = [
 ]
 
 export default function UserDropdown({ isOpen, onClose, session }: UserDropdownProps) {
+  const { t } = useT()
   const router = useRouter()
   const { profile, loading, error } = useUserProfile()
   
@@ -114,7 +116,7 @@ export default function UserDropdown({ isOpen, onClose, session }: UserDropdownP
                 <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-800/50 transition-colors">
                   <LogOut className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
                 </div>
-                <span className="font-medium text-sm">Sign Out</span>
+                <span className="font-medium text-sm">{t('ui.signOut')}</span>
               </div>
             </Button>
           </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
@@ -12,6 +13,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import Logo from '@/components/shared/Logo'
 
 function Verify2FAGoogleContent() {
+  const { t } = useT()
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
@@ -64,7 +66,7 @@ function Verify2FAGoogleContent() {
 
       if (!verify2FAResponse.ok) {
         setError(data.error || 'Invalid 2FA password')
-        toast.error('Invalid 2FA password')
+        toast.error(t('ui.invalid2faPassword'))
         setLoading(false)
         return
       }
@@ -78,7 +80,7 @@ function Verify2FAGoogleContent() {
       await new Promise(resolve => setTimeout(resolve, 500))
       await update({ forceRefresh: true })
       
-      toast.success('2FA verified!', {
+      toast.success(t('ui.2faVerified'), {
         description: 'Redirecting to dashboard...',
         duration: 1500,
       })
@@ -91,7 +93,7 @@ function Verify2FAGoogleContent() {
     } catch (error) {
       console.error('2FA verification error:', error)
       setError('Something went wrong. Please try again.')
-      toast.error('Verification failed')
+      toast.error(t('ui.verificationFailed'))
       setLoading(false)
     }
   }
@@ -125,10 +127,10 @@ function Verify2FAGoogleContent() {
               <Shield className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white drop-shadow-lg" />
             </div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-              Two-Factor Authentication
+              {t('ui.twoFactorAuthentication')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm lg:text-base leading-relaxed px-2">
-              Enter your 2FA password to complete sign in with Google
+              {t('ui.enterYour2faPasswordToCompleteSignInWithGoog')}
             </p>
             {email && (
               <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-950/30 rounded-lg p-2 border border-blue-200 dark:border-blue-800/50">
@@ -162,7 +164,7 @@ function Verify2FAGoogleContent() {
                 <Input
                   id="twoFactorPassword"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your 2FA password"
+                  placeholder={t('auth.twoFactorPlaceholder')}
                   value={twoFactorPassword}
                   onChange={(e) => {
                     setTwoFactorPassword(e.target.value)
@@ -190,7 +192,7 @@ function Verify2FAGoogleContent() {
                   href="/forgot-2fa"
                   className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
                 >
-                  Forgot 2FA password?
+                  {t('ui.forgot2faPassword2')}
                 </Link>
               </div>
             </div>
@@ -227,12 +229,12 @@ function Verify2FAGoogleContent() {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                      <span className="text-white" style={{ color: '#ffffff' }}>Verifying...</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifying')}</span>
                     </>
                   ) : (
                     <>
                       <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                      <span className="text-white" style={{ color: '#ffffff' }}>Verify & Continue</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifyContinue')}</span>
                       <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                     </>
                   )}
@@ -245,7 +247,7 @@ function Verify2FAGoogleContent() {
                 className="w-full h-11 sm:h-12 lg:h-14 px-4 sm:px-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium text-sm sm:text-base lg:text-lg transition-colors flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                Back to Sign In
+                {t('ui.backToSignIn')}
               </button>
             </div>
           </form>

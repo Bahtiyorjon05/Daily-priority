@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -90,6 +91,7 @@ function FloatingOrb({ delay = 0, duration = 20, className = "" }: { delay?: num
 }
 
 export function Hero() {
+  const { t } = useT()
   const [currentQuote, setCurrentQuote] = useState(0)
   const cardRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
@@ -293,7 +295,7 @@ export function Hero() {
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
                 </motion.div>
                 <span className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300 whitespace-nowrap sm:whitespace-normal">
-                  Islamic Productivity Platform
+                  {t('ui.islamicProductivityPlatform')}
                 </span>
               </span>
             </motion.div>
@@ -307,11 +309,11 @@ export function Hero() {
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <span className="block text-gray-900 dark:text-white mb-1 sm:mb-2">
-                  Daily Priority
+                  {t('ui.dailyPriority')}
                 </span>
                 <span className="block relative max-w-full">
                   <span className="relative inline-block bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-400 bg-clip-text text-transparent bg-[length:200%_auto] sm:animate-gradient pb-2">
-                    For Muslims
+                    {t('ui.forMuslims')}
                   </span>
                   <motion.span
                     className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 dark:from-emerald-400 dark:via-teal-400 dark:to-emerald-400 rounded-full"
@@ -340,7 +342,7 @@ export function Hero() {
                 </span>
                 , achieve goals with{' '}
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400 relative inline-block">
-                  Islamic principles
+                  {t('ui.islamicPrinciples')}
                   <motion.span
                     className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-600/40 dark:bg-emerald-400/40"
                     initial={{ scaleX: 0 }}
@@ -409,7 +411,7 @@ export function Hero() {
                       transition={{ duration: 0.4 }}
                     />
                     <Moon className="w-5 h-5 mr-2 relative z-10" />
-                    <span className="relative z-10">Get Started</span>
+                    <span className="relative z-10">{t('ui.getStarted')}</span>
                     <ArrowRight className="w-5 h-5 ml-2 relative z-10 group-hover:translate-x-1 transition-transform duration-200" />
                   </Button>
                 </motion.div>
@@ -429,7 +431,7 @@ export function Hero() {
                     className="relative w-full sm:w-auto h-12 sm:h-12 px-6 sm:px-6 text-base font-semibold border-2 hover:border-emerald-500 transition-all duration-300 rounded-xl"
                   >
                     <Sparkles className="w-5 h-5 mr-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200" />
-                    <span className="relative z-10">View Features</span>
+                    <span className="relative z-10">{t('ui.viewFeatures')}</span>
                   </Button>
                 </motion.div>
               </Link>

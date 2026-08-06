@@ -1,8 +1,10 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useRef } from 'react'
 
 export default function SkipToContent() {
+  const { t } = useT()
   const skipLinkRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function SkipToContent() {
       }}
       className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:dark:bg-gray-800 focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:border focus:border-gray-200 focus:dark:border-gray-700"
     >
-      Skip to main content
+      {t('ui.skipToMainContent')}
     </a>
   )
 }

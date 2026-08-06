@@ -1,10 +1,12 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Lock, ShieldAlert, ArrowLeft } from 'lucide-react'
 
 export default function AdminLoginPage() {
+  const { t } = useT()
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -42,9 +44,9 @@ export default function AdminLoginPage() {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Lock className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Admin Dashboard</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('nav.adminDashboard')}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Sign in to inspect the database.
+            {t('ui.signInToInspectTheDatabase')}
           </p>
         </div>
 
@@ -61,7 +63,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-1.5">
             <label htmlFor="username" className="text-sm font-medium">
-              Username
+              {t('ui.username')}
             </label>
             <input
               id="username"
@@ -76,7 +78,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-1.5">
             <label htmlFor="password" className="text-sm font-medium">
-              Password
+              {t('auth.password')}
             </label>
             <input
               id="password"
@@ -104,7 +106,7 @@ export default function AdminLoginPage() {
             className="flex items-center justify-center gap-1.5 pt-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to app
+            {t('ui.backToApp')}
           </a>
         </form>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useTheme } from '@/components/theme-provider'
@@ -7,6 +8,7 @@ import { Sun, Moon, Monitor, Palette } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function AppearanceSettings() {
+  const { t: tr } = useT()
   const { theme, setTheme } = useTheme()
 
   const themes = [
@@ -20,13 +22,13 @@ export function AppearanceSettings() {
       <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
         <div className="flex items-center gap-2">
           <Palette className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          <CardTitle className="text-2xl">Appearance</CardTitle>
+          <CardTitle className="text-2xl">{tr('ui.appearance')}</CardTitle>
         </div>
-        <CardDescription className="text-base">Customize how the app looks and feels</CardDescription>
+        <CardDescription className="text-base">{tr('ui.customizeHowTheAppLooksAndFeels')}</CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4">
-          <Label className="text-base font-semibold">Theme Preference</Label>
+          <Label className="text-base font-semibold">{tr('ui.themePreference')}</Label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {themes.map((t) => (
               <button
@@ -65,14 +67,14 @@ export function AppearanceSettings() {
                 </div>
                 {theme === t.value && (
                   <div className="mt-2 px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-medium">
-                    Active
+                    {tr('ui.active')}
                   </div>
                 )}
               </button>
             ))}
           </div>
           <p className="text-sm text-slate-500 mt-4">
-            Theme changes apply instantly and are saved to your account
+            {tr('ui.themeChangesApplyInstantlyAndAreSavedToYourA')}
           </p>
         </div>
       </CardContent>

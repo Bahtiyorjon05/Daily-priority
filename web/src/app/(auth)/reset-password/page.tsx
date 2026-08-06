@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -19,6 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function ResetPasswordPage() {
+  const { t } = useT()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -100,7 +102,7 @@ export default function ResetPasswordPage() {
         localStorage.removeItem('verifiedCode')
         localStorage.removeItem('resetCodeCountdown')
         
-        toast.success('Password reset successful!', {
+        toast.success(t('ui.passwordResetSuccessful'), {
           description: 'You can now sign in with your new password.',
           duration: 3000,
         })
@@ -163,7 +165,7 @@ export default function ResetPasswordPage() {
                     <Home className="h-4 w-4 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300" />
                   </div>
                   <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                    Back to Home
+                    {t('ui.backToHome')}
                   </span>
                 </Link>
               </div>
@@ -186,7 +188,7 @@ export default function ResetPasswordPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                     <span className="relative flex items-center gap-2 text-white" style={{ color: '#ffffff' }}>
                       <Shield className="h-4 w-4 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                      <span className="text-white" style={{ color: '#ffffff' }}>Sign In</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.signIn')}</span>
                     </span>
                   </button>
                 </Link>
@@ -212,9 +214,9 @@ export default function ResetPasswordPage() {
                     <Lock className="h-8 w-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create New Password</CardTitle>
+                <CardTitle className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('ui.createNewPassword')}</CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-lg">
-                  Choose a strong password for your account
+                  {t('ui.chooseAStrongPasswordForYourAccount')}
                 </CardDescription>
               </CardHeader>
               
@@ -223,10 +225,10 @@ export default function ResetPasswordPage() {
                 <div className="flex items-start gap-3">
                   <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-emerald-800 dark:text-emerald-300">
-                    <p className="font-semibold mb-1">Password requirements:</p>
+                    <p className="font-semibold mb-1">{t('ui.passwordRequirements')}</p>
                     <ul className="list-disc list-inside text-emerald-700 dark:text-emerald-400 space-y-1">
-                      <li>At least 8 characters long</li>
-                      <li>Mix of letters, numbers, and symbols recommended</li>
+                      <li>{t('ui.atLeast8CharactersLong')}</li>
+                      <li>{t('ui.mixOfLettersNumbersAndSymbolsRecommended')}</li>
                     </ul>
                   </div>
                 </div>
@@ -249,14 +251,14 @@ export default function ResetPasswordPage() {
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      New Password
+                      {t('ui.newPassword')}
                     </Label>
                     <Input
                       id="password"
                       name="password"
                       type="password"
                       autoComplete="new-password"
-                      placeholder="Create a strong password"
+                      placeholder={t('ui.createAStrongPassword')}
                       value={resetData.password}
                       onChange={(e) => {
                         setResetData(prev => ({ ...prev, password: e.target.value }))
@@ -279,14 +281,14 @@ export default function ResetPasswordPage() {
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      Confirm Password
+                      {t('ui.confirmPassword')}
                     </Label>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
                       type="password"
                       autoComplete="new-password"
-                      placeholder="Confirm your new password"
+                      placeholder={t('ui.confirmYourNewPassword')}
                       value={resetData.confirmPassword}
                       onChange={(e) => {
                         setResetData(prev => ({ ...prev, confirmPassword: e.target.value }))
@@ -329,12 +331,12 @@ export default function ResetPasswordPage() {
                       {loading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
-                          <span className="text-white" style={{ color: '#ffffff' }}>Resetting Password...</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.resettingPassword')}</span>
                         </>
                       ) : (
                         <>
                           <Shield className="h-5 w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                          <span className="text-white" style={{ color: '#ffffff' }}>Reset Password</span>
+                          <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.resetPassword')}</span>
                           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                         </>
                       )}
@@ -354,7 +356,7 @@ export default function ResetPasswordPage() {
                       }}
                       className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
                     >
-                      Start over
+                      {t('ui.startOver')}
                     </button>
                   </p>
                 </div>

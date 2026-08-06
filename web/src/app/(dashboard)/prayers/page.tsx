@@ -2,6 +2,7 @@
 
 
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Card } from '@/components/ui/card'
 
@@ -110,6 +111,7 @@ interface PrayerStatus {
 
 
 export default function PrayersPage() {
+  const { t } = useT()
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null)
 
   const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string; timeUntil: string } | null>(null)
@@ -182,7 +184,7 @@ export default function PrayersPage() {
           try {
             userLocation = await requestGPSLocation()
             if (showToast) {
-              toast.success('Location updated successfully')
+              toast.success(t('ui.locationUpdatedSuccessfully'))
             }
           } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to get GPS location')
@@ -196,7 +198,7 @@ export default function PrayersPage() {
 
         if (!userLocation) {
           setLocationError(true)
-          toast.error('Unable to determine your location. Please enable location access.')
+          toast.error(t('ui.unableToDetermineYourLocationPleaseEnableLoc'))
           return
         }
 
@@ -209,7 +211,7 @@ export default function PrayersPage() {
       } catch (error) {
         console.error('Error loading prayer data:', error)
         setLocationError(true)
-        toast.error('Failed to load prayer data')
+        toast.error(t('ui.failedToLoadPrayerData'))
       } finally {
         if (!suppressSpinner) {
           setLoading(false)
@@ -884,7 +886,7 @@ export default function PrayersPage() {
 
             <div className="space-y-3">
 
-              <p className="text-2xl font-semibold text-emerald-700 dark:text-emerald-300">Loading Prayer Times</p>
+              <p className="text-2xl font-semibold text-emerald-700 dark:text-emerald-300">{t('ui.loadingPrayerTimes2')}</p>
 
               <p className="text-lg text-gray-600 dark:text-gray-300 font-arabic" dir="rtl" lang="ar">جاري تحميل أوقات الصلاة</p>
 
@@ -944,13 +946,13 @@ export default function PrayersPage() {
 
               <h2 className="text-2xl font-bold bg-gradient-to-r from-red-700 via-orange-700 to-red-800 bg-clip-text text-transparent mb-2 dark:from-red-300 dark:via-orange-300 dark:to-red-400">
 
-                Location Access Required
+                {t('ui.locationAccessRequired')}
 
               </h2>
 
               <p className="text-gray-700 dark:text-gray-300 mb-2">
 
-                Please enable location access to view accurate prayer times for your area.
+                {t('ui.pleaseEnableLocationAccessToViewAccuratePray')}
 
               </p>
 
@@ -972,7 +974,7 @@ export default function PrayersPage() {
 
               <MapPin className="mr-2 h-5 w-5" />
 
-              Enable Location
+              {t('ui.enableLocation')}
 
             </Button>
 
@@ -1022,7 +1024,7 @@ export default function PrayersPage() {
 
               <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent mb-2 dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
 
-                Prayer Times Unavailable
+                {t('ui.prayerTimesUnavailable')}
 
               </h2>
 
@@ -1034,7 +1036,7 @@ export default function PrayersPage() {
 
               <p className="text-sm text-gray-600 dark:text-gray-400">
 
-                The request might have timed out or the service is temporarily unavailable.
+                {t('ui.theRequestMightHaveTimedOutOrTheServiceIsTem')}
 
               </p>
 
@@ -1050,7 +1052,7 @@ export default function PrayersPage() {
 
               <Clock className="mr-2 h-5 w-5" />
 
-              Retry
+              {t('ui.retry')}
 
             </Button>
 
@@ -1126,7 +1128,7 @@ export default function PrayersPage() {
 
               <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
 
-                Prayer Times
+                {t('ui.prayerTimes')}
 
               </h1>
 
@@ -1138,8 +1140,8 @@ export default function PrayersPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Refresh location"
-                  title="Refresh location"
+                  aria-label={t('ui.refreshLocation')}
+                  title={t('ui.refreshLocation')}
                   onClick={handleRefreshLocation}
                   disabled={isRefreshingLocation}
                   className="h-8 w-8 shrink-0 text-gray-600 dark:text-gray-300 hover:text-emerald-600"
@@ -1171,7 +1173,7 @@ export default function PrayersPage() {
 
               <Clock className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
-              Today
+              {t('common.today')}
 
             </TabsTrigger>
 
@@ -1185,7 +1187,7 @@ export default function PrayersPage() {
 
               <History className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
-              History
+              {t('ui.history')}
 
             </TabsTrigger>
 
@@ -1199,8 +1201,8 @@ export default function PrayersPage() {
 
               <BarChart3 className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
-              <span className="sm:hidden">Stats</span>
-              <span className="hidden sm:inline">Statistics</span>
+              <span className="sm:hidden">{t('ui.stats')}</span>
+              <span className="hidden sm:inline">{t('ui.statistics')}</span>
 
             </TabsTrigger>
 
@@ -1264,7 +1266,7 @@ export default function PrayersPage() {
 
             <div>
 
-              <p className="text-sm text-gray-700 dark:text-gray-300">Islamic Date</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{t('ui.islamicDate')}</p>
 
               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
 
@@ -1294,7 +1296,7 @@ export default function PrayersPage() {
 
             <div>
 
-              <p className="text-sm text-gray-700 dark:text-gray-300">Next Prayer</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{t('ui.nextPrayer')}</p>
 
               {nextPrayer ? (
 
@@ -1312,7 +1314,7 @@ export default function PrayersPage() {
 
               ) : (
 
-                <p className="text-gray-700 dark:text-gray-300">Calculating...</p>
+                <p className="text-gray-700 dark:text-gray-300">{t('ui.calculating')}</p>
 
               )}
 
@@ -1334,7 +1336,7 @@ export default function PrayersPage() {
 
             <div className="flex items-center justify-between">
 
-              <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">Today's Progress</h3>
+              <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">{t('ui.todaySProgress')}</h3>
 
               <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{completedPrayers} of 5 prayers</p>
 
@@ -1424,7 +1426,7 @@ export default function PrayersPage() {
 
                         <p className="text-xs text-emerald-700 dark:text-emerald-500 font-medium mt-1">
 
-                          Next Prayer
+                          {t('ui.nextPrayer')}
 
                         </p>
 
@@ -1460,7 +1462,7 @@ export default function PrayersPage() {
                   <div className="text-sm text-emerald-600 dark:text-emerald-500 font-semibold flex items-center gap-2 animate-pulse mt-3">
                     <Clock className="h-4 w-4" />
                     <span className="font-medium">Up next &rarr;</span>
-                    <span className="sr-only">Time until next prayer</span>
+                    <span className="sr-only">{t('ui.timeUntilNextPrayer')}</span>
                     <span>{nextPrayer?.timeUntil}</span>
                   </div>
                 )}
@@ -1509,7 +1511,7 @@ export default function PrayersPage() {
 
             <div>
 
-              <p className="text-sm text-gray-700 dark:text-gray-300">Qibla Direction</p>
+              <p className="text-sm text-gray-700 dark:text-gray-300">{t('ui.qiblaDirection')}</p>
 
               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
 
@@ -1523,7 +1525,7 @@ export default function PrayersPage() {
 
           <div className="text-sm text-gray-700 dark:text-gray-300 italic">
 
-            From your location to Makkah
+            {t('ui.fromYourLocationToMakkah')}
 
           </div>
 
@@ -1537,7 +1539,7 @@ export default function PrayersPage() {
 
       <div className="text-center py-4 bg-white dark:bg-gray-800 rounded-xl border border-white/30 dark:border-gray-700/50">
 
-        <p className="text-sm text-gray-700 dark:text-gray-300">Local Time</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300">{t('ui.localTime')}</p>
 
         <p className="text-2xl font-mono font-bold text-emerald-700 dark:text-emerald-300">
 

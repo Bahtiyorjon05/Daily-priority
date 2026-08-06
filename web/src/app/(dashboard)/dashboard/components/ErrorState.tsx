@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ export default function ErrorState({
   onRetry,
   retryLabel = 'Try Again'
 }: ErrorStateProps) {
+  const { t } = useT()
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,7 +48,7 @@ export default function ErrorState({
       )}
       
       <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
-        If the problem persists, please contact support.
+        {t('ui.ifTheProblemPersistsPleaseContactSupport')}
       </p>
     </motion.div>
   )

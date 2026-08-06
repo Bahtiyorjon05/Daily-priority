@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Play, Pause, RotateCcw } from 'lucide-react'
 
 export function FocusSession() {
+  const { t } = useT()
   const [minutes, setMinutes] = useState(25)
   const [seconds, setSeconds] = useState(0)
   const [isActive, setIsActive] = useState(false)
@@ -62,12 +64,12 @@ export function FocusSession() {
               {isActive ? (
                 <>
                   <Pause className="mr-2 h-5 w-5" />
-                  Pause
+                  {t('ui.pause')}
                 </>
               ) : (
                 <>
                   <Play className="mr-2 h-5 w-5" />
-                  Start
+                  {t('ui.start')}
                 </>
               )}
             </Button>

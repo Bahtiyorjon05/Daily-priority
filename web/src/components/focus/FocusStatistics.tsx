@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -34,6 +35,7 @@ const formatDate = (dateStr: string) => {
 }
 
 export function FocusStatistics({ stats }: FocusStatisticsProps) {
+  const { t } = useT()
   if (!stats) return null
 
   const maxFocusTime7Days = Math.max(...(stats.last7Days?.map(d => d.focusTime) || [1]))
@@ -47,7 +49,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Today</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">{t('common.today')}</p>
                 <p className="text-3xl font-bold text-purple-900 dark:text-purple-100 mt-2">
                   {formatTime(stats.today.focusTime)}
                 </p>
@@ -62,7 +64,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">This Week</p>
+                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t('ui.thisWeek')}</p>
                 <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100 mt-2">
                   {formatTime(stats.week.focusTime)}
                 </p>
@@ -77,7 +79,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</p>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">{t('ui.currentStreak')}</p>
                 <p className="text-3xl font-bold text-orange-900 dark:text-orange-100 mt-2">
                   {stats.allTime.currentStreak}
                 </p>
@@ -92,7 +94,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">All Time</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{t('ui.allTime')}</p>
                 <p className="text-3xl font-bold text-blue-900 dark:text-blue-100 mt-2">
                   {stats.allTime.totalSessions}
                 </p>
@@ -114,21 +116,21 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
             className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
           >
             <Calendar className="h-4 w-4 mr-2" />
-            Daily
+            {t('ui.daily')}
           </TabsTrigger>
           <TabsTrigger 
             value="weekly" 
             className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
           >
             <TrendingUp className="h-4 w-4 mr-2" />
-            Weekly
+            {t('ui.weekly')}
           </TabsTrigger>
           <TabsTrigger 
             value="monthly" 
             className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
           >
             <BarChart3 className="h-4 w-4 mr-2" />
-            Monthly
+            {t('ui.monthly')}
           </TabsTrigger>
         </TabsList>
 
@@ -136,7 +138,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
         <TabsContent value="daily" className="space-y-6">
           <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">Today's Activity</CardTitle>
+              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">{t('ui.todaySActivity')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -144,25 +146,25 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                   <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">
                     {stats.today.sessions}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Sessions</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.sessions')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-emerald-100 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700">
                   <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                     {formatTime(stats.today.focusTime)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Focus Time</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.focusTime')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
                     {stats.today.sessions > 0 ? Math.round(stats.today.focusTime / stats.today.sessions) : 0}m
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Avg Session</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.avgSession')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700">
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">
                     {stats.allTime.currentStreak}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Day Streak</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.dayStreak')}</p>
                 </div>
               </div>
             </CardContent>
@@ -173,7 +175,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
         <TabsContent value="weekly" className="space-y-6">
           <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">Last 7 Days</CardTitle>
+              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">{t('ui.last7Days')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-end justify-between gap-2">
@@ -198,25 +200,25 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                   <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">
                     {stats.week.sessions}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Total Sessions</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.totalSessions')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-emerald-100 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700">
                   <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                     {formatTime(stats.week.focusTime)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Total Time</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.totalTime')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
                     {formatTime(stats.week.avgDailyFocusTime)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Daily Avg</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.dailyAvg')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700">
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">
                     {stats.week.avgDailySessions.toFixed(1)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Sessions/Day</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.sessionsDay')}</p>
                 </div>
               </div>
             </CardContent>
@@ -227,7 +229,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
         <TabsContent value="monthly" className="space-y-6">
           <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">Last 30 Days</CardTitle>
+              <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">{t('ui.last30Days')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-end justify-between gap-1">
@@ -251,25 +253,25 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                   <p className="text-2xl font-bold text-purple-700 dark:text-purple-400">
                     {stats.month?.sessions || stats.week.sessions}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Total Sessions</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.totalSessions')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-emerald-100 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700">
                   <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                     {formatTime(stats.month?.focusTime || stats.week.focusTime)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Total Time</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.totalTime')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
                     {stats.allTime.longestStreak}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Best Streak</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.bestStreak')}</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700">
                   <p className="text-2xl font-bold text-orange-700 dark:text-orange-400">
                     {formatTime(stats.month?.avgDailyFocusTime || stats.week.avgDailyFocusTime)}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">Daily Avg</p>
+                  <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">{t('ui.dailyAvg')}</p>
                 </div>
               </div>
             </CardContent>
@@ -279,7 +281,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           {stats.typeBreakdown && stats.typeBreakdown.length > 0 && (
             <Card className="border-2 border-slate-200 dark:border-gray-700 shadow-lg">
               <CardHeader>
-                <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">Session Type Breakdown</CardTitle>
+                <CardTitle className="text-slate-900 dark:text-gray-100 font-bold">{t('ui.sessionTypeBreakdown')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

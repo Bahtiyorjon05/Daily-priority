@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
@@ -150,6 +151,7 @@ interface AnalyticsData {
 type WeekdayTrendPoint = AnalyticsData['trends']['weekday'][number]
 
 export default function AnalyticsPage() {
+  const { t } = useT()
   const { data: session } = useSession()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   // Start in the loading state: the data is fetched in an effect, so starting
@@ -180,7 +182,7 @@ export default function AnalyticsPage() {
     } catch (error: any) {
       console.error('Error fetching analytics:', error)
       setError(error.message || 'Failed to load analytics')
-      toast.error('Failed to load analytics data')
+      toast.error(t('ui.failedToLoadAnalyticsData'))
     } finally {
       setLoading(false)
     }
@@ -202,7 +204,7 @@ export default function AnalyticsPage() {
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
           <BarChart3 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
         </div>
-        <h2 className="text-xl font-semibold">No analytics yet</h2>
+        <h2 className="text-xl font-semibold">{t('ui.noAnalyticsYet')}</h2>
         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
           Complete a few tasks, log a prayer, or run a focus session — your trends and
           insights will show up here.
@@ -211,7 +213,7 @@ export default function AnalyticsPage() {
           href="/dashboard"
           className="mt-5 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
-          Go to dashboard
+          {t('error.goHome')}
         </Link>
       </div>
     )
@@ -305,14 +307,14 @@ export default function AnalyticsPage() {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg">
               <BarChart3 className="h-7 w-7 text-white" />
             </div>
-            Analytics Dashboard
+            {t('ui.analyticsDashboard')}
           </h1>
           <p className="text-slate-600 dark:text-slate-300 mt-2">
-            Deep insights into your productivity and spiritual growth
+            {t('ui.deepInsightsIntoYourProductivityAndSpiritual')}
           </p>
         </div>
         <div className="text-right">
-          <div className="text-sm text-slate-500 dark:text-slate-400">Productivity Score</div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">{t('ui.productivityScore')}</div>
           <div className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             {overview.productivityScore}
           </div>
@@ -330,7 +332,7 @@ export default function AnalyticsPage() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Tasks Completed</p>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t('ui.tasksCompleted')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-emerald-900 dark:text-emerald-100 mt-2">
                     {overview.tasksCompleted}
                   </p>
@@ -355,7 +357,7 @@ export default function AnalyticsPage() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</p>
+                  <p className="text-sm font-medium text-orange-700 dark:text-orange-300">{t('ui.currentStreak')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-orange-900 dark:text-orange-100 mt-2">
                     {overview.streak}
                   </p>
@@ -380,7 +382,7 @@ export default function AnalyticsPage() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Completion Rate</p>
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{t('ui.completionRate')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100 mt-2">
                     {formatPercentage(normalizedCompletionRate)}%
                   </p>
@@ -405,7 +407,7 @@ export default function AnalyticsPage() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Focus Time</p>
+                  <p className="text-sm font-medium text-purple-700 dark:text-purple-300">{t('ui.focusTime')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100 mt-2">
                     {overview.focusTime.toFixed(1)}h
                   </p>
@@ -435,25 +437,25 @@ export default function AnalyticsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Zap className="h-5 w-5 text-cyan-500" />
-                  Task Velocity
+                  {t('ui.taskVelocity')}
                 </CardTitle>
-                <CardDescription className="text-xs">Your task creation rate</CardDescription>
+                <CardDescription className="text-xs">{t('ui.yourTaskCreationRate')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Today</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{t('common.today')}</span>
                   <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
                     {taskStats.velocity.today}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">This Week</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{t('ui.thisWeek')}</span>
                   <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
                     {taskStats.velocity.week}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Daily Average</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('ui.dailyAverage')}</span>
                   <span className="text-2xl font-bold text-cyan-700 dark:text-cyan-300">
                     {taskStats.velocity.avgPerDay.toFixed(1)}
                   </span>
@@ -472,9 +474,9 @@ export default function AnalyticsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Clock className="h-5 w-5 text-amber-500" />
-                  Peak Hours
+                  {t('ui.peakHours')}
                 </CardTitle>
-                <CardDescription className="text-xs">When you're most productive</CardDescription>
+                <CardDescription className="text-xs">{t('ui.whenYouReMostProductive')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-2">
@@ -501,9 +503,9 @@ export default function AnalyticsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Star className="h-5 w-5 text-rose-500" />
-                  Best Day
+                  {t('ui.bestDay')}
                 </CardTitle>
-                <CardDescription className="text-xs">Your highest performing day</CardDescription>
+                <CardDescription className="text-xs">{t('ui.yourHighestPerformingDay')}</CardDescription>
               </CardHeader>
               <CardContent>
                 {bestDay ? (
@@ -520,7 +522,7 @@ export default function AnalyticsPage() {
                   </div>
                 ) : (
                   <p className="text-center text-sm text-slate-500 py-4">
-                    Not enough data yet
+                    {t('ui.notEnoughDataYet')}
                   </p>
                 )}
               </CardContent>
@@ -540,44 +542,44 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5 text-indigo-500" />
-                Task Pipeline Status
+                {t('ui.taskPipelineStatus')}
               </CardTitle>
-              <CardDescription>Current status breakdown of all your tasks</CardDescription>
+              <CardDescription>{t('ui.currentStatusBreakdownOfAllYourTasks')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
                 <div className="text-center p-4 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border-2 border-red-200 dark:border-red-700/50">
-                  <p className="text-xs font-medium text-red-700 dark:text-red-300 uppercase">Urgent</p>
+                  <p className="text-xs font-medium text-red-700 dark:text-red-300 uppercase">{t('ui.urgent')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-red-600 dark:text-red-400 mt-2">
                     {taskStats.priority.urgent}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-700/50">
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase">Important</p>
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-300 uppercase">{t('ui.important')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
                     {taskStats.priority.important}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-blue-200 dark:border-blue-700/50">
-                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase">Pending</p>
+                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase">{t('ui.pending')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                     {taskStats.priority.pending}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700/50">
-                  <p className="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase">In Progress</p>
+                  <p className="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase">{t('ui.inProgress')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
                     {taskStats.priority.inProgress}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border-2 border-emerald-200 dark:border-emerald-700/50">
-                  <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase">Completed</p>
+                  <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300 uppercase">{t('ui.completed')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
                     {taskStats.priority.completed}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 rounded-xl border-2 border-slate-200 dark:border-slate-700/50">
-                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase">Cancelled</p>
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase">{t('ui.cancelled')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-slate-600 dark:text-slate-400 mt-2">
                     {taskStats.priority.cancelled}
                   </p>
@@ -600,9 +602,9 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5 text-emerald-500" />
-                Daily Activity Trends (14 Days)
+                {t('ui.dailyActivityTrends14Days')}
               </CardTitle>
-              <CardDescription>Tasks created vs completed over the last 2 weeks</CardDescription>
+              <CardDescription>{t('ui.tasksCreatedVsCompletedOverTheLast2Weeks')}</CardDescription>
             </CardHeader>
             <CardContent>
               {hasDailyTrendData ? (
@@ -645,8 +647,8 @@ export default function AnalyticsPage() {
               ) : (
                 <div className="flex h-[300px] flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400">
                   <AlertCircle className="mb-3 h-10 w-10 text-slate-400" />
-                  <p className="font-medium">No daily activity yet</p>
-                  <p className="text-sm">Complete tasks to unlock this insight.</p>
+                  <p className="font-medium">{t('ui.noDailyActivityYet')}</p>
+                  <p className="text-sm">{t('ui.completeTasksToUnlockThisInsight')}</p>
                 </div>
               )}
             </CardContent>
@@ -663,9 +665,9 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-blue-500" />
-                Overall Completion Rate
+                {t('ui.overallCompletionRate')}
               </CardTitle>
-              <CardDescription>Percentage of tasks completed successfully</CardDescription>
+              <CardDescription>{t('ui.percentageOfTasksCompletedSuccessfully')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -694,7 +696,7 @@ export default function AnalyticsPage() {
                 <p className="text-2xl sm:text-4xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatPercentage(normalizedCompletionRate)}%
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Success Rate</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.successRate')}</p>
               </div>
             </CardContent>
           </Card>
@@ -713,32 +715,32 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-blue-500" />
-                This Week's Performance
+                {t('ui.thisWeekSPerformance')}
               </CardTitle>
-              <CardDescription>Last 7 days statistics</CardDescription>
+              <CardDescription>{t('ui.last7DaysStatistics')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Tasks Created</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.tasksCreated')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                     {weekly.created}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Completed</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.completed')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
                     {weekly.completed}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Completion Rate</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.completionRate')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
                     {weekly.completionRate}%
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Avg Per Day</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{t('ui.avgPerDay')}</p>
                   <p className="text-xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2">
                     {weekly.avgPerDay}
                   </p>
@@ -758,7 +760,7 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-purple-500" />
-                This Month's Performance
+                {t('ui.thisMonthSPerformance')}
               </CardTitle>
               <CardDescription>
                 {monthly.growth >= 0 ? (
@@ -775,21 +777,21 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Tasks Created</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{t('ui.tasksCreated')}</span>
                   <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {monthly.created}
                     <span className="text-sm text-slate-500 ml-2">({lastMonth.created} last month)</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Completed</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{t('ui.completed')}</span>
                   <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                     {monthly.completed}
                     <span className="text-sm text-slate-500 ml-2">({lastMonth.completed} last month)</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Completion Rate</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('ui.completionRate')}</span>
                   <div className="text-right">
                     <span className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                       {monthly.completionRate}%
@@ -817,12 +819,12 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-indigo-500" />
-              Weekday Performance
+              {t('ui.weekdayPerformance')}
             </CardTitle>
             <CardDescription>
               {bestDay && worstDay ? (
                 <>
-                  Best: <span className="font-semibold text-emerald-600">{bestDay.day}</span> ({bestDay.rate.toFixed(0)}%) |{' '}
+                  {t('ui.best')} <span className="font-semibold text-emerald-600">{bestDay.day}</span> ({bestDay.rate.toFixed(0)}%) |{' '}
                   Worst: <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
                 </>
               ) : (
@@ -858,8 +860,8 @@ export default function AnalyticsPage() {
             ) : (
               <div className="flex h-[300px] flex-col items-center justify-center text-center text-slate-500 dark:text-slate-400">
                 <AlertCircle className="mb-3 h-10 w-10 text-slate-400" />
-                <p className="font-medium">No weekday data yet</p>
-                <p className="text-sm">Log activity on multiple days to unlock this chart.</p>
+                <p className="font-medium">{t('ui.noWeekdayDataYet')}</p>
+                <p className="text-sm">{t('ui.logActivityOnMultipleDaysToUnlockThisChart')}</p>
               </div>
             )}
           </CardContent>
@@ -876,9 +878,9 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
-              Insights & Recommendations
+              {t('ui.insightsRecommendations')}
             </CardTitle>
-            <CardDescription>Personalized insights to boost your productivity</CardDescription>
+            <CardDescription>{t('ui.personalizedInsightsToBoostYourProductivity')}</CardDescription>
           </CardHeader>
           <CardContent>
             {insights && insights.length > 0 ? (
@@ -927,10 +929,10 @@ export default function AnalyticsPage() {
               <div className="text-center py-12">
                 <AlertCircle className="h-16 w-16 text-slate-400 dark:text-slate-600 mx-auto mb-4" />
                 <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                  No insights yet
+                  {t('ui.noInsightsYet')}
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">
-                  Complete more tasks to generate personalized insights
+                  {t('ui.completeMoreTasksToGeneratePersonalizedInsig')}
                 </p>
               </div>
             )}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
@@ -11,9 +12,10 @@ interface NavigationMenuProps {
 }
 
 export default function NavigationMenu({ pathname, isCollapsed }: NavigationMenuProps) {
+  const { t } = useT()
   return (
     <nav
-      aria-label="Primary"
+      aria-label={t('ui.primary')}
       className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-none"
       role="navigation"
     >

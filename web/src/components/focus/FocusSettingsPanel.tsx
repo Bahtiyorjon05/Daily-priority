@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ interface FocusSettingsPanelProps {
 }
 
 export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }: FocusSettingsPanelProps) {
+  const { t } = useT()
   return (
     <AnimatePresence>
       {show && (
@@ -37,13 +39,13 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
         >
           <Card className="border-2 border-indigo-300 dark:border-indigo-700 bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-lg mb-6">
             <CardHeader>
-              <CardTitle className="text-indigo-900 dark:text-indigo-100 font-bold">Focus Settings</CardTitle>
+              <CardTitle className="text-indigo-900 dark:text-indigo-100 font-bold">{t('ui.focusSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Durations */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">Focus Duration (min)</Label>
+                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.focusDurationMin')}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -54,7 +56,7 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">Short Break (min)</Label>
+                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.shortBreakMin')}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -65,7 +67,7 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">Long Break (min)</Label>
+                  <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.longBreakMin')}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -81,9 +83,9 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-slate-300 dark:border-gray-700 shadow-sm">
                   <div className="space-y-0.5">
-                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">Auto-start Breaks</Label>
+                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">{t('ui.autoStartBreaks')}</Label>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
-                      Automatically start break timer after focus session
+                      {t('ui.automaticallyStartBreakTimerAfterFocusSessio')}
                     </p>
                   </div>
                   <Switch
@@ -94,9 +96,9 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
 
                 <div className="flex items-center justify-between p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-slate-300 dark:border-gray-700 shadow-sm">
                   <div className="space-y-0.5">
-                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">Auto-start Focus</Label>
+                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">{t('ui.autoStartFocus')}</Label>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
-                      Automatically start focus timer after break
+                      {t('ui.automaticallyStartFocusTimerAfterBreak')}
                     </p>
                   </div>
                   <Switch
@@ -110,9 +112,9 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-white dark:bg-gray-800 border-2 border-slate-300 dark:border-gray-700 shadow-sm">
                   <div className="space-y-0.5">
-                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">Enable Music</Label>
+                    <Label className="text-slate-900 dark:text-gray-100 font-semibold">{t('ui.enableMusic')}</Label>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
-                      Play background music during focus sessions
+                      {t('ui.playBackgroundMusicDuringFocusSessions')}
                     </p>
                   </div>
                   <Switch
@@ -135,7 +137,7 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
               </div>
 
               <Button onClick={onSave} className="w-full bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-600 dark:to-indigo-600 hover:from-purple-200 hover:to-indigo-200 dark:hover:from-purple-700 dark:hover:to-indigo-700 text-purple-900 dark:text-white font-semibold shadow-lg hover:shadow-xl transition-all">
-                Save Settings
+                {t('ui.saveSettings')}
               </Button>
             </CardContent>
           </Card>

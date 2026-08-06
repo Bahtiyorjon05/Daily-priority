@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
@@ -24,6 +25,7 @@ const Modal = memo<ModalProps>(({
   closeOnEscape = true,
   className,
 }) => {
+  const { t } = useT()
   // Handle escape key
   useEffect(() => {
     if (!closeOnEscape || !isOpen) return
@@ -111,7 +113,7 @@ const Modal = memo<ModalProps>(({
                       className="h-8 w-8 p-0 ml-4"
                     >
                       <X className="h-4 w-4" />
-                      <span className="sr-only">Close</span>
+                      <span className="sr-only">{t('common.close')}</span>
                     </Button>
                   )}
                 </div>

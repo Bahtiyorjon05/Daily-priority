@@ -1,9 +1,11 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Heart, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export function Footer() {
+  const { t } = useT()
   return (
     <footer className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-emerald-50/60 to-teal-50/50 dark:from-gray-950 dark:via-emerald-950/30 dark:to-gray-950">
 
@@ -45,7 +47,7 @@ export function Footer() {
                 <Heart className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-emerald-600 dark:text-emerald-400 fill-emerald-600 dark:fill-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)] dark:drop-shadow-[0_0_15px_rgba(52,211,153,0.6)]" />
               </motion.div>
               <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-700 dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-300 bg-clip-text text-transparent">
-                Made for the Muslim Ummah
+                {t('ui.madeForTheMuslimUmmah')}
               </h3>
               <motion.div
                 animate={{ scale: [1, 1.15, 1] }}
@@ -58,7 +60,7 @@ export function Footer() {
             <div className="flex items-center justify-center gap-2 sm:gap-3">
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
               <p className="text-base sm:text-lg md:text-xl font-semibold text-emerald-800 dark:text-emerald-200">
-                This platform is our <span className="text-emerald-700 dark:text-emerald-300 font-black">Sadaqah Jariyah</span> for you
+                {t('ui.thisPlatformIsOur')} <span className="text-emerald-700 dark:text-emerald-300 font-black">{t('ui.sadaqahJariyah')}</span> for you
               </p>
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
@@ -76,7 +78,7 @@ export function Footer() {
               © {new Date().getFullYear()} Daily Priority • For Muslims Worldwide
             </p>
             <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-medium">
-              May Allah accept this work and benefit the Ummah
+              {t('ui.mayAllahAcceptThisWorkAndBenefitTheUmmah')}
             </p>
           </div>
 

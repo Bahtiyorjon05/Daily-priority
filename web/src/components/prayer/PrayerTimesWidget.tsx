@@ -6,6 +6,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -48,6 +49,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
   showNextPrayer = true,
   className,
 }) => {
+  const { t } = useT()
   // Prayer icons mapping
   const prayerIcons = {
     FAJR: Sunrise,
@@ -122,7 +124,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
     return (
       <div className={cn(CARD_STYLES.base, 'p-6', className)}>
         <p className="text-sm text-muted-foreground text-center">
-          Prayer times unavailable
+          {t('ui.prayerTimesUnavailable2')}
         </p>
       </div>
     )
@@ -145,7 +147,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
               <Moon className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold">Prayer Times</h3>
+              <h3 className="font-semibold">{t('ui.prayerTimes')}</h3>
               {prayerTimes.location && (
                 <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
@@ -167,7 +169,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
             'p-3 rounded-lg mb-3',
             BG_LIGHT_COLORS[PRAYER_COLORS[nextPrayer.name]]
           )}>
-            <p className="text-xs font-medium text-muted-foreground mb-1">Next Prayer</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">{t('ui.nextPrayer')}</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <nextPrayer.icon className={cn('h-5 w-5', TEXT_COLORS[PRAYER_COLORS[nextPrayer.name]])} />
@@ -226,7 +228,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
                 <Moon className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold">Prayer Times</h3>
+                <h3 className="text-lg font-bold">{t('ui.prayerTimes')}</h3>
                 <p className="text-sm text-white/80 flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
                   {prayerTimes.location || 'Local Time'}
@@ -258,7 +260,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-muted-foreground mb-1">
-                Next Prayer
+                {t('ui.nextPrayer')}
               </p>
               <div className="flex items-center gap-2">
                 <nextPrayer.icon className={cn('h-5 w-5', TEXT_COLORS[PRAYER_COLORS[nextPrayer.name]])} />
@@ -268,7 +270,7 @@ const PrayerTimesWidget = memo<PrayerTimesWidgetProps>(({
             </div>
             {nextPrayer.timeUntil && (
               <div className="text-right">
-                <p className="text-xs text-muted-foreground mb-1">Starts</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('ui.starts')}</p>
                 <p className="font-semibold text-sm">{nextPrayer.timeUntil}</p>
               </div>
             )}

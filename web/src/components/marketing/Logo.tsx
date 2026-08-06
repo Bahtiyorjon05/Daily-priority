@@ -1,11 +1,13 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 interface LogoProps {
   className?: string
   showText?: boolean
 }
 
 export function Logo({ className = '', showText = true }: LogoProps) {
+  const { t } = useT()
   return (
     <div className={`flex items-center gap-2 sm:gap-3 ${className}`}>
       {/* Checkmark logo - productivity symbol */}
@@ -30,10 +32,10 @@ export function Logo({ className = '', showText = true }: LogoProps) {
       {showText && (
         <div className="flex flex-col">
           <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent leading-tight">
-            Daily Priority
+            {t('ui.dailyPriority')}
           </span>
           <span className="text-[9px] sm:text-[10px] font-medium text-slate-600 dark:text-slate-400 leading-tight">
-            Islamic Productivity
+            {t('ui.islamicProductivity')}
           </span>
         </div>
       )}

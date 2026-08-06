@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -12,6 +13,7 @@ import Logo from '@/components/shared/Logo'
 import { SUPPORT_EMAIL } from '@/constants/defaults'
 
 export default function Forgot2FAPage() {
+  const { t } = useT()
   const router = useRouter()
   const [step, setStep] = useState<'email' | 'code' | 'password'>('email')
   const [loading, setLoading] = useState(false)
@@ -67,18 +69,18 @@ export default function Forgot2FAPage() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success('Recovery code sent!', {
+        toast.success(t('ui.recoveryCodeSent'), {
           description: 'Check your email for the recovery code.',
           duration: 4000,
         })
         setStep('code')
       } else {
         setErrors(prev => ({ ...prev, general: data.error || 'Failed to send recovery code' }))
-        toast.error('Failed to send recovery code')
+        toast.error(t('ui.failedToSendRecoveryCode'))
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Failed to send recovery code')
+      toast.error(t('ui.failedToSendRecoveryCode'))
     } finally {
       setLoading(false)
     }
@@ -120,7 +122,7 @@ export default function Forgot2FAPage() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success('Code verified!', {
+        toast.success(t('ui.codeVerified'), {
           description: 'Now enter your new 2FA password.',
           duration: 3000,
         })
@@ -131,7 +133,7 @@ export default function Forgot2FAPage() {
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Failed to verify code')
+      toast.error(t('ui.failedToVerifyCode'))
     } finally {
       setLoading(false)
     }
@@ -186,7 +188,7 @@ export default function Forgot2FAPage() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success('2FA password reset!', {
+        toast.success(t('ui.2faPasswordReset'), {
           description: 'You can now sign in with your new 2FA password.',
           duration: 4000,
         })
@@ -197,7 +199,7 @@ export default function Forgot2FAPage() {
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Failed to reset 2FA password')
+      toast.error(t('ui.failedToReset2faPassword'))
     } finally {
       setLoading(false)
     }
@@ -228,7 +230,7 @@ export default function Forgot2FAPage() {
               <Shield className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white drop-shadow-lg" />
             </div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 dark:from-orange-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-              Forgot 2FA Password?
+              {t('ui.forgot2faPassword')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm lg:text-base leading-relaxed px-2">
               {step === 'email' 
@@ -259,12 +261,12 @@ export default function Forgot2FAPage() {
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs sm:text-sm lg:text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
                   <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-orange-600 dark:text-orange-400" />
-                  Email Address
+                  {t('auth.emailAddress')}
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('ui.youExampleCom')}
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value)
@@ -304,12 +306,12 @@ export default function Forgot2FAPage() {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                      <span className="text-white" style={{ color: '#ffffff' }}>Sending...</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.sending')}</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                      <span className="text-white" style={{ color: '#ffffff' }}>Send Recovery Code</span>
+                      <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.sendRecoveryCode')}</span>
                       <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                     </>
                   )}
@@ -325,12 +327,12 @@ export default function Forgot2FAPage() {
               <div className="space-y-2">
                 <Label htmlFor="code" className="text-xs sm:text-sm lg:text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
                   <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-orange-600 dark:text-orange-400" />
-                  Recovery Code
+                  {t('ui.recoveryCode')}
                 </Label>
                 <Input
                   id="code"
                   type="text"
-                  placeholder="Enter 6-digit code"
+                  placeholder={t('ui.enter6DigitCode')}
                   value={code}
                   onChange={(e) => {
                     setCode(e.target.value.replace(/\D/g, '').slice(0, 6))
@@ -354,7 +356,7 @@ export default function Forgot2FAPage() {
               <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 rounded-xl border-2 border-blue-300 dark:border-blue-600/50 shadow-sm">
                 <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-300 flex-shrink-0 mt-0.5" />
                 <p className="text-xs sm:text-sm lg:text-base text-blue-800 dark:text-blue-100 font-medium leading-relaxed">
-                  Check your email for the 6-digit recovery code. It expires in 10 minutes.
+                  {t('ui.checkYourEmailForThe6DigitRecoveryCodeItExpi')}
                 </p>
               </div>
 
@@ -382,12 +384,12 @@ export default function Forgot2FAPage() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                        <span className="text-white" style={{ color: '#ffffff' }}>Verifying...</span>
+                        <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifying')}</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                        <span className="text-white" style={{ color: '#ffffff' }}>Verify Code</span>
+                        <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.verifyCode')}</span>
                         <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
                       </>
                     )}
@@ -401,7 +403,7 @@ export default function Forgot2FAPage() {
                   className="w-full h-11 sm:h-12 lg:h-14 px-4 sm:px-6 border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold text-sm sm:text-base lg:text-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-orange-500 dark:hover:border-orange-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Resend Code
+                  {t('ui.resendCode')}
                 </button>
 
                 <button
@@ -410,7 +412,7 @@ export default function Forgot2FAPage() {
                   className="w-full h-11 sm:h-12 lg:h-14 px-4 sm:px-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium text-sm sm:text-base lg:text-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Back to Email
+                  {t('ui.backToEmail')}
                 </button>
               </div>
             </form>
@@ -423,13 +425,13 @@ export default function Forgot2FAPage() {
               <div className="space-y-2">
                 <Label htmlFor="newPassword" className="text-xs sm:text-sm lg:text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
                   <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-600 dark:text-green-400" />
-                  New 2FA Password
+                  {t('ui.new2faPassword')}
                 </Label>
                 <Input
                   id="newPassword"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="Enter new 2FA password (min. 6 characters)"
+                  placeholder={t('ui.enterNew2faPasswordMin6Characters')}
                   value={newPassword}
                   onChange={(e) => {
                     setNewPassword(e.target.value)
@@ -452,13 +454,13 @@ export default function Forgot2FAPage() {
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-xs sm:text-sm lg:text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 sm:gap-2">
                   <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-600 dark:text-green-400" />
-                  Confirm 2FA Password
+                  {t('ui.confirm2faPassword')}
                 </Label>
                 <Input
                   id="confirmPassword"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="Re-enter your new 2FA password"
+                  placeholder={t('ui.reEnterYourNew2faPassword')}
                   value={confirmPassword}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value)
@@ -480,7 +482,7 @@ export default function Forgot2FAPage() {
               <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 rounded-xl border-2 border-blue-300 dark:border-blue-600/50 shadow-sm">
                 <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-300 flex-shrink-0 mt-0.5" />
                 <p className="text-xs sm:text-sm lg:text-base text-blue-800 dark:text-blue-100 font-medium leading-relaxed">
-                  This will be your new 2FA password for signing in. Make sure to remember it!
+                  {t('ui.thisWillBeYourNew2faPasswordForSigningInMake')}
                 </p>
               </div>
 
@@ -508,12 +510,12 @@ export default function Forgot2FAPage() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white/30 border-t-white"></div>
-                        <span className="text-white" style={{ color: '#ffffff' }}>Resetting...</span>
+                        <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.resetting')}</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" style={{ color: '#ffffff', stroke: '#ffffff' }} />
-                        <span className="text-white" style={{ color: '#ffffff' }}>Reset 2FA Password</span>
+                        <span className="text-white" style={{ color: '#ffffff' }}>{t('ui.reset2faPassword')}</span>
                       </>
                     )}
                   </span>
@@ -525,7 +527,7 @@ export default function Forgot2FAPage() {
                   className="w-full h-11 sm:h-12 lg:h-14 px-4 sm:px-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-medium text-sm sm:text-base lg:text-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Back to Code
+                  {t('ui.backToCode')}
                 </button>
               </div>
             </form>
@@ -538,7 +540,7 @@ export default function Forgot2FAPage() {
               className="text-sm sm:text-base text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-bold transition-all duration-300 inline-flex items-center gap-2 group hover:gap-3"
             >
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-1 transition-transform" />
-              Back to Sign In
+              {t('ui.backToSignIn')}
             </Link>
           </div>
         </div>

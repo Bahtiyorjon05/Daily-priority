@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useState } from 'react'
 import { Activity, AlertTriangle, CheckCircle2, Clock, RefreshCw } from 'lucide-react'
 
@@ -39,6 +40,7 @@ const JOB_LABEL: Record<string, string> = {
 
 /** Compact system-health strip shown at the top of the admin Overview. */
 export default function HealthPanel() {
+  const { t } = useT()
   const [health, setHealth] = useState<Health | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -68,10 +70,10 @@ export default function HealthPanel() {
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center gap-2">
         <Activity className="h-4 w-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold">System health</h3>
+        <h3 className="text-sm font-semibold">{t('ui.systemHealth')}</h3>
         <button
           onClick={load}
-          aria-label="Refresh health"
+          aria-label={t('ui.refreshHealth')}
           className="ml-auto rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -83,7 +85,7 @@ export default function HealthPanel() {
         <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-200">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <p className="font-semibold">Reminder scheduler has never run</p>
+            <p className="font-semibold">{t('ui.reminderSchedulerHasNeverRun')}</p>
             <p className="mt-0.5">
               Prayer and habit reminders won&apos;t be delivered until an external scheduler
               calls <code>/api/cron/reminders</code> every 5 minutes.
@@ -94,7 +96,7 @@ export default function HealthPanel() {
         <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-700/60 dark:bg-red-950/30 dark:text-red-200">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <p className="font-semibold">Scheduler looks stopped</p>
+            <p className="font-semibold">{t('ui.schedulerLooksStopped')}</p>
             <p className="mt-0.5">Last run {rel(reminders.ageMs)} — expected every few minutes.</p>
           </div>
         </div>
@@ -102,18 +104,18 @@ export default function HealthPanel() {
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Tile
-          label="Push"
+          label={t('ui.push')}
           value={health.pushConfigured ? `${health.pushDevices} devices` : 'Not configured'}
           ok={health.pushConfigured}
         />
-        <Tile label="Vault" value={health.vaultConfigured ? 'On' : 'Off'} ok={health.vaultConfigured} />
+        <Tile label={t('ui.vault')} value={health.vaultConfigured ? 'On' : 'Off'} ok={health.vaultConfigured} />
         <Tile
-          label="Open errors"
+          label={t('ui.openErrors')}
           value={String(health.openErrors)}
           ok={health.openErrors === 0}
         />
         <Tile
-          label="Reminders"
+          label={t('ui.reminders')}
           value={reminders ? rel(reminders.ageMs) : 'never'}
           ok={Boolean(reminders && !reminders.stale)}
         />

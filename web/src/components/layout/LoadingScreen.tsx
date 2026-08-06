@@ -1,9 +1,11 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Target } from 'lucide-react'
 
 export default function LoadingScreen() {
+  const { t } = useT()
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-emerald-950/20 dark:to-teal-950/20">
       <motion.div
@@ -25,10 +27,10 @@ export default function LoadingScreen() {
           <Target className="h-8 w-8 text-white" />
         </motion.div>
         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">
-          Daily Priority
+          {t('ui.dailyPriority')}
         </h2>
         <p className="text-slate-600 dark:text-slate-400">
-          Loading your dashboard...
+          {t('ui.loadingYourDashboard')}
         </p>
       </motion.div>
     </div>

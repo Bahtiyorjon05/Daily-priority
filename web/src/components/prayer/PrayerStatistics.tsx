@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { CheckCircle2, Clock, TrendingUp, Calendar as CalendarIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -23,6 +24,7 @@ export default function PrayerStatistics({
   completedPrayers,
   todayCompleted
 }: PrayerStatisticsProps) {
+  const { t } = useT()
   const stats = [
     {
       label: 'Today',
@@ -63,7 +65,7 @@ export default function PrayerStatistics({
       {/* Overview Card */}
       <Card className="p-6 bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:from-emerald-950/30 dark:via-gray-800 dark:to-teal-950/30 border border-white/30 dark:border-gray-700/50 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">Prayer Statistics</h3>
+          <h3 className="text-xl font-bold text-emerald-800 dark:text-emerald-300">{t('ui.prayerStatistics')}</h3>
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {completedPrayers} / {totalPrayers} Total Prayers
           </div>
@@ -115,7 +117,7 @@ export default function PrayerStatistics({
       {/* Today's Progress */}
       <Card className="p-6 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">Today's Progress</h4>
+          <h4 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">{t('ui.todaySProgress')}</h4>
           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
             {todayCompleted} of 5 prayers
           </span>
@@ -149,7 +151,7 @@ export default function PrayerStatistics({
       <div className="grid grid-cols-2 gap-4">
         <Card className="p-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50">
           <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Completion Rate</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('ui.completionRate')}</p>
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
               {totalPrayers > 0 ? Math.round((completedPrayers / totalPrayers) * 100) : 0}%
             </p>
@@ -158,7 +160,7 @@ export default function PrayerStatistics({
         
         <Card className="p-4 bg-white dark:bg-gray-800 border border-white/30 dark:border-gray-700/50">
           <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">On-Time Rate</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('ui.onTimeRate2')}</p>
             <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
               {onTimePercentage}%
             </p>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Target, TrendingUp, Award, Clock, CheckCircle2, Flame } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -24,6 +25,7 @@ interface GoalsStatsProps {
 }
 
 export function GoalsStats({ stats }: GoalsStatsProps) {
+  const { t } = useT()
   const completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0
 
   const statCards = [
@@ -106,10 +108,10 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
                   </div>
                   <div>
                     <h3 className="font-semibold text-amber-900 dark:text-amber-300">
-                      Dunya Goals
+                      {t('ui.dunyaGoals')}
                     </h3>
                     <p className="text-sm text-amber-600 dark:text-amber-400">
-                      Worldly pursuits
+                      {t('ui.worldlyPursuits')}
                     </p>
                   </div>
                 </div>
@@ -125,7 +127,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-amber-700 dark:text-amber-400">Average Progress</span>
+                  <span className="text-amber-700 dark:text-amber-400">{t('ui.averageProgress')}</span>
                   <span className="font-bold text-amber-900 dark:text-amber-300">
                     {Math.round(stats.dunya.progress)}%
                   </span>
@@ -154,10 +156,10 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
                   </div>
                   <div>
                     <h3 className="font-semibold text-purple-900 dark:text-purple-300">
-                      Akhirah Goals
+                      {t('ui.akhirahGoals')}
                     </h3>
                     <p className="text-sm text-purple-600 dark:text-purple-400">
-                      Hereafter pursuits
+                      {t('ui.hereafterPursuits')}
                     </p>
                   </div>
                 </div>
@@ -173,7 +175,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-purple-700 dark:text-purple-400">Average Progress</span>
+                  <span className="text-purple-700 dark:text-purple-400">{t('ui.averageProgress')}</span>
                   <span className="font-bold text-purple-900 dark:text-purple-300">
                     {Math.round(stats.akhirah.progress)}%
                   </span>
@@ -199,7 +201,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
             <div className="flex items-center gap-2">
               <Flame className="h-5 w-5 text-orange-500" />
               <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                Overall Completion Rate
+                {t('ui.overallCompletionRate')}
               </h3>
             </div>
             <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">

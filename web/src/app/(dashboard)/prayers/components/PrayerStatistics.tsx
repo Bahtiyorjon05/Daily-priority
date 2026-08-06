@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import { TrendingUp, Target, Clock, CheckCircle2 } from 'lucide-react'
@@ -56,6 +57,7 @@ export default function PrayerStatistics({
   completedPrayers = 0,
   todayCompleted = 0
 }: PrayerStatisticsProps) {
+  const { t } = useT()
   const safeTotal = Math.max(totalPrayers, 0)
   const safeCompleted = Math.min(Math.max(completedPrayers, 0), safeTotal)
   const completionRate = safeTotal > 0 ? Math.round((safeCompleted / safeTotal) * 100) : 0
@@ -64,42 +66,42 @@ export default function PrayerStatistics({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         icon={Target}
-        title="Daily Completion"
+        title={t('ui.dailyCompletion')}
         value={`${dailyCompletion.toFixed(0)}%`}
         subtitle="Today's progress"
         color="from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30"
       />
       <StatCard
         icon={TrendingUp}
-        title="Weekly Average"
+        title={t('ui.weeklyAverage')}
         value={`${weeklyCompletion.toFixed(0)}%`}
         subtitle="Last 7 days"
         color="from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30"
       />
       <StatCard
         icon={CheckCircle2}
-        title="Monthly Average"
+        title={t('ui.monthlyAverage')}
         value={`${monthlyCompletion.toFixed(0)}%`}
         subtitle="Last 30 days"
         color="from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30"
       />
       <StatCard
         icon={Clock}
-        title="On-Time Rate"
+        title={t('ui.onTimeRate2')}
         value={`${onTimePercentage.toFixed(0)}%`}
         subtitle="Prayed on time"
         color="from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30"
       />
       <StatCard
         icon={CheckCircle2}
-        title="Total Completion"
+        title={t('ui.totalCompletion')}
         value={`${completionRate}%`}
         subtitle={`${safeCompleted} of ${safeTotal} logged`}
         color="from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-900/40"
       />
       <StatCard
         icon={Target}
-        title="Today Logged"
+        title={t('ui.todayLogged')}
         value={`${Math.min(Math.max(todayCompleted, 0), 5)} / 5`}
         subtitle="Prayers completed today"
         color="from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/40"

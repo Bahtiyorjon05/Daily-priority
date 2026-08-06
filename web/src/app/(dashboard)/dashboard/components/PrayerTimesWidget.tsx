@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Activity, MapPin, Loader2, AlertCircle, Navigation } from 'lucide-react'
@@ -16,6 +17,7 @@ import {
 } from '@/lib/prayer-times'
 
 export default function PrayerTimesWidget() {
+  const { t } = useT()
   const [prayers, setPrayers] = useState<PrayerTime[]>([])
   const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null)
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null)
@@ -76,7 +78,7 @@ export default function PrayerTimesWidget() {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-            <span className="text-emerald-900 dark:text-emerald-100">Prayer Times</span>
+            <span className="text-emerald-900 dark:text-emerald-100">{t('ui.prayerTimes')}</span>
           </div>
           {location && (
             <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-300">
@@ -98,7 +100,7 @@ export default function PrayerTimesWidget() {
               className="flex flex-col items-center justify-center py-12"
             >
               <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-3" />
-              <p className="text-sm text-slate-600 dark:text-slate-300">Loading prayer times...</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{t('ui.loadingPrayerTimes')}</p>
             </motion.div>
           ) : error ? (
             <motion.div
@@ -112,7 +114,7 @@ export default function PrayerTimesWidget() {
               <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{error}</p>
               {locationDenied && (
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                  You can enable location access in your browser settings.
+                  {t('ui.youCanEnableLocationAccessInYourBrowserSetti')}
                 </p>
               )}
               <Button
@@ -120,7 +122,7 @@ export default function PrayerTimesWidget() {
                 size="sm"
                 className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white shadow-md hover:shadow-lg"
               >
-                Try Again
+                {t('ui.tryAgain')}
               </Button>
             </motion.div>
           ) : nextPrayer ? (
@@ -137,7 +139,7 @@ export default function PrayerTimesWidget() {
                 <div className="absolute inset-0 opacity-10" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='3' fill='white' fill-opacity='0.3'/%3E%3C/svg%3E\")", backgroundSize: "20px 20px"}}></div>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-emerald-50">Next Prayer</p>
+                    <p className="text-sm font-medium text-emerald-50">{t('ui.nextPrayer')}</p>
                     <Navigation className="h-4 w-4 text-emerald-50" />
                   </div>
                   <div className="text-center">
@@ -219,7 +221,7 @@ export default function PrayerTimesWidget() {
                 className="w-full border-slate-200 dark:border-slate-600/70 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:border-slate-300 dark:hover:border-slate-500/70"
                 onClick={() => window.location.href = '/prayers'}
               >
-                View All Prayer Times
+                {t('ui.viewAllPrayerTimes')}
               </Button>
             </motion.div>
           ) : null}

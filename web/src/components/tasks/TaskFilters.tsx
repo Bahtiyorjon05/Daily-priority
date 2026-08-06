@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { memo, useCallback } from 'react'
 import {
   Search,
@@ -47,6 +48,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
   },
   className,
 }) => {
+  const { t } = useT()
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onSearchChange(e.target.value)
@@ -61,7 +63,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search tasks..."
+          placeholder={t('ui.searchTasks')}
           value={searchTerm}
           onChange={handleSearchChange}
           className="pl-10"
@@ -76,7 +78,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
           onClick={() => onFilterChange('all')}
           className="whitespace-nowrap"
         >
-          All
+          {t('ui.all')}
           <Badge variant="secondary" className="ml-2">
             {taskCounts.all}
           </Badge>
@@ -88,7 +90,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
           onClick={() => onFilterChange('pending')}
           className="whitespace-nowrap"
         >
-          Pending
+          {t('ui.pending')}
           <Badge variant="secondary" className="ml-2">
             {taskCounts.pending}
           </Badge>
@@ -100,7 +102,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
           onClick={() => onFilterChange('completed')}
           className="whitespace-nowrap"
         >
-          Completed
+          {t('ui.completed')}
           <Badge variant="secondary" className="ml-2">
             {taskCounts.completed}
           </Badge>
@@ -112,7 +114,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
           onClick={() => onFilterChange('urgent')}
           className="whitespace-nowrap"
         >
-          Urgent
+          {t('ui.urgent')}
           <Badge variant="secondary" className="ml-2">
             {taskCounts.urgent}
           </Badge>
@@ -124,7 +126,7 @@ const TaskFilters = memo<TaskFiltersProps>(({
           onClick={() => onFilterChange('important')}
           className="whitespace-nowrap"
         >
-          Important
+          {t('ui.important')}
           <Badge variant="secondary" className="ml-2">
             {taskCounts.important}
           </Badge>
@@ -149,10 +151,10 @@ const TaskFilters = memo<TaskFiltersProps>(({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
-                <DropdownMenuLabel>Filter by category</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('ui.filterByCategory')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onCategoryChange(null)}>
-                  All categories
+                  {t('ui.allCategories2')}
                 </DropdownMenuItem>
                 {categories.map((category) => (
                   <DropdownMenuItem
@@ -175,23 +177,23 @@ const TaskFilters = memo<TaskFiltersProps>(({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <ArrowUpDown className="h-4 w-4" />
-                Sort
+                {t('ui.sort')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('ui.sortBy2')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onSortChange('priority')}>
-                Priority
+                {t('ui.priority')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onSortChange('dueDate')}>
-                Due date
+                {t('ui.dueDate2')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onSortChange('createdAt')}>
-                Created date
+                {t('ui.createdDate')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onSortChange('title')}>
-                Title
+                {t('ui.title')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
