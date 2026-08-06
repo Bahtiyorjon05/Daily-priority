@@ -6,7 +6,7 @@ import { getGreetingKey } from '@/lib/utils'
 
 import { useT } from '@/lib/i18n/client'
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo} from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus,
@@ -109,7 +109,7 @@ function isTimeoutError(error: Error): boolean {
 }
 
 export default function DashboardPageRedesigned() {
-  const { t: tI18n } = useT()
+  const { t: tI18n, locale } = useT()
   const { data: session } = useSession()
   const { profile } = useUserProfile()
   const userCacheKey = session?.user?.id ?? 'guest'
@@ -119,7 +119,12 @@ export default function DashboardPageRedesigned() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showNewTask, setShowNewTask] = useState(false)
-  const [dailyQuote, setDailyQuote] = useState<{ text: string; source: string } | null>(null)
+  // Derived rather than stored: the verse comes from a local table, and
+  // keeping it in state meant a language switch could not reach it.
+  const dailyQuote = useMemo(() => {
+    const pick = getDailyInspiration()
+    return { text: tI18n(pick.textKey), source: pick.source }
+  }, [tI18n, locale])
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -142,7 +147,6 @@ export default function DashboardPageRedesigned() {
   useEffect(() => {
     if (session?.user?.id) {
       fetchTasks()
-      fetchDailyQuote()
       fetchUserStats()
       fetchFocusStats()
     }
@@ -353,13 +357,6 @@ export default function DashboardPageRedesigned() {
     })
   }
 
-  // Local, bilingual and referenced — see useDailyQuote for why this no longer
-  // goes to /api/quotes/daily. Kept as a function so the existing call sites
-  // and the loading sequence stay unchanged.
-  const fetchDailyQuote = async () => {
-    const pick = getDailyInspiration()
-    setDailyQuote({ text: tI18n(pick.textKey), source: pick.source })
-  }
 
   const createTask = async () => {
     if (!newTask.title.trim()) {
@@ -705,7 +702,6 @@ export default function DashboardPageRedesigned() {
                   size="sm"
                   onClick={() => {
                     fetchTasks()
-                    fetchDailyQuote()
                     fetchUserStats()
                     fetchFocusStats()
                   }}
@@ -739,7 +735,6 @@ export default function DashboardPageRedesigned() {
             message={error}
             onRetry={() => {
               fetchTasks()
-              fetchDailyQuote()
               fetchUserStats()
               fetchFocusStats()
             }}
@@ -1191,7 +1186,7 @@ export default function DashboardPageRedesigned() {
                           )}
                         </div>
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-                          {filter === 'completed' ? tI18n('ui.noCompletedTasksYet') : 'No tasks found'}
+                          {filter === 'completed' ? tI18n('ui.noCompletedTasksYet') : tI18n('ui.noTasksFound')}
                         </h3>
                         <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto text-lg">
                           {filter === 'completed'

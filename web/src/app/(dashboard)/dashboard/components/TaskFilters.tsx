@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 
@@ -10,12 +11,13 @@ interface TaskFiltersProps {
 }
 
 const filters = [
-  { key: 'all', label: 'All Tasks', color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' },
-  { key: 'pending', label: 'Pending', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' },
-  { key: 'completed', label: 'Completed', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' }
+  { key: 'all', label: 'ui.allTasks', color: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' },
+  { key: 'pending', label: 'ui.pending', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' },
+  { key: 'completed', label: 'ui.completed', color: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' }
 ] as const
 
 export default function TaskFilters({ currentFilter, onFilterChange, taskCount }: TaskFiltersProps) {
+  const { t } = useT()
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-1 p-1 bg-slate-100/80 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -33,7 +35,7 @@ export default function TaskFilters({ currentFilter, onFilterChange, taskCount }
                 }
               `}
             >
-              {filter.label}
+              {t(filter.label)}
             </Button>
             {currentFilter === filter.key && (
               <motion.div

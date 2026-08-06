@@ -1,3 +1,6 @@
+'use client'
+
+import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 
 interface LogoProps {
@@ -42,6 +45,7 @@ export default function Logo({
   animate = true,
   className = ''
 }: LogoProps) {
+  const { t } = useT()
   const sizes = sizeClasses[size]
 
   const LogoIcon = () => (
@@ -84,7 +88,7 @@ export default function Logo({
         </h1>
         {showSubtext && (
           <p className={`${sizes.subtext} text-muted-foreground font-medium leading-tight`}>
-            Islamic Productivity Hub
+            {t('ui.islamicProductivityHub')}
           </p>
         )}
       </div>

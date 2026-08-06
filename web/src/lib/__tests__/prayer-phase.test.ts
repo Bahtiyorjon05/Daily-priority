@@ -87,10 +87,11 @@ describe('prayer-phase', () => {
       expect(resolvePhase(noSunrise, at(7, 0)).phase).toBe('morning')
     })
 
-    it('exposes a label and the associated prayer', () => {
+    it('exposes message keys for the label and the associated prayer', () => {
+      // Keys, not English — the header label has to follow the language switch.
       const meta = resolvePhase(TIMES, at(19, 30))
-      expect(meta.label).toBe('Dusk')
-      expect(meta.prayer).toBe('Maghrib')
+      expect(meta.labelKey).toBe('phase.dusk')
+      expect(meta.prayerKey).toBe('prayer.maghrib')
     })
   })
 

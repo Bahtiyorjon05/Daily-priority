@@ -120,8 +120,8 @@ export function PrayerPhaseProvider({ children }: { children: React.ReactNode })
     <PhaseContext.Provider
       value={{
         phase: active,
-        label: meta.label,
-        prayer: meta.prayer,
+        label: meta.labelKey,
+        prayer: meta.prayerKey,
         preference,
         setPreference,
         usingFallback: times === null,

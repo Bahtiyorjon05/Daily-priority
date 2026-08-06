@@ -49,6 +49,7 @@ function saveFired(slots: Set<string>) {
  * Mounted once from the dashboard layout.
  */
 export function AdhanPlayer() {
+  const { t } = useT()
   const { t: tr } = useT()
   const [times, setTimes] = useState<PrayerTimes | null>(null)
   const [muted, setMuted] = useState(false)
@@ -211,7 +212,7 @@ export function AdhanPlayer() {
 {tr('ui.itSTimeFor')} {nowPlaying}
                 </p>
                 <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                  {muted ? 'Muted' : 'Adhan playing'}
+                  {muted ? t('ui.muted') : t('ui.adhanPlaying')}
                 </p>
               </div>
               <button

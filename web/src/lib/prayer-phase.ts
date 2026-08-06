@@ -19,19 +19,23 @@ export interface PhaseTimes {
 
 export interface PhaseMeta {
   phase: PrayerPhase
-  /** Short label for UI ("Dawn", "Night"). */
-  label: string
-  /** The prayer this period belongs to, if any. */
-  prayer: string | null
+  /** Message key for the short UI label — resolve with t(). */
+  labelKey: string
+  /** Message key for the prayer this period belongs to, if any. */
+  prayerKey: string | null
 }
 
-export const PHASE_META: Record<PrayerPhase, { label: string; prayer: string | null }> = {
-  dawn: { label: 'Dawn', prayer: 'Fajr' },
-  morning: { label: 'Morning', prayer: null },
-  midday: { label: 'Midday', prayer: 'Dhuhr' },
-  afternoon: { label: 'Afternoon', prayer: 'Asr' },
-  dusk: { label: 'Dusk', prayer: 'Maghrib' },
-  night: { label: 'Night', prayer: 'Isha' },
+/**
+ * `labelKey` and `prayerKey` are message keys, not English — the phase name is
+ * shown in the header on every page, so it has to follow the language switch.
+ */
+export const PHASE_META: Record<PrayerPhase, { labelKey: string; prayerKey: string | null }> = {
+  dawn: { labelKey: 'phase.dawn', prayerKey: 'prayer.fajr' },
+  morning: { labelKey: 'phase.morning', prayerKey: null },
+  midday: { labelKey: 'phase.midday', prayerKey: 'prayer.dhuhr' },
+  afternoon: { labelKey: 'phase.afternoon', prayerKey: 'prayer.asr' },
+  dusk: { labelKey: 'phase.dusk', prayerKey: 'prayer.maghrib' },
+  night: { labelKey: 'phase.night', prayerKey: 'prayer.isha' },
 }
 
 /** Minutes since local midnight for "HH:MM", or null when unparseable. */

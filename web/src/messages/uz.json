@@ -952,7 +952,7 @@
   "ui.thisAppRequiresYourLocationToCalculatePrecis": "Ilova aniq namoz vaqtlarini hisoblash uchun geografik joylashuvingizga muhtoj.",
   "ui.weCouldnTFetchTheLatestTimingsPleaseCheckYou": "Eng so'nggi vaqtlarni ololmadik. Aloqangizni tekshirib, qayta urinib ko'ring.",
   "ui.of5Prayers": "5 namozdan",
-  "ui.upNext": "Keyingisi &rarr;",
+  "ui.upNext": "Keyingisi →",
   "ui.open": "Ochiq (",
   "ui.resolved": "Hal qilingan (",
   "ui.firstSeen": "Birinchi marta:",
@@ -1631,5 +1631,11 @@
   "ui.unknownError": "Noma'lum xatolik",
   "ui.weHaveEnteredTheEveningAndTheKingdomBelongsT": "Kechga kirdik va mulk Allohga xosdir, barcha hamdlar Allohga",
   "ui.weHaveEnteredTheMorningAndTheKingdomBelongsT": "Tongga kirdik va mulk Allohga xosdir, barcha hamdlar Allohga",
-  "ui.whoeverFearsAllahHeWillMakeAWayOutForThem": "Kim Allohdan qo'rqsa, U unga chiqish yo'lini beradi"
+  "ui.whoeverFearsAllahHeWillMakeAWayOutForThem": "Kim Allohdan qo'rqsa, U unga chiqish yo'lini beradi",
+  "ui.adhanPlaying": "Azon o'qilmoqda",
+  "ui.muted": "Ovoz o'chirilgan",
+  "ui.islamicProductivityHub": "Islomiy samaradorlik markazi",
+  "phase.betweenPrayers": "{prayer} va keyingi namoz orasida",
+  "ui.timeOfDayChange": "Kun vaqti: {label}. Ko'rinishni o'zgartirish.",
+  "ui.inDuration": "{duration} dan keyin"
 }
