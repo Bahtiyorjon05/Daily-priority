@@ -94,7 +94,7 @@ export function SignInForm() {
       })
 
       if (result?.error) {
-        setErrors(prev => ({ ...prev, general: 'Invalid email or password. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: t('ui.invalidEmailOrPasswordPleaseTryAgain') }))
         toast.error(t('ui.invalidCredentials'))
       } else if (result?.ok) {
         toast.success(t('ui.welcomeBack'), {

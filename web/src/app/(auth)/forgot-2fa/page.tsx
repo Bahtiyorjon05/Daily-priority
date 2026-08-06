@@ -100,12 +100,12 @@ export default function Forgot2FAPage() {
     
     // Validate code
     if (!code) {
-      setErrors(prev => ({ ...prev, code: 'Recovery code is required' }))
+      setErrors(prev => ({ ...prev, code: t('ui.recoveryCodeIsRequired') }))
       return
     }
     
     if (code.length !== 6) {
-      setErrors(prev => ({ ...prev, code: 'Recovery code must be 6 digits' }))
+      setErrors(prev => ({ ...prev, code: t('ui.recoveryCodeMustBe6Digits') }))
       return
     }
     
@@ -155,7 +155,7 @@ export default function Forgot2FAPage() {
     let hasErrors = false
     
     if (!newPassword) {
-      setErrors(prev => ({ ...prev, newPassword: 'New 2FA password is required' }))
+      setErrors(prev => ({ ...prev, newPassword: t('ui.new2faPasswordIsRequired') }))
       hasErrors = true
     } else if (newPassword.length < 6) {
       setErrors(prev => ({ ...prev, newPassword: '2FA password must be at least 6 characters' }))
@@ -163,7 +163,7 @@ export default function Forgot2FAPage() {
     }
     
     if (!confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: 'Please confirm your password' }))
+      setErrors(prev => ({ ...prev, confirmPassword: t('ui.pleaseConfirmYourPassword') }))
       hasErrors = true
     } else if (newPassword !== confirmPassword) {
       setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }))
@@ -234,10 +234,10 @@ export default function Forgot2FAPage() {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm lg:text-base leading-relaxed px-2">
               {step === 'email' 
-                ? 'We\'ll send a recovery code to your email address'
+                ? t('ui.weLlSendARecoveryCodeToYourEmailAddress')
                 : step === 'code'
-                ? 'Enter the 6-digit code sent to your email'
-                : 'Create a new 2FA password for your account'
+                ? t('ui.enterThe6DigitCodeSentToYourEmail')
+                : t('ui.createANew2faPasswordForYourAccount')
               }
             </p>
           </div>

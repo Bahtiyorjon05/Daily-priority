@@ -48,7 +48,7 @@ export function SecuritySettings() {
       })
       
       if (!response.ok) {
-        throw new Error('Failed to load settings')
+        throw new Error(t('ui.failedToLoadSettings'))
       }
       
       const data = await response.json()
@@ -103,13 +103,13 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to change password')
+        throw new Error(data.error || t('ui.failedToChangePassword'))
       }
 
       toast.success(t('ui.passwordChangedSuccessfully'))
       setPasswords({ current: '', new: '', confirm: '' })
     } catch (error: any) {
-      toast.error(error.message || 'Failed to change password')
+      toast.error(error.message || t('ui.failedToChangePassword'))
     } finally {
       setLoading(false)
     }
@@ -126,8 +126,8 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(t(data.error || 'Failed to send verification code'))
-        throw new Error(data.error || 'Failed to enable 2FA')
+        toast.error(t(data.error || t('ui.failedToSendVerificationCode')))
+        throw new Error(data.error || t('ui.failedToEnable2fa'))
       }
 
       setStep('code')
@@ -161,7 +161,7 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        toast.error(t(data.error || 'Invalid or expired verification code'))
+        toast.error(t(data.error || t('ui.invalidOrExpiredVerificationCode')))
         return
       }
 
@@ -209,7 +209,7 @@ export function SecuritySettings() {
           setTwoFactorPassword('')
           setTwoFactorPasswordConfirm('')
         } else {
-          toast.error(t(data.error || 'Failed to enable 2FA'))
+          toast.error(t(data.error || t('ui.failedToEnable2fa')))
         }
         throw new Error(data.error || 'Failed to verify code')
       }
@@ -249,7 +249,7 @@ export function SecuritySettings() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to disable 2FA')
+        throw new Error(data.error || t('ui.failedToDisable2fa'))
       }
 
       setTwoFactorEnabled(false)
@@ -257,7 +257,7 @@ export function SecuritySettings() {
       setDisablePassword('')
       toast.success(t('ui.twoFactorAuthenticationDisabled'))
     } catch (error: any) {
-      toast.error(error.message || 'Failed to disable 2FA')
+      toast.error(error.message || t('ui.failedToDisable2fa'))
     } finally {
       setLoading(false)
     }
@@ -371,8 +371,8 @@ export function SecuritySettings() {
             </div>
             <CardDescription className="text-base">
               {twoFactorEnabled 
-                ? 'Your account is protected with two-factor authentication'
-                : 'Add an extra layer of security to your account'}
+                ? t('ui.yourAccountIsProtectedWithTwoFactorAuthentic2')
+                : t('ui.addAnExtraLayerOfSecurityToYourAccount')}
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
@@ -541,12 +541,12 @@ export function SecuritySettings() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {step === 'code' ? 'Verify Your Email' : 'Set 2FA Password'}
+              {step === 'code' ? t('ui.verifyYourEmail') : t('ui.set2faPassword')}
             </DialogTitle>
             <DialogDescription>
               {step === 'code' 
-                ? "We've sent a 6-digit verification code to your email. Enter it below."
-                : 'Create a password that will be required when signing in. This is different from your account password.'}
+                ? t('ui.weVeSentA6DigitVerificationCodeToYourEmailEn')
+                : t('ui.createAPasswordThatWillBeRequiredWhenSigning')}
             </DialogDescription>
           </DialogHeader>
           

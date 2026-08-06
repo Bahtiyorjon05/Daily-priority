@@ -129,7 +129,7 @@ export default function PrayerTimesSectionEnhanced({
                 {nextPrayer.name} at {nextPrayer.time}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {nextPrayer.timeUntil ? 'in ' + (nextPrayer.timeUntil) : 'Starting soon'}
+                {nextPrayer.timeUntil ? 'in ' + (nextPrayer.timeUntil) : t('ui.startingSoon')}
               </p>
             </div>
             <Button 

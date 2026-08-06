@@ -12,13 +12,20 @@ interface ErrorStateProps {
   retryLabel?: string
 }
 
-export default function ErrorState({ 
-  title = 'Something went wrong', 
-  message = 'We encountered an unexpected error. Please try again.',
+export default function ErrorState({
+  title,
+  message,
   onRetry,
-  retryLabel = 'Try Again'
+  retryLabel
 }: ErrorStateProps) {
   const { t } = useT()
+
+  // Same reason as EmptyState: a default value is evaluated before the body,
+  // so t() can't be called in the parameter list.
+  const heading = title ?? t('error.title')
+  const body = message ?? t('ui.weEncounteredAnUnexpectedErrorPleaseTryAgain')
+  const retry = retryLabel ?? t('ui.tryAgain')
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,11 +37,11 @@ export default function ErrorState({
       </div>
 
       <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-        {title}
+        {heading}
       </h3>
 
       <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
-        {message}
+        {body}
       </p>
       
       {onRetry && (
@@ -43,7 +50,7 @@ export default function ErrorState({
           className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
         >
           <RefreshCw className="h-4 w-4 mr-2" />
-          {retryLabel}
+          {retry}
         </Button>
       )}
       

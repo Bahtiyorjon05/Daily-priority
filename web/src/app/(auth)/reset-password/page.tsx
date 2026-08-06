@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
     }
     
     if (!resetData.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: 'Please confirm your password' }))
+      setErrors(prev => ({ ...prev, confirmPassword: t('ui.pleaseConfirmYourPassword') }))
       return
     }
     
@@ -112,7 +112,7 @@ export default function ResetPasswordPage() {
           router.push('/signin?reset=success')
         }, 1500)
       } else {
-        setErrors(prev => ({ ...prev, general: data.error || 'Failed to reset password. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || t('ui.failedToResetPasswordPleaseTryAgain') }))
         toast.error(t(data.error || 'Failed to reset password'))
       }
     } catch (error) {

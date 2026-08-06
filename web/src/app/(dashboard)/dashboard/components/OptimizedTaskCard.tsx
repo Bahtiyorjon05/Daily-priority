@@ -100,7 +100,7 @@ function TaskCard({
                 className={'h-6 w-6 rounded-full transition-all duration-200 ' + (isSelected
                     ? 'text-blue-600 hover:text-blue-700 bg-blue-50 dark:bg-blue-950/30'
                     : 'text-gray-400 hover:text-blue-600')}
-                aria-label={isSelected ? "Deselect task" : "Select task"}
+                aria-label={isSelected ? t('ui.deselectTask') : t('ui.selectTask')}
               >
                 {isSelected ? (
                   <CheckCircle2 className="h-5 w-5" />
@@ -116,7 +116,7 @@ function TaskCard({
                 className={'h-6 w-6 rounded-full transition-all duration-200 ' + (task.status === 'COMPLETED'
                     ? 'text-emerald-600 hover:text-emerald-700'
                     : 'text-gray-400 hover:text-emerald-600')}
-                aria-label={task.status === 'COMPLETED' ? "Mark task as incomplete" : "Mark task as complete"}
+                aria-label={task.status === 'COMPLETED' ? t('ui.markTaskAsIncomplete') : t('ui.markTaskAsComplete')}
               >
                 {task.status === 'COMPLETED' ? (
                   <CheckCircle2 className="h-5 w-5" />

@@ -1,5 +1,9 @@
 'use client'
 
+import { getDailyInspiration } from '@/lib/islamic-inspiration'
+
+import { getGreetingKey } from '@/lib/utils'
+
 import { useT } from '@/lib/i18n/client'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
@@ -188,7 +192,7 @@ export default function DashboardPageRedesigned() {
           return await response.json()
         } else {
           const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error || 'Failed to fetch user stats')
+          throw new Error(errorData.error || tI18n('ui.failedToFetchUserStats'))
         }
       })
 
@@ -211,8 +215,8 @@ export default function DashboardPageRedesigned() {
         console.error('Error fetching user stats:', normalizedError)
       }
       const userMessage = isTimeout
-        ? 'Network error. Please check your connection and try again.'
-        : normalizedError.message || 'Failed to load your statistics. Please try again.'
+        ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
+        : normalizedError.message || tI18n('ui.failedToLoadYourStatisticsPleaseTryAgain')
       setError(userMessage)
       toast.error(userMessage)
     }
@@ -237,7 +241,7 @@ export default function DashboardPageRedesigned() {
           return await response.json()
         } else {
           const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error || 'Failed to fetch focus stats')
+          throw new Error(errorData.error || tI18n('ui.failedToFetchFocusStats'))
         }
       })
 
@@ -292,7 +296,7 @@ export default function DashboardPageRedesigned() {
           return await response.json()
         } else {
           const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error || 'Failed to fetch tasks')
+          throw new Error(errorData.error || tI18n('ui.failedToFetchTasks'))
         }
       })
 
@@ -314,8 +318,8 @@ export default function DashboardPageRedesigned() {
         console.error('Error fetching tasks:', normalizedError)
       }
       const userMessage = isTimeout
-        ? 'Network error. Please check your connection and try again.'
-        : normalizedError.message || 'Failed to load your tasks. Please try again.'
+        ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
+        : normalizedError.message || tI18n('ui.failedToLoadYourTasksPleaseTryAgain')
       setError(userMessage)
       toast.error(userMessage)
     } finally {
@@ -349,44 +353,12 @@ export default function DashboardPageRedesigned() {
     })
   }
 
+  // Local, bilingual and referenced — see useDailyQuote for why this no longer
+  // goes to /api/quotes/daily. Kept as a function so the existing call sites
+  // and the loading sequence stay unchanged.
   const fetchDailyQuote = async () => {
-    try {
-      // Check cache first
-      const cachedQuote = clientCache.get(`daily_quote:${userCacheKey}`)
-      if (cachedQuote) {
-        setDailyQuote(cachedQuote)
-        return
-      }
-
-      const data = await retryApiCall(async () => {
-        const response = await optimizedFetch('/api/quotes/daily', {
-          timeout: 15000, // Increased to 15 seconds for database queries
-          retries: 2,
-          retryDelay: 1500
-        })
-        if (response.ok) {
-          return await response.json()
-        } else {
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.error || 'Failed to fetch daily quote')
-        }
-      })
-
-      const quoteData = data.quote || {
-        text: tI18n('ui.andAllahIsWithThoseWhoArePatient'),
-        source: "Quran 2:153"
-      }
-
-      // Cache the results for 1 hour
-      clientCache.set(`daily_quote:${userCacheKey}`, quoteData, 60 * 60 * 1000)
-      setDailyQuote(quoteData)
-    } catch (error: any) {
-      // Silently use fallback quote, don't log as error (not critical)
-      setDailyQuote({
-        text: tI18n('ui.andAllahIsWithThoseWhoArePatient'),
-        source: "Quran 2:153"
-      })
-    }
+    const pick = getDailyInspiration()
+    setDailyQuote({ text: tI18n(pick.textKey), source: pick.source })
   }
 
   const createTask = async () => {
@@ -442,7 +414,7 @@ export default function DashboardPageRedesigned() {
         ])
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create task')
+        throw new Error(errorData.error || tI18n('ui.failedToCreateTask'))
       }
     } catch (error: unknown) {
       const normalizedError = normalizeError(error)
@@ -451,7 +423,7 @@ export default function DashboardPageRedesigned() {
         console.error('Error creating task:', normalizedError)
       }
       const userMessage = isTimeout
-        ? 'Network error. Please check your connection and try again.'
+        ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
         : normalizedError.message || 'Failed to create task. Please try again.'
       toast.error(userMessage)
     } finally {
@@ -506,7 +478,7 @@ export default function DashboardPageRedesigned() {
         ])
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to update task')
+        throw new Error(errorData.error || tI18n('ui.failedToUpdateTask'))
       }
     } catch (error: unknown) {
       const normalizedError = normalizeError(error)
@@ -515,7 +487,7 @@ export default function DashboardPageRedesigned() {
         console.error('Error updating task:', normalizedError)
       }
       const userMessage = isTimeout
-        ? 'Network error. Please check your connection and try again.'
+        ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
         : normalizedError.message || 'Failed to update task. Please try again.'
       toast.error(userMessage)
     } finally {
@@ -537,7 +509,7 @@ export default function DashboardPageRedesigned() {
 
       // Show confirmation for reopening completed tasks
       if (currentStatus === 'COMPLETED') {
-        const confirmed = window.confirm('Reopen this task? It will be marked as incomplete.')
+        const confirmed = window.confirm(tI18n('ui.reopenThisTaskItWillBeMarkedAsIncomplete'))
         if (!confirmed) return
       }
 
@@ -566,7 +538,7 @@ export default function DashboardPageRedesigned() {
         })
 
         if (response.ok) {
-          toast.success(newStatus === 'COMPLETED' ? 'Task completed!' : 'Task reopened')
+          toast.success(newStatus === 'COMPLETED' ? tI18n('ui.taskCompleted') : tI18n('ui.taskReopened'))
           // Clear ALL cache when task status changes
           clientCache.delete(`tasks:${userCacheKey}`)
           clientCache.delete(`user_stats:${userCacheKey}`)
@@ -582,7 +554,7 @@ export default function DashboardPageRedesigned() {
           // Revert optimistic update on error
           setTasks(previousTasks)
           const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to update task')
+          throw new Error(errorData.error || tI18n('ui.failedToUpdateTask'))
         }
       } catch (error: unknown) {
         // Revert optimistic update on error
@@ -593,14 +565,14 @@ export default function DashboardPageRedesigned() {
           console.error('Error toggling task:', normalizedError)
         }
         const userMessage = isTimeout
-          ? 'Network error. Please check your connection and try again.'
+          ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
           : normalizedError.message || 'Failed to update task. Please try again.'
         toast.error(userMessage)
       }
     } catch (error: unknown) {
       const normalizedError = normalizeError(error)
       console.error('Toggle task error:', normalizedError)
-      toast.error(normalizedError.message || 'Failed to update task')
+      toast.error(normalizedError.message || tI18n('ui.failedToUpdateTask'))
     }
   }
 
@@ -642,7 +614,7 @@ export default function DashboardPageRedesigned() {
         setTaskToDelete(null)
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to delete task')
+        throw new Error(errorData.error || tI18n('ui.failedToDeleteTask'))
       }
     } catch (error: unknown) {
       const normalizedError = normalizeError(error)
@@ -651,7 +623,7 @@ export default function DashboardPageRedesigned() {
         console.error('Error deleting task:', normalizedError)
       }
       const userMessage = isTimeout
-        ? 'Network error. Please check your connection and try again.'
+        ? tI18n('ui.networkErrorPleaseCheckYourConnectionAndTryA')
         : normalizedError.message || 'Failed to delete task. Please try again.'
       toast.error(userMessage)
     } finally {
@@ -659,12 +631,6 @@ export default function DashboardPageRedesigned() {
     }
   }
 
-  const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Good Morning'
-    if (hour < 17) return 'Good Afternoon'
-    return 'Good Evening'
-  }
 
   const filteredTasks = tasks.filter(task => {
     if (!task || !task.status) return false
@@ -777,7 +743,7 @@ export default function DashboardPageRedesigned() {
               fetchUserStats()
               fetchFocusStats()
             }}
-            retryLabel="Retry Loading"
+            retryLabel={tI18n('ui.retryLoading')}
           />
         )}
 
@@ -813,7 +779,7 @@ export default function DashboardPageRedesigned() {
                         of being clipped by `truncate` on narrow screens. */}
                     <h1 className="font-bold leading-tight">
                       <span className="block text-sm font-medium text-white/85 sm:text-base">
-                        {getGreeting()},
+                        {tI18n(getGreetingKey())},
                       </span>
                       <span className="block break-words text-lg sm:text-2xl">
                         {profile?.name || 'User'}
@@ -970,7 +936,7 @@ export default function DashboardPageRedesigned() {
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-slate-900 dark:text-white border-none text-xs h-8 shadow-md hover:shadow-lg transition-all"
                   onClick={() => window.location.href = '/focus'}
                 >
-                  {focusStats && focusStats.todaySessionsCount > 0 ? 'Continue Session' : 'Start First Session'}
+                  {focusStats && focusStats.todaySessionsCount > 0 ? tI18n('ui.continueSession') : tI18n('ui.startFirstSession')}
                 </Button>
               </CardContent>
             </Card>
@@ -1012,7 +978,7 @@ export default function DashboardPageRedesigned() {
                       size="icon"
                       onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                       className="border-2 border-slate-200 dark:border-slate-600 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-white dark:hover:bg-slate-700 shadow-sm"
-                      aria-label={viewMode === 'grid' ? "Switch to list view" : "Switch to grid view"}
+                      aria-label={viewMode === 'grid' ? tI18n('ui.switchToListView') : tI18n('ui.switchToGridView')}
                     >
                       {viewMode === 'grid' ? <List className="h-5 w-5" /> : <Grid3X3 className="h-5 w-5" />}
                     </Button>
@@ -1027,10 +993,10 @@ export default function DashboardPageRedesigned() {
                       className="border-2 border-slate-200 dark:border-slate-600 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-white dark:hover:bg-slate-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={
                         filter === 'completed'
-                          ? "Show/hide toggle disabled while viewing completed tasks"
+                          ? tI18n('ui.showHideToggleDisabledWhileViewingCompletedT')
                           : showCompletedTasks
-                            ? "Hide completed tasks"
-                            : "Show completed tasks"
+                            ? tI18n('ui.hideCompletedTasks')
+                            : tI18n('ui.showCompletedTasks')
                       }
                     >
                       {showCompletedTasks ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -1124,7 +1090,7 @@ export default function DashboardPageRedesigned() {
                                     : 'text-slate-400 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-slate-300 dark:ring-slate-600 hover:ring-emerald-400 dark:hover:ring-emerald-500/50 shadow-slate-300/40 cursor-pointer'
                                   )
                                 }
-                                aria-label={task.status.toUpperCase() === 'COMPLETED' ? "Task completed" : "Mark task as complete"}
+                                aria-label={task.status.toUpperCase() === 'COMPLETED' ? tI18n('ui.taskCompleted2') : tI18n('ui.markTaskAsComplete')}
                               >
                                 {task.status.toUpperCase() === 'COMPLETED' ? (
                                   <CheckCircle2 className="h-6 w-6" />
@@ -1225,12 +1191,12 @@ export default function DashboardPageRedesigned() {
                           )}
                         </div>
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">
-                          {filter === 'completed' ? 'No completed tasks yet' : 'No tasks found'}
+                          {filter === 'completed' ? tI18n('ui.noCompletedTasksYet') : 'No tasks found'}
                         </h3>
                         <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto text-lg">
                           {filter === 'completed'
-                            ? 'Complete some tasks to see them here and celebrate your progress!'
-                            : 'Create your first task and start building productive habits today.'
+                            ? tI18n('ui.completeSomeTasksToSeeThemHereAndCelebrateYo')
+                            : tI18n('ui.createYourFirstTaskAndStartBuildingProductiv')
                           }
                         </p>
                         <Button

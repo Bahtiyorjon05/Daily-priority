@@ -205,7 +205,7 @@ export default function HabitsPage() {
 
       if (response.status === 202) {
         // Saved locally; the optimistic update above already reflects it.
-        toast.success(completedToday ? 'Completion removed (offline)' : '✅ Habit completed (offline)')
+        toast.success(completedToday ? t('ui.completionRemovedOffline') : t('ui.habitCompletedOffline'))
         return
       }
 
@@ -223,7 +223,7 @@ export default function HabitsPage() {
             ))
           }
         }
-        toast.success(completedToday ? 'Completion removed' : '✅ Habit completed!')
+        toast.success(completedToday ? t('ui.completionRemoved') : t('ui.habitCompleted'))
       } else {
         // Revert optimistic update on error
         await fetchHabits()
@@ -521,8 +521,8 @@ export default function HabitsPage() {
                   <p className="text-gray-600 dark:text-gray-400">{t('ui.noHabitsFound')}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
                     {searchQuery || selectedFrequency !== 'ALL' 
-                      ? 'Try adjusting your filters'
-                      : 'Create your first habit to get started'}
+                      ? t('ui.tryAdjustingYourFilters')
+                      : t('ui.createYourFirstHabitToGetStarted')}
                   </p>
                 </CardContent>
               </Card>

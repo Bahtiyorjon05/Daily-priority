@@ -104,7 +104,7 @@ export default function HealthPanel() {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Tile
           label={t('ui.push')}
-          value={health.pushConfigured ? `${health.pushDevices} devices` : 'Not configured'}
+          value={health.pushConfigured ? `${health.pushDevices} devices` : t('ui.notConfigured')}
           ok={health.pushConfigured}
         />
         <Tile label={t('ui.vault')} value={health.vaultConfigured ? 'On' : 'Off'} ok={health.vaultConfigured} />

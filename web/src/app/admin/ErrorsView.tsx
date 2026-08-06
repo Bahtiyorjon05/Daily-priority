@@ -108,9 +108,9 @@ export default function ErrorsView() {
           <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
             <Check className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h3 className="font-semibold">{showResolved ? 'Nothing resolved yet' : 'No errors 🎉'}</h3>
+          <h3 className="font-semibold">{showResolved ? t('ui.nothingResolvedYet') : t('ui.noErrors')}</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {showResolved ? 'Resolved errors will appear here.' : 'Client and server errors show up here automatically.'}
+            {showResolved ? t('ui.resolvedErrorsWillAppearHere') : t('ui.clientAndServerErrorsShowUpHereAutomatically')}
           </p>
         </div>
       ) : (
@@ -143,7 +143,7 @@ export default function ErrorsView() {
 
                   <button
                     onClick={() => setResolved(e.id, !e.resolved)}
-                    title={e.resolved ? 'Reopen' : 'Mark resolved'}
+                    title={e.resolved ? 'Reopen' : t('ui.markResolved')}
                     className="shrink-0 rounded-lg border p-1.5 text-muted-foreground hover:bg-muted"
                   >
                     <Check className="h-4 w-4" />

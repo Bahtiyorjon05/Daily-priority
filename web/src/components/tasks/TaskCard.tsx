@@ -147,7 +147,7 @@ const TaskCard = memo<TaskCardProps>(({
             'flex-shrink-0 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full',
             isCompleted && 'text-emerald-600 dark:text-emerald-400'
           )}
-          aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+          aria-label={isCompleted ? t('ui.markAsIncomplete') : t('ui.markAsComplete')}
         >
           {isCompleted ? (
             <CheckCircle2 className="h-5 w-5" />
@@ -295,11 +295,11 @@ const TaskCard = memo<TaskCardProps>(({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleToggleUrgent}>
                     <Zap className="mr-2 h-4 w-4" />
-                    {task.urgent ? 'Remove urgent' : 'Mark as urgent'}
+                    {task.urgent ? t('ui.removeUrgent') : 'Mark as urgent'}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleToggleImportant}>
                     <Flag className="mr-2 h-4 w-4" />
-                    {task.important ? 'Remove important' : 'Mark as important'}
+                    {task.important ? t('ui.removeImportant') : 'Mark as important'}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleDelete} className="text-red-600">

@@ -290,7 +290,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
                       <div className="flex-1">
                         <div className="flex justify-between mb-1">
                           <span className="text-sm font-medium text-slate-700 dark:text-gray-300 capitalize">
-                            {type.type === 'shortBreak' ? 'Short Break' : type.type === 'longBreak' ? 'Long Break' : type.type}
+                            {type.type === 'shortBreak' ? t('ui.shortBreak') : type.type === 'longBreak' ? t('ui.longBreak') : type.type}
                           </span>
                           <span className="text-sm text-slate-600 dark:text-gray-400 font-medium">
                             {type.count} {t('ui.sessions3')} {formatTime(type.totalTime)}

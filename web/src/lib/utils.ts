@@ -66,11 +66,19 @@ export function calculateStreak(completions: Date[]): number {
   return streak
 }
 
-export function getGreeting(): string {
+/**
+ * Returns a message *key*, not English.
+ *
+ * There were three copies of this — here, the dashboard page and
+ * WelcomeSection — each hard-coding "Good Morning". Returning a key means the
+ * greeting follows the language switch, and there is one place to change the
+ * cutoff hours.
+ */
+export function getGreetingKey(): 'greeting.morning' | 'greeting.afternoon' | 'greeting.evening' {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (hour < 12) return 'greeting.morning'
+  if (hour < 18) return 'greeting.afternoon'
+  return 'greeting.evening'
 }
 
 export function getMotivationalQuote(): string {

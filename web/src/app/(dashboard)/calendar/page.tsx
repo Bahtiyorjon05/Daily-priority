@@ -1001,7 +1001,7 @@ export default function CalendarPage() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
-                  {editingEvent ? 'Edit Event' : 'Create Event'}
+                  {editingEvent ? tr('ui.editEvent') : tr('ui.createEvent')}
                 </h3>
                 <Button
                   variant="ghost"
@@ -1057,7 +1057,7 @@ export default function CalendarPage() {
                   style={{ background: 'linear-gradient(to right, rgb(99 102 241), rgb(168 85 247), rgb(236 72 153))' }}
                 >
                   <Check className="h-5 w-5 mr-2 text-white" strokeWidth={3} />
-                  <span className="text-white font-bold">{editingEvent ? 'Update Event' : 'Create Event'}</span>
+                  <span className="text-white font-bold">{editingEvent ? tr('ui.updateEvent') : tr('ui.createEvent')}</span>
                 </Button>
                 <Button
                   variant="outline"

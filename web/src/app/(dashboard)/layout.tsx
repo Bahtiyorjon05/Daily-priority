@@ -38,7 +38,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { signOut } from 'next-auth/react'
-import { getGreeting } from '@/lib/utils'
+import { getGreetingKey } from '@/lib/utils'
 import { useTheme } from '@/components/theme-provider'
 import { getThemeClass } from '@/lib/theme-config'
 import Logo from '@/components/shared/Logo'
@@ -573,7 +573,7 @@ function DashboardLayoutContent({
                 size="icon"
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                 className="h-9 w-9 hover:bg-accent rounded-xl transition-all duration-200 hover:scale-105 hover:rotate-90"
-                title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                title={sidebarCollapsed ? 'Expand sidebar' : t('ui.collapseSidebar')}
               >
                 <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
               </Button>
@@ -659,7 +659,7 @@ function DashboardLayoutContent({
         size="icon"
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="fixed top-3 left-3 z-50 lg:hidden bg-white dark:bg-gray-900 backdrop-blur-xl shadow-xl shadow-gray-900/10 dark:shadow-gray-950/20 rounded-xl hover:scale-105 transition-all duration-200 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-600"
-        aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
+        aria-label={sidebarOpen ? t('ui.closeNavigationMenu') : t('ui.openNavigationMenu')}
         aria-expanded={sidebarOpen}
         aria-controls="sidebar-navigation"
       >
@@ -790,7 +790,7 @@ function DashboardLayoutContent({
                               {profile?.name || 'User'}
                             </p>
                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
-                              {getGreeting()} 👋
+                              {t(getGreetingKey())} 👋
                             </p>
                           </div>
                         </div>

@@ -186,7 +186,7 @@ export default function PrayersPage() {
               toast.success(t('ui.locationUpdatedSuccessfully'))
             }
           } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to get GPS location')
+            toast.error(error instanceof Error ? error.message : t('ui.failedToGetGpsLocation'))
             // Fall back to automatic detection
             userLocation = await getUserLocation()
           }
@@ -304,7 +304,7 @@ export default function PrayersPage() {
 
         if (!times) {
 
-          setPrayerTimesError('Unable to fetch prayer times for your location right now.')
+          setPrayerTimesError(t('ui.unableToFetchPrayerTimesForYourLocationRight'))
 
           return
 
@@ -1470,7 +1470,7 @@ export default function PrayersPage() {
 
                     <span className="text-muted-foreground">
 
-                      {isCompleted ? 'Completed' : 'Mark as completed'}
+                      {isCompleted ? 'Completed' : t('ui.markAsCompleted')}
 
                     </span>
 

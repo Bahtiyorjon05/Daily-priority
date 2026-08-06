@@ -430,14 +430,14 @@ export default function AdhkarPage() {
 
                       {/* Translation */}
                       <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                        {item.translation}
+                        {t(item.translation)}
                       </p>
 
                       {/* Benefits */}
                       {item.benefits && (
                         <div className="pt-2">
                           <p className="text-xs sm:text-sm text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                            ✨ <strong>{t('ui.benefits')}</strong> {item.benefits}
+                            ✨ <strong>{t('ui.benefits')}</strong> {t(item.benefits)}
                           </p>
                         </div>
                       )}

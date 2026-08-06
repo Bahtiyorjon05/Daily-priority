@@ -36,10 +36,10 @@ export function InstallMenuItem({ onNavigate }: { onNavigate?: () => void }) {
     // how to do it manually instead of silently doing nothing.
     setTip(
       isIOS
-        ? 'Tap Share ↗ in Safari, then "Add to Home Screen".'
+        ? t('ui.tapShareInSafariThenAddToHomeScreen')
         : isAndroid
-          ? 'Tap ⋮ in your browser menu, then "Install app".'
-          : 'Open your browser menu and choose "Install app".'
+          ? t('ui.tapInYourBrowserMenuThenInstallApp')
+          : t('ui.openYourBrowserMenuAndChooseInstallApp')
     )
   }
 

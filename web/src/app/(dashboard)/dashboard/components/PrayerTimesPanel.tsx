@@ -31,7 +31,7 @@ export default function PrayerTimesPanel() {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     // Mock location; replace with real geolocation if desired
-    setTimeout(() => setLocation('New York, NY'), 800)
+    setTimeout(() => setLocation(t('ui.newYorkNy')), 800)
     return () => clearInterval(timer)
   }, [])
 

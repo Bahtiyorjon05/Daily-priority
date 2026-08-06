@@ -46,7 +46,7 @@ export function NotificationSettings() {
     try {
       const res = await fetch('/api/push/test', { method: 'POST' })
       const data = await res.json().catch(() => ({}))
-      if (res.ok && data.ok) toast.success(data.message || 'Test notification sent')
+      if (res.ok && data.ok) toast.success(data.message || t('ui.testNotificationSent'))
       else toast.error(t(data.error || data.message || 'Could not send test notification'))
     } catch {
       toast.error(t('ui.couldNotSendTestNotification'))
@@ -99,14 +99,14 @@ export function NotificationSettings() {
                 className="gap-2"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : subscribed ? <BellOff className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-                {subscribed ? 'Turn off on this device' : 'Enable on this device'}
+                {subscribed ? t('ui.turnOffOnThisDevice') : t('ui.enableOnThisDevice')}
               </Button>
               <span className="text-xs text-muted-foreground">
                 {permission === 'denied'
-                  ? 'Blocked in browser settings — allow notifications for this site first.'
+                  ? t('ui.blockedInBrowserSettingsAllowNotificationsFo')
                   : subscribed
-                    ? 'Enabled on this device.'
-                    : 'Not enabled on this device.'}
+                    ? t('ui.enabledOnThisDevice')
+                    : t('ui.notEnabledOnThisDevice')}
               </span>
 
               {subscribed && (
@@ -136,7 +136,7 @@ export function NotificationSettings() {
               <Row
                 id="prayer"
                 title={t('ui.prayerReminders')}
-                desc="A nudge shortly before each prayer time."
+                desc={t('ui.aNudgeShortlyBeforeEachPrayerTime')}
                 checked={prefs.prayerReminders}
                 onChange={(v) => set('prayerReminders', v)}
               />
@@ -159,7 +159,7 @@ export function NotificationSettings() {
               <Row
                 id="habits"
                 title={t('ui.habitReminder')}
-                desc="An evening nudge if habits are still unticked."
+                desc={t('ui.anEveningNudgeIfHabitsAreStillUnticked')}
                 checked={prefs.habitReminders}
                 onChange={(v) => set('habitReminders', v)}
               />
@@ -180,14 +180,14 @@ export function NotificationSettings() {
               <Row
                 id="tasks"
                 title={t('ui.overdueTaskDigest')}
-                desc="A morning summary when tasks are past due."
+                desc={t('ui.aMorningSummaryWhenTasksArePastDue')}
                 checked={prefs.taskReminders}
                 onChange={(v) => set('taskReminders', v)}
               />
               <Row
                 id="weekly"
                 title={t('ui.weeklyReviewEmail')}
-                desc="A Sunday summary of your week."
+                desc={t('ui.aSundaySummaryOfYourWeek')}
                 checked={prefs.weeklyReviewEmail}
                 onChange={(v) => set('weeklyReviewEmail', v)}
               />

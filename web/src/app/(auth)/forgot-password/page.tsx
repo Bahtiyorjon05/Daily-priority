@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
           router.push('/verify-code')
         }, 1000)
       } else {
-        setErrors(prev => ({ ...prev, general: data.error || 'Failed to send verification code. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || t('ui.failedToSendVerificationCodePleaseTryAgain') }))
         toast.error(t(data.error || 'Failed to send code', {
           duration: 4000,
         }))

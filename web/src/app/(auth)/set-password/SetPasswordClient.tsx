@@ -74,7 +74,7 @@ export default function SetPasswordClient() {
       if (!value) error = 'Password is required'
       else if (value.length < 8) error = 'Password must be at least 8 characters'
     } else if (name === 'confirmPassword') {
-      if (!value) error = 'Please confirm your password'
+      if (!value) error = t('ui.pleaseConfirmYourPassword')
       else if (value !== formData.password) error = 'Passwords do not match'
     }
     
@@ -91,7 +91,7 @@ export default function SetPasswordClient() {
     // Validate all fields
     const passwordError = !formData.password ? 'Password is required' :
                           formData.password.length < 8 ? 'Password must be at least 8 characters' : ''
-    const confirmPasswordError = !formData.confirmPassword ? 'Please confirm your password' :
+    const confirmPasswordError = !formData.confirmPassword ? t('ui.pleaseConfirmYourPassword') :
                                  formData.confirmPassword !== formData.password ? 'Passwords do not match' : ''
 
     setErrors({
@@ -127,7 +127,7 @@ export default function SetPasswordClient() {
         router.push('/dashboard?message=Password set successfully!')
       } else {
         const data = await response.json()
-        setErrors(prev => ({ ...prev, general: data.error || 'Failed to set password. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || t('ui.failedToSetPasswordPleaseTryAgain') }))
       }
     } catch (error) {
       console.error('Set password error:', error)
@@ -250,12 +250,12 @@ export default function SetPasswordClient() {
                   </div>
                   
                   <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-200 bg-clip-text text-transparent drop-shadow-lg">
-                    {isRequired ? 'Password Setup Required' : 'Set Your Password'}
+                    {isRequired ? t('ui.passwordSetupRequired2') : t('ui.setYourPassword')}
                   </h1>
                   <p className="text-gray-600 dark:text-gray-300 text-lg">
                     {isRequired
-                      ? 'Complete your account setup by creating a secure password'
-                      : 'Secure your account with a strong password'
+                      ? t('ui.completeYourAccountSetupByCreatingASecurePas')
+                      : t('ui.secureYourAccountWithAStrongPassword')
                     }
                   </p>
                 </div>
@@ -406,7 +406,7 @@ export default function SetPasswordClient() {
                 </div>
                 <div className="mt-6 text-center space-y-3">
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
-{t('ui.afterSettingYourPasswordYouLlBeAbleToSignInW')} {isRequired ? 'both Google and' : ''} {t('ui.emailPassword')}
+{t('ui.afterSettingYourPasswordYouLlBeAbleToSignInW')} {isRequired ? t('ui.bothGoogleAnd') : ''} {t('ui.emailPassword')}
 </p>
                   {isRequired && (
                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700">

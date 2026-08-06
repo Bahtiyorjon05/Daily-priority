@@ -15,25 +15,25 @@ function ErrorContent() {
   const getErrorMessage = (error: string | null) => {
     switch (error) {
       case 'OAuthSignin':
-        return 'Error in retrieving information from OAuth provider.'
+        return t('ui.errorInRetrievingInformationFromOauthProvide')
       case 'OAuthCallback':
-        return 'Error in handling the response from OAuth provider.'
+        return t('ui.errorInHandlingTheResponseFromOauthProvider')
       case 'OAuthCreateAccount':
-        return 'Could not create OAuth account in the database.'
+        return t('ui.couldNotCreateOauthAccountInTheDatabase')
       case 'EmailCreateAccount':
-        return 'Could not create email account in the database.'
+        return t('ui.couldNotCreateEmailAccountInTheDatabase')
       case 'Callback':
-        return 'Error in the OAuth callback handler route.'
+        return t('ui.errorInTheOauthCallbackHandlerRoute')
       case 'OAuthAccountNotLinked':
-        return 'Email on the account is already linked, but not with this OAuth account.'
+        return t('ui.emailOnTheAccountIsAlreadyLinkedButNotWithTh')
       case 'EmailSignin':
-        return 'Check your email address.'
+        return t('ui.checkYourEmailAddress')
       case 'CredentialsSignin':
-        return 'Sign in failed. Check the details you provided are correct.'
+        return t('ui.signInFailedCheckTheDetailsYouProvidedAreCor')
       case 'SessionRequired':
-        return 'Please sign in to access this page.'
+        return t('ui.pleaseSignInToAccessThisPage')
       default:
-        return 'An unexpected error occurred.'
+        return t('ui.anUnexpectedErrorOccurred')
     }
   }
 

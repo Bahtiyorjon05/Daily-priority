@@ -116,7 +116,7 @@ export function SignUpForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send verification code')
+        throw new Error(data.error || t('ui.failedToSendVerificationCode'))
       }
 
       toast.success(t('ui.verificationCodeSent'), {
@@ -175,7 +175,7 @@ export function SignUpForm() {
     setErrors({ email: '', code: '', name: '', password: '', confirmPassword: '', general: '' })
 
     if (!formData.verificationCode || formData.verificationCode.length !== 6) {
-      setErrors(prev => ({ ...prev, code: 'Please enter the 6-digit code' }))
+      setErrors(prev => ({ ...prev, code: t('ui.pleaseEnterThe6DigitCode') }))
       return
     }
 
@@ -242,7 +242,7 @@ export function SignUpForm() {
     }
 
     if (!formData.confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: 'Please confirm your password' }))
+      setErrors(prev => ({ ...prev, confirmPassword: t('ui.pleaseConfirmYourPassword') }))
       hasErrors = true
     } else if (formData.password !== formData.confirmPassword) {
       setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }))
@@ -269,7 +269,7 @@ export function SignUpForm() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Registration failed')
+        throw new Error(data.error || t('ui.registrationFailed'))
       }
 
       toast.success(t('ui.accountCreated'), {
@@ -290,12 +290,12 @@ export function SignUpForm() {
       } else {
         setErrors(prev => ({
           ...prev,
-          general: 'Account created but sign-in failed. Please try signing in manually.',
+          general: t('ui.accountCreatedButSignInFailedPleaseTrySignin'),
         }))
       }
     } catch (error: any) {
       setErrors(prev => ({ ...prev, general: error.message || 'Something went wrong' }))
-      toast.error(error.message || 'Registration failed')
+      toast.error(error.message || t('ui.registrationFailed'))
     } finally {
       setLoading(false)
     }
@@ -562,7 +562,7 @@ export function SignUpForm() {
               className="flex-1 h-10 sm:h-11 inline-flex items-center justify-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-xl transition-all duration-300 text-sm font-semibold text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className="w-4 h-4" />
-              <span>{canResend ? 'Resend Code' : 'Wait 60s to resend'}</span>
+              <span>{canResend ? 'Resend Code' : t('ui.wait60sToResend')}</span>
             </button>
           </div>
         </div>

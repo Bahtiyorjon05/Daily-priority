@@ -143,7 +143,7 @@ export default function OverviewView() {
     ;(async () => {
       try {
         const res = await fetch('/api/admin/overview', { cache: 'no-store' })
-        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Failed to load')
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || t('ui.failedToLoad'))
         setData(await res.json())
       } catch (e) {
         setError((e as Error).message)

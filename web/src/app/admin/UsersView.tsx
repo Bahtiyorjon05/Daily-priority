@@ -69,7 +69,7 @@ export default function UsersView() {
     setError('')
     try {
       const res = await fetch(`/api/admin/users?filter=${filter}&sort=${sort}`, { cache: 'no-store' })
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Failed to load')
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || tr('ui.failedToLoad'))
       const data = await res.json()
       setRows(data.users || [])
     } catch (e) {

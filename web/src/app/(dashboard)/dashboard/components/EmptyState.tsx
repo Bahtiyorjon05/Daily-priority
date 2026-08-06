@@ -1,5 +1,7 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
+
 import { motion } from 'framer-motion'
 import { Plus, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -12,13 +14,21 @@ interface EmptyStateProps {
   icon?: React.ComponentType<{ className?: string }>
 }
 
-export default function EmptyState({ 
-  title = 'No items found',
-  message = 'There are no items to display right now.',
+export default function EmptyState({
+  title,
+  message,
   onAction,
-  actionLabel = 'Add Item',
+  actionLabel,
   icon: Icon = Target
 }: EmptyStateProps) {
+  const { t } = useT()
+
+  // Defaults live in the body, not in the parameter list: a default value is
+  // evaluated before the component body runs, which is no place for a hook.
+  const heading = title ?? t('ui.noItemsFound')
+  const body = message ?? t('ui.thereAreNoItemsToDisplayRightNow')
+  const action = actionLabel ?? t('ui.addItem')
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,11 +40,11 @@ export default function EmptyState({
       </div>
       
       <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-        {title}
+        {heading}
       </h3>
       
       <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto">
-        {message}
+        {body}
       </p>
       
       {onAction && (
@@ -43,7 +53,7 @@ export default function EmptyState({
           className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
-          {actionLabel}
+          {action}
         </Button>
       )}
     </motion.div>

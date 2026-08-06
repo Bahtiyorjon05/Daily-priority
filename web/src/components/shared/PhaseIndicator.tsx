@@ -71,7 +71,7 @@ export function PhaseIndicator() {
               <div className="phase-hero px-4 py-3.5">
                 <p className="text-sm font-semibold text-white drop-shadow-sm">{label}</p>
                 <p className="text-xs text-white/80">
-                  {prayer ? `Between ${prayer} and the next prayer` : 'Between sunrise and Dhuhr'}
+                  {prayer ? `Between ${prayer} and the next prayer` : t('ui.betweenSunriseAndDhuhr')}
                 </p>
               </div>
 

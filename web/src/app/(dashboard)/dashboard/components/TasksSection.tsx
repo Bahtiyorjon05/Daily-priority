@@ -113,7 +113,7 @@ export default function TasksSection() {
             size="icon"
             onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
             className="h-10 w-10 rounded-lg text-slate-700 dark:text-slate-200 focus-visible:ring-2 focus-visible:ring-emerald-500"
-            aria-label={viewMode === 'list' ? 'Switch to grid view' : 'Switch to list view'}
+            aria-label={viewMode === 'list' ? t('ui.switchToGridView') : t('ui.switchToListView')}
           >
             {viewMode === 'list' ? <Grid3X3 className="h-4 w-4" /> : <List className="h-4 w-4" />}
           </Button>
@@ -123,7 +123,7 @@ export default function TasksSection() {
             size="icon"
             onClick={() => setShowCompleted(!showCompleted)}
             className="h-10 w-10 rounded-lg text-slate-700 dark:text-slate-200 focus-visible:ring-2 focus-visible:ring-emerald-500"
-            aria-label={showCompleted ? 'Hide completed tasks' : 'Show completed tasks'}
+            aria-label={showCompleted ? t('ui.hideCompletedTasks') : t('ui.showCompletedTasks')}
           >
             {showCompleted ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>

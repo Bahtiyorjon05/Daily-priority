@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
         router.refresh()
       } else {
         const data = await res.json().catch(() => ({}))
-        setError(data.error || 'Login failed')
+        setError(data.error || t('ui.loginFailed'))
       }
     } catch {
       setError(t('ui.somethingWentWrongTryAgain'))

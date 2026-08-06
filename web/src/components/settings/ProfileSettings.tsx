@@ -69,7 +69,7 @@ export function ProfileSettings() {
 
       toast.success(tr('ui.locationDetectedSuccessfully'))
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to detect location'
+      const errorMessage = error.message || tr('ui.failedToDetectLocation')
       setLocationError(errorMessage)
       toast.error(errorMessage)
     } finally {
@@ -118,7 +118,7 @@ export function ProfileSettings() {
 
       const data = await response.json()
 
-      if (!response.ok) throw new Error(data.error || 'Failed to upload image')
+      if (!response.ok) throw new Error(data.error || tr('ui.failedToUploadImage'))
 
       // Clear preview and file
       setImagePreview(null)
@@ -134,7 +134,7 @@ export function ProfileSettings() {
       toast.success(tr('ui.profilePictureUpdatedSuccessfully'))
       
     } catch (error: any) {
-      toast.error(error.message || 'Failed to upload image')
+      toast.error(error.message || tr('ui.failedToUploadImage'))
     } finally {
       setUploadingImage(false)
     }

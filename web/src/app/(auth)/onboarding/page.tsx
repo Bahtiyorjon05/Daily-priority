@@ -65,7 +65,7 @@ export default function OnboardingPage() {
     setLocating(true)
     setLocationError('')
     if (!navigator.geolocation) {
-      setLocationError('This device can’t share a location. You can type a city instead.')
+      setLocationError(tr('ui.thisDeviceCanTShareALocationYouCanTypeACityI'))
       setLocating(false)
       return
     }
@@ -86,7 +86,7 @@ export default function OnboardingPage() {
         }
       },
       () => {
-        setLocationError('Couldn’t read your location. You can type a city instead.')
+        setLocationError(tr('ui.couldnTReadYourLocationYouCanTypeACityInstea'))
         setLocating(false)
       },
       { timeout: 10000, maximumAge: 600000 }
@@ -157,9 +157,9 @@ export default function OnboardingPage() {
 {tr('ui.step')} {index + 1} of {STEPS.length}
             </p>
             <h1 className="mt-0.5 text-xl font-bold text-white">
-              {step === 'location' && 'Where are you praying from?'}
-              {step === 'habits' && 'Pick one thing to build'}
-              {step === 'reminders' && 'Want a nudge before each prayer?'}
+              {step === 'location' && tr('ui.whereAreYouPrayingFrom')}
+              {step === 'habits' && tr('ui.pickOneThingToBuild')}
+              {step === 'reminders' && tr('ui.wantANudgeBeforeEachPrayer')}
             </h1>
           </div>
 
@@ -177,7 +177,7 @@ export default function OnboardingPage() {
                     className="phase-chip mb-3 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
                   >
                     {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Compass className="h-4 w-4" />}
-                    {locating ? 'Finding you…' : 'Use my current location'}
+                    {locating ? tr('ui.findingYou') : tr('ui.useMyCurrentLocation')}
                   </button>
 
                   <div className="relative mb-3">
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
 
                   <StepButtons
                     onNext={() => setStep('reminders')}
-                    nextLabel={selectedHabits.length > 0 ? 'Continue' : 'Skip for now'}
+                    nextLabel={selectedHabits.length > 0 ? 'Continue' : tr('ui.skipForNow')}
                     onSkip={() => {
                       setSelectedHabits([])
                       setStep('reminders')

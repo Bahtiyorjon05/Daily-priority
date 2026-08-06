@@ -60,11 +60,11 @@ export default function NewTaskModalEnhanced({
     const newErrors: Record<string, string> = {}
     
     if (!newTask.title.trim()) {
-      newErrors.title = 'Task title is required'
+      newErrors.title = t('ui.taskTitleIsRequired')
     }
     
     if (newTask.estimatedTime < 5 || newTask.estimatedTime > 480) {
-      newErrors.estimatedTime = 'Estimated time must be between 5 and 480 minutes'
+      newErrors.estimatedTime = t('ui.estimatedTimeMustBeBetween5And480Minutes')
     }
     
     setErrors(newErrors)

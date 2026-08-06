@@ -69,10 +69,10 @@ export function InstallPrompt() {
                 >
                   <p className="text-[11px] text-center text-gray-500 dark:text-gray-400 px-3 pb-2.5">
                     {isIOS
-                      ? 'Tap Share ↗ then "Add to Home Screen"'
+                      ? t('ui.tapShareThenAddToHomeScreen')
                       : isAndroid
-                        ? 'Tap ⋮ menu then "Install app"'
-                        : 'Use your browser menu to install'}
+                        ? t('ui.tapMenuThenInstallApp')
+                        : t('ui.useYourBrowserMenuToInstall')}
                   </p>
                 </motion.div>
               )}
@@ -149,10 +149,10 @@ export function InstallSection() {
                   className="text-xs text-gray-500 dark:text-gray-400 mt-3"
                 >
                   {isIOS
-                    ? 'Tap Share ↗ in Safari, then "Add to Home Screen"'
+                    ? t('ui.tapShareInSafariThenAddToHomeScreen2')
                     : isAndroid
-                      ? 'Tap ⋮ in Chrome, then "Install app"'
-                      : 'Use your browser menu to install this app'}
+                      ? t('ui.tapInChromeThenInstallApp')
+                      : t('ui.useYourBrowserMenuToInstallThisApp')}
                 </motion.p>
               )}
             </AnimatePresence>

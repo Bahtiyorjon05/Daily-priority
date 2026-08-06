@@ -88,10 +88,10 @@ function VerifyEmailContent() {
       title={t('ui.emailVerification')}
       subtitle={
         status === 'verifying'
-          ? 'Please wait while we verify your email...'
+          ? t('ui.pleaseWaitWhileWeVerifyYourEmail')
           : status === 'success'
-          ? 'Your account is now active!'
-          : 'Verification Failed'
+          ? t('ui.yourAccountIsNowActive')
+          : t('ui.verificationFailed2')
       }
     >
       <div className="text-center space-y-6">

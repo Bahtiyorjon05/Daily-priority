@@ -29,7 +29,7 @@ const TaskList = memo<TaskListProps>(({
 }) => {
   const { t } = useT()
   if (isLoading) {
-    return <LoadingState text="Loading tasks..." />
+    return <LoadingState text={t('ui.loadingTasks')} />
   }
 
   if (tasks.length === 0) {

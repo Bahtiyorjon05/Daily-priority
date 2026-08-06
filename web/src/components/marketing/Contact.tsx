@@ -70,7 +70,7 @@ export function Contact() {
         data = await response.json()
       } catch (parseError) {
         console.error('Failed to parse response:', parseError)
-        throw new Error('Invalid server response')
+        throw new Error(t('ui.invalidServerResponse'))
       }
 
       if (response.ok) {
@@ -101,7 +101,7 @@ export function Contact() {
       }
     } catch (error) {
       console.error('Contact form error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Please check your connection and try again.'
+      const errorMessage = error instanceof Error ? error.message : t('ui.pleaseCheckYourConnectionAndTryAgain')
       toast.error(t('error.title'), {
         description: errorMessage,
         duration: 5000,

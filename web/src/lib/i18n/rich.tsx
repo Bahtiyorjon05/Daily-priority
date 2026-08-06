@@ -50,7 +50,14 @@ export function RichText({
     const name = m[1]
     // The fragment's own text is a separate key: `<id>.<name>`, so translators
     // see the highlighted words as their own string rather than as markup.
-    out.push(<Fragment key={i++}>{parts[name](t(`${id}.${name}`))}</Fragment>)
+    {
+      // Widened to `string`: the dictionary is now ~1600 keys, and checking a
+      // template-literal type against a union that large makes tsc give up with
+      // "excessive complexity". The key is validated at runtime by the coverage
+      // test instead.
+      const partKey: string = `${id}.${name}`
+      out.push(<Fragment key={i++}>{parts[name](t(partKey))}</Fragment>)
+    }
     last = m.index + m[0].length
   }
   if (last < template.length) out.push(<Fragment key={i++}>{template.slice(last)}</Fragment>)

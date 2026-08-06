@@ -111,13 +111,13 @@ export default function JournalPage() {
     // Validate ALL fields are required
     const errors = []
     
-    if (!newEntry.gratitude1?.trim()) errors.push('First gratitude')
-    if (!newEntry.gratitude2?.trim()) errors.push('Second gratitude')
-    if (!newEntry.gratitude3?.trim()) errors.push('Third gratitude')
-    if (!newEntry.goodDeeds?.trim()) errors.push('Good deeds')
-    if (!newEntry.lessons?.trim()) errors.push('Lessons learned')
-    if (!newEntry.duas?.trim()) errors.push('Duas & prayers')
-    if (!newEntry.reflection?.trim()) errors.push('Daily reflection')
+    if (!newEntry.gratitude1?.trim()) errors.push(t('ui.firstGratitude'))
+    if (!newEntry.gratitude2?.trim()) errors.push(t('ui.secondGratitude'))
+    if (!newEntry.gratitude3?.trim()) errors.push(t('ui.thirdGratitude'))
+    if (!newEntry.goodDeeds?.trim()) errors.push(t('ui.goodDeeds2'))
+    if (!newEntry.lessons?.trim()) errors.push(t('ui.lessonsLearned2'))
+    if (!newEntry.duas?.trim()) errors.push(t('ui.duasPrayers2'))
+    if (!newEntry.reflection?.trim()) errors.push(t('ui.dailyReflection2'))
     
     if (errors.length > 0) {
       setValidationErrors(errors)
@@ -154,7 +154,7 @@ export default function JournalPage() {
         })
       } else {
         const error = await response.json()
-        toast.error(error.error || 'Failed to create entry')
+        toast.error(error.error || t('ui.failedToCreateEntry'))
       }
     } catch (error) {
       console.error('Failed to create entry:', error)
@@ -180,7 +180,7 @@ export default function JournalPage() {
         }
       } else {
         const error = await response.json()
-        toast.error(error.error || 'Failed to delete entry')
+        toast.error(error.error || t('ui.failedToDeleteEntry'))
       }
     } catch (error) {
       console.error('Failed to delete entry:', error)
@@ -650,12 +650,12 @@ export default function JournalPage() {
         <Card className="p-12 text-center">
           <BookOpen className="h-16 w-16 text-slate-400 dark:text-gray-600 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-slate-700 dark:text-gray-300 mb-2">
-            {searchQuery || moodFilter ? 'No entries found' : 'No entries yet'}
+            {searchQuery || moodFilter ? t('ui.noEntriesFound') : t('ui.noEntriesYet')}
           </h3>
           <p className="text-slate-500 dark:text-gray-400 mb-6">
             {searchQuery || moodFilter 
-              ? 'Try adjusting your search or filters'
-              : 'Start your gratitude journey by creating your first entry'}
+              ? t('ui.tryAdjustingYourSearchOrFilters')
+              : t('ui.startYourGratitudeJourneyByCreatingYourFirst')}
           </p>
           {!searchQuery && !moodFilter && (
             <Button
@@ -921,7 +921,7 @@ export default function JournalPage() {
                   className="flex-1 font-semibold shadow-lg hover:opacity-90 disabled:opacity-60"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Entry'}
+                  {saving ? 'Saving...' : t('ui.saveEntry')}
                 </Button>
                 <Button
                   variant="outline"
@@ -1006,7 +1006,7 @@ export default function JournalPage() {
                     <Sparkles className="h-5 w-5" />
                     {t('ui.goodDeedsToday')}
                   </h3>
-                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.goodDeeds || 'No good deeds recorded'}</p>
+                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.goodDeeds || t('ui.noGoodDeedsRecorded')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700">
@@ -1014,7 +1014,7 @@ export default function JournalPage() {
                     <MessageSquare className="h-5 w-5" />
                     {t('ui.lessonsLearned')}
                   </h3>
-                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.lessons || 'No lessons recorded'}</p>
+                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.lessons || t('ui.noLessonsRecorded')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700">
@@ -1022,7 +1022,7 @@ export default function JournalPage() {
                     <Heart className="h-5 w-5" />
                     {t('ui.duasPrayers')}
                   </h3>
-                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.duas || 'No duas recorded'}</p>
+                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.duas || t('ui.noDuasRecorded')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700">
@@ -1030,7 +1030,7 @@ export default function JournalPage() {
                     <BookOpen className="h-5 w-5" />
                     {t('ui.dailyReflection')}
                   </h3>
-                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.reflection || 'No reflection recorded'}</p>
+                  <p className="text-slate-700 dark:text-gray-300 whitespace-pre-wrap">{viewingEntry.reflection || t('ui.noReflectionRecorded')}</p>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">

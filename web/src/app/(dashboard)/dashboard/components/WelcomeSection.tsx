@@ -1,5 +1,7 @@
 'use client'
 
+import { getGreetingKey } from '@/lib/utils'
+
 import { useT } from '@/lib/i18n/client'
 import { motion } from 'framer-motion'
 import { Flame, Calendar } from 'lucide-react'
@@ -12,12 +14,6 @@ interface WelcomeSectionProps {
   session: any
 }
 
-const getGreeting = () => {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Good Morning'
-  if (hour < 17) return 'Good Afternoon'
-  return 'Good Evening'
-}
 
 const getTodayDate = () => {
   const today = new Date()
@@ -64,7 +60,7 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
               </Avatar>
               <div>
                 <h1 className="text-3xl font-bold mb-1">
-                  {getGreeting()}, {displayName}!
+                  {t(getGreetingKey())}, {displayName}!
                 </h1>
                 <div className="flex items-center gap-2 text-white/90">
                   <Calendar className="h-4 w-4" />
@@ -88,7 +84,7 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
               ) : (
                 <>
                   <p className="text-white/95 text-base sm:text-lg font-medium italic leading-relaxed mb-3">
-                    "{quote?.text || 'And whoever relies upon Allah - then He is sufficient for him.'}"
+                    "{quote?.text || t('ui.andWhoeverReliesUponAllahThenHeIsSufficientF3')}"
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">
@@ -129,7 +125,7 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
                 </div>
                 <p className="text-white/90 text-sm font-medium">{t('ui.dayStreak')}</p>
                 <p className="text-white/70 text-xs mt-1">
-                  {stats?.currentStreak && stats.currentStreak > 0 ? 'Keep it up!' : 'Start your journey!'}
+                  {stats?.currentStreak && stats.currentStreak > 0 ? t('ui.keepItUp') : t('ui.startYourJourney')}
                 </p>
               </>
             )}

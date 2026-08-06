@@ -60,7 +60,7 @@ export default function StatsGrid() {
       value: `${stats?.completedTasks || 0}/${stats?.totalTasks || 0}`,
       subtitle: stats?.totalTasks ? 
         `${Math.round((stats.completedTasks / stats.totalTasks) * 100)}% complete` : 
-        'No goals set',
+        t('ui.noGoalsSet'),
       icon: Target,
       color: 'purple',
       progress: stats?.totalTasks ? 
@@ -70,7 +70,7 @@ export default function StatsGrid() {
     {
       title: 'Current Streak',
       value: `${stats?.currentStreak || 0}`,
-      subtitle: stats?.currentStreak && stats.currentStreak > 0 ? 'days in a row' : 'Start today!',
+      subtitle: stats?.currentStreak && stats.currentStreak > 0 ? 'days in a row' : t('ui.startToday'),
       icon: Clock,
       color: 'orange',
       progress: Math.min((stats?.currentStreak || 0) * 10, 100), // 10 days = 100%

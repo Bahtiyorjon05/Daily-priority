@@ -152,7 +152,7 @@ export function FocusTimer({
                 </p>
               </motion.div>
               <p className="text-sm text-slate-600 dark:text-gray-400 mt-4 capitalize font-semibold">
-                {mode === 'shortBreak' ? 'Short Break' : mode === 'longBreak' ? 'Long Break' : mode}
+                {mode === 'shortBreak' ? t('ui.shortBreak') : mode === 'longBreak' ? t('ui.longBreak') : mode}
               </p>
               {completedSessions > 0 && (
                 <p className="text-xs text-slate-500 dark:text-gray-500 mt-2 font-medium">

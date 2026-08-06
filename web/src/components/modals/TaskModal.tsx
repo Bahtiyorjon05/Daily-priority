@@ -115,7 +115,7 @@ const TaskModal = memo<TaskModalProps>(({
       isOpen={isOpen}
       onClose={onClose}
       title={mode === 'create' ? 'Create New Task' : 'Edit Task'}
-      description={mode === 'create' ? 'Add a new task to your list' : 'Update task details'}
+      description={mode === 'create' ? t('ui.addANewTaskToYourList') : t('ui.updateTaskDetails')}
       size="lg"
     >
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -127,7 +127,7 @@ const TaskModal = memo<TaskModalProps>(({
           <Input
             id="title"
             placeholder={t('ui.enterTaskTitle')}
-            {...register('title', { required: 'Title is required' })}
+            {...register('title', { required: t('ui.titleIsRequired') })}
             className={errors.title ? 'border-red-500' : ''}
           />
           {errors.title && (

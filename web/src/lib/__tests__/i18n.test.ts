@@ -181,6 +181,7 @@ describe('dictionary parity', () => {
       'ui.rajab', // Hijri month, same name in Uzbek
       'ui.safar', // Hijri month, same name in Uzbek
       'ui.shift', // keyboard key
+      'ui.shift2', // "Shift +", a key combination
     ])
   })
 

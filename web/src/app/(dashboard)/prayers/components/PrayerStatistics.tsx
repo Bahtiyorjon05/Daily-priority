@@ -68,7 +68,7 @@ export default function PrayerStatistics({
         icon={Target}
         title={t('ui.dailyCompletion')}
         value={`${dailyCompletion.toFixed(0)}%`}
-        subtitle="Today's progress"
+        subtitle={t('ui.todaySProgress2')}
         color="from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30"
       />
       <StatCard
@@ -89,7 +89,7 @@ export default function PrayerStatistics({
         icon={Clock}
         title={t('ui.onTimeRate2')}
         value={`${onTimePercentage.toFixed(0)}%`}
-        subtitle="Prayed on time"
+        subtitle={t('ui.prayedOnTime')}
         color="from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30"
       />
       <StatCard
@@ -103,7 +103,7 @@ export default function PrayerStatistics({
         icon={Target}
         title={t('ui.todayLogged')}
         value={`${Math.min(Math.max(todayCompleted, 0), 5)} / 5`}
-        subtitle="Prayers completed today"
+        subtitle={t('ui.prayersCompletedToday')}
         color="from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/40"
       />
     </div>

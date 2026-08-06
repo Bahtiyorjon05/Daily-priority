@@ -91,7 +91,7 @@ export default function Sidebar({
               size="icon"
               onClick={onCollapse}
               className="h-8 w-8 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-all duration-200 hover:scale-105"
-              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : t('ui.collapseSidebar')}
               aria-pressed={isCollapsed}
             >
               <motion.div

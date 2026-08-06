@@ -177,11 +177,11 @@ export default function AnalyticsPage() {
         setAnalytics(data)
       } else {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to fetch analytics')
+        throw new Error(errorData.error || t('ui.failedToFetchAnalytics'))
       }
     } catch (error: any) {
       console.error('Error fetching analytics:', error)
-      setError(error.message || 'Failed to load analytics')
+      setError(error.message || t('ui.failedToLoadAnalytics'))
       toast.error(t('ui.failedToLoadAnalyticsData'))
     } finally {
       setLoading(false)
@@ -194,7 +194,7 @@ export default function AnalyticsPage() {
     }
   }, [session?.user?.id, fetchAnalytics])
 
-  if (loading) return <LoadingState message="Loading analytics..." />
+  if (loading) return <LoadingState message={t('ui.loadingAnalytics')} />
   if (error) return <ErrorState message={error} onRetry={fetchAnalytics} />
   // No data is a normal state for a brand-new account, not an error — show an
   // encouraging empty state instead of a failure screen.
@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
 
   const peakHoursText = peakHourValues.length > 0
     ? peakHourValues.map(formatHour).join(', ')
-    : 'Not enough data'
+    : t('ui.notEnoughData')
 
   const findExtremeDay = (
     compare: (candidate: WeekdayTrendPoint, currentBest: WeekdayTrendPoint) => boolean
@@ -484,8 +484,8 @@ export default function AnalyticsPage() {
                   </p>
                   <p className="text-xs text-amber-600 dark:text-amber-400">
                     {peakHourValues.length > 0 
-                      ? 'Schedule important tasks during these hours'
-                      : 'Create more tasks to see patterns'}
+                      ? t('ui.scheduleImportantTasksDuringTheseHours')
+                      : t('ui.createMoreTasksToSeePatterns')}
                   </p>
                 </div>
               </CardContent>
@@ -827,7 +827,7 @@ export default function AnalyticsPage() {
 {t('ui.worst')} <span className="font-semibold text-rose-600">{worstDay.day}</span> ({worstDay.rate.toFixed(0)}%)
                 </>
               ) : (
-                'Complete tasks across the week to reveal your patterns'
+                t('ui.completeTasksAcrossTheWeekToRevealYourPatter')
               )}
             </CardDescription>
           </CardHeader>

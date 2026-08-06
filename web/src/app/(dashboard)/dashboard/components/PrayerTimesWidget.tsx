@@ -43,7 +43,7 @@ export default function PrayerTimesWidget() {
       const prayerTimes = await fetchPrayerTimes(latitude, longitude, undefined, 1)
 
       if (!prayerTimes) {
-        throw new Error('Failed to fetch prayer times')
+        throw new Error(t('ui.failedToFetchPrayerTimes'))
       }
 
       // Enhance prayer times with status

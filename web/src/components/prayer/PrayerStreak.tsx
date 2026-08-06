@@ -160,7 +160,7 @@ export default function PrayerStreak({
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             {lastMissedDate 
               ? `${Math.floor((Date.now() - lastMissedDate.getTime()) / (1000 * 60 * 60 * 24))} days ago`
-              : 'Perfect record!'
+              : t('ui.perfectRecord')
             }
           </p>
         </Card>
@@ -205,14 +205,14 @@ export default function PrayerStreak({
       <Card className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-0">
         <p className="text-center text-sm text-emerald-800 dark:text-emerald-300 font-medium">
           {currentStreak === 0 
-            ? "🌟 Start your streak today! Complete all 5 prayers to begin."
+            ? t('ui.startYourStreakTodayCompleteAll5PrayersToBeg')
             : currentStreak < 7
-            ? "💪 Great start! Keep the momentum going!"
+            ? t('ui.greatStartKeepTheMomentumGoing')
             : currentStreak < 30
-            ? "🔥 You're on fire! Stay consistent!"
+            ? t('ui.youReOnFireStayConsistent')
             : currentStreak < 100
-            ? "⚡ Amazing dedication! You're building a powerful habit!"
-            : "👑 Legendary! Your commitment is inspiring MashaAllah!"
+            ? t('ui.amazingDedicationYouReBuildingAPowerfulHabit')
+            : t('ui.legendaryYourCommitmentIsInspiringMashaallah')
           }
         </p>
       </Card>

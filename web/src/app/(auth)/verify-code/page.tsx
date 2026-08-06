@@ -77,12 +77,12 @@ export default function VerifyCodePage() {
     
     // Validate code
     if (!codeData.code) {
-      setErrors(prev => ({ ...prev, code: 'Verification code is required' }))
+      setErrors(prev => ({ ...prev, code: t('ui.verificationCodeIsRequired') }))
       return
     }
     
     if (codeData.code.length !== 6) {
-      setErrors(prev => ({ ...prev, code: 'Code must be 6 digits' }))
+      setErrors(prev => ({ ...prev, code: t('ui.codeMustBe6Digits') }))
       return
     }
     
@@ -115,7 +115,7 @@ export default function VerifyCodePage() {
         }, 1000)
       } else {
         const data = await response.json()
-        setErrors(prev => ({ ...prev, general: data.error || 'Invalid or expired verification code. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || t('ui.invalidOrExpiredVerificationCodePleaseTryAga') }))
         toast.error(t(data.error || 'Invalid code'))
       }
     } catch (error) {
@@ -153,7 +153,7 @@ export default function VerifyCodePage() {
         setErrors({ code: '', general: '' })
       } else {
         const data = await response.json()
-        setErrors(prev => ({ ...prev, general: data.error || 'Failed to resend code. Please try again.' }))
+        setErrors(prev => ({ ...prev, general: data.error || t('ui.failedToResendCodePleaseTryAgain') }))
         toast.error(t(data.error || 'Failed to resend code'))
       }
     } catch (error) {

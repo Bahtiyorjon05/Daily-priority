@@ -216,7 +216,7 @@ export function AdhanPlayer() {
               </div>
               <button
                 onClick={toggleMute}
-                aria-label={muted ? 'Unmute adhan' : 'Mute adhan'}
+                aria-label={muted ? tr('ui.unmuteAdhan') : tr('ui.muteAdhan')}
                 className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}

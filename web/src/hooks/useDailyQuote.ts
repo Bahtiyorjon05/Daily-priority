@@ -1,7 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useMemo } from 'react'
+import { useT } from '@/lib/i18n/client'
+import { getDailyInspiration } from '@/lib/islamic-inspiration'
+
+/**
+ * The verse shown on the dashboard.
+ *
+ * Previously fetched from /api/quotes/daily, backed by the `IslamicQuote`
+ * table. That content is English-only and unreferenced, so it could not follow
+ * the language switch and there was no way to check a citation. The local set
+ * in `islamic-inspiration.ts` carries both languages, the Arabic source text
+ * and a surah/collection reference, so it is used directly — which also drops
+ * a network round-trip from the dashboard's first paint.
+ *
+ * The pick is deterministic by day, so everyone sees the same verse and it
+ * doesn't change as you navigate between pages.
+ */
 
 interface DailyQuote {
   id: string
@@ -13,60 +28,28 @@ interface DailyQuote {
 }
 
 export function useDailyQuote() {
-  const { data: session } = useSession()
-  const [quote, setQuote] = useState<DailyQuote | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { t, locale } = useT()
 
-  const fetchDailyQuote = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort('Request timeout'), 15000) // 15 second timeout
-
-      const response = await fetch('/api/quotes/daily', {
-        signal: controller.signal
-      })
-      
-      clearTimeout(timeoutId)
-      
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to fetch daily quote')
-      }
-
-      // API shape: { quote }
-      setQuote(result.quote)
-    } catch (err) {
-      // Silently use fallback quote without logging (not critical)
-      setError(null) // Don't show error to user
-      
-      // Fallback quote for new users or errors
-      setQuote({
-        id: 'fallback',
-        text: 'And whoever relies upon Allah – then He is sufficient for him.',
-        author: 'Allah (SWT)',
-        source: 'Quran 65:3',
-        category: 'Quran',
-        arabic: null,
-      })
-    } finally {
-      setLoading(false)
+  const quote = useMemo<DailyQuote>(() => {
+    const pick = getDailyInspiration()
+    return {
+      id: pick.id,
+      text: t(pick.textKey),
+      // The attribution reads as the reference itself; the Arabic is shown
+      // separately where there's room for it.
+      author: pick.reference,
+      source: pick.source,
+      category: pick.type,
+      arabic: pick.arabic,
     }
-  }
-
-  useEffect(() => {
-    fetchDailyQuote()
-  }, [session])
+    // `locale` is the dependency that matters — the key is stable, the
+    // rendered string is not.
+  }, [t, locale])
 
   return {
     quote,
-    loading,
-    error,
-    refetch: fetchDailyQuote,
+    loading: false,
+    error: null as string | null,
+    refetch: () => {},
   }
 }
-

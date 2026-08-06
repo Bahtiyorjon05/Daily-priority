@@ -285,7 +285,7 @@ export function NotificationBell() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={toggleMute}
-                  title={muted ? 'Unmute sound' : 'Mute sound'}
+                  title={muted ? tr('ui.unmuteSound') : tr('ui.muteSound')}
                   className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
                 >
                   {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}

@@ -106,7 +106,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
           value={userFilter}
           onChange={(e) => setUserFilter(e.target.value)}
           disabled={!USER_FILTERABLE.has(active)}
-          title={USER_FILTERABLE.has(active) ? 'Filter by user' : 'This table has no user link'}
+          title={USER_FILTERABLE.has(active) ? t('ui.filterByUser') : t('ui.thisTableHasNoUserLink')}
           className="max-w-[220px] rounded-lg border bg-background px-2.5 py-1.5 text-sm outline-none disabled:opacity-40"
         >
           <option value="">{t('ui.allUsers')}</option>
@@ -142,7 +142,7 @@ export default function TablesView({ models }: { models: AdminModel[] }) {
       ) : data && filtered.length > 0 ? (
         <DataTable columns={data.columns} rows={filtered} isUserTable={isUserTable} reveal={reveal} />
       ) : (
-        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{search ? 'No rows match your filter.' : 'No rows.'}</div>
+        <div className="flex h-40 items-center justify-center text-sm text-muted-foreground">{search ? t('ui.noRowsMatchYourFilter') : t('ui.noRows')}</div>
       )}
 
       {data && data.totalPages > 1 && (

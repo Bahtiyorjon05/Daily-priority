@@ -853,7 +853,7 @@ export default function GoalsPage() {
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewGoal')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {newGoal.goalType === 'DUNYA' ? '🌍 Creating Dunya goal' : '🕌 Creating Akhirah goal'}
+                      {newGoal.goalType === 'DUNYA' ? t('ui.creatingDunyaGoal') : t('ui.creatingAkhirahGoal')}
                     </p>
                   </div>
                   <Button
@@ -897,15 +897,15 @@ export default function GoalsPage() {
                                   : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 shadow-sm'
                               }`}
                             >
-                              {type === 'DUNYA' ? '🌍 Dunya (Worldly)' : '🕌 Akhirah (Hereafter)'}
+                              {type === 'DUNYA' ? t('ui.dunyaWorldly2') : t('ui.akhirahHereafter2')}
                             </button>
                           )
                         })}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                         {newGoal.goalType === 'DUNYA' 
-                          ? '💼 Worldly goals: Career, health, skills, finances' 
-                          : '🤲 Spiritual goals: Quran, prayers, charity, good deeds'}
+                          ? t('ui.worldlyGoalsCareerHealthSkillsFinances') 
+                          : t('ui.spiritualGoalsQuranPrayersCharityGoodDeeds')}
                       </p>
                     </div>
                   ) : (
@@ -929,12 +929,12 @@ export default function GoalsPage() {
                               ? 'text-amber-800 dark:text-amber-300'
                               : 'text-purple-800 dark:text-purple-300'
                           }`}>
-                            {newGoal.goalType === 'DUNYA' ? 'Dunya (Worldly) Goal' : 'Akhirah (Hereafter) Goal'}
+                            {newGoal.goalType === 'DUNYA' ? t('ui.dunyaWorldlyGoal') : t('ui.akhirahHereafterGoal')}
                           </p>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                             {newGoal.goalType === 'DUNYA' 
-                              ? '💼 Career, health, skills, finances' 
-                              : '🤲 Quran, prayers, charity, good deeds'}
+                              ? t('ui.careerHealthSkillsFinances') 
+                              : t('ui.quranPrayersCharityGoodDeeds')}
                           </p>
                         </div>
                       </div>
@@ -1085,7 +1085,7 @@ export default function GoalsPage() {
                           ? 'text-amber-700 dark:text-amber-400'
                           : 'text-purple-700 dark:text-purple-400'
                       }`}>
-                        {deletingGoal.goalType === 'DUNYA' ? '🌍 Dunya' : '🕌 Akhirah'}
+                        {deletingGoal.goalType === 'DUNYA' ? t('ui.dunya') : t('ui.akhirah')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm mt-2">
