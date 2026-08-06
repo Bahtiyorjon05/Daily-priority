@@ -2197,100 +2197,152 @@ a:focus-visible,
    ========================================================================= */
 :root {
   /* Default (morning) so there is never an unstyled flash before hydration. */
-  --phase-accent: 16 185 129;
+  --phase-accent: 5 150 105;
   --phase-accent-soft: 209 250 229;
-  --phase-glow: 16 185 129;
-  --phase-from: 236 253 245;
-  --phase-to: 240 253 250;
+  --phase-glow: 52 211 153;
+  --phase-from: 228 246 240;
+  --phase-to: 232 245 252;
+  --phase-rail-from: 236 250 245;
+  --phase-rail-to: 240 249 254;
   --phase-ink: 6 78 59;
 }
 
-/* Fajr → sunrise: still, blue hour */
+/* ---------------------------------------------------------------------------
+   The canvas carries the time of day.
+
+   The previous tints sat 14–20 away from pure white — a ~6% wash, which is
+   invisible in practice, so the dashboard looked identical at Fajr and at Isha
+   and the whole phase system did nothing. These are pitched around 30–45 from
+   white: clearly felt, still a calm surface to put cards on.
+
+   The rail is a half-step deeper than the canvas so the shell reads as two
+   planes rather than one flat field.
+   ------------------------------------------------------------------------ */
+
+/* Fajr → sunrise: the blue hour. Cool and still, with the first blush of warmth. */
 [data-phase='dawn'] {
-  --phase-accent: 129 140 248;      /* indigo-400 */
-  --phase-accent-soft: 224 231 255;
+  --phase-accent: 99 102 241;       /* indigo-500 */
+  --phase-accent-soft: 224 226 254;
   --phase-glow: 165 180 252;
-  --phase-from: 238 242 255;
-  --phase-to: 255 241 242;          /* soft rose */
+  --phase-from: 224 228 250;
+  --phase-to: 246 231 238;
+  --phase-rail-from: 232 235 252;
+  --phase-rail-to: 249 238 243;
   --phase-ink: 55 48 163;
 }
 
-/* Sunrise → Dhuhr: clean, productive */
+/* Duha → Dhuhr: fresh daylight, clean and awake. */
 [data-phase='morning'] {
-  --phase-accent: 16 185 129;       /* emerald-500 */
+  --phase-accent: 5 150 105;        /* emerald-600 */
   --phase-accent-soft: 209 250 229;
   --phase-glow: 52 211 153;
-  --phase-from: 236 253 245;
-  --phase-to: 240 253 250;
+  --phase-from: 224 245 237;
+  --phase-to: 230 244 252;
+  --phase-rail-from: 233 249 243;
+  --phase-rail-to: 238 248 254;
   --phase-ink: 6 78 59;
 }
 
-/* Dhuhr → Asr: bright, high sun */
+/* Dhuhr → Asr: high sun. Bright, cool azure — the brightest surface of the day. */
 [data-phase='midday'] {
-  --phase-accent: 13 148 136;       /* teal-600 */
-  --phase-accent-soft: 204 251 241;
-  --phase-glow: 45 212 191;
-  --phase-from: 240 253 250;
-  --phase-to: 236 254 255;
-  --phase-ink: 17 94 89;
+  --phase-accent: 2 132 199;        /* sky-600 */
+  --phase-accent-soft: 205 236 251;
+  --phase-glow: 56 189 248;
+  --phase-from: 221 240 252;
+  --phase-to: 228 247 250;
+  --phase-rail-from: 231 245 253;
+  --phase-rail-to: 236 250 252;
+  --phase-ink: 7 89 133;
 }
 
-/* Asr → Maghrib: warm, golden */
+/* Asr → Maghrib: golden hour. Warm light across the room. */
 [data-phase='afternoon'] {
-  --phase-accent: 217 119 6;        /* amber-600 */
-  --phase-accent-soft: 254 243 199;
+  --phase-accent: 194 106 12;       /* deepened amber for contrast */
+  --phase-accent-soft: 253 235 205;
   --phase-glow: 251 191 36;
-  --phase-from: 255 251 235;
-  --phase-to: 255 247 237;          /* terracotta drift */
+  --phase-from: 252 238 216;
+  --phase-to: 251 231 214;
+  --phase-rail-from: 253 244 228;
+  --phase-rail-to: 253 239 226;
   --phase-ink: 120 53 15;
 }
 
-/* Maghrib → Isha: dusk */
+/* Maghrib → Isha: dusk. Violet closing in, warmth leaving. */
 [data-phase='dusk'] {
-  --phase-accent: 139 92 246;       /* violet-500 */
-  --phase-accent-soft: 237 233 254;
+  --phase-accent: 124 58 237;       /* violet-600 */
+  --phase-accent-soft: 233 226 254;
   --phase-glow: 167 139 250;
-  --phase-from: 245 243 255;
-  --phase-to: 240 253 250;          /* deep teal drift */
+  --phase-from: 237 229 250;
+  --phase-to: 249 230 236;
+  --phase-rail-from: 243 237 252;
+  --phase-rail-to: 251 238 242;
   --phase-ink: 76 29 149;
 }
 
-/* Isha → Fajr: quiet night */
+/* Isha → Fajr: night. Cool slate; the quietest surface. */
 [data-phase='night'] {
-  --phase-accent: 45 212 191;       /* muted jewel teal */
-  --phase-accent-soft: 204 251 241;
-  --phase-glow: 94 234 212;
-  --phase-from: 248 250 252;
-  --phase-to: 241 245 249;
-  --phase-ink: 19 78 74;
+  --phase-accent: 79 106 191;       /* muted night blue */
+  --phase-accent-soft: 219 227 245;
+  --phase-glow: 129 158 220;
+  --phase-from: 226 232 244;
+  --phase-to: 222 228 242;
+  --phase-rail-from: 233 238 248;
+  --phase-rail-to: 230 235 246;
+  --phase-ink: 30 58 110;
 }
 
-/* In dark mode the atmosphere gets deeper, not brighter. */
-.dark[data-phase='dawn']      { --phase-from: 30 27 75;  --phase-to: 63 24 45;  --phase-ink: 199 210 254; --phase-accent-soft: 49 46 129; }
-.dark[data-phase='morning']   { --phase-from: 6 44 38;   --phase-to: 6 40 42;   --phase-ink: 167 243 208; --phase-accent-soft: 6 78 59; }
-.dark[data-phase='midday']    { --phase-from: 8 47 45;   --phase-to: 8 51 60;   --phase-ink: 153 246 228; --phase-accent-soft: 17 94 89; }
-.dark[data-phase='afternoon'] { --phase-from: 69 39 10;  --phase-to: 67 33 15;  --phase-ink: 253 230 138; --phase-accent-soft: 120 53 15; }
-.dark[data-phase='dusk']      { --phase-from: 46 16 101; --phase-to: 19 78 74;  --phase-ink: 221 214 254; --phase-accent-soft: 76 29 149; }
-.dark[data-phase='night']     { --phase-from: 2 15 25;   --phase-to: 3 20 30;   --phase-ink: 153 246 228; --phase-accent-soft: 19 78 74; }
-
-
+/* ---------------------------------------------------------------------------
+   Dark mode: a separate palette, not the light one dimmed. Each phase keeps its
+   character but resolves toward night, so the shell stays comfortable to work
+   against for long stretches.
+   ------------------------------------------------------------------------ */
+.dark[data-phase='dawn'] {
+  --phase-from: 20 21 46; --phase-to: 32 23 42;
+  --phase-rail-from: 25 26 54; --phase-rail-to: 38 27 48;
+  --phase-ink: 199 210 254; --phase-accent-soft: 49 46 129; --phase-accent: 129 140 248;
+}
+.dark[data-phase='morning'] {
+  --phase-from: 10 30 32; --phase-to: 10 30 40;
+  --phase-rail-from: 13 37 39; --phase-rail-to: 13 36 48;
+  --phase-ink: 167 243 208; --phase-accent-soft: 6 78 59; --phase-accent: 52 211 153;
+}
+.dark[data-phase='midday'] {
+  --phase-from: 9 28 46; --phase-to: 10 33 50;
+  --phase-rail-from: 12 35 56; --phase-rail-to: 13 40 60;
+  --phase-ink: 186 230 253; --phase-accent-soft: 12 74 110; --phase-accent: 56 189 248;
+}
+.dark[data-phase='afternoon'] {
+  --phase-from: 38 25 15; --phase-to: 42 27 16;
+  --phase-rail-from: 47 31 18; --phase-rail-to: 51 33 20;
+  --phase-ink: 253 230 138; --phase-accent-soft: 120 53 15; --phase-accent: 251 191 36;
+}
+.dark[data-phase='dusk'] {
+  --phase-from: 29 19 46; --phase-to: 36 21 41;
+  --phase-rail-from: 36 24 56; --phase-rail-to: 44 26 49;
+  --phase-ink: 221 214 254; --phase-accent-soft: 76 29 149; --phase-accent: 167 139 250;
+}
+.dark[data-phase='night'] {
+  --phase-from: 8 12 24; --phase-to: 9 13 27;
+  --phase-rail-from: 11 16 31; --phase-rail-to: 12 17 34;
+  --phase-ink: 191 210 245; --phase-accent-soft: 30 41 82; --phase-accent: 147 172 232;
+}
 
 /* Readable counterpart to --phase-accent, for text and icons.
    Light: >= 5.85:1 on white and gray-100.  Dark: >= 7.36:1 on dark surfaces. */
 :root                    { --phase-ink-on-surface: 4 108 78;   }
 [data-phase='dawn']      { --phase-ink-on-surface: 55 48 163;  }
 [data-phase='morning']   { --phase-ink-on-surface: 4 108 78;   }
-[data-phase='midday']    { --phase-ink-on-surface: 15 94 88;   }
+[data-phase='midday']    { --phase-ink-on-surface: 7 89 133;   }
 [data-phase='afternoon'] { --phase-ink-on-surface: 146 64 14;  }
 [data-phase='dusk']      { --phase-ink-on-surface: 91 33 182;  }
-[data-phase='night']     { --phase-ink-on-surface: 17 94 89;   }
+[data-phase='night']     { --phase-ink-on-surface: 30 58 110;  }
 
 .dark[data-phase='dawn']      { --phase-ink-on-surface: 165 180 252; }
 .dark[data-phase='morning']   { --phase-ink-on-surface: 110 231 183; }
-.dark[data-phase='midday']    { --phase-ink-on-surface: 94 234 212;  }
+.dark[data-phase='midday']    { --phase-ink-on-surface: 125 211 252; }
 .dark[data-phase='afternoon'] { --phase-ink-on-surface: 252 211 77;  }
 .dark[data-phase='dusk']      { --phase-ink-on-surface: 196 181 253; }
-.dark[data-phase='night']     { --phase-ink-on-surface: 94 234 212;  }
+.dark[data-phase='night']     { --phase-ink-on-surface: 165 190 240; }
 .dark                         { --phase-ink-on-surface: 110 231 183; }
 
 /* Hero gradient stops — deliberately separate from --phase-accent, which is a
@@ -2385,10 +2437,12 @@ a:focus-visible,
   /* Sidebar/rail: a touch stronger than the canvas so the shell reads as
      layered rather than flat. */
   .phase-rail.phase-rail {
-    background-color: rgb(var(--phase-from));
+    /* Its own stops rather than the canvas's — the rail sits half a step deeper
+       so the shell reads as two planes instead of one flat field. */
+    background-color: rgb(var(--phase-rail-from));
     background-image:
-      linear-gradient(180deg, rgb(var(--phase-to)), rgb(var(--phase-from))),
-      radial-gradient(80% 40% at 0% 0%, rgb(var(--phase-glow) / 0.10), transparent 70%);
+      linear-gradient(180deg, rgb(var(--phase-rail-from)), rgb(var(--phase-rail-to))),
+      radial-gradient(80% 40% at 0% 0%, rgb(var(--phase-glow) / 0.12), transparent 70%);
     transition: var(--phase-transition);
   }
 

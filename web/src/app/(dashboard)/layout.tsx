@@ -720,13 +720,10 @@ function DashboardLayoutContent({
         <header className="sticky top-0 z-30 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border-b border-black/5 dark:border-white/10">
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 lg:px-8">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {/*
-                Language. Segmented on anything above phones, where both
-                options fit and switching is a single tap; the icon menu on
-                narrow screens, where the header is already crowded.
-              */}
-              <LocaleSwitcher variant="compact" className="hidden sm:inline-flex" />
-              <LocaleSwitcher variant="menu" className="sm:hidden" />
+              {/* Language — one control at every width, matching the other
+                  header buttons. Rendering two and swapping at a breakpoint
+                  meant the control changed shape mid-resize. */}
+              <LocaleSwitcher />
 
               {/* Notifications */}
               <NotificationBell />

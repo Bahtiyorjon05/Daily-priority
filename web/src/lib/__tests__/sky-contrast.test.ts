@@ -103,6 +103,79 @@ function scrimAlphaAt(pos: number): number {
 
 const PHASES = ['dawn', 'morning', 'midday', 'afternoon', 'dusk', 'night']
 
+/** Any `--phase-*` triple for a phase, honouring the dark override. */
+function phaseVar(name: string, phase: string, dark: boolean): RGB | null {
+  const selector = dark
+    ? `\\.dark\\[data-phase='${phase}'\\]`
+    : `(?<!\\.dark)\\[data-phase='${phase}'\\]`
+  const block = new RegExp(`${selector}\\s*\\{([^}]*)\\}`, 'g')
+  let found: RGB | null = null
+  let m: RegExpExecArray | null
+  while ((m = block.exec(CSS)) !== null) {
+    const v = new RegExp(`${name}:\\s*([\\d\\s]+);`).exec(m[1])
+    if (v) found = parseTriple(v[1])
+  }
+  if (!found && dark) return phaseVar(name, phase, false)
+  return found
+}
+
+function contrast(a: RGB, b: RGB): number {
+  const [hi, lo] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+describe('dashboard phase palette', () => {
+  it('tints the canvas enough to be visible', () => {
+    // The point of the phase system is that the dashboard *looks* different at
+    // Fajr and at Isha. The original tints sat 14–20 from pure white — about a
+    // 6% wash, which reads as plain white, so the whole system did nothing.
+    const tooFaint: string[] = []
+    for (const phase of PHASES) {
+      const from = phaseVar('--phase-from', phase, false)!
+      const deviation = 255 - Math.min(...from)
+      if (deviation < 25) tooFaint.push(`${phase} = ${deviation}/255 from white`)
+    }
+    expect(tooFaint).toEqual([])
+  })
+
+  it('gives every phase a distinct canvas', () => {
+    // Two phases resolving to the same colour would make the shift meaningless.
+    const seen = new Map<string, string>()
+    const clashes: string[] = []
+    for (const phase of PHASES) {
+      const key = phaseVar('--phase-from', phase, false)!.join(',')
+      if (seen.has(key)) clashes.push(`${phase} matches ${seen.get(key)}`)
+      seen.set(key, phase)
+    }
+    expect(clashes).toEqual([])
+  })
+
+  it('keeps phase ink readable on its own canvas, rail and card', () => {
+    const failures: string[] = []
+    for (const phase of PHASES) {
+      for (const dark of [false, true]) {
+        const ink = phaseVar('--phase-ink-on-surface', phase, dark)
+        expect(ink, `${phase}/${dark ? 'dark' : 'light'} ink must be declared`).not.toBeNull()
+
+        const surfaces: [string, RGB][] = [
+          ['canvas', phaseVar('--phase-from', phase, dark)!],
+          ['rail', phaseVar('--phase-rail-from', phase, dark)!],
+          ['card', dark ? [17, 24, 39] : [255, 255, 255]],
+        ]
+        for (const [what, bg] of surfaces) {
+          const ratio = contrast(ink!, bg)
+          if (ratio < 4.5) {
+            failures.push(
+              `${phase}/${dark ? 'dark' : 'light'} ink on ${what} = ${ratio.toFixed(2)}:1`
+            )
+          }
+        }
+      }
+    }
+    expect(failures).toEqual([])
+  })
+})
+
 describe('sky palette contrast', () => {
   it('declares all three stops for every phase in both schemes', () => {
     for (const phase of PHASES) {

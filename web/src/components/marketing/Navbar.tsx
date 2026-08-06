@@ -106,7 +106,7 @@ export function Navbar() {
             </button>
 
               <div className="hidden md:flex items-center gap-2">
-                <LocaleSwitcher variant="compact" />
+                <LocaleSwitcher variant="inline" />
                 <Link href="/signin">
                   <Button 
                     variant="ghost" 
@@ -204,7 +204,7 @@ export function Navbar() {
 
               {/* Phone visitors reach the site through this menu, so the
                   language choice has to be here and not only on desktop. */}
-              <LocaleSwitcher variant="compact" className="mb-2 scale-110" />
+              <LocaleSwitcher variant="inline" className="mb-2 scale-110" />
 
               <div className="flex flex-col gap-4 w-full max-w-sm">
                 <Link href="/signin" onClick={() => setMobileMenuOpen(false)} className="w-full">
