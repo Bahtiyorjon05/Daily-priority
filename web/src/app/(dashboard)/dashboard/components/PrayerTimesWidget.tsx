@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MapPin, Loader2, AlertCircle, Sunrise, Sun, CloudSun, Sunset, Moon, Stars, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { usePrayerPhase } from '@/components/shared/PrayerPhaseProvider'
 import {
   fetchPrayerTimes,
   getCityFromCoordinates,
@@ -15,22 +16,18 @@ import {
 } from '@/lib/prayer-times'
 
 /**
- * Prayer times, rebuilt around "The Prayer Day".
+ * Prayer times.
  *
- * The previous version was a fixed emerald gradient over a flat list of rows —
- * the same card you'd see in any productivity app, and it ignored the phase
- * system the rest of the dashboard already uses. It also gave no sense of
- * *where in the day* you are, which is the one thing this screen should convey.
+ * The panel is painted with `.sky` — a three-stop gradient plus a radial glow
+ * positioned where the sun (or moon) actually is for that phase. The previous
+ * version used a two-stop `--phase-hero` pair that ran dark and desaturated;
+ * afternoon was rgb(124 45 18) → rgb(146 64 14), which is mud, and midday had
+ * almost no travel between its stops. It looked like a dark card rather than a
+ * time of day.
  *
- * What's here instead:
- *  - the hero takes its colour from the current phase, so the card belongs to
- *    the surrounding surface instead of fighting it;
- *  - a countdown ring that fills as the next prayer approaches, so the wait is
- *    legible at a glance rather than needing arithmetic;
- *  - the five prayers drawn as the day's arc, with a marker showing how far
- *    through you are.
- *
- * Prayer names are keyed, so Bomdod/Peshin/Shom/Xufton appear under `uz`.
+ * Because the sky now runs *light* at the horizon, text sits on `.sky-scrim`
+ * rather than directly on the gradient — that's what lets the palette stay
+ * luminous without white text failing contrast over Dhuhr's pale band.
  */
 
 const PRAYER_KEY: Record<string, string> = {
@@ -64,7 +61,9 @@ function toMinutes(hhmm?: string): number | null {
 
 export default function PrayerTimesWidget() {
   const { t } = useT()
+  const { phase } = usePrayerPhase()
   const reduceMotion = useReducedMotion()
+
   const [prayers, setPrayers] = useState<PrayerTime[]>([])
   const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null)
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null)
@@ -73,8 +72,7 @@ export default function PrayerTimesWidget() {
   const [locationDenied, setLocationDenied] = useState(false)
   const [now, setNow] = useState(() => new Date())
 
-  // One tick a minute is enough for a countdown measured in minutes, and it
-  // keeps the widget from re-rendering the whole list every second.
+  // A countdown measured in minutes doesn't need a per-second re-render.
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60_000)
     return () => clearInterval(id)
@@ -89,10 +87,10 @@ export default function PrayerTimesWidget() {
       const position = await getCurrentLocation()
       const { latitude, longitude } = position.coords
 
-      const prayerTimes = await fetchPrayerTimes(latitude, longitude, undefined, 1)
-      if (!prayerTimes) throw new Error(t('ui.failedToFetchPrayerTimes'))
+      const times = await fetchPrayerTimes(latitude, longitude, undefined, 1)
+      if (!times) throw new Error(t('ui.failedToFetchPrayerTimes'))
 
-      const enhanced = enhancePrayerTimes(prayerTimes)
+      const enhanced = enhancePrayerTimes(times)
       setPrayers(enhanced)
       setNextPrayer(getNextPrayer(enhanced))
       setLocation(await getCityFromCoordinates(latitude, longitude))
@@ -114,13 +112,9 @@ export default function PrayerTimesWidget() {
   }, [loadPrayerTimes])
 
   const daily = useMemo(() => prayers.filter(p => p.name !== 'Sunrise'), [prayers])
+  const completed = daily.filter(p => p.passed).length
 
-  /**
-   * How far through the gap between the last prayer and the next.
-   *
-   * Used for both the ring and the arc marker. Falls back to 0 rather than
-   * guessing when a time won't parse — a wrong position is worse than none.
-   */
+  /** How far through the gap between the last prayer and the next. */
   const progress = useMemo(() => {
     if (!nextPrayer) return 0
     const nextMin = toMinutes(nextPrayer.time)
@@ -128,40 +122,61 @@ export default function PrayerTimesWidget() {
 
     const current = now.getHours() * 60 + now.getMinutes()
     const passed = daily.filter(p => p.passed)
-    const prevMin = passed.length ? toMinutes(passed[passed.length - 1].time) : null
-
-    // Before Fajr the "previous" prayer is yesterday's Isha; anchor on midnight
-    // instead of inventing a negative span.
-    const start = prevMin ?? 0
+    // Before Fajr the previous prayer is yesterday's Isha; anchor on midnight
+    // rather than inventing a negative span.
+    const start = passed.length ? (toMinutes(passed[passed.length - 1].time) ?? 0) : 0
     const span = nextMin - start
     if (span <= 0) return 0
     return Math.min(1, Math.max(0, (current - start) / span))
   }, [nextPrayer, daily, now])
 
-  const completedCount = daily.filter(p => p.passed).length
-
   return (
-    <div className="phase-canvas overflow-hidden rounded-3xl border border-black/5 shadow-sm dark:border-white/10">
-      {/* ── Hero: current phase colour, next prayer, countdown ring ───────── */}
-      <div className="phase-hero relative overflow-hidden px-5 py-6 sm:px-6">
-        {/* Islamic geometry as texture, per DESIGN.md — structural, not decorative */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.09]"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E\")",
-            backgroundSize: '34px 34px',
-          }}
-        />
+    <section className="sky relative overflow-hidden rounded-[28px] shadow-[0_18px_50px_-18px_rgb(0_0_0/0.55)] ring-1 ring-white/10">
+      {/* Stars, only at night. Deterministic positions so they don't jump on
+          every render. */}
+      {phase === 'night' && !reduceMotion && (
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          {STAR_FIELD.map((s, i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.r, height: s.r }}
+              animate={{ opacity: [0.15, 0.75, 0.15] }}
+              transition={{ duration: s.d, repeat: Infinity, delay: s.delay, ease: 'easeInOut' }}
+            />
+          ))}
+        </div>
+      )}
 
-        <div className="relative flex items-start justify-between gap-3">
+      {/* Islamic geometry as structure, per DESIGN.md — a woven eight-point
+          lattice rather than a generic dot pattern. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1'%3E%3Cpath d='M40 0l40 40-40 40L0 40z'/%3E%3Cpath d='M40 12l28 28-28 28-28-28z'/%3E%3Ccircle cx='40' cy='40' r='9'/%3E%3C/g%3E%3C/svg%3E\")",
+          backgroundSize: '52px 52px',
+        }}
+      />
+
+      {/* Horizon lift: a soft light bloom along the bottom edge, so the panel
+          reads as sky meeting ground rather than as a flat rectangle. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+        style={{ backgroundImage: 'linear-gradient(to top, rgb(var(--sky-glow) / 0.22), transparent)' }}
+      />
+
+      <div className="sky-scrim relative px-5 pb-5 pt-5 sm:px-6 sm:pb-6">
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/65">
               {t('ui.prayerTimes')}
             </p>
             {location && (
-              <p className="mt-1 flex items-center gap-1 text-xs text-white/75">
+              <p className="mt-1 flex items-center gap-1 text-xs text-white/70">
                 <MapPin className="h-3 w-3 shrink-0" />
                 <span className="truncate">{location.city}</span>
               </p>
@@ -169,12 +184,13 @@ export default function PrayerTimesWidget() {
           </div>
 
           {daily.length > 0 && (
-            <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-              {completedCount}/{daily.length}
-            </span>
+            <div className="shrink-0 rounded-full bg-white/12 px-3 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20 backdrop-blur-md">
+              {completed}/{daily.length}
+            </div>
           )}
         </div>
 
+        {/* ── Next prayer ────────────────────────────────────────────────── */}
         <AnimatePresence mode="wait">
           {loading ? (
             <motion.div
@@ -182,10 +198,10 @@ export default function PrayerTimesWidget() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="relative flex flex-col items-center justify-center py-8"
+              className="flex flex-col items-center justify-center py-10"
             >
               <Loader2 className="mb-3 h-7 w-7 animate-spin text-white/80" />
-              <p className="text-sm text-white/80">{t('ui.loadingPrayerTimes')}</p>
+              <p className="text-sm text-white/75">{t('ui.loadingPrayerTimes')}</p>
             </motion.div>
           ) : error ? (
             <motion.div
@@ -193,19 +209,19 @@ export default function PrayerTimesWidget() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="relative py-6 text-center"
+              className="py-7 text-center"
             >
               <AlertCircle className="mx-auto mb-3 h-7 w-7 text-white/85" />
-              <p className="mb-1 text-sm text-white/90">{error}</p>
+              <p className="text-sm text-white/90">{error}</p>
               {locationDenied && (
-                <p className="mb-4 text-xs text-white/70">
+                <p className="mt-1 text-xs text-white/65">
                   {t('ui.youCanEnableLocationAccessInYourBrowserSetti')}
                 </p>
               )}
               <Button
                 onClick={loadPrayerTimes}
                 size="sm"
-                className="mt-2 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
+                className="mt-4 bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25"
               >
                 {t('ui.tryAgain')}
               </Button>
@@ -213,31 +229,31 @@ export default function PrayerTimesWidget() {
           ) : nextPrayer ? (
             <motion.div
               key="next"
-              initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
+              initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="relative mt-5 flex items-center gap-5"
+              className="mt-6 flex items-center gap-5"
             >
               <CountdownRing progress={progress} reduceMotion={reduceMotion}>
                 {(() => {
                   const Icon = PRAYER_ICON[nextPrayer.name] ?? Moon
-                  return <Icon className="h-6 w-6 text-white" />
+                  return <Icon className="h-7 w-7 text-white drop-shadow" />
                 })()}
               </CountdownRing>
 
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-white/70">
+                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/60">
                   {t('ui.nextPrayer')}
                 </p>
-                <p className="mt-0.5 truncate text-2xl font-bold text-white sm:text-3xl">
+                <p className="mt-1 truncate text-[28px] font-bold leading-tight text-white drop-shadow-sm sm:text-[34px]">
                   {t(PRAYER_KEY[nextPrayer.name] ?? nextPrayer.name)}
                 </p>
-                <div className="mt-1 flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                  <span className="font-mono text-lg font-semibold text-white/95">
+                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="font-mono text-xl font-semibold tabular-nums text-white/95">
                     {nextPrayer.time}
                   </span>
                   {nextPrayer.nextPrayerIn && (
-                    <span className="text-sm text-white/75">
+                    <span className="rounded-full bg-white/12 px-2.5 py-0.5 text-xs font-medium text-white/90 ring-1 ring-white/15 backdrop-blur-md">
                       {t('ui.inDuration', { duration: nextPrayer.nextPrayerIn })}
                     </span>
                   )}
@@ -247,37 +263,41 @@ export default function PrayerTimesWidget() {
           ) : null}
         </AnimatePresence>
 
-        {/* ── The day's arc ─────────────────────────────────────────────── */}
+        {/* ── The day's arc ──────────────────────────────────────────────── */}
         {!loading && !error && daily.length > 0 && (
-          <div className="relative mt-6">
-            <div className="relative h-1 rounded-full bg-white/20">
+          <div className="mt-7">
+            <div className="relative h-[3px] rounded-full bg-white/18">
               <motion.div
-                className="absolute inset-y-0 left-0 rounded-full bg-white/70"
+                className="absolute inset-y-0 left-0 rounded-full bg-white/85 shadow-[0_0_12px_rgb(255_255_255/0.6)]"
                 initial={false}
-                animate={{ width: `${(completedCount / daily.length) * 100}%` }}
-                transition={{ duration: reduceMotion ? 0 : 0.6, ease: 'easeOut' }}
+                animate={{ width: `${(completed / daily.length) * 100}%` }}
+                transition={{ duration: reduceMotion ? 0 : 0.7, ease: 'easeOut' }}
               />
             </div>
-            <div className="mt-2 flex justify-between">
+
+            <div className="mt-2.5 grid grid-cols-5 gap-1">
               {daily.map(p => {
                 const isNext = p.name === nextPrayer?.name
                 return (
-                  <div key={p.name} className="flex flex-col items-center gap-1">
+                  <div key={p.name} className="flex flex-col items-center gap-1.5">
                     <span
-                      className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                      className={
                         isNext
-                          ? 'bg-white ring-2 ring-white/40'
+                          ? 'h-2 w-2 rounded-full bg-white ring-4 ring-white/25'
                           : p.passed
-                            ? 'bg-white/70'
-                            : 'bg-white/25'
-                      }`}
+                            ? 'h-1.5 w-1.5 rounded-full bg-white/75'
+                            : 'h-1.5 w-1.5 rounded-full bg-white/25'
+                      }
                     />
                     <span
-                      className={`text-[10px] font-medium ${
-                        isNext ? 'text-white' : 'text-white/55'
-                      }`}
+                      className={`truncate text-[10px] font-medium ${isNext ? 'text-white' : 'text-white/55'}`}
                     >
                       {t(PRAYER_KEY[p.name] ?? p.name)}
+                    </span>
+                    <span
+                      className={`font-mono text-[10px] tabular-nums ${isNext ? 'text-white/90' : 'text-white/40'}`}
+                    >
+                      {p.time}
                     </span>
                   </div>
                 )
@@ -287,64 +307,55 @@ export default function PrayerTimesWidget() {
         )}
       </div>
 
-      {/* ── The five prayers ──────────────────────────────────────────────── */}
+      {/* ── Detail list ────────────────────────────────────────────────────
+          A frosted panel over the sky rather than an opaque block, so the
+          gradient still reads as one continuous surface.
+
+          Darkened glass, not lightened: a white tint over the bright end of the
+          sky measured 2.86:1 on Asr. Pinned by sky-contrast.test.ts. */}
       {!loading && !error && daily.length > 0 && (
-        <div className="bg-white/70 p-3 backdrop-blur-sm dark:bg-slate-900/50">
-          <ul className="space-y-1">
+        <div className="relative border-t border-white/10 bg-black/25 p-2.5 backdrop-blur-xl">
+          <ul className="space-y-0.5">
             {daily.map((prayer, index) => {
               const isNext = prayer.name === nextPrayer?.name
               const Icon = PRAYER_ICON[prayer.name] ?? Moon
               return (
                 <motion.li
                   key={prayer.name}
-                  initial={{ opacity: 0, x: reduceMotion ? 0 : -12 }}
+                  initial={{ opacity: 0, x: reduceMotion ? 0 : -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: reduceMotion ? 0 : index * 0.04, duration: 0.3 }}
                   className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors ${
                     isNext
-                      ? 'bg-[rgb(var(--phase-accent)/0.12)] ring-1 ring-[rgb(var(--phase-accent)/0.35)]'
+                      ? 'bg-white/15 ring-1 ring-white/25'
                       : prayer.passed
-                        ? 'opacity-55'
-                        : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.04]'
+                        ? 'opacity-45'
+                        : 'hover:bg-white/[0.08]'
                   }`}
                 >
                   <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
-                      isNext
-                        ? 'bg-[rgb(var(--phase-accent)/0.18)] text-[rgb(var(--phase-ink-on-surface))]'
-                        : 'bg-black/[0.04] text-slate-500 dark:bg-white/[0.06] dark:text-slate-400'
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                      isNext ? 'bg-white/20 ring-1 ring-white/25' : 'bg-white/[0.08]'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4 text-white/90" />
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p
-                      className={`truncate text-sm font-semibold ${
-                        isNext
-                          ? 'text-[rgb(var(--phase-ink-on-surface))]'
-                          : 'text-slate-900 dark:text-slate-100'
-                      }`}
-                    >
+                    <p className="truncate text-sm font-semibold text-white">
                       {t(PRAYER_KEY[prayer.name] ?? prayer.name)}
                     </p>
                     {prayer.arabicName && (
                       <p
                         dir="rtl"
-                        className="truncate font-[family-name:var(--font-amiri)] text-xs text-slate-500 dark:text-slate-400"
+                        className="truncate font-[family-name:var(--font-amiri)] text-xs text-white/55"
                       >
                         {prayer.arabicName}
                       </p>
                     )}
                   </div>
 
-                  <span
-                    className={`shrink-0 font-mono text-sm font-semibold tabular-nums ${
-                      isNext
-                        ? 'text-[rgb(var(--phase-ink-on-surface))]'
-                        : 'text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
+                  <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-white/90">
                     {prayer.time}
                   </span>
                 </motion.li>
@@ -354,7 +365,7 @@ export default function PrayerTimesWidget() {
 
           <Button
             variant="ghost"
-            className="mt-2 w-full justify-center gap-1.5 text-sm font-medium text-[rgb(var(--phase-ink-on-surface))] hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+            className="mt-1.5 w-full justify-center gap-1.5 rounded-2xl text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
             onClick={() => (window.location.href = '/prayers')}
           >
             {t('ui.viewAllPrayerTimes')}
@@ -362,16 +373,28 @@ export default function PrayerTimesWidget() {
           </Button>
         </div>
       )}
-    </div>
+    </section>
   )
 }
+
+/** Fixed so the sky doesn't reshuffle on every render. */
+const STAR_FIELD = [
+  { x: 12, y: 18, r: 2, d: 3.2, delay: 0 },
+  { x: 28, y: 9, r: 1.5, d: 4.1, delay: 0.6 },
+  { x: 44, y: 24, r: 1.5, d: 3.7, delay: 1.2 },
+  { x: 61, y: 12, r: 2, d: 4.6, delay: 0.3 },
+  { x: 73, y: 28, r: 1.5, d: 3.4, delay: 1.8 },
+  { x: 88, y: 15, r: 2, d: 4.2, delay: 0.9 },
+  { x: 19, y: 38, r: 1.5, d: 3.9, delay: 1.5 },
+  { x: 54, y: 40, r: 1.5, d: 4.4, delay: 2.1 },
+]
 
 /**
  * Countdown ring.
  *
- * An SVG arc rather than a bar: it reads as a clock face, which is what the
- * value actually is, and it fits beside the prayer name without taking a row
- * of its own.
+ * An arc rather than a bar: the value is a position in time, and a ring reads
+ * as a clock face. The soft outer halo keeps it legible against the brighter
+ * phases without needing a border.
  */
 function CountdownRing({
   progress,
@@ -382,25 +405,30 @@ function CountdownRing({
   reduceMotion: boolean | null
   children: React.ReactNode
 }) {
-  const radius = 26
+  const radius = 30
   const circumference = 2 * Math.PI * radius
 
   return (
-    <div className="relative h-[68px] w-[68px] shrink-0">
-      <svg className="h-full w-full -rotate-90" viewBox="0 0 68 68" aria-hidden>
-        <circle cx="34" cy="34" r={radius} fill="none" stroke="rgb(255 255 255 / 0.2)" strokeWidth="4" />
+    <div className="relative h-[76px] w-[76px] shrink-0">
+      <div
+        aria-hidden
+        className="absolute inset-0 rounded-full"
+        style={{ boxShadow: '0 0 28px rgb(var(--sky-glow) / 0.45)' }}
+      />
+      <svg className="h-full w-full -rotate-90" viewBox="0 0 76 76" aria-hidden>
+        <circle cx="38" cy="38" r={radius} fill="rgb(255 255 255 / 0.06)" stroke="rgb(255 255 255 / 0.18)" strokeWidth="3" />
         <motion.circle
-          cx="34"
-          cy="34"
+          cx="38"
+          cy="38"
           r={radius}
           fill="none"
-          stroke="rgb(255 255 255 / 0.9)"
-          strokeWidth="4"
+          stroke="rgb(255 255 255 / 0.92)"
+          strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={circumference}
           initial={false}
           animate={{ strokeDashoffset: circumference * (1 - progress) }}
-          transition={{ duration: reduceMotion ? 0 : 0.8, ease: 'easeOut' }}
+          transition={{ duration: reduceMotion ? 0 : 0.9, ease: 'easeOut' }}
         />
       </svg>
       <span className="absolute inset-0 flex items-center justify-center">{children}</span>

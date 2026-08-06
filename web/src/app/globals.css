@@ -2399,3 +2399,147 @@ a:focus-visible,
     transition: var(--phase-transition);
   }
 }
+
+
+/* ============================================================================
+   The sky — atmospheric palette for prayer-time surfaces
+   ----------------------------------------------------------------------------
+   The earlier `--phase-hero-from/to` pair produced two-stop gradients that were
+   dark and desaturated: afternoon ran rgb(124 45 18) → rgb(146 64 14), which is
+   mud, and midday was teal-to-teal with almost no travel. They read as a dark
+   card, not as a time of day.
+
+   These are built from what the sky actually does at each prayer: a zenith
+   colour, a mid band, a horizon colour, and a light source (sun or moon) placed
+   where it belongs — low and behind you at Fajr, overhead at Dhuhr, sinking at
+   Maghrib. Three stops plus a positioned radial glow is what gives depth; two
+   flat stops never will.
+
+   Light and dark are separate palettes, not one dimmed. Dark deepens toward
+   night rather than simply darkening the same hues.
+   ========================================================================= */
+
+:root {
+  --sky-1: 14 92 138;
+  --sky-2: 50 150 195;
+  --sky-3: 168 216 235;
+  --sky-glow: 255 214 138;
+  --sky-glow-x: 80%;
+  --sky-glow-y: 12%;
+}
+
+/* Fajr — the blue hour. Sun still below the horizon; night overhead, the first
+   warmth showing low. */
+[data-phase='dawn'] {
+  --sky-1: 18 20 54;
+  --sky-2: 58 44 100;
+  --sky-3: 146 78 88;
+  --sky-glow: 247 178 143;
+  --sky-glow-x: 22%;
+  --sky-glow-y: 92%;
+}
+
+/* Duha — sun climbing, air clear. */
+[data-phase='morning'] {
+  --sky-1: 10 62 100;
+  --sky-2: 24 104 150;
+  --sky-3: 62 150 190;
+  --sky-glow: 255 214 138;
+  --sky-glow-x: 82%;
+  --sky-glow-y: 16%;
+}
+
+/* Dhuhr — high sun, brilliant azure, light coming from straight above. */
+[data-phase='midday'] {
+  --sky-1: 8 56 112;
+  --sky-2: 20 96 160;
+  --sky-3: 56 140 196;
+  --sky-glow: 255 246 214;
+  --sky-glow-x: 50%;
+  --sky-glow-y: -8%;
+}
+
+/* Asr — golden, slanting, long shadows. */
+[data-phase='afternoon'] {
+  --sky-1: 120 56 20;
+  --sky-2: 164 92 32;
+  --sky-3: 200 130 56;
+  --sky-glow: 255 224 160;
+  --sky-glow-x: 88%;
+  --sky-glow-y: 34%;
+}
+
+/* Maghrib — the sunset itself: fire at the horizon, violet closing in above. */
+[data-phase='dusk'] {
+  --sky-1: 40 20 70;
+  --sky-2: 104 38 82;
+  --sky-3: 168 74 52;
+  --sky-glow: 250 168 106;
+  --sky-glow-x: 78%;
+  --sky-glow-y: 88%;
+}
+
+/* Isha — deep night, moonlight rather than sun. */
+[data-phase='night'] {
+  --sky-1: 10 18 44;
+  --sky-2: 22 38 78;
+  --sky-3: 40 62 112;
+  --sky-glow: 128 158 220;
+  --sky-glow-x: 78%;
+  --sky-glow-y: 18%;
+}
+
+/* Dark mode deepens toward night rather than dimming the same hues. */
+.dark[data-phase='dawn'] {
+  --sky-1: 8 10 32; --sky-2: 40 32 78; --sky-3: 120 62 82; --sky-glow: 196 118 110;
+}
+.dark[data-phase='morning'] {
+  --sky-1: 6 40 62; --sky-2: 12 72 102; --sky-3: 26 106 136; --sky-glow: 200 160 90;
+}
+.dark[data-phase='midday'] {
+  --sky-1: 5 32 66; --sky-2: 10 60 104; --sky-3: 20 92 144; --sky-glow: 178 206 234;
+}
+.dark[data-phase='afternoon'] {
+  --sky-1: 74 38 14; --sky-2: 120 66 24; --sky-3: 164 100 42; --sky-glow: 214 158 84;
+}
+.dark[data-phase='dusk'] {
+  --sky-1: 24 12 44; --sky-2: 84 30 68; --sky-3: 150 64 46; --sky-glow: 200 116 74;
+}
+.dark[data-phase='night'] {
+  --sky-1: 4 8 22; --sky-2: 10 20 46; --sky-3: 18 34 70; --sky-glow: 92 118 176;
+}
+
+@layer utilities {
+  /* Three-stop sky with the light source placed per phase.
+     Doubled class for the same reason as .phase-hero: it has to win against
+     `bg-card`, whose shorthand would otherwise wipe background-image. */
+  .sky.sky {
+    background-color: rgb(var(--sky-1));
+    background-image:
+      radial-gradient(
+        70% 55% at var(--sky-glow-x) var(--sky-glow-y),
+        rgb(var(--sky-glow) / 0.55),
+        transparent 70%
+      ),
+      linear-gradient(
+        168deg,
+        rgb(var(--sky-1)) 0%,
+        rgb(var(--sky-2)) 52%,
+        rgb(var(--sky-3)) 100%
+      );
+    transition: var(--phase-transition);
+  }
+
+  /* Text scrim. The sky runs light at the horizon — white text over Dhuhr's
+     pale band would fail contrast — so content sits on a gradient that darkens
+     only where the words are. This is what keeps the palette free to be
+     luminous. */
+  .sky-scrim.sky-scrim {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.45) 0%,
+      rgb(0 0 0 / 0.38) 45%,
+      rgb(0 0 0 / 0.30) 100%
+    );
+  }
+}
