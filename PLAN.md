@@ -78,7 +78,7 @@ The highest-leverage work in the whole plan.
 - [ ] Re-measure the activation table above; target ≥60% of new users creating something
   · **Not yet measurable** — onboarding shipped 2026-08-03, needs a cohort of new signups before the numbers mean anything.
 
-### Phase 2.5 — Bilingual (Uzbek + English) 🟨
+### Phase 2.5 — Bilingual (Uzbek + English) ✅
 Every visible string in both languages, switchable from the top of any page.
 The user base is clearly not English-first, so this is an activation lever, not a nice-to-have.
 
@@ -93,20 +93,23 @@ The user base is clearly not English-first, so this is an activation lever, not 
 - [x] ✅ `messages/en.json` + `messages/uz.json`, flat namespaced keys; `en` is the typed source of truth
 - [x] ✅ 25 tests: header weighting (incl. `q=0`, wildcard), precedence, interpolation, dictionary parity
 - [ ] Locale-aware dates/numbers; keep Hijri formatting correct in both
-- [ ] Lint rule / CI check that fails on a hard-coded user-facing string
+- [x] ✅ CI check that fails on a hard-coded user-facing string (`i18n-coverage.test.ts`), plus
+      a guard that every `t()` key resolves — a typo'd key renders the literal "ui.someKey" to users
 
 **Measured constraint worth keeping:** resolving the locale in the root layout via `cookies()` opts the
 entire app out of static rendering — the build flipped every route, including the marketing page, from
 ○ to ƒ. The provider renders the default and corrects itself in a *layout* effect instead: before paint,
 so no flash, and the pages stay on the CDN.
 
-**Translation itself is done per feature, inside Phase 3.** Each feature deep-dive extracts and
-translates its own strings as part of its definition of done — a single 24-page translation
-sweep would be error-prone and would rot immediately. Auth, marketing and error/empty states
-are translated with the infrastructure since they sit outside Phase 3.
+**Superseded 2026-08-06: the full sweep was done in one pass, not per feature.** Staging it
+across Phase 3 meant shipping a translated sidebar wrapped around ten English pages, which is
+worse than either language alone. 757 strings across 104 files, verified by re-running the
+extractor against the modified tree — 0 translatable strings remain. Feature deep-dives now
+inherit translated copy instead of owing it.
 
-- [x] ✅ Auth pages + marketing + global empty/error states + navigation + prayer names (Bomdod,
-      Peshin, Shom, Xufton — the Uzbek terms, not transliterated Arabic)
+- [x] ✅ **Every page**: prayers, habits, journal, goals, focus, calendar, analytics, adhkar,
+      settings, admin, auth, marketing — plus every dialog, filter, toast, empty and error state.
+      Prayer names use the Uzbek terms (Bomdod, Peshin, Shom, Xufton), not transliterated Arabic.
 - [ ] Emails (verification, weekly review) follow the user's locale — `getUserTranslator()` is ready
 - [ ] Notification/push copy follows the user's locale
 
@@ -152,5 +155,6 @@ Only after Phase 2 numbers improve.
 | Date | Work |
 |---|---|
 | 2026-08-02 | Phase 0 started: error tracking + indexes shipped. Baseline audit; Prisma 7 + Accelerate outage fix; SW stale-cache fix; admin dashboard; AES password vault; notifications/push/adhan; offline queue; streak freeze; mobile pass; this plan |
+| 2026-08-06 | Phase 2.5 **complete**: full 757-string sweep across 104 files after the staged approach left feature pages in English. Codemod needed five clean re-runs — multi-line import anchors, `=>` read as a JSX tag, arrow-in-type matched as a component body, a `t` shadowed by a toast param, and `chart('x')` matching a `t('` substring. Deleted 2 dead error-boundary files. Suite 104 -> 107 |
 | 2026-08-06 | Phase 2.5 infrastructure shipped: cookie-based uz/en, switcher on every page, nav + auth + marketing translated. Backed out a static-rendering regression found in the build (root-layout `cookies()` made all 25 routes dynamic). Fixed `/api/user/locale` 401ing before its handler ran, and the navbar's emerald-gradient contrast bug. Suite 79 -> 104 |
 | 2026-08-03 | Phase 1: fixed the white Prayer Day surfaces — root cause was `background:` shorthand with an undefined var wiping `background-image`; split `--phase-accent` (hue) from `--phase-ink-on-surface` (readable) after all 6 phases failed WCAG AA. Restored keyboard focus rings (`ring:` isn't a CSS property). Phase 2: onboarding shipped. Landing page: `PrayerDayShowcase`, mobile ambient background, reduced-motion honoured. Habits restored to the mobile More menu. Suite 20 failing → 79 passing |
