@@ -1,14 +1,16 @@
 'use client'
 
 import { Suspense } from 'react'
+import { useT } from '@/lib/i18n/client'
 import { SignUpForm } from '@/components/auth/SignUpForm'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 
 function SignUpContent() {
+  const { t } = useT()
   return (
     <AuthLayout
-      title="Create Account"
-      subtitle="Start your productivity journey today"
+      title={t('auth.createAccount')}
+      subtitle={t('auth.createAccountSub')}
     >
       <SignUpForm />
     </AuthLayout>

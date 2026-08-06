@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useT } from '@/lib/i18n/client'
 import {
   Moon, BookHeart, Compass, Repeat, Timer, CheckSquare,
   BookOpen, Target, BarChart3, Bell, WifiOff, Download, Sunrise, Heart,
@@ -142,6 +143,8 @@ const ACCENT: Record<string, string> = {
 }
 
 export function Features() {
+  const { t } = useT()
+
   return (
     <section
       id="features"
@@ -157,11 +160,10 @@ export function Features() {
           className="mx-auto max-w-2xl text-center"
         >
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-white">
-            Everything in one place
+            {t('marketing.featuresTitle')}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-400">
-            Prayer, habits and work in a single app — so your day isn’t split across three
-            that don’t know about each other.
+            {t('marketing.featuresBody')}
           </p>
         </motion.div>
 
@@ -257,11 +259,11 @@ export function Features() {
                which was close to unreadable */
             className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-700 sm:text-base"
           >
-            Get started — it’s free
+            {t('marketing.getStarted')}
             <ArrowUpRight className="h-4 w-4" />
           </a>
           <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">
-            No card, no ads. Takes under a minute to set up.
+            {t('marketing.getStartedNote')}
           </p>
         </motion.div>
       </div>

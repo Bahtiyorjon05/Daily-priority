@@ -1,14 +1,16 @@
 'use client'
 
 import { Suspense } from 'react'
+import { useT } from '@/lib/i18n/client'
 import { SignInForm } from '@/components/auth/SignInForm'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 
 function SignInContent() {
+  const { t } = useT()
   return (
     <AuthLayout
-      title="Welcome Back"
-      subtitle="Sign in to continue your journey"
+      title={t('auth.welcomeBack')}
+      subtitle={t('auth.welcomeBackSub')}
     >
       <SignInForm />
     </AuthLayout>

@@ -1,5 +1,6 @@
 'use client'
 
+import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
 export function SignInForm() {
+  const { t } = useT()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -47,7 +49,7 @@ export function SignInForm() {
     let hasErrors = false
     
     if (!formData.email) {
-      setErrors(prev => ({ ...prev, email: 'Email is required' }))
+      setErrors(prev => ({ ...prev, email: t('auth.emailRequired') }))
       hasErrors = true
     } else if (!validateEmail(formData.email)) {
       setErrors(prev => ({ ...prev, email: 'Please enter a valid email address' }))
@@ -55,10 +57,10 @@ export function SignInForm() {
     }
     
     if (!formData.password) {
-      setErrors(prev => ({ ...prev, password: 'Password is required' }))
+      setErrors(prev => ({ ...prev, password: t('auth.passwordRequired') }))
       hasErrors = true
     } else if (formData.password.length < 8) {
-      setErrors(prev => ({ ...prev, password: 'Password must be at least 8 characters' }))
+      setErrors(prev => ({ ...prev, password: t('error.passwordTooShort', { count: 8 }) }))
       hasErrors = true
     }
     
@@ -104,7 +106,7 @@ export function SignInForm() {
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Sign in failed')
+      toast.error(t('auth.signInFailed'))
     } finally {
       setLoading(false)
     }
@@ -146,8 +148,8 @@ export function SignInForm() {
       })
 
       if (result?.error) {
-        setErrors(prev => ({ ...prev, general: 'Sign in failed after 2FA verification' }))
-        toast.error('Sign in failed')
+        setErrors(prev => ({ ...prev, general: t('auth.signInFailedAfter2FA') }))
+        toast.error(t('auth.signInFailed'))
       } else if (result?.ok) {
         toast.success('Welcome back!', {
           description: '2FA verified successfully',
@@ -158,7 +160,7 @@ export function SignInForm() {
       }
     } catch (error) {
       setErrors(prev => ({ ...prev, general: 'Something went wrong. Please try again.' }))
-      toast.error('Sign in failed')
+      toast.error(t('auth.signInFailed'))
     } finally {
       setLoading(false)
     }
@@ -169,7 +171,7 @@ export function SignInForm() {
       // Sign in with Google - if 2FA is enabled, user will be redirected to verify-2fa-google page
       await signIn('google', { callbackUrl: '/dashboard' })
     } catch (error) {
-      toast.error('Google sign-in failed')
+      toast.error(t('auth.googleSignInFailed'))
     }
   }
 
@@ -200,7 +202,7 @@ export function SignInForm() {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
-        <span className="truncate">Continue with Google</span>
+        <span className="truncate">{t('auth.continueWithGoogle')}</span>
       </button>
 
       {/* Divider */}
@@ -210,7 +212,7 @@ export function SignInForm() {
         </div>
         <div className="relative flex justify-center text-xs sm:text-sm uppercase">
           <span className="bg-white dark:bg-slate-900 px-3 text-gray-500 dark:text-gray-400 font-medium">
-            Or continue with email
+            {t('auth.orContinueWithEmail')}
           </span>
         </div>
       </div>
@@ -221,7 +223,7 @@ export function SignInForm() {
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
             <Mail className="w-4 h-4" />
-            Email Address
+            {t('auth.emailAddress')}
           </Label>
           <div className="relative">
             <Input
@@ -253,13 +255,13 @@ export function SignInForm() {
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <Lock className="w-4 h-4" />
-              Password
+              {t('auth.password')}
             </Label>
             <Link
               href="/forgot-password"
               className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
             >
-              Forgot?
+              {t('auth.forgotShort')}
             </Link>
           </div>
           <div className="relative">
@@ -299,20 +301,20 @@ export function SignInForm() {
             <div className="flex items-center justify-between">
               <Label htmlFor="twoFactorPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <Shield className="w-4 h-4" />
-                2FA Password
+                {t('auth.twoFactorPassword')}
               </Label>
               <Link
                 href="/forgot-2fa"
                 className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-semibold transition-colors duration-300 underline-offset-2 hover:underline"
               >
-                Forgot?
+                {t('auth.forgotShort')}
               </Link>
             </div>
             <div className="relative">
               <Input
                 id="twoFactorPassword"
                 type={show2FAPassword ? 'text' : 'password'}
-                placeholder="Enter your 2FA password"
+                placeholder={t('auth.twoFactorPlaceholder')}
                 value={twoFactorPassword}
                 onChange={(e) => {
                   setTwoFactorPassword(e.target.value)

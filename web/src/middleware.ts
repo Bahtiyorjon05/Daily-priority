@@ -12,7 +12,11 @@ const publicRoutes = new Set([
   '/reset-password',
   '/verify-code',
   '/verify-2fa-google',
-  '/error'
+  '/error',
+  // Choosing a language is not a privileged action, and signed-out visitors on
+  // the marketing pages are exactly who needs it. Without this the route 401s
+  // before its handler runs, so the signed-out branch there is unreachable.
+  '/api/user/locale'
 ])
 
 const semiProtectedRoutes = new Set(['/set-password'])

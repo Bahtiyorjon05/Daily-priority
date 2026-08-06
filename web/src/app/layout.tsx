@@ -7,6 +7,7 @@ import { Providers } from "@/components/providers";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorReporter } from "@/components/shared/ErrorReporter";
 import { PrayerPhaseProvider } from "@/components/shared/PrayerPhaseProvider";
+import { LocaleProvider } from "@/lib/i18n/client";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -151,6 +152,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Note: the locale is resolved in the browser, not here. Calling `cookies()`
+  // in the root layout opts the entire app out of static rendering — measured:
+  // it turned every route including the marketing page from ○ into ƒ. The
+  // pre-paint script below plus LocaleProvider's layout effect get the same
+  // no-flash result while keeping the pages on the CDN.
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -240,12 +246,14 @@ export default function RootLayout({
         <ErrorReporter />
         <ErrorBoundary>
           <Providers>
+            <LocaleProvider>
             <PrayerPhaseProvider>
             {children}
             <Toaster position="top-center" richColors />
             <Analytics />
             <SpeedInsights />
             </PrayerPhaseProvider>
+            </LocaleProvider>
           </Providers>
         </ErrorBoundary>
       </body>

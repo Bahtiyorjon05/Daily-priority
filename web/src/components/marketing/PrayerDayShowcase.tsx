@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Sunrise, Sun, CloudSun, Sunset, Moon, Stars } from 'lucide-react'
+import { useT } from '@/lib/i18n/client'
 
 /**
  * The landing page's centrepiece: a live demonstration of "The Prayer Day".
@@ -82,6 +83,7 @@ export function PrayerDayShowcase() {
   const [userPicked, setUserPicked] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const reduceMotion = useReducedMotion()
+  const { t } = useT()
 
   // Only animate while visible — no point cycling in a background tab.
   useEffect(() => {
@@ -112,17 +114,16 @@ export function PrayerDayShowcase() {
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 ring-1 ring-slate-200 dark:bg-white/5 dark:text-slate-300 dark:ring-white/10">
-            What makes it different
+            {t('marketing.showcaseEyebrow')}
           </span>
           <h2
             id="prayer-day-heading"
             className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-white"
           >
-            The app follows your day
+            {t('marketing.showcaseTitle')}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-400">
-            Not a fixed brand colour from morning to night. Daily Priority shifts with the
-            rhythm of the five prayers — so opening it tells you where you are.
+            {t('marketing.showcaseBody')}
           </p>
         </div>
 
@@ -220,7 +221,7 @@ export function PrayerDayShowcase() {
             </div>
 
             {/* Phase selector — also the reduced-motion fallback */}
-            <div className="mt-4 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Times of day">
+            <div className="mt-4 flex flex-wrap justify-center gap-2" role="tablist" aria-label={t('marketing.showcaseTabs')}>
               {PHASES.map((p, i) => {
                 const active = i === index
                 return (

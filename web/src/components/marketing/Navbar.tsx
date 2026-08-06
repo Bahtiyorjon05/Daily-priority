@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher'
+import { useT } from '@/lib/i18n/client'
 import { Moon, Sun, Menu, X } from 'lucide-react'
 import { useTheme } from '@/components/theme-provider'
 import { Logo } from './Logo'
@@ -14,6 +16,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { t } = useT()
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -67,7 +70,7 @@ export function Navbar() {
                 onClick={(e) => scrollToSection(e, 'features')}
                 className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-[#1C1C1C]/50 group relative overflow-hidden"
               >
-                <span className="relative z-10">Features</span>
+                <span className="relative z-10">{t('marketing.features')}</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </a>
               <a
@@ -75,7 +78,7 @@ export function Navbar() {
                 onClick={(e) => scrollToSection(e, 'contact')}
                 className="text-sm font-medium text-slate-700 dark:text-[#D4D4D4] hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-[#1C1C1C]/50 group relative overflow-hidden"
               >
-                <span className="relative z-10">Contact</span>
+                <span className="relative z-10">{t('marketing.contact')}</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 to-emerald-500/10 dark:from-emerald-400/0 dark:to-emerald-400/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </a>
             </div>
@@ -103,21 +106,22 @@ export function Navbar() {
             </button>
 
               <div className="hidden md:flex items-center gap-2">
+                <LocaleSwitcher variant="compact" />
                 <Link href="/signin">
                   <Button 
                     variant="ghost" 
                     className="relative rounded-lg hover:bg-emerald-100 dark:hover:bg-[#1C1C1C] transition-all duration-200 h-9 px-3 text-sm font-medium group overflow-hidden border border-emerald-200/50 dark:border-emerald-800/50"
                   >
-                    <span className="relative z-10 text-emerald-700 dark:text-emerald-300 font-semibold">Sign In</span>
+                    <span className="relative z-10 text-emerald-700 dark:text-emerald-300 font-semibold">{t('auth.signIn')}</span>
                     <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 dark:from-emerald-400/10 dark:to-emerald-400/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </Button>
                 </Link>
                 <Link href="/signup">
                   <Button 
-                    className="relative bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg text-slate-900 dark:text-white shadow-lg shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-200 h-9 px-4 text-sm font-semibold group overflow-hidden transform hover:-translate-y-0.5 hover:scale-105"
+                    className="relative bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg text-white shadow-lg shadow-emerald-500/40 hover:shadow-emerald-500/60 transition-all duration-200 h-9 px-4 text-sm font-semibold group overflow-hidden transform hover:-translate-y-0.5 hover:scale-105"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <span className="relative z-10">Get Started</span>
+                    <span className="relative z-10">{t('auth.signUp')}</span>
                   </Button>
                 </Link>
               </div>
@@ -127,7 +131,7 @@ export function Navbar() {
               size="icon"
               className="md:hidden rounded-lg h-10 w-10 hover:bg-emerald-100 dark:hover:bg-emerald-900/20 transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle menu"
+                aria-label={t('nav.menu')}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="marketing-mobile-nav"
               >
@@ -185,18 +189,22 @@ export function Navbar() {
                   onClick={(e) => scrollToSection(e, 'features')}
                   className="text-3xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
-                  Features
+                  {t('marketing.features')}
                 </a>
                 <a
                   href="#contact"
                   onClick={(e) => scrollToSection(e, 'contact')}
                   className="text-3xl font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
-                  Contact
+                  {t('marketing.contact')}
                 </a>
               </div>
 
               <div className="w-16 h-1 bg-slate-100 dark:bg-slate-800 rounded-full my-4" />
+
+              {/* Phone visitors reach the site through this menu, so the
+                  language choice has to be here and not only on desktop. */}
+              <LocaleSwitcher variant="compact" className="mb-2 scale-110" />
 
               <div className="flex flex-col gap-4 w-full max-w-sm">
                 <Link href="/signin" onClick={() => setMobileMenuOpen(false)} className="w-full">
@@ -204,14 +212,14 @@ export function Navbar() {
                     variant="outline" 
                     className="w-full h-12 text-lg font-medium rounded-xl border-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 dark:border-slate-700"
                   >
-                    Sign In
+                    {t('auth.signIn')}
                   </Button>
                 </Link>
                 <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="w-full">
                   <Button 
                     className="w-full h-12 text-lg font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
                   >
-                    Get Started
+                    {t('auth.signUp')}
                   </Button>
                 </Link>
               </div>

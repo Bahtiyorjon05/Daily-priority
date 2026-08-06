@@ -52,6 +52,8 @@ import { PhaseIndicator } from '@/components/shared/PhaseIndicator'
 import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
 import { AdhanPlayer } from '@/components/shared/AdhanPlayer'
+import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher'
+import { useT } from '@/lib/i18n/client'
 
 function DashboardLayoutContent({
   children,
@@ -61,6 +63,7 @@ function DashboardLayoutContent({
   const { data: session, status } = useSession()
   const { profile } = useUserProfile()
   const router = useRouter()
+  const { t } = useT()
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -340,79 +343,79 @@ function DashboardLayoutContent({
     {
       path: '/dashboard',
       icon: LayoutDashboard,
-      label: 'Dashboard',
+      label: t('nav.dashboard'),
       description: 'Overview & stats',
       color: 'from-blue-500 to-cyan-500'
     },
     {
       path: '/analytics',
       icon: TrendingUp,
-      label: 'Analytics',
+      label: t('nav.analytics'),
       description: 'Insights & reports',
       color: 'from-indigo-500 to-purple-500'
     },
     {
       path: '/prayers',
       icon: Heart,
-      label: 'Prayers',
+      label: t('nav.prayers'),
       description: 'Prayer times & tracking',
       color: 'from-emerald-500 to-teal-500'
     },
     {
       path: '/adhkar',
       icon: Sparkles,
-      label: 'Adhkar',
+      label: t('nav.adhkar'),
       description: 'Daily remembrance',
       color: 'from-purple-500 to-violet-500'
     },
     {
       path: '/focus',
       icon: Zap,
-      label: 'Focus',
+      label: t('nav.focus'),
       description: 'Pomodoro & deep work',
       color: 'from-orange-500 to-amber-500'
     },
     {
       path: '/calendar',
       icon: Calendar,
-      label: 'Calendar',
+      label: t('nav.calendar'),
       description: 'Schedule & events',
       color: 'from-teal-500 to-cyan-500'
     },
     {
       path: '/goals',
       icon: Target,
-      label: 'Goals',
+      label: t('nav.goals'),
       description: 'Track your progress',
       color: 'from-amber-500 to-yellow-500'
     },
     {
       path: '/habits',
       icon: CheckCircle2,
-      label: 'Habits',
+      label: t('nav.habits'),
       description: 'Build positive habits',
       color: 'from-green-500 to-emerald-500'
     },
     {
       path: '/journal',
       icon: BookHeart,
-      label: 'Journal',
+      label: t('nav.journal'),
       description: 'Reflect & grow',
       color: 'from-pink-500 to-rose-500'
     },
     {
       path: '/settings',
       icon: Settings,
-      label: 'Settings',
+      label: t('nav.settings'),
       description: 'Preferences & profile',
       color: 'from-slate-500 to-gray-500'
     },
   ]
 
   const userMenuItems = [
-    { icon: User, label: 'Profile Settings', action: () => router.push('/settings') },
-    { icon: Settings, label: 'Preferences', action: () => router.push('/settings?tab=appearance') },
-    { icon: Shield, label: 'Privacy & Security', action: () => router.push('/settings?tab=security') },
+    { icon: User, label: t('nav.profileSettings'), action: () => router.push('/settings') },
+    { icon: Settings, label: t('nav.preferences'), action: () => router.push('/settings?tab=appearance') },
+    { icon: Shield, label: t('nav.privacySecurity'), action: () => router.push('/settings?tab=security') },
   ]
 
   // Get theme-specific colors for each page
@@ -717,6 +720,14 @@ function DashboardLayoutContent({
         <header className="sticky top-0 z-30 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border-b border-black/5 dark:border-white/10">
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 lg:px-8">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/*
+                Language. Segmented on anything above phones, where both
+                options fit and switching is a single tap; the icon menu on
+                narrow screens, where the header is already crowded.
+              */}
+              <LocaleSwitcher variant="compact" className="hidden sm:inline-flex" />
+              <LocaleSwitcher variant="menu" className="sm:hidden" />
+
               {/* Notifications */}
               <NotificationBell />
 
@@ -984,10 +995,10 @@ function DashboardLayoutContent({
           >
             <div className="flex items-stretch justify-around px-1 pt-1.5 pb-1">
               {[
-                { path: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-                { path: '/prayers', icon: Heart, label: 'Prayers' },
-                { path: '/focus', icon: Zap, label: 'Focus' },
-                { path: '/goals', icon: Target, label: 'Goals' },
+                { path: '/dashboard', icon: LayoutDashboard, label: t('nav.home') },
+                { path: '/prayers', icon: Heart, label: t('nav.prayers') },
+                { path: '/focus', icon: Zap, label: t('nav.focus') },
+                { path: '/goals', icon: Target, label: t('nav.goals') },
               ].map((item) => {
                 const Icon = item.icon
                 const isActive = pathname === item.path
