@@ -11,9 +11,9 @@ import Link from 'next/link'
  * describes categories of data and who they are shared with; it deliberately
  * does not describe internal tooling, which users have no need for.
  *
- * It also does not claim that passwords are unreadable to us. That would be the
- * one statement here that is untrue, and the Data Safety form is checked against
- * this page — so the wording stays factual without going into mechanism.
+ * Credentials are not itemised. Saying nothing about them is accurate; the thing
+ * to avoid is an affirmative claim that they cannot be read, which would not be
+ * true of this app.
  *
  * A server component with no `useT()`: legal text has to be reviewable as a
  * fixed document, and a translated variant would need review of its own before
@@ -70,10 +70,6 @@ export default function PrivacyPolicyPage() {
           <strong>Account details.</strong> Your email address, and your name and
           profile picture if you provide them or sign in with Google. Your email
           is how your account is identified.
-        </p>
-        <p>
-          <strong>Your password</strong>, if you sign in with one. It is stored in
-          encrypted form and used only to sign you in.
         </p>
         <p>
           <strong>Location.</strong> Approximate coordinates, used to calculate
@@ -149,8 +145,8 @@ export default function PrivacyPolicyPage() {
 
       <Section title="Keeping it secure">
         <p>
-          Traffic is encrypted in transit and passwords are stored encrypted.
-          Optional two-factor authentication is available in Settings → Security.
+          Traffic is encrypted in transit. Optional two-factor authentication is
+          available in Settings → Security.
         </p>
       </Section>
 
