@@ -4,7 +4,6 @@ import { useT } from '@/lib/i18n/client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { MapPin, Loader2, AlertCircle, Sunrise, Sun, CloudSun, Sunset, Moon, Stars, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { usePrayerPhase } from '@/components/shared/PrayerPhaseProvider'
 import {
   fetchPrayerTimes,
@@ -218,13 +217,16 @@ export default function PrayerTimesWidget() {
                   {t('ui.youCanEnableLocationAccessInYourBrowserSetti')}
                 </p>
               )}
-              <Button
+              {/* Plain button for the same reason as the one below: the default
+                  variant's `hover:bg-primary/90` competes with the local hover
+                  colour on emit order, not on class order. */}
+              <button
+                type="button"
                 onClick={loadPrayerTimes}
-                size="sm"
-                className="mt-4 bg-white/15 text-white ring-1 ring-white/25 backdrop-blur-md hover:bg-white/25"
+                className="mt-4 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
               >
                 {t('ui.tryAgain')}
-              </Button>
+              </button>
             </motion.div>
           ) : nextPrayer ? (
             <motion.div
@@ -363,14 +365,24 @@ export default function PrayerTimesWidget() {
             })}
           </ul>
 
-          <Button
-            variant="ghost"
-            className="mt-1.5 w-full justify-center gap-1.5 rounded-2xl text-sm font-medium text-white/85 hover:bg-white/10 hover:text-white"
+          {/*
+            A plain button, deliberately not <Button variant="ghost">.
+
+            That variant carries `hover:bg-accent hover:text-accent-foreground`,
+            which are theme-aware and *light* in light mode. Whether those or a
+            local `hover:bg-white/10` win comes down to Tailwind's emit order
+            rather than the order they're written in — so on hover this went
+            white-on-light and disappeared. Nothing on this panel should take
+            colour from the light/dark theme; it sits on the sky.
+          */}
+          <button
+            type="button"
             onClick={() => (window.location.href = '/prayers')}
+            className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/90 transition-colors hover:bg-white/15 hover:text-white focus-visible:bg-white/15"
           >
             {t('ui.viewAllPrayerTimes')}
             <ArrowRight className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       )}
     </section>
