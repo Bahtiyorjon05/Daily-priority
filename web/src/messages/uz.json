@@ -1639,7 +1639,7 @@
   "ui.timeOfDayChange": "Kun vaqti: {label}. Ko'rinishni o'zgartirish.",
   "ui.inDuration": "{duration} dan keyin",
   "account.deleteTitle": "Bu hisobni o'chirish",
-  "account.deleteBody": "Hisobni yopish sizni hamma joydan chiqaradi va barcha eslatmalarni to'xtatadi. Namoz, odat va kundalik yozuvlaringiz hisobotlarimiz uchun saqlanadi va endi sizga ko'rinmaydi.",
+  "account.deleteBody": "Hisobni yopish sizni barcha qurilmalardan chiqaradi va barcha eslatmalarni to'xtatadi. Namoz, odat va kundalik yozuvlaringizga kirish imkoningizni yo'qotasiz.",
   "account.deleteAction": "Hisobimni o'chirish",
   "account.deleteWarnTitle": "Iltimos, avval yaxshilab o'ylang",
   "account.deleteWarn1": "Siz shakllantirgan barcha namoz ketma-ketligi, odat va kundalik yozuvlaridan mahrum bo'lasiz.",

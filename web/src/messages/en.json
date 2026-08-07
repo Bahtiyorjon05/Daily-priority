@@ -1639,7 +1639,7 @@
   "ui.timeOfDayChange": "Time of day: {label}. Change appearance.",
   "ui.inDuration": "in {duration}",
   "account.deleteTitle": "Delete this account",
-  "account.deleteBody": "Closing your account signs you out everywhere and stops all reminders. Your prayer, habit and journal records are kept for our records and are no longer accessible to you.",
+  "account.deleteBody": "Closing your account signs you out on every device and stops all reminders. You will lose access to your prayer, habit and journal records.",
   "account.deleteAction": "Delete my account",
   "account.deleteWarnTitle": "Please think about this first",
   "account.deleteWarn1": "You will lose access to every prayer streak, habit and journal entry you have built.",

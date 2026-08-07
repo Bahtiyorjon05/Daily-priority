@@ -22,9 +22,9 @@ import { useT } from '@/lib/i18n/client'
  * The same email check runs server-side; this is the affordance, not the
  * boundary.
  *
- * What actually happens is spelled out rather than implied — the account closes
- * and sign-in stops immediately, but the records are retained. Saying so is more
- * honest than "permanently deleted", which would not be true.
+ * The copy states what the user loses and that closure is immediate, without
+ * describing internal storage — that belongs in the privacy policy, not in a
+ * settings panel.
  */
 export function DeleteAccountCard({ email }: { email: string }) {
   const { t } = useT()

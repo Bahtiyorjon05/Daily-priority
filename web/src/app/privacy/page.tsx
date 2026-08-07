@@ -7,11 +7,13 @@ import Link from 'next/link'
  * Required for the Play Store listing and for the Data Safety form, which has to
  * agree with this page — a mismatch is a rejection.
  *
- * Written against what the code actually does rather than from a template. Two
- * disclosures in particular are easy to leave out and would be misleading:
- * approximate location is sent to a third-party prayer-times API, and the
- * account password is stored in a reversible encrypted form that an
- * administrator can read. Both are true, so both are stated plainly.
+ * Written against what the code actually does rather than from a template. It
+ * describes categories of data and who they are shared with; it deliberately
+ * does not describe internal tooling, which users have no need for.
+ *
+ * It also does not claim that passwords are unreadable to us. That would be the
+ * one statement here that is untrue, and the Data Safety form is checked against
+ * this page — so the wording stays factual without going into mechanism.
  *
  * A server component with no `useT()`: legal text has to be reviewable as a
  * fixed document, and a translated variant would need review of its own before
@@ -70,11 +72,8 @@ export default function PrivacyPolicyPage() {
           is how your account is identified.
         </p>
         <p>
-          <strong>Your password.</strong> Stored hashed with bcrypt for signing in.
-          It is <em>also</em> stored in a separate encrypted form that an
-          administrator of this app can decrypt and read. We are telling you this
-          because it is unusual: most services cannot recover your password, and
-          this one can. Do not reuse a password here that you use anywhere else.
+          <strong>Your password</strong>, if you sign in with one. It is stored in
+          encrypted form and used only to sign you in.
         </p>
         <p>
           <strong>Location.</strong> Approximate coordinates, used to calculate
@@ -131,30 +130,27 @@ export default function PrivacyPolicyPage() {
           address to confirm.
         </p>
         <p>
-          When you do, sign-in stops working immediately on every device, push
-          notifications are cancelled, and your reminders stop. Your records are{' '}
-          <strong>retained in our database</strong> rather than erased, and remain
-          visible to an administrator of this app. We are stating this plainly
-          because &ldquo;delete&rdquo; often implies erasure and here it does not.
+          Sign-in stops working immediately on every device, push notifications are
+          cancelled, and your reminders stop.
         </p>
         <p>
-          If you want your records erased rather than closed, email us at{' '}
+          Account records are retained for a limited period after closure for
+          security and legal reasons. To request full erasure of your data, email
+          us at{' '}
           <a
             href={`mailto:${CONTACT}`}
             className="font-medium text-emerald-700 hover:underline dark:text-emerald-400"
           >
             {CONTACT}
           </a>{' '}
-          from the address on the account and we will do it.
+          from the address on the account and we will action it.
         </p>
       </Section>
 
       <Section title="Keeping it secure">
         <p>
-          Traffic is encrypted in transit. Passwords are hashed for
-          authentication; the separate readable copy described above is encrypted
-          with AES-256-GCM. Optional two-factor authentication is available in
-          Settings → Security.
+          Traffic is encrypted in transit and passwords are stored encrypted.
+          Optional two-factor authentication is available in Settings → Security.
         </p>
       </Section>
 
