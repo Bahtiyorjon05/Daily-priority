@@ -108,6 +108,15 @@ function DashboardLayoutContent({
     (session as unknown as { needsOnboarding?: boolean } | null)?.needsOnboarding
   )
 
+  // The account was closed — possibly on another device. Sign out rather than
+  // redirect, so the stale token is discarded instead of bouncing around the app.
+  const accountDeleted = Boolean(
+    (session as unknown as { deleted?: boolean } | null)?.deleted
+  )
+  useEffect(() => {
+    if (accountDeleted) signOut({ callbackUrl: '/' })
+  }, [accountDeleted])
+
   // Send them straight to /set-password. Uses replace() so Back doesn't drop
   // them onto a dashboard they aren't allowed to use yet.
   useEffect(() => {

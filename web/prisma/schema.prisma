@@ -24,6 +24,13 @@ model User {
   /// been through it and should be routed there. Backfilled for accounts that
   /// existed before onboarding shipped, so nobody is sent back through it.
   onboardedAt      DateTime?
+  /// Soft delete. Set when the user deletes their own account: sign-in is
+  /// refused from this moment on, but the row and every related record stay so
+  /// the admin console keeps a complete history. Never null-checked for
+  /// authorisation anywhere except the auth layer — see `assertNotDeleted`.
+  deletedAt        DateTime?
+  /// Free-text reason captured at deletion time, if the user gave one.
+  deletionReason   String?
   location         String?
   timezone         String?          @default("UTC")
   createdAt        DateTime         @default(now())

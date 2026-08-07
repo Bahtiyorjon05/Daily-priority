@@ -1,5 +1,6 @@
 'use client'
 
+import { DeleteAccountCard } from './DeleteAccountCard'
 import { useT } from '@/lib/i18n/client'
 import { useState, useEffect, useCallback } from 'react'
 import { useSession, signOut } from 'next-auth/react'
@@ -754,6 +755,10 @@ export function SecuritySettings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Danger zone last, and visually separated — destructive actions should
+          never sit next to routine ones. */}
+      {session?.user?.email && <DeleteAccountCard email={session.user.email} />}
     </div>
   )
 }

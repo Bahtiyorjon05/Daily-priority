@@ -310,13 +310,16 @@ export default function PrayerTimesWidget() {
       </div>
 
       {/* ── Detail list ────────────────────────────────────────────────────
-          A frosted panel over the sky rather than an opaque block, so the
-          gradient still reads as one continuous surface.
+          An ordinary opaque surface, not glass over the sky.
 
-          Darkened glass, not lightened: a white tint over the bright end of the
-          sky measured 2.86:1 on Asr. Pinned by sky-contrast.test.ts. */}
+          Translucent-over-gradient meant every foreground colour had to be
+          white and every contrast ratio depended on which part of the gradient
+          sat behind it — that's how "View All Prayer Times" ended up
+          unreadable. The sky carries the atmosphere in the hero above; the list
+          is reference data and just needs to be legible, so it takes normal
+          theme colours and inherits their contrast for free. */}
       {!loading && !error && daily.length > 0 && (
-        <div className="relative border-t border-white/10 bg-black/45 p-2.5 backdrop-blur-xl">
+        <div className="relative border-t border-black/5 bg-white p-2.5 dark:border-white/10 dark:bg-slate-900">
           <ul className="space-y-0.5">
             {daily.map((prayer, index) => {
               const isNext = prayer.name === nextPrayer?.name
@@ -329,35 +332,49 @@ export default function PrayerTimesWidget() {
                   transition={{ delay: reduceMotion ? 0 : index * 0.04, duration: 0.3 }}
                   className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors ${
                     isNext
-                      ? 'bg-white/15 ring-1 ring-white/25'
+                      ? 'bg-[rgb(var(--phase-accent)/0.12)] ring-1 ring-[rgb(var(--phase-accent)/0.30)]'
                       : prayer.passed
-                        ? 'opacity-45'
-                        : 'hover:bg-white/[0.08]'
+                        ? 'opacity-50'
+                        : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.05]'
                   }`}
                 >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                      isNext ? 'bg-white/20 ring-1 ring-white/25' : 'bg-white/[0.08]'
+                      isNext
+                        ? 'bg-[rgb(var(--phase-accent)/0.16)] text-[rgb(var(--phase-ink-on-surface))]'
+                        : 'bg-black/[0.04] text-slate-500 dark:bg-white/[0.06] dark:text-slate-400'
                     }`}
                   >
-                    <Icon className="h-4 w-4 text-white/90" />
+                    <Icon className="h-4 w-4" />
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">
+                    <p
+                      className={`truncate text-sm font-semibold ${
+                        isNext
+                          ? 'text-[rgb(var(--phase-ink-on-surface))]'
+                          : 'text-slate-900 dark:text-slate-100'
+                      }`}
+                    >
                       {t(PRAYER_KEY[prayer.name] ?? prayer.name)}
                     </p>
                     {prayer.arabicName && (
                       <p
                         dir="rtl"
-                        className="truncate font-[family-name:var(--font-amiri)] text-xs text-white/55"
+                        className="truncate font-[family-name:var(--font-amiri)] text-xs text-slate-500 dark:text-slate-400"
                       >
                         {prayer.arabicName}
                       </p>
                     )}
                   </div>
 
-                  <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-white/90">
+                  <span
+                    className={`shrink-0 font-mono text-sm font-semibold tabular-nums ${
+                      isNext
+                        ? 'text-[rgb(var(--phase-ink-on-surface))]'
+                        : 'text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
                     {prayer.time}
                   </span>
                 </motion.li>
@@ -378,7 +395,7 @@ export default function PrayerTimesWidget() {
           <button
             type="button"
             onClick={() => (window.location.href = '/prayers')}
-            className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold text-white/90 transition-colors hover:bg-white/15 hover:text-white focus-visible:bg-white/15"
+            className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold text-[rgb(var(--phase-ink-on-surface))] transition-colors hover:bg-[rgb(var(--phase-accent)/0.10)] focus-visible:bg-[rgb(var(--phase-accent)/0.10)]"
           >
             {t('ui.viewAllPrayerTimes')}
             <ArrowRight className="h-4 w-4" />

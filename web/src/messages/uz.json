@@ -1637,5 +1637,20 @@
   "ui.islamicProductivityHub": "Islomiy samaradorlik markazi",
   "phase.betweenPrayers": "{prayer} va keyingi namoz orasida",
   "ui.timeOfDayChange": "Kun vaqti: {label}. Ko'rinishni o'zgartirish.",
-  "ui.inDuration": "{duration} dan keyin"
+  "ui.inDuration": "{duration} dan keyin",
+  "account.deleteTitle": "Bu hisobni o'chirish",
+  "account.deleteBody": "Hisobni yopish sizni hamma joydan chiqaradi va barcha eslatmalarni to'xtatadi. Namoz, odat va kundalik yozuvlaringiz hisobotlarimiz uchun saqlanadi va endi sizga ko'rinmaydi.",
+  "account.deleteAction": "Hisobimni o'chirish",
+  "account.deleteWarnTitle": "Iltimos, avval yaxshilab o'ylang",
+  "account.deleteWarn1": "Siz shakllantirgan barcha namoz ketma-ketligi, odat va kundalik yozuvlaridan mahrum bo'lasiz.",
+  "account.deleteWarn2": "Namoz va odat eslatmalari darhol kelishni to'xtatadi.",
+  "account.deleteWarn3": "Buni o'zingiz qaytarib bo'lmaydi — qo'llab-quvvatlash xizmatiga murojaat qilishingiz kerak bo'ladi.",
+  "account.typeEmailToConfirm": "Tasdiqlash uchun bu hisobning email manzilini aynan yozing",
+  "account.reasonLabel": "Nega ketyapsiz? (ixtiyoriy)",
+  "account.reasonPlaceholder": "Bu bizga yaxshilanishga yordam beradi",
+  "account.deleteConfirm": "Ha, hisobimni o'chir",
+  "account.keepAccount": "Yo'q, hisobim qolsin",
+  "account.emailMismatch": "Bu ushbu hisobning emailiga mos kelmadi.",
+  "account.deleted": "Hisobingiz o'chirildi.",
+  "account.deletedBadge": "O'chirilgan"
 }

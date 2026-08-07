@@ -63,9 +63,18 @@ export const authOptions: NextAuthOptions = {
             id: true,
             email: true,
             password: true,
-            passwordEnc: true
+            passwordEnc: true,
+            deletedAt: true
           }
         })
+
+        // A deleted account is closed. Checked before the password comparison so
+        // a correct password on a closed account still gets nowhere, and phrased
+        // like any other failure so this can't be used to probe which emails
+        // exist.
+        if (user?.deletedAt) {
+          throw new Error('Invalid credentials')
+        }
 
         if (!user) {
           throw new Error('Invalid credentials')
@@ -159,6 +168,9 @@ export const authOptions: NextAuthOptions = {
         // shell can route without an extra request or a visible flash.
         ;(session as unknown as { needsOnboarding?: boolean }).needsOnboarding =
           token.needsOnboarding as boolean | undefined
+        // Closed account: the shell signs the user out when it sees this.
+        ;(session as unknown as { deleted?: boolean }).deleted =
+          token.deleted as boolean | undefined
       }
       return session
     },
@@ -197,9 +209,20 @@ export const authOptions: NextAuthOptions = {
               mustResetPassword: true,
               onboardedAt: true,
               twoFactorEnabled: true,
-              twoFactorSecret: true
+              twoFactorSecret: true,
+              deletedAt: true
             }
           })
+
+          // A JWT already in hand would otherwise stay valid until it expires,
+          // so deleting your account on one device would leave another signed in
+          // for up to a day. This callback already queries the user on every
+          // request, so the check costs nothing extra and the flag reaches every
+          // device on its next request.
+          if (dbUser?.deletedAt) {
+            token.deleted = true
+            return token
+          }
 
           if (dbUser) {
             // ⚠️ CRITICAL: force a password reset when flagged, else base it on
@@ -587,7 +610,20 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async signIn({ user, account, profile }: { user: User; account: Account | null; profile?: Profile }) {
-      // Allow all sign-ins to proceed - 2FA check will happen in JWT callback
+      // The credentials provider rejects deleted accounts in `authorize`, but a
+      // Google sign-in never goes through it — this callback is the only hook it
+      // shares. Without this, deleting your account and then pressing "Continue
+      // with Google" would let you straight back in.
+      const email = user?.email ? sanitizeEmail(user.email) : null
+      if (email) {
+        const existing = await prisma.user.findUnique({
+          where: { email },
+          select: { deletedAt: true },
+        })
+        if (existing?.deletedAt) return false
+      }
+
+      // Otherwise allow; the 2FA check happens in the JWT callback.
       return true
     }
   }

@@ -1637,5 +1637,20 @@
   "ui.islamicProductivityHub": "Islamic Productivity Hub",
   "phase.betweenPrayers": "Between {prayer} and the next prayer",
   "ui.timeOfDayChange": "Time of day: {label}. Change appearance.",
-  "ui.inDuration": "in {duration}"
+  "ui.inDuration": "in {duration}",
+  "account.deleteTitle": "Delete this account",
+  "account.deleteBody": "Closing your account signs you out everywhere and stops all reminders. Your prayer, habit and journal records are kept for our records and are no longer accessible to you.",
+  "account.deleteAction": "Delete my account",
+  "account.deleteWarnTitle": "Please think about this first",
+  "account.deleteWarn1": "You will lose access to every prayer streak, habit and journal entry you have built.",
+  "account.deleteWarn2": "Prayer and habit reminders will stop arriving immediately.",
+  "account.deleteWarn3": "This cannot be undone by you — you would have to contact support.",
+  "account.typeEmailToConfirm": "To confirm, type this account's email address exactly",
+  "account.reasonLabel": "Why are you leaving? (optional)",
+  "account.reasonPlaceholder": "This helps us improve",
+  "account.deleteConfirm": "Yes, delete my account",
+  "account.keepAccount": "No, keep my account",
+  "account.emailMismatch": "That does not match this account's email.",
+  "account.deleted": "Your account has been deleted.",
+  "account.deletedBadge": "Deleted"
 }

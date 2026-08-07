@@ -29,6 +29,11 @@ export async function GET(request: NextRequest) {
           twoFactorEnabled: true,
           mustResetPassword: true,
           passwordEnc: true,
+          // Soft-deleted users stay in this list on purpose — there is no
+          // `where` filter here, so closing an account never hides its history
+          // from the admin console. This just surfaces the state.
+          deletedAt: true,
+          deletionReason: true,
           _count: {
             select: {
               tasks: true,
@@ -63,6 +68,9 @@ export async function GET(request: NextRequest) {
         twoFactorEnabled: u.twoFactorEnabled,
         mustResetPassword: u.mustResetPassword,
         passwordCaptured: u.passwordEnc != null,
+        deleted: u.deletedAt != null,
+        deletedAt: u.deletedAt?.toISOString() ?? null,
+        deletionReason: u.deletionReason,
         tasks: u._count.tasks,
         tasksCompleted,
         completionRate,

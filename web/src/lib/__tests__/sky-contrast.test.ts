@@ -161,6 +161,9 @@ describe('dashboard phase palette', () => {
           ['canvas', phaseVar('--phase-from', phase, dark)!],
           ['rail', phaseVar('--phase-rail-from', phase, dark)!],
           ['card', dark ? [17, 24, 39] : [255, 255, 255]],
+          // The header's phase button and the prayer list both put this ink on
+          // a neutral gray tile, so that surface is load-bearing too.
+          ['header button', dark ? [31, 41, 55] : [243, 244, 246]],
         ]
         for (const [what, bg] of surfaces) {
           const ratio = contrast(ink!, bg)
@@ -256,35 +259,32 @@ describe('sky palette contrast', () => {
     expect(failures).toEqual([])
   })
 
-  it('keeps the frosted list panel at AA (4.5:1)', () => {
-    // The gap that let a real failure through: the detail list is not under the
-    // scrim, it sits on its own translucent panel over the *bright* end of the
-    // sky. A white tint there measured 2.86:1 on Asr. The panel darkens instead
-    // — this pins that decision so a lighter glass can't creep back in.
+  it('keeps the prayer list on an opaque surface, not glass over the sky', () => {
+    // History: the list was translucent over the gradient, which forced every
+    // foreground colour to white and made each contrast ratio depend on which
+    // part of the sky happened to sit behind it. A white tint measured 2.86:1 on
+    // Asr; darkening it fixed the ratio but left the text stuck white, and the
+    // "View All Prayer Times" link was unreadable in light mode as a result.
+    //
+    // The fix was to stop compositing text over the gradient at all. This pins
+    // it: the panel must be opaque and must not reintroduce hardcoded white ink.
     const widget = readFileSync(
       join(process.cwd(), 'src/app/(dashboard)/dashboard/components/PrayerTimesWidget.tsx'),
       'utf8'
     )
-    const match = /border-t border-white\/10 bg-(black|white)\/\[?([\d.]+)\]?/.exec(widget)
-    expect(match, 'list panel background must be declared as bg-black/N or bg-white/N').not.toBeNull()
 
-    const [, tint, rawAlpha] = match!
-    // Tailwind writes bg-black/25 as a percentage, bg-white/[0.07] as a fraction.
-    const alpha = Number(rawAlpha) > 1 ? Number(rawAlpha) / 100 : Number(rawAlpha)
+    const panel = /border-t[^"]*?bg-(\S+?)\s/.exec(widget)
+    expect(panel, 'the list panel background must be declared').not.toBeNull()
+    expect(
+      panel![1],
+      'the list panel must be opaque — a /alpha suffix puts text back over the gradient'
+    ).not.toMatch(/\//)
 
-    const failures: string[] = []
-    for (const phase of PHASES) {
-      for (const dark of [false, true]) {
-        const sky = sampleSky(skyStops(phase, dark), 1)
-        const bg = (tint === 'black'
-          ? sky.map(v => v * (1 - alpha))
-          : sky.map(v => v * (1 - alpha) + 255 * alpha)) as RGB
-        const ratio = contrastWithWhite(bg)
-        if (ratio < 4.5) {
-          failures.push(`${phase}/${dark ? 'dark' : 'light'} = ${ratio.toFixed(2)}:1`)
-        }
-      }
-    }
-    expect(failures).toEqual([])
+    // Everything below the hero should take theme ink, so no white-only text.
+    const listSection = widget.slice(widget.indexOf('── Detail list'))
+    expect(
+      listSection.includes('text-white'),
+      'list content must not hardcode white ink; it sits on a theme surface'
+    ).toBe(false)
   })
 })

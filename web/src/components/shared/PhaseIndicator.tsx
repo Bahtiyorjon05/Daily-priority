@@ -32,15 +32,22 @@ export function PhaseIndicator() {
 
   return (
     <div className="relative" data-dropdown>
-      {/* The trigger carries the current atmosphere itself, so the time of day
-          is legible at a glance without opening the panel. */}
+      {/*
+        Neutral surface with the phase in the *icon*, not a gradient chip.
+
+        This used to be painted with `.phase-hero`, which made it the only
+        coloured tile in a row of neutral 44×44 buttons — and it forced a white
+        icon, which is the wrong ink whenever the gradient lands light. The phase
+        still reads at a glance because the icon takes `--phase-ink-on-surface`,
+        which is contrast-checked against this surface in both schemes.
+      */}
       <button
         onClick={() => setOpen((v) => !v)}
         title={prayer ? `${t(label)} · ${t(prayer)}` : t(label)}
         aria-label={t('ui.timeOfDayChange', { label: t(label) })}
-        className="phase-hero flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:scale-105 dark:ring-white/10"
+        className="flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl bg-gray-100 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-gray-200 hover:shadow-md dark:bg-gray-800 dark:hover:bg-gray-700"
       >
-        <Icon className="h-5 w-5 text-white drop-shadow-sm" />
+        <Icon className="h-5 w-5 text-[rgb(var(--phase-ink-on-surface))]" />
       </button>
 
       <AnimatePresence>

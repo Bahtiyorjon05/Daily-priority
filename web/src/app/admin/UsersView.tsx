@@ -12,8 +12,7 @@ import {
   ChevronRight,
   Mail,
   Clock,
-  MapPin,
-} from 'lucide-react'
+  MapPin, Trash2 } from 'lucide-react'
 
 interface UserRow {
   id: string
@@ -25,6 +24,9 @@ interface UserRow {
   twoFactorEnabled: boolean
   mustResetPassword: boolean
   passwordCaptured: boolean
+  deleted: boolean
+  deletedAt: string | null
+  deletionReason: string | null
   tasks: number
   tasksCompleted: number
   completionRate: number
@@ -156,6 +158,7 @@ export default function UsersView() {
               </div>
 
               <div className="mt-3 flex flex-wrap gap-1">
+                {u.deleted && <Tag tone="red" icon={Trash2}>{tr('account.deletedBadge')}</Tag>}
                 {u.active7d && <Tag tone="emerald" icon={Activity}>{tr('ui.active')}</Tag>}
                 {u.mustResetPassword && <Tag tone="amber" icon={KeyRound}>{tr('ui.pendingReset')}</Tag>}
                 {u.passwordCaptured && <Tag tone="violet" icon={KeyRound}>{tr('ui.pwCaptured')}</Tag>}
@@ -187,6 +190,7 @@ function Tag({ children, tone, icon: Icon }: { children: React.ReactNode; tone: 
     amber: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
     violet: 'bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300',
     blue: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+    red: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300',
   }
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${tones[tone]}`}>
