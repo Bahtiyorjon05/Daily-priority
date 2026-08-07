@@ -421,6 +421,12 @@ function DashboardLayoutContent({
     },
   ]
 
+  // Which paths the mobile bottom bar occupies. `More` is derived from this, so
+  // the two lists cannot disagree — the earlier hardcoded pair drifted twice,
+  // first losing Habits entirely and then showing Prayers/Focus/Goals in both.
+  // Ordered by measured usage: prayers and habits are the most-used surfaces.
+  const BOTTOM_BAR_PATHS = ['/dashboard', '/prayers', '/habits', '/focus', '/goals']
+
   const userMenuItems = [
     { icon: User, label: t('nav.profileSettings'), action: () => router.push('/settings') },
     { icon: Settings, label: t('nav.preferences'), action: () => router.push('/settings?tab=appearance') },
@@ -950,10 +956,10 @@ function DashboardLayoutContent({
                 <div className="p-3">
                   <div className="grid grid-cols-3 gap-2">
                     {navigationItems
-                      // Only Home is excluded — it's always one tap away in the bottom
-                      // bar. Everything else stays reachable here, so More is a complete
-                      // index rather than a leftovers bin that shifts as the bar changes.
-                      .filter(item => item.path !== '/dashboard')
+                      // Only what the bar doesn't already show. Repeating a tab
+                      // one tap away wastes the space and makes the sheet look
+                      // like it failed to open.
+                      .filter(item => !BOTTOM_BAR_PATHS.includes(item.path))
                       .map((item) => {
                         const Icon = item.icon
                         const isActive = pathname === item.path
@@ -999,13 +1005,17 @@ function DashboardLayoutContent({
             role="navigation"
             aria-label={t('ui.quickNavigation')}
           >
-            <div className="flex items-stretch justify-around px-1 pt-1.5 pb-1">
-              {[
-                { path: '/dashboard', icon: LayoutDashboard, label: t('nav.home') },
-                { path: '/prayers', icon: Heart, label: t('nav.prayers') },
-                { path: '/focus', icon: Zap, label: t('nav.focus') },
-                { path: '/goals', icon: Target, label: t('nav.goals') },
-              ].map((item) => {
+            <div className="flex items-stretch justify-around gap-0.5 px-1 pt-1.5 pb-1">
+              {BOTTOM_BAR_PATHS.map(path => {
+                const nav = navigationItems.find(n => n.path === path)
+                if (!nav) return null
+                // Home reads better as "Home" than "Dashboard" in a tab bar.
+                const item = {
+                  path,
+                  icon: path === '/dashboard' ? LayoutDashboard : nav.icon,
+                  label: path === '/dashboard' ? t('nav.home') : nav.label,
+                }
+                return (() => {
                 const Icon = item.icon
                 const isActive = pathname === item.path
                 return (
@@ -1030,13 +1040,14 @@ function DashboardLayoutContent({
                     <Icon className={`h-5 w-5 transition-transform duration-200 ${
                       isActive ? 'scale-110' : ''
                     }`} />
-                    <span className={`text-[10px] font-medium leading-none ${
+                    <span className={`w-full truncate px-0.5 text-center text-[10px] font-medium leading-none ${
                       isActive ? 'font-bold' : ''
                     }`}>
                       {item.label}
                     </span>
                   </button>
                 )
+                })()
               })}
 
               {/* More button */}

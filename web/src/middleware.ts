@@ -16,7 +16,13 @@ const publicRoutes = new Set([
   // Choosing a language is not a privileged action, and signed-out visitors on
   // the marketing pages are exactly who needs it. Without this the route 401s
   // before its handler runs, so the signed-out branch there is unreachable.
-  '/api/user/locale'
+  '/api/user/locale',
+  // Required to be reachable without a session: the Play Store listing links to
+  // the policy, and Android fetches the asset links file anonymously. A redirect
+  // here fails app verification and shows a URL bar in the wrapped app.
+  '/privacy',
+  '/terms',
+  '/.well-known'
 ])
 
 const semiProtectedRoutes = new Set(['/set-password'])

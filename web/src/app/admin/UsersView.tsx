@@ -271,7 +271,7 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
               <Field icon={Mail} label={tr('auth.email')} value={data.user.email} />
               <Field icon={Clock} label={tr('ui.joined')} value={fmtDate(data.user.createdAt)} />
               <Field icon={MapPin} label={tr('ui.timezone')} value={data.user.timezone || '—'} />
-              <Field icon={ShieldCheck} label="2FA" value={data.user.twoFactorEnabled ? 'Enabled' : 'Off'} />
+              <Field icon={ShieldCheck} label="2FA" value={data.user.twoFactorEnabled ? tr('ui.enabled') : tr('common.off')} />
               <Field icon={Mail} label={tr('ui.verified')} value={data.user.emailVerified ? 'Yes' : 'No'} />
               <Field icon={KeyRound} label={tr('ui.resetPending')} value={data.user.mustResetPassword ? 'Yes' : 'No'} />
             </div>

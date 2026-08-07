@@ -1470,7 +1470,7 @@ export default function PrayersPage() {
 
                     <span className="text-muted-foreground">
 
-                      {isCompleted ? 'Completed' : t('ui.markAsCompleted')}
+                      {isCompleted ? t('ui.completed') : t('ui.markAsCompleted')}
 
                     </span>
 

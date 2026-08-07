@@ -1652,5 +1652,8 @@
   "account.keepAccount": "No, keep my account",
   "account.emailMismatch": "That does not match this account's email.",
   "account.deleted": "Your account has been deleted.",
-  "account.deletedBadge": "Deleted"
+  "account.deletedBadge": "Deleted",
+  "ui.enabled": "Enabled",
+  "ui.disabled": "Disabled",
+  "ui.privacyPolicy": "Privacy Policy"
 }

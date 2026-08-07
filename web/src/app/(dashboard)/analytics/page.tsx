@@ -227,7 +227,7 @@ export default function AnalyticsPage() {
   )
 
   const completionRateData = [
-    { name: 'Completed', value: normalizedCompletionRate, color: '#10b981' },
+    { name: t('ui.completed'), value: normalizedCompletionRate, color: '#10b981' },
     {
       name: t('ui.incomplete'),
       value: Math.max(0, parseFloat((100 - normalizedCompletionRate).toFixed(1))),

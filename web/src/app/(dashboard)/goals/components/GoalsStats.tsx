@@ -46,7 +46,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
       iconColor: 'text-emerald-600 dark:text-emerald-400'
     },
     {
-      title: 'Completed',
+      title: 'ui.completed',
       value: stats.completed,
       icon: CheckCircle2,
       gradient: 'from-green-500 to-emerald-500',
@@ -69,7 +69,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
           <motion.div
-            key={stat.title}
+            key={t(stat.title)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -79,7 +79,7 @@ export function GoalsStats({ stats }: GoalsStatsProps) {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                      {stat.title}
+                      {t(stat.title)}
                     </p>
                     <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       {stat.value}

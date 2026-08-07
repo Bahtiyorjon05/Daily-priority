@@ -1652,5 +1652,8 @@
   "account.keepAccount": "Yo'q, hisobim qolsin",
   "account.emailMismatch": "Bu ushbu hisobning emailiga mos kelmadi.",
   "account.deleted": "Hisobingiz o'chirildi.",
-  "account.deletedBadge": "O'chirilgan"
+  "account.deletedBadge": "O'chirilgan",
+  "ui.enabled": "Yoqilgan",
+  "ui.disabled": "O'chirilgan",
+  "ui.privacyPolicy": "Maxfiylik siyosati"
 }

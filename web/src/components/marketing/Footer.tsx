@@ -80,6 +80,14 @@ export function Footer() {
             <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-medium">
               {t('ui.mayAllahAcceptThisWorkAndBenefitTheUmmah')}
             </p>
+            {/* The Play Store listing links here, and users need to be able to
+                find it without one. */}
+            <a
+              href="/privacy"
+              className="inline-block text-xs font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400 sm:text-sm"
+            >
+              {t('ui.privacyPolicy')}
+            </a>
           </div>
 
         </motion.div>

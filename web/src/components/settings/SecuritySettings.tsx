@@ -367,7 +367,7 @@ export function SecuritySettings() {
                   ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
               }`}>
-                {twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                {twoFactorEnabled ? t('ui.enabled') : t('ui.disabled')}
               </div>
             </div>
             <CardDescription className="text-base">
