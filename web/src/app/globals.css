@@ -2403,12 +2403,12 @@ a:focus-visible,
    Same stops as --phase-hero-*, so a swatch previews exactly what you'll get.
    -------------------------------------------------------------------------- */
 @layer components {
-  .swatch-dawn      { background-image: linear-gradient(135deg, rgb(30 27 75),   rgb(76 29 80)); }
-  .swatch-morning   { background-image: linear-gradient(135deg, rgb(4 90 66),    rgb(13 110 97)); }
-  .swatch-midday    { background-image: linear-gradient(135deg, rgb(13 110 97),  rgb(12 95 110)); }
-  .swatch-afternoon { background-image: linear-gradient(135deg, rgb(124 45 18),  rgb(146 64 14)); }
-  .swatch-dusk      { background-image: linear-gradient(135deg, rgb(76 29 149),  rgb(19 78 74)); }
-  .swatch-night     { background-image: linear-gradient(135deg, rgb(8 17 30),    rgb(15 44 52)); }
+  .swatch-dawn      { background-image: linear-gradient(135deg, rgb(76 62 190),  rgb(181 71 155), rgb(255 138 107)); }
+  .swatch-morning   { background-image: linear-gradient(135deg, rgb(14 165 233), rgb(6 182 212),  rgb(94 234 212)); }
+  .swatch-midday    { background-image: linear-gradient(135deg, rgb(29 78 216),  rgb(14 165 233), rgb(125 211 252)); }
+  .swatch-afternoon { background-image: linear-gradient(135deg, rgb(234 88 12),  rgb(245 158 11), rgb(250 198 84)); }
+  .swatch-dusk      { background-image: linear-gradient(135deg, rgb(109 40 217), rgb(219 39 119), rgb(249 115 22)); }
+  .swatch-night     { background-image: linear-gradient(135deg, rgb(28 25 74),   rgb(67 56 202),  rgb(129 140 248)); }
 }
 
 
@@ -2419,10 +2419,27 @@ a:focus-visible,
    ========================================================================= */
 @layer utilities {
   .phase-hero.phase-hero {
-    background-color: rgb(var(--phase-hero-from));
+    /* Same vivid sky as the prayer panel — this used to carry its own
+       `--phase-hero-from/to` pair that was never migrated, which is why the
+       welcome card stayed muddy violet after the palette was rebuilt.
+
+       The scrim is baked in as the topmost layer so any consumer gets legible
+       white text without having to remember to add one. That is what lets the
+       stops underneath be this saturated. */
+    background-color: rgb(var(--sky-1));
     background-image:
-      radial-gradient(120% 130% at 85% -20%, rgb(var(--phase-glow) / 0.30), transparent 62%),
-      linear-gradient(135deg, rgb(var(--phase-hero-from)), rgb(var(--phase-hero-to)));
+      linear-gradient(to bottom, rgb(0 0 0 / 0.48), rgb(0 0 0 / 0.44) 55%, rgb(0 0 0 / 0.42)),
+      radial-gradient(
+        75% 60% at var(--sky-glow-x) var(--sky-glow-y),
+        rgb(var(--sky-glow) / 0.50),
+        transparent 70%
+      ),
+      linear-gradient(
+        140deg,
+        rgb(var(--sky-1)) 0%,
+        rgb(var(--sky-2)) 52%,
+        rgb(var(--sky-3)) 100%
+      );
     transition: var(--phase-transition);
   }
 
@@ -2485,9 +2502,9 @@ a:focus-visible,
 /* Fajr — the blue hour. Sun still below the horizon; night overhead, the first
    warmth showing low. */
 [data-phase='dawn'] {
-  --sky-1: 18 20 54;
-  --sky-2: 58 44 100;
-  --sky-3: 146 78 88;
+  --sky-1: 76 62 190;
+  --sky-2: 181 71 155;
+  --sky-3: 255 138 107;
   --sky-glow: 247 178 143;
   --sky-glow-x: 22%;
   --sky-glow-y: 92%;
@@ -2495,9 +2512,9 @@ a:focus-visible,
 
 /* Duha — sun climbing, air clear. */
 [data-phase='morning'] {
-  --sky-1: 10 62 100;
-  --sky-2: 24 104 150;
-  --sky-3: 62 150 190;
+  --sky-1: 14 165 233;
+  --sky-2: 6 182 212;
+  --sky-3: 94 234 212;
   --sky-glow: 255 214 138;
   --sky-glow-x: 82%;
   --sky-glow-y: 16%;
@@ -2505,9 +2522,9 @@ a:focus-visible,
 
 /* Dhuhr — high sun, brilliant azure, light coming from straight above. */
 [data-phase='midday'] {
-  --sky-1: 8 56 112;
-  --sky-2: 20 96 160;
-  --sky-3: 56 140 196;
+  --sky-1: 29 78 216;
+  --sky-2: 14 165 233;
+  --sky-3: 125 211 252;
   --sky-glow: 255 246 214;
   --sky-glow-x: 50%;
   --sky-glow-y: -8%;
@@ -2515,9 +2532,9 @@ a:focus-visible,
 
 /* Asr — golden, slanting, long shadows. */
 [data-phase='afternoon'] {
-  --sky-1: 120 56 20;
-  --sky-2: 164 92 32;
-  --sky-3: 200 130 56;
+  --sky-1: 234 88 12;
+  --sky-2: 245 158 11;
+  --sky-3: 250 198 84;
   --sky-glow: 255 224 160;
   --sky-glow-x: 88%;
   --sky-glow-y: 34%;
@@ -2525,9 +2542,9 @@ a:focus-visible,
 
 /* Maghrib — the sunset itself: fire at the horizon, violet closing in above. */
 [data-phase='dusk'] {
-  --sky-1: 40 20 70;
-  --sky-2: 104 38 82;
-  --sky-3: 168 74 52;
+  --sky-1: 109 40 217;
+  --sky-2: 219 39 119;
+  --sky-3: 249 115 22;
   --sky-glow: 250 168 106;
   --sky-glow-x: 78%;
   --sky-glow-y: 88%;
@@ -2535,9 +2552,9 @@ a:focus-visible,
 
 /* Isha — deep night, moonlight rather than sun. */
 [data-phase='night'] {
-  --sky-1: 10 18 44;
-  --sky-2: 22 38 78;
-  --sky-3: 40 62 112;
+  --sky-1: 28 25 74;
+  --sky-2: 67 56 202;
+  --sky-3: 129 140 248;
   --sky-glow: 128 158 220;
   --sky-glow-x: 78%;
   --sky-glow-y: 18%;
@@ -2545,22 +2562,22 @@ a:focus-visible,
 
 /* Dark mode deepens toward night rather than dimming the same hues. */
 .dark[data-phase='dawn'] {
-  --sky-1: 8 10 32; --sky-2: 40 32 78; --sky-3: 120 62 82; --sky-glow: 196 118 110;
+  --sky-1: 49 41 130; --sky-2: 130 48 112; --sky-3: 199 96 78; --sky-glow: 196 118 110;
 }
 .dark[data-phase='morning'] {
-  --sky-1: 6 40 62; --sky-2: 12 72 102; --sky-3: 26 106 136; --sky-glow: 200 160 90;
+  --sky-1: 8 110 158; --sky-2: 6 130 152; --sky-3: 52 180 165; --sky-glow: 200 160 90;
 }
 .dark[data-phase='midday'] {
-  --sky-1: 5 32 66; --sky-2: 10 60 104; --sky-3: 20 92 144; --sky-glow: 178 206 234;
+  --sky-1: 21 56 160; --sky-2: 10 118 176; --sky-3: 72 158 210; --sky-glow: 178 206 234;
 }
 .dark[data-phase='afternoon'] {
-  --sky-1: 74 38 14; --sky-2: 120 66 24; --sky-3: 164 100 42; --sky-glow: 214 158 84;
+  --sky-1: 168 62 8; --sky-2: 186 118 8; --sky-3: 214 168 72; --sky-glow: 214 158 84;
 }
 .dark[data-phase='dusk'] {
-  --sky-1: 24 12 44; --sky-2: 84 30 68; --sky-3: 150 64 46; --sky-glow: 200 116 74;
+  --sky-1: 78 28 155; --sky-2: 160 28 88; --sky-3: 196 88 18; --sky-glow: 200 116 74;
 }
 .dark[data-phase='night'] {
-  --sky-1: 4 8 22; --sky-2: 10 20 46; --sky-3: 18 34 70; --sky-glow: 92 118 176;
+  --sky-1: 18 16 48; --sky-2: 48 40 148; --sky-3: 96 104 200; --sky-glow: 92 118 176;
 }
 
 @layer utilities {
@@ -2591,9 +2608,9 @@ a:focus-visible,
   .sky-scrim.sky-scrim {
     background-image: linear-gradient(
       to bottom,
-      rgb(0 0 0 / 0.45) 0%,
-      rgb(0 0 0 / 0.38) 45%,
-      rgb(0 0 0 / 0.30) 100%
+      rgb(0 0 0 / 0.56) 0%,
+      rgb(0 0 0 / 0.49) 45%,
+      rgb(0 0 0 / 0.43) 100%
     );
   }
 }

@@ -36,8 +36,8 @@ export function PhaseIndicator() {
           is legible at a glance without opening the panel. */}
       <button
         onClick={() => setOpen((v) => !v)}
-        title={`${label}${prayer ? ` · ${prayer}` : ''}`}
-        aria-label={t('ui.timeOfDayChange', { label })}
+        title={prayer ? `${t(label)} · ${t(prayer)}` : t(label)}
+        aria-label={t('ui.timeOfDayChange', { label: t(label) })}
         className="phase-hero flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-2xl shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:scale-105 dark:ring-white/10"
       >
         <Icon className="h-5 w-5 text-white drop-shadow-sm" />
@@ -69,7 +69,7 @@ export function PhaseIndicator() {
               {/* Uses the hero gradient, not `.phase-surface` — the surface wash
                   is near-white in light mode, so it showed nothing at all. */}
               <div className="phase-hero px-4 py-3.5">
-                <p className="text-sm font-semibold text-white drop-shadow-sm">{label}</p>
+                <p className="text-sm font-semibold text-white drop-shadow-sm">{t(label)}</p>
                 <p className="text-xs text-white/80">
                   {prayer ? t('phase.betweenPrayers', { prayer: t(prayer) }) : t('ui.betweenSunriseAndDhuhr')}
                 </p>

@@ -223,6 +223,39 @@ describe('sky palette contrast', () => {
     expect(failures).toEqual([])
   })
 
+  it('keeps white text on .phase-hero at AA (4.5:1)', () => {
+    // The welcome card. It had its own `--phase-hero-from/to` pair that was
+    // never migrated when the palette was rebuilt, so it stayed muddy violet
+    // while everything else changed — and it was not covered here either. It
+    // shares the sky now and bakes its own scrim, so both are pinned.
+    const rule = /\.phase-hero\.phase-hero\s*\{([^}]*)\}/.exec(CSS)
+    expect(rule, '.phase-hero rule must exist').not.toBeNull()
+    expect(rule![1], '.phase-hero must paint from the sky palette').toContain('--sky-1')
+
+    const stops = [...rule![1].matchAll(/rgb\(0 0 0 \/ ([\d.]+)\)/g)].map(m => Number(m[1]))
+    expect(stops.length, '.phase-hero must bake in a text scrim').toBeGreaterThanOrEqual(2)
+
+    const failures: string[] = []
+    for (const phase of PHASES) {
+      for (const dark of [false, true]) {
+        const sky = skyStops(phase, dark)
+        // Sample where the card's text actually sits, against the weakest scrim
+        // stop so the check is the pessimistic one.
+        const weakest = Math.min(...stops)
+        for (const pos of [0, 0.4, 0.75]) {
+          const bg = scrim(sampleSky(sky, pos), weakest)
+          const ratio = contrastWithWhite(bg)
+          if (ratio < 4.5) {
+            failures.push(
+              `${phase}/${dark ? 'dark' : 'light'} @${Math.round(pos * 100)}% = ${ratio.toFixed(2)}:1`
+            )
+          }
+        }
+      }
+    }
+    expect(failures).toEqual([])
+  })
+
   it('keeps the frosted list panel at AA (4.5:1)', () => {
     // The gap that let a real failure through: the detail list is not under the
     // scrim, it sits on its own translucent panel over the *bright* end of the

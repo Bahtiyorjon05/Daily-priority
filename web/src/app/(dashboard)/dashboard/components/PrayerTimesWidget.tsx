@@ -314,7 +314,7 @@ export default function PrayerTimesWidget() {
           Darkened glass, not lightened: a white tint over the bright end of the
           sky measured 2.86:1 on Asr. Pinned by sky-contrast.test.ts. */}
       {!loading && !error && daily.length > 0 && (
-        <div className="relative border-t border-white/10 bg-black/25 p-2.5 backdrop-blur-xl">
+        <div className="relative border-t border-white/10 bg-black/45 p-2.5 backdrop-blur-xl">
           <ul className="space-y-0.5">
             {daily.map((prayer, index) => {
               const isNext = prayer.name === nextPrayer?.name
