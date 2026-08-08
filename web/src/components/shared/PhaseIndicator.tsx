@@ -2,6 +2,7 @@
 
 import { useT } from '@/lib/i18n/client'
 import { useState } from 'react'
+import { useDismissable } from '@/hooks/useDismissable'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sunrise, Sun, CloudSun, Sunset, Moon, Stars, Check } from 'lucide-react'
 import { usePrayerPhase } from './PrayerPhaseProvider'
@@ -28,10 +29,15 @@ export function PhaseIndicator() {
   const { phase, label, prayer, preference, setPreference, usingFallback } = usePrayerPhase()
   const [open, setOpen] = useState(false)
   const modal = useModalBehavior(open, () => setOpen(false))
+  // The backdrop below is `sm:hidden`, so on anything wider than a phone there
+  // was nothing to dismiss this — it stayed open while you clicked elsewhere in
+  // the header. Wraps the trigger as well as the panel, or clicking the trigger
+  // to close would read as "outside" and immediately re-open.
+  const shell = useDismissable<HTMLDivElement>(open, () => setOpen(false))
   const Icon = ICONS[phase]
 
   return (
-    <div className="relative" data-dropdown>
+    <div ref={shell} className="relative">
       {/*
         Neutral surface with the phase in the *icon*, not a gradient chip.
 

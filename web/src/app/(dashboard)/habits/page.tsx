@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { HabitsStats } from './components/HabitsStats'
 import { HabitsFilters } from './components/HabitsFilters'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface Habit {
   id: string
@@ -438,7 +439,7 @@ export default function HabitsPage() {
                               </p>
                             )}
                           </div>
-                          <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                          <div className={`flex shrink-0 items-center gap-0.5 ${ROW_ACTIONS}`}>
                             <Button
                               variant="ghost"
                               size="icon"

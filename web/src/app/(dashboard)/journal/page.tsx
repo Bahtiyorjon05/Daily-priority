@@ -34,6 +34,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface JournalEntry {
   id: string
@@ -406,17 +407,34 @@ export default function JournalPage() {
                   )}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setDeleteConfirm(entry.id)
-                }}
-              >
-                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
-              </Button>
+              <div className={`flex shrink-0 items-center gap-0.5 ${ROW_ACTIONS}`}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('ui.editThisEntry')}
+                  title={t('ui.editThisEntry')}
+                  className="text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    startEdit(entry)
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('ui.deleteThisEntry')}
+                  title={t('ui.deleteThisEntry')}
+                  className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setDeleteConfirm(entry.id)
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-4">

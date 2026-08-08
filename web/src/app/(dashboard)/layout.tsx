@@ -79,6 +79,7 @@ function DashboardLayoutContent({
   const [checkedPassword, setCheckedPassword] = useState(false)
   const [redirectedToSetPassword, setRedirectedToSetPassword] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+  const profileMenuRef = useRef<HTMLDivElement | null>(null)
   const [isOwner, setIsOwner] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const previousIsMobileRef = useRef<boolean>(false)
@@ -286,18 +287,24 @@ function DashboardLayoutContent({
     return () => window.removeEventListener('keydown', handleKeyboard)
   }, [isMobile, sidebarOpen])
 
-  // Close dropdowns on click outside
+  // Close the profile menu on a click outside it.
+  //
+  // This used to match any element inside ANY dropdown, which counts *any*
+  // dropdown as "inside" — so pressing the phase picker or the language menu
+  // left this one open and two menus sat on screen at once. Scoped to its own
+  // container now. `pointerdown` in the capture phase to match
+  // `useDismissable`, so touch behaves the same as mouse.
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
-      if (!target.closest('[data-dropdown]')) {
+    const handleClickOutside = (e: PointerEvent) => {
+      const el = profileMenuRef.current
+      if (el && !el.contains(e.target as Node)) {
         setShowProfileDropdown(false)
       }
     }
 
     if (showProfileDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener('pointerdown', handleClickOutside, true)
+      return () => document.removeEventListener('pointerdown', handleClickOutside, true)
     }
   }, [showProfileDropdown])
 
@@ -762,7 +769,7 @@ function DashboardLayoutContent({
               </Button>
 
               {/* User Profile Dropdown */}
-              <div className="relative" data-dropdown>
+              <div ref={profileMenuRef} className="relative">
                 <Button
                   variant="ghost"
                   size="icon"

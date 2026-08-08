@@ -29,6 +29,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { GoalsStats } from './components/GoalsStats'
 import { GoalsFilters } from './components/GoalsFilters'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface Goal {
   id: string
@@ -505,7 +506,7 @@ export default function GoalsPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                <div className={`flex shrink-0 items-center gap-0.5 ${ROW_ACTIONS}`}>
                   <Button
                     variant="ghost"
                     size="icon"

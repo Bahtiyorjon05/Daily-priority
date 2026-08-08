@@ -1640,9 +1640,18 @@ img.loaded {
     border-radius: 8px;
   }
   
-  /* Enhanced button padding for touch */
+  /*
+    Touch target floor only.
+
+    This used to also set `padding: 12px 16px`. Unlayered, so it beat every
+    Tailwind padding utility on phones — which turned each square 44×44 icon
+    button into a wide rectangle and is why the card action rows did not fit.
+    `min-height` alone gives the accessibility floor without dictating shape.
+    Icon buttons get their square minimum from the `icon` size in the Button
+    component, where it belongs — a blanket `min-width` here would overflow any
+    tight row of small controls.
+  */
   button {
-    padding: 12px 16px;
     min-height: 44px;
   }
 }

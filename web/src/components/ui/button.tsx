@@ -26,7 +26,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       default: 'h-10 px-4 py-2',
       sm: 'h-9 rounded-md px-3 text-xs',
       lg: 'h-12 rounded-lg px-8 text-base',
-      icon: 'h-10 w-10',
+      // 40px is under the 44px touch minimum, and these are now permanently
+      // visible on phones (the card edit/delete rows), so they have to be
+      // properly tappable. Square at both sizes — `min-h` alone would stretch
+      // height while leaving a 40px width.
+      icon: 'h-10 w-10 max-sm:h-11 max-sm:w-11',
       xs: 'h-8 rounded-md px-2.5 text-xs',
       xl: 'h-14 rounded-xl px-10 text-lg'
     }

@@ -1737,5 +1737,7 @@
   "ui.saved": "Saqlandi",
   "admin.deletedRecordKept": "Bu foydalanuvchi hisobini o‘chirgan. Quyidagi barcha vazifalar, odatlar, maqsadlar va kundalik yozuvlari ataylab saqlangan — hech narsa yo‘q qilinmagan.",
   "admin.deletionReason": "Ko‘rsatilgan sabab",
-  "admin.addressReleased": "Ular keyinchalik shu manzil bilan qaytadan ro‘yxatdan o‘tgan, shuning uchun u endi alohida, yangi hisobga tegishli."
+  "admin.addressReleased": "Ular keyinchalik shu manzil bilan qaytadan ro‘yxatdan o‘tgan, shuning uchun u endi alohida, yangi hisobga tegishli.",
+  "ui.editThisEntry": "Bu yozuvni tahrirlash",
+  "ui.deleteThisEntry": "Bu yozuvni o‘chirish"
 }
