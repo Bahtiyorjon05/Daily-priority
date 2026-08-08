@@ -37,27 +37,19 @@ const OUT = 'public'
 const BRAND = 'public/brand'
 await mkdir(BRAND, { recursive: true })
 
-/** Trim the flat surround, then pad back to a square on the mark's own centre. */
+/**
+ * The source is expected to be an already-square mark, as produced by
+ * build-mark.mjs. It is not trimmed: the mark's backdrop is a gradient that runs
+ * to the edge, and trimming would shave that edge off and leave the icon a
+ * slightly different size each run.
+ */
 async function squareMark() {
-  const trimmed = await sharp(source)
-    // Drops the uniform border (the white card the mark sits on).
-    .trim({ threshold: 12 })
-    .toBuffer()
-
-  const { width = 0, height = 0 } = await sharp(trimmed).metadata()
-  const side = Math.max(width, height)
-
-  return sharp({
-    create: {
-      width: side,
-      height: side,
-      channels: 4,
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    },
-  })
-    .composite([{ input: trimmed, gravity: 'center' }])
-    .png()
-    .toBuffer()
+  const { width = 0, height = 0 } = await sharp(source).metadata()
+  if (Math.abs(width - height) > 2) {
+    console.error(`Source is ${width}x${height}; expected a square. Run build-mark.mjs first.`)
+    process.exit(1)
+  }
+  return sharp(source).png().toBuffer()
 }
 
 const mark = await squareMark()
@@ -67,13 +59,40 @@ const meta = await sharp(mark).metadata()
 console.log(`mark: ${meta.width}x${meta.height} (square)`)
 
 /** Plain icons: the mark, edge to edge. */
-for (const size of [1024, 512, 192, 180, 32, 16]) {
-  const name =
-    size === 180 ? 'apple-touch-icon.png' : size <= 32 ? `favicon-${size}.png` : `icon-${size}.png`
-  await sharp(mark).resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png({ compressionLevel: 9 })
+for (const size of [1024, 512, 192, 180]) {
+  const name = size === 180 ? 'apple-touch-icon.png' : `icon-${size}.png`
+  await sharp(mark)
+    .resize(size, size)
+    .png({ compressionLevel: 9, quality: 90, effort: 10 })
     .toFile(path.join(OUT, name))
   console.log(`  ${name.padEnd(24)} ${size}x${size}`)
+}
+
+/**
+ * Favicons get a tighter crop.
+ *
+ * The emblem carries a lot of fine detail — a geometric lattice, a checklist —
+ * and at 32px the whole thing resolves to a green smudge. Zooming to the centre
+ * gives up the star's outer points in exchange for a crescent and arrow that are
+ * actually identifiable in a browser tab, which is the only job at this size.
+ */
+const zoom = 0.62
+const inset = Math.round((meta.width * (1 - zoom)) / 2)
+const zoomed = await sharp(mark)
+  .extract({
+    left: inset,
+    top: inset,
+    width: meta.width - inset * 2,
+    height: meta.height - inset * 2,
+  })
+  .toBuffer()
+
+for (const size of [32, 16]) {
+  await sharp(zoomed)
+    .resize(size, size)
+    .png({ compressionLevel: 9, quality: 90, effort: 10 })
+    .toFile(path.join(OUT, `favicon-${size}.png`))
+  console.log(`  favicon-${size}.png`.padEnd(26) + `${size}x${size} (centre crop at ${Math.round(zoom * 100)}%)`)
 }
 
 /**
@@ -83,22 +102,26 @@ for (const size of [1024, 512, 192, 180, 32, 16]) {
  * launcher mask. Anything outside it can be clipped, which is how corners of a
  * geometric mark get sliced off.
  */
-const BG = { r: 6, g: 78, b: 59, alpha: 1 } // emerald-900, matches the source tile
+const maskableSource = 'public/brand/mark-maskable.png'
+try {
+  await access(maskableSource)
+} catch {
+  console.error(`Missing ${maskableSource} — run build-mark.mjs first.`)
+  process.exit(1)
+}
 for (const size of [512, 192]) {
-  const inner = Math.round(size * 0.66)
-  const resized = await sharp(mark).resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer()
-  await sharp({ create: { width: size, height: size, channels: 4, background: BG } })
-    .composite([{ input: resized, gravity: 'center' }])
-    .png({ compressionLevel: 9 })
+  await sharp(maskableSource)
+    .resize(size, size)
+    .png({ compressionLevel: 9, quality: 90, effort: 10 })
     .toFile(path.join(OUT, `icon-maskable-${size}.png`))
-  console.log(`  icon-maskable-${size}.png`.padEnd(26) + `${size}x${size} (mark at ${inner}px)`)
+  console.log(`  icon-maskable-${size}.png`.padEnd(26) + `${size}x${size}`)
 }
 
 /** Play Store feature graphic: 1024x500, mark centred on the brand colour. */
-const feature = await sharp(mark).resize(360, 360, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer()
-await sharp({ create: { width: 1024, height: 500, channels: 4, background: BG } })
+const feature = await sharp(mark).resize(300, 300, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer()
+await sharp({ create: { width: 1024, height: 500, channels: 4, background: { r: 6, g: 41, b: 43, alpha: 1 } } })
   .composite([{ input: feature, gravity: 'center' }])
-  .png({ compressionLevel: 9 })
+  .png({ compressionLevel: 9, quality: 90, effort: 10 })
   .toFile(path.join(BRAND, 'feature-graphic-1024x500.png'))
 console.log('  brand/feature-graphic-1024x500.png')
 

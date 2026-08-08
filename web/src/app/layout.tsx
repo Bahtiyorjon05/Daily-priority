@@ -94,7 +94,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon', sizes: '32x32', type: 'image/png' },
+      // Real files from the generated set. These used to point at a `/icon`
+      // route that drew its own checkmark, so the browser tab showed a different
+      // logo from the rest of the app.
+      { url: '/favicon-16.png', type: 'image/png', sizes: '16x16' },
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
       { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
       { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
     ],
@@ -102,7 +106,7 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: [
-      { url: '/icon', type: 'image/png' },
+      { url: '/favicon-32.png', type: 'image/png' },
     ],
   },
   other: {
