@@ -41,7 +41,12 @@ function matchesRoute(pathname: string, routes: Set<string>) {
 
 function redirectToSignIn(req: NextRequest) {
   const signInUrl = new URL('/signin', req.url)
-  signInUrl.searchParams.set('callbackUrl', encodeURIComponent(req.nextUrl.pathname))
+  // searchParams.set encodes on its own; encodeURIComponent on top of it produced
+  // %252Fonboarding, which decodes to the literal string "%2Fonboarding" rather
+  // than a path. Nothing reads this param today — SignInForm hardcodes
+  // /dashboard — so it was inert, but it would have been wrong the moment
+  // somebody honoured it.
+  signInUrl.searchParams.set('callbackUrl', req.nextUrl.pathname)
 
   const response = NextResponse.redirect(signInUrl)
   // We can try to clear cookies, but it's tricky with HttpOnly. 
