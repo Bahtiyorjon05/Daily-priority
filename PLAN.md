@@ -113,22 +113,31 @@ inherit translated copy instead of owing it.
 - [ ] Emails (verification, weekly review) follow the user's locale — `getUserTranslator()` is ready
 - [ ] Notification/push copy follows the user's locale
 
-### Phase 3 — Feature deep-dives ⬜
-One feature at a time, **finished completely** before moving on.
-Definition of done for each: data model · API (validated, indexed, no N+1) · UI/UX to the new
-design system · **all strings in `uz` + `en`** · empty + loading + error states · mobile &
-tablet · offline behaviour · notifications where relevant · accessibility · tests · measured.
+### Phase 3 — Feature deep-dives 🟨
 
-Order (by real usage, most-used first):
-1. [ ] **Prayers** — qada' tracker, per-prayer streaks, adhan settings, jamaah vs alone, monthly view
-2. [ ] **Adhkar** — morning/evening flows, counter UX, Arabic typography, audio, progress
-3. [ ] **Habits** — richer scheduling, freeze UI, heatmap, reminders
-4. [ ] **Tasks** — prayer-time blocking (the moat), subtasks, recurring, quick capture
-5. [ ] **Focus** — session types, ambient audio, link to tasks, stats
-6. [ ] **Journal** — prompts, mood trends, gratitude streaks, Hijri dating
-7. [ ] **Goals** — Dunya/Akhirah split made visual, milestones, review cadence
-8. [ ] **Calendar** — Hijri-first, prayer overlay, agenda view
-9. [ ] **Analytics** — one honest insight per card, not chart soup
+**Editing is missing, not just unpolished.** Audited 2026-08-08:
+
+| Entity | API | UI |
+|---|---|---|
+| Journal | `[id]` route has **DELETE only** — no PATCH exists | no edit |
+| Habits | PATCH exists | **no edit affordance at all** |
+| Goals | PATCH exists but only ever called with `{progress, completed}` | `editingGoal` state is declared and never read — dead |
+
+So a user can create a habit and delete it, but never correct a typo in it.
+That is a functionality gap, and it comes before any restyling.
+
+**Order of work:**
+
+1. [ ] **Journal** — add PATCH to `/api/journal/[id]`, then edit in the UI
+2. [ ] **Habits** — edit UI reusing the create form, prefilled
+3. [ ] **Goals** — edit UI; remove the dead `editingGoal` state
+4. [ ] Shared list-page furniture (header, stat tiles, empty states) on the phase
+      palette, so the four pages read as one app rather than four
+5. [ ] **Prayers** page design
+6. [ ] **Habits / Goals / Journal** design passes
+
+Each create form becomes create-or-edit rather than growing a second form —
+two forms for one entity is how the fields drift apart.
 
 ### Phase 4 — Growth ⬜
 - [ ] Weekly review email live (built, needs the scheduler)
