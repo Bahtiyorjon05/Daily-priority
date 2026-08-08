@@ -3,6 +3,7 @@
 
 
 import { useT } from '@/lib/i18n/client'
+import { PhaseHeader, HeaderStat } from '@/components/shared/PhaseHeader'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Card } from '@/components/ui/card'
 
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/button'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { Moon, Sun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, BarChart3, History, RefreshCw } from 'lucide-react'
+import { Moon, Sun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, BarChart3, History, RefreshCw, Flame, Award } from 'lucide-react'
 import {
   fetchPrayerTimes,
   getNextPrayerFromTimes,
@@ -1019,7 +1020,7 @@ export default function PrayersPage() {
 
             <div>
 
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent mb-2 dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
+              <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
 
                 {t('ui.prayerTimesUnavailable')}
 
@@ -1103,52 +1104,57 @@ export default function PrayersPage() {
 
       <div className="fixed bottom-20 -right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '2s' }} />
 
-
-
       <div className="relative z-10 container mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
 
-        {/* Header */}
-
-        <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-white/20 dark:border-gray-700/40 p-4 sm:p-8 shadow-xl sm:shadow-2xl">
-
-          <div className="flex items-center gap-4">
-
-            <div className="w-12 h-12 sm:w-16 sm:h-16 shrink-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center shadow-xl animate-float dark:from-emerald-500 dark:to-teal-500">
-
-              <Compass className="h-6 w-6 sm:h-8 sm:w-8 text-white drop-shadow-sm" />
-
-            </div>
-
-            <div className="min-w-0 flex-1">
-
-              <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 bg-clip-text text-transparent dark:from-emerald-300 dark:via-teal-300 dark:to-emerald-400">
-
-                {t('ui.prayerTimes')}
-
-              </h1>
-
-              <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700 dark:text-gray-300 mt-1 min-w-0">
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium text-xs sm:text-base truncate">
-                  {formatLocationForDisplay(location)}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t('ui.refreshLocation')}
-                  title={t('ui.refreshLocation')}
-                  onClick={handleRefreshLocation}
-                  disabled={isRefreshingLocation}
-                  className="h-8 w-8 shrink-0 text-gray-600 dark:text-gray-300 hover:text-emerald-600"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshingLocation ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
-            </div>
-
+        <PhaseHeader
+          icon={Compass}
+          title={t('ui.prayerTimes')}
+          subtitle={t('ui.trackYourPrayerCompletionAndPunctualityOverT')}
+          meta={
+            <>
+              <span className="inline-flex items-center gap-1 truncate">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                {formatLocationForDisplay(location)}
+              </span>
+              <button
+                type="button"
+                onClick={handleRefreshLocation}
+                disabled={isRefreshingLocation}
+                aria-label={t('ui.refreshLocation')}
+                title={t('ui.refreshLocation')}
+                className="inline-flex items-center rounded-lg p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${isRefreshingLocation ? 'animate-spin' : ''}`} />
+              </button>
+            </>
+          }
+        >
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            <HeaderStat
+              label={t('ui.todayLogged')}
+              value={`${PRAYER_SEQUENCE.filter(p => prayerStatus[p]).length}/5`}
+              icon={CheckCircle2}
+            />
+            <HeaderStat
+              label={t('ui.currentStreak')}
+              value={statistics.currentStreak}
+              hint={t('ui.days')}
+              icon={Flame}
+            />
+            <HeaderStat
+              label={t('ui.onTimeRate')}
+              value={`${Math.round(statistics.onTimePercentage)}%`}
+              icon={Clock}
+            />
+            <HeaderStat
+              label={t('ui.bestStreak')}
+              value={statistics.longestStreak}
+              hint={t('ui.days')}
+              icon={Award}
+            />
           </div>
+        </PhaseHeader>
 
-        </div>
 
 
 

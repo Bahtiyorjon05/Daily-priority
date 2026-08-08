@@ -1730,5 +1730,9 @@
   "ui.editHabit": "Odatni tahrirlash",
   "ui.habitUpdated": "Odat yangilandi",
   "ui.editGoal": "Maqsadni tahrirlash",
-  "ui.goalUpdated": "Maqsad yangilandi"
+  "ui.goalUpdated": "Maqsad yangilandi",
+  "ui.entriesRecorded": "{count} ta yozuv qayd etilgan",
+  "ui.hideStats": "Statistikani yashirish",
+  "ui.showStats": "Statistikani ko'rsatish",
+  "ui.saved": "Saqlandi"
 }

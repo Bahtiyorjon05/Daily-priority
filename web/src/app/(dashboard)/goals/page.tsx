@@ -1,6 +1,7 @@
 'use client'
 
 import { useT } from '@/lib/i18n/client'
+import { PhaseHeader } from '@/components/shared/PhaseHeader'
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -641,46 +642,26 @@ export default function GoalsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="border-none shadow-xl bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 dark:from-amber-600 dark:via-yellow-600 dark:to-orange-600 text-white">
-            <CardContent className="p-4 sm:p-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Target className="h-8 w-8" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl sm:text-4xl font-bold">{t('nav.goals')}</h1>
-                    <p className="text-white/90">{t('ui.balanceYourWorldlyAndSpiritualAspirations')}</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => {
-                    setSelectedType(null) // Allow user to choose type
-                    setNewGoal({
-                      title: '',
-                      description: '',
-                      goalType: 'DUNYA',
-                      category: 'PERSONAL',
-                      progress: 0,
-                      target: 100,
-                      deadline: ''
-                    })
-                    setShowNewGoal(true)
-                  }}
-                  size="lg"
-                  className="bg-white text-amber-600 hover:bg-white/90"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  {t('ui.newGoal')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <PhaseHeader
+          icon={Target}
+          title={t('nav.goals')}
+          subtitle={t('ui.balanceYourWorldlyAndSpiritualAspirations')}
+          actions={
+            <button
+              onClick={() => {
+                setEditingGoalId(null)
+                setSelectedType(null)
+                setNewGoal(blankGoal())
+                setShowNewGoal(true)
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
+            >
+              <Plus className="h-4 w-4" />
+              {t('ui.newGoal')}
+            </button>
+          }
+        />
+
 
         {/* Stats */}
         {stats && <GoalsStats stats={stats} />}

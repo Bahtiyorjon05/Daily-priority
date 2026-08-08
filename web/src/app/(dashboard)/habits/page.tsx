@@ -1,6 +1,7 @@
 'use client'
 
 import { useT } from '@/lib/i18n/client'
+import { PhaseHeader } from '@/components/shared/PhaseHeader'
 import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -354,47 +355,25 @@ export default function HabitsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20 p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className="border-none shadow-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600 text-white">
-            <CardContent className="p-4 sm:p-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <Target className="h-8 w-8" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl sm:text-4xl font-bold">{t('nav.habits')}</h1>
-                    <p className="text-white/90">{t('ui.buildLastingHabitsOneDayAtATime')}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setNewHabit({
-                      title: '',
-                      description: '',
-                      frequency: 'DAILY',
-                      targetDays: 7
-                    })
-                    setShowNewHabit(true)
-                  }}
-                  style={{
-                    background: 'white',
-                    color: 'rgb(16, 185, 129)',
-                    border: 'none',
-                    outline: 'none'
-                  }}
-                  className="px-3 sm:px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 inline-flex items-center justify-center gap-2"
-                >
-                  <Plus className="h-5 w-5" />
-                  {t('ui.newHabit')}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <PhaseHeader
+          icon={Target}
+          title={t('nav.habits')}
+          subtitle={t('ui.buildLastingHabitsOneDayAtATime')}
+          actions={
+            <button
+              onClick={() => {
+                setNewHabit(blankHabit())
+                setEditingHabitId(null)
+                setShowNewHabit(true)
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
+            >
+              <Plus className="h-4 w-4" />
+              {t('ui.newHabit')}
+            </button>
+          }
+        />
+
 
         {/* Stats */}
         <HabitsStats

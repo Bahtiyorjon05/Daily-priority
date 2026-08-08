@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useT } from '@/lib/i18n/client'
+import { PhaseHeader } from '@/components/shared/PhaseHeader'
 import { useEffect, useState, useMemo } from 'react'
 import { useModalBehavior } from '@/hooks/useModalBehavior'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -186,20 +187,10 @@ export default function JournalPage() {
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           )
         )
-        setEditingId(null)
-        
-        setShowCreateModal(false)
-        setNewEntry({
-          date: todayKey(),
-          gratitude1: '',
-          gratitude2: '',
-          gratitude3: '',
-          goodDeeds: '',
-          lessons: '',
-          duas: '',
-          reflection: '',
-          mood: 'neutral'
-        })
+        // Through the one helper, not a second inline reset — that duplication
+        // is what the helper exists to prevent.
+        closeEditor()
+        toast.success(editing ? t('ui.entryUpdated') : t('ui.saved'))
       } else {
         const error = await response.json()
         toast.error(error.error || t('ui.failedToCreateEntry'))
@@ -485,46 +476,34 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
-            <BookOpen className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100">{t('ui.gratitudeJournal')}</h1>
-            <p className="text-sm text-slate-600 dark:text-gray-400 font-medium">
-              {entries.length} {entries.length === 1 ? 'entry' : 'entries'} {t('ui.recorded')}
-</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowStats(!showStats)}
-            style={{
-              background: 'white',
-              borderColor: '#e5e7eb',
-              color: '#1f2937'
-            }}
-            className="dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 hover:bg-slate-50 dark:hover:bg-gray-700"
-          >
-            <BarChart3 className="h-4 w-4 mr-2" />
-            {showStats ? 'Hide' : 'Show'} {t('ui.stats')}
-</Button>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              background: 'linear-gradient(135deg, #059669 0%, #14b8a6 100%)',
-              color: 'white',
-              border: 'none'
-            }}
-            className="shadow-lg hover:opacity-90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('ui.newEntry')}
-          </Button>
-        </div>
-      </div>
+      <PhaseHeader
+        icon={BookOpen}
+        title={t('ui.gratitudeJournal')}
+        subtitle={t('ui.entriesRecorded', { count: entries.length })}
+        actions={
+          <>
+            <button
+              onClick={() => setShowStats(!showStats)}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur-md transition-colors hover:bg-white/20"
+            >
+              <BarChart3 className="h-4 w-4" />
+              {showStats ? t('ui.hideStats') : t('ui.showStats')}
+            </button>
+            <button
+              onClick={() => {
+                setEditingId(null)
+                setNewEntry(blankEntry())
+                setShowCreateModal(true)
+              }}
+              className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
+            >
+              <Plus className="h-4 w-4" />
+              {t('ui.newEntry')}
+            </button>
+          </>
+        }
+      />
+
 
       {showStats && stats && (
         <motion.div

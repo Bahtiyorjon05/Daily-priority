@@ -1730,5 +1730,9 @@
   "ui.editHabit": "Edit habit",
   "ui.habitUpdated": "Habit updated",
   "ui.editGoal": "Edit goal",
-  "ui.goalUpdated": "Goal updated"
+  "ui.goalUpdated": "Goal updated",
+  "ui.entriesRecorded": "{count} entries recorded",
+  "ui.hideStats": "Hide stats",
+  "ui.showStats": "Show stats",
+  "ui.saved": "Saved"
 }
