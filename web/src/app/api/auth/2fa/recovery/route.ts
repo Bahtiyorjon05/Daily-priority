@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Send recovery email
-    const emailSent = await sendTwoFactorEmail(user.email, recoveryCode, 'enable')
+    const emailSent = await sendTwoFactorEmail(user.email, recoveryCode, 'recovery')
 
     if (!emailSent) {
       // Clean up the token if email fails

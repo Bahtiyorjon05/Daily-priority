@@ -73,6 +73,10 @@ export default function JournalPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const entriesPerPage = 9
 
+  // null = creating. The create form doubles as the edit form: keeping two
+  // forms for one entity is how their fields drift apart.
+  const [editingId, setEditingId] = useState<string | null>(null)
+
   const [newEntry, setNewEntry] = useState({
     date: todayKey(),
     gratitude1: '',
@@ -126,8 +130,9 @@ export default function JournalPage() {
 
     setSaving(true)
     try {
-      const response = await fetch('/api/journal', {
-        method: 'POST',
+      const editing = editingId !== null
+      const response = await fetch(editing ? `/api/journal/${editingId}` : '/api/journal', {
+        method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEntry)
       })
@@ -135,10 +140,14 @@ export default function JournalPage() {
       if (response.ok) {
         const { entry } = await response.json()
         
-        // Optimistic update
-        setEntries(prev => [entry, ...prev].sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        ))
+        // Optimistic update — replace in place when editing so the entry keeps
+        // its position rather than jumping to the top of the list.
+        setEntries(prev =>
+          (editing ? prev.map(e => (e.id === entry.id ? entry : e)) : [entry, ...prev]).sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+        )
+        setEditingId(null)
         
         setShowCreateModal(false)
         setNewEntry({

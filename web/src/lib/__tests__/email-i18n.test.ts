@@ -74,6 +74,43 @@ describe('email localisation', () => {
     expect(identical).toEqual(['email.footerRights']) // "© {year} Daily Priority"
   })
 
+  it('gives each flow its own copy, not a neighbour’s', () => {
+    // The bug this pins: sign-up called the sender in verification-code.ts,
+    // which was rendering `email.verify.*` — the password-reset copy. A new
+    // user's first email from us announced that their password was being reset.
+    //
+    // Nothing in the app surfaces that; it is only visible in an inbox. So the
+    // mapping is asserted here rather than trusted.
+    const flows: Array<[file: string, namespace: string]> = [
+      ['src/lib/verification-code.ts', 'email.signup'], // sign-up code
+      ['src/lib/email-verification.ts', 'email.confirm'], // confirmation link
+    ]
+
+    for (const [file, ns] of flows) {
+      const src = readFileSync(join(process.cwd(), file), 'utf8')
+      expect(src, `${file} should use ${ns}.*`).toContain(`${ns}.subject`)
+      // And must not reach for another flow's headline copy.
+      for (const other of ['email.verify.subject', 'email.changed.subject']) {
+        expect(src, `${file} must not use ${other}`).not.toContain(other)
+      }
+    }
+
+    // The three two-factor situations are different messages: setting it up,
+    // signing in, and recovering access. One shared set meant a recovery code
+    // arrived described as setting two-factor up.
+    const email = readFileSync(join(process.cwd(), 'src/lib/email.ts'), 'utf8')
+    for (const ns of ['email.twofaSetup', 'email.twofactor', 'email.twofaRecover']) {
+      expect(email, `sendTwoFactorEmail must be able to render ${ns}`).toContain(ns)
+    }
+    expect(email, 'the recovery variant must be reachable').toMatch(/'enable' \| 'login' \| 'recovery'/)
+
+    const recovery = readFileSync(
+      join(process.cwd(), 'src/app/api/auth/2fa/recovery/route.ts'),
+      'utf8'
+    )
+    expect(recovery, 'recovery must not send itself as a setup email').toContain("'recovery'")
+  })
+
   it('routes every sender through the shared template', () => {
     // Three senders used to build their own full HTML document. That is how the
     // header drifted, and how two of them ended up unlocalised — a hand-rolled

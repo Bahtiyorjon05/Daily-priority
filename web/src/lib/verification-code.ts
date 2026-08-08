@@ -51,16 +51,19 @@ export async function sendVerificationCode(
 ): Promise<void> {
   const { locale, t } = await forRecipient(email)
 
-  const subject = t('email.verify.subject')
+  // Sign-up, not password reset. This sender is called from SignUpForm; it was
+  // rendering the reset copy, so a new user's first email from us said their
+  // password was being reset.
+  const subject = t('email.signup.subject')
   const html = renderEmail({
     locale,
-    title: t('email.verify.title'),
-    eyebrow: t('email.verify.eyebrow'),
-    preheader: t('email.verify.preheader', { code }),
+    title: t('email.signup.title'),
+    eyebrow: t('email.signup.eyebrow'),
+    preheader: t('email.signup.preheader', { code }),
     body: `
-      <p style="margin:0 0 6px;">${escapeHtml(t('email.verify.lead'))}</p>
+      <p style="margin:0 0 6px;">${escapeHtml(t('email.signup.lead'))}</p>
       ${codeBlock(code, t('email.verify.expires'))}
-      <p style="margin:0;">${escapeHtml(t('email.verify.ignore'))}</p>
+      <p style="margin:0;">${escapeHtml(t('email.signup.ignore'))}</p>
     `,
     footerNote: t('email.footerAuto'),
   })

@@ -431,26 +431,38 @@ export const sendContactEmail = async (data: {
 export const sendTwoFactorEmail = async (
   email: string,
   code: string,
-  type: 'enable' | 'login'
+  /**
+   * Which flow this code belongs to. These are genuinely different messages —
+   * collapsing them into one meant a recovery code arrived described as setting
+   * two-factor up, which is the opposite of what the reader is doing.
+   */
+  type: 'enable' | 'login' | 'recovery'
 ): Promise<boolean> => {
   try {
     const transporter = createTransporter()
 
     const { locale, t } = await forRecipient(email)
 
+    const ns =
+      type === 'recovery'
+        ? 'email.twofaRecover'
+        : type === 'enable'
+          ? 'email.twofaSetup'
+          : 'email.twofactor'
+
     const mailOptions = {
       from: DEFAULT_FROM,
       to: email,
-      subject: t('email.twofactor.subject'),
+      subject: t(`${ns}.subject`),
       html: renderEmail({
         locale,
-        title: t('email.twofactor.title'),
-        eyebrow: t('email.twofactor.eyebrow'),
-        preheader: t('email.twofactor.preheader', { code }),
+        title: t(`${ns}.title`),
+        eyebrow: t(`${ns}.eyebrow`),
+        preheader: t(`${ns}.preheader`, { code }),
         body: `
-          <p style="margin:0 0 6px;">${escapeHtml(t('email.twofactor.lead'))}</p>
+          <p style="margin:0 0 6px;">${escapeHtml(t(`${ns}.lead`))}</p>
           ${codeBlock(code, t('email.verify.expires'))}
-          <p style="margin:0;">${escapeHtml(t('email.twofactor.ignore'))}</p>
+          <p style="margin:0;">${escapeHtml(t(`${ns}.ignore`))}</p>
         `,
         footnote: t('email.footerHelp', { email: SUPPORT_LINK_HTML }),
         footerNote: t('email.footerAuto'),
