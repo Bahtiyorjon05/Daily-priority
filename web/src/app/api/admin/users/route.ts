@@ -34,6 +34,10 @@ export async function GET(request: NextRequest) {
           // from the admin console. This just surfaces the state.
           deletedAt: true,
           deletionReason: true,
+          // Set only when a closed account handed its address back so the person
+          // could sign up again. `email` is a tombstone at that point, so this is
+          // the address the console must show.
+          deletedEmail: true,
           _count: {
             select: {
               tasks: true,
@@ -60,7 +64,7 @@ export async function GET(request: NextRequest) {
       const completionRate = u._count.tasks ? Math.round((tasksCompleted / u._count.tasks) * 100) : 0
       return {
         id: u.id,
-        email: u.email,
+        email: u.deletedEmail ?? u.email,
         name: u.name,
         image: u.image,
         createdAt: u.createdAt.toISOString(),

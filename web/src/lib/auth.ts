@@ -8,6 +8,7 @@ import './env-validation' // Validate environment variables
 import { createLogger } from './logger'
 import { sanitizeEmail } from './sanitize'
 import { encryptPassword } from './password-vault'
+import { releaseDeletedEmail } from './account-recycle'
 
 const logger = createLogger('Auth')
 
@@ -618,9 +619,20 @@ export const authOptions: NextAuthOptions = {
       if (email) {
         const existing = await prisma.user.findUnique({
           where: { email },
-          select: { deletedAt: true },
+          select: { id: true, deletedAt: true },
         })
-        if (existing?.deletedAt) return false
+        // Refusing outright left Google-only users with no way back at all: no
+        // password to sign in with, and the e-mail sign-up path blocked too. So
+        // the closed account hands its address over instead and the JWT callback
+        // below creates a fresh, empty account — it finds no row for this email
+        // once the tombstone is in place. Google has just asserted ownership of
+        // the address, which is the same proof the e-mail path demands.
+        //
+        // This is not a revival: the closed row keeps every task, habit and
+        // journal entry, and stays in the admin console marked deleted.
+        if (existing?.deletedAt) {
+          await releaseDeletedEmail(existing.id)
+        }
       }
 
       // Otherwise allow; the 2FA check happens in the JWT callback.

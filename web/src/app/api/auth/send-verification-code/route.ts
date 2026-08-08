@@ -24,10 +24,14 @@ export async function POST(request: Request) {
     // Check if user already exists with this email
     const existingUser = await prisma.user.findUnique({
       where: { email: sanitizedEmail },
-      select: { id: true, password: true, emailVerified: true },
+      select: { id: true, password: true, emailVerified: true, deletedAt: true },
     })
 
-    if (existingUser && existingUser.password) {
+    // A closed account still holds its address, but it is not "taken" — telling
+    // someone to sign in instead was a dead end, because sign-in refuses deleted
+    // accounts too. They are allowed all the way back through sign-up; the row
+    // hands the address over in `/api/auth/register`.
+    if (existingUser && existingUser.password && !existingUser.deletedAt) {
       return NextResponse.json(
         { error: 'An account with this email already exists. Please sign in instead.' },
         { status: 400 }

@@ -5,6 +5,7 @@ import { sanitizeEmail, sanitizeTitle } from '@/lib/sanitize'
 import { hasValidCode, deleteVerificationCode } from '@/lib/verification-code'
 import { createLogger } from '@/lib/logger'
 import { encryptPassword } from '@/lib/password-vault'
+import { releaseDeletedEmail } from '@/lib/account-recycle'
 
 const logger = createLogger('RegisterAPI')
 
@@ -67,11 +68,11 @@ export async function POST(request: Request) {
     }
 
     // Check if user exists
-    const existingUser = await prisma.user.findUnique({
+    const found = await prisma.user.findUnique({
       where: { email: sanitizedEmail },
     })
 
-    if (existingUser?.password) {
+    if (found?.password && !found.deletedAt) {
       // Delete the verification code
       await deleteVerificationCode(sanitizedEmail)
 
@@ -79,6 +80,18 @@ export async function POST(request: Request) {
         { error: 'An account with this email already exists' },
         { status: 400 }
       )
+    }
+
+    // Closing an account must not ban the email address. The closed row hands
+    // the address over — it keeps all of its data and stays visible in the admin
+    // console as deleted — and registration continues below as a first-time
+    // sign-up, so the new account starts empty rather than resurrecting data the
+    // person chose to delete. Safe here: the code above proves they still
+    // control the address.
+    let existingUser = found
+    if (found?.deletedAt) {
+      await releaseDeletedEmail(found.id)
+      existingUser = null
     }
 
     // Hash password

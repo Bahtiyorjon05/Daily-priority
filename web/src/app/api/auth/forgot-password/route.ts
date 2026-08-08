@@ -32,7 +32,10 @@ export async function POST(request: Request) {
       }
     })
 
-    if (!user) {
+    // A closed account reads as absent here. Sending a reset code would have
+    // been a dead end: they could set a new password and sign-in would still
+    // refuse them. "Sign up" is the honest instruction, and it now works.
+    if (!user || user.deletedAt) {
       console.log('[FORGOT-PASSWORD] ❌ No user found with email:', sanitizedEmail)
       return NextResponse.json(
         { error: 'No account found with this email address. Please check your email or sign up.' },

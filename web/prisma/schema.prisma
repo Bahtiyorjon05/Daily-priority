@@ -31,6 +31,14 @@ model User {
   deletedAt        DateTime?
   /// Free-text reason captured at deletion time, if the user gave one.
   deletionReason   String?
+  /// The address this account used, moved here when someone signs up again with
+  /// it. `email` is unique, so a closed account would otherwise squat on the
+  /// address forever and the person could never come back. On re-registration
+  /// `email` becomes a tombstone and the real address lands here, which frees
+  /// the index without touching a single row of the closed account's history.
+  /// Null for every account that has not been superseded. Admin displays this
+  /// in preference to `email` so the console still shows who the record was.
+  deletedEmail     String?
   location         String?
   timezone         String?          @default("UTC")
   createdAt        DateTime         @default(now())
