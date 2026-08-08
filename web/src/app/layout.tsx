@@ -238,8 +238,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Daily Priority" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Theme color with dark mode support */}
-        <meta name="theme-color" content="#10b981" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#065f46" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#0e493c" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#062a2c" media="(prefers-color-scheme: dark)" />
         {/* Viewport with safe area */}
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>

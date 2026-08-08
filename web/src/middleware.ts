@@ -21,7 +21,6 @@ const publicRoutes = new Set([
   // the policy, and Android fetches the asset links file anonymously. A redirect
   // here fails app verification and shows a URL bar in the wrapped app.
   '/privacy',
-  '/terms',
   '/.well-known'
 ])
 
