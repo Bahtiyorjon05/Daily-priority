@@ -10,13 +10,19 @@
  *
  * Every sender goes through `renderEmail` — previously the same gradient header
  * was copy-pasted seven times and drifted.
+ *
+ * It is also locale-aware: `lang` on <html> matters for screen readers and for
+ * Gmail's "translate this message?" prompt, which would otherwise offer to
+ * translate an Uzbek email it believes is English.
  */
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales'
 
 const BRAND = {
   name: 'Daily Priority',
-  tagline: 'Organise your day around prayer',
-  accent: '#10b981',
-  accentDark: '#0d9488',
+  /** Matches the app icon's backdrop, so the header reads as the same product. */
+  accent: '#0e493c',
+  accentDark: '#062a2c',
+  accentBright: '#10b981',
   ink: '#0f172a',
   muted: '#64748b',
   border: '#e2e8f0',
@@ -38,6 +44,10 @@ export interface EmailOptions {
   /** Small print under the divider (unsubscribe hints etc). */
   footnote?: string
   appUrl?: string
+  /** Recipient's language. Sets `lang` and picks the footer copy. */
+  locale?: Locale
+  /** Footer line above the copyright. */
+  footerNote?: string
 }
 
 export function escapeHtml(value: string): string {
@@ -107,9 +117,10 @@ export function renderEmail(options: EmailOptions): string {
   const appUrl = options.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://daily-priority.vercel.app'
   const year = new Date().getFullYear()
   const preheader = options.preheader || options.title
+  const locale = options.locale || DEFAULT_LOCALE
 
   return `<!doctype html>
-<html lang="en">
+<html lang="${locale}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -147,9 +158,18 @@ export function renderEmail(options: EmailOptions): string {
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,${BRAND.accent},${BRAND.accentDark});background-color:${BRAND.accent};border-radius:14px 14px 0 0;padding:26px 32px;text-align:center;">
-              <div style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.2px;">${BRAND.name}</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.88);margin-top:4px;">${escapeHtml(options.eyebrow || BRAND.tagline)}</div>
+            <td style="background:linear-gradient(135deg,${BRAND.accent},${BRAND.accentDark});background-color:${BRAND.accent};border-radius:16px 16px 0 0;padding:28px 32px;text-align:center;">
+              <!-- The real app icon. Referenced by URL because embedding it as a
+                   CID attachment makes the message heavier and trips spam
+                   heuristics on transactional mail. -->
+              <img src="${appUrl}/icon-192.png" width="52" height="52" alt=""
+                   style="display:block;margin:0 auto 12px;width:52px;height:52px;border-radius:13px;">
+              <div style="font-size:21px;font-weight:700;color:#ffffff;letter-spacing:-0.2px;">${BRAND.name}</div>
+              ${
+                options.eyebrow
+                  ? `<div style="display:inline-block;margin-top:9px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.94);">${escapeHtml(options.eyebrow)}</div>`
+                  : ''
+              }
             </td>
           </tr>
 
@@ -166,7 +186,7 @@ export function renderEmail(options: EmailOptions): string {
                 options.cta
                   ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:26px 0 6px;">
                        <tr>
-                         <td style="background:${BRAND.accent};border-radius:10px;">
+                         <td style="background:${BRAND.accentBright};border-radius:11px;">
                            <a href="${options.cta.url}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">${escapeHtml(options.cta.label)}</a>
                          </td>
                        </tr>
@@ -187,6 +207,11 @@ export function renderEmail(options: EmailOptions): string {
           <!-- Footer -->
           <tr>
             <td style="padding:18px 12px;text-align:center;">
+              ${
+                options.footerNote
+                  ? `<p class="muted" style="margin:0 0 6px;font-size:12px;line-height:1.6;color:${BRAND.muted};">${escapeHtml(options.footerNote)}</p>`
+                  : ''
+              }
               <p class="muted" style="margin:0 0 4px;font-size:12px;color:${BRAND.muted};">
                 <a href="${appUrl}" style="color:${BRAND.muted};text-decoration:underline;">${appUrl.replace(/^https?:\/\//, '')}</a>
               </p>

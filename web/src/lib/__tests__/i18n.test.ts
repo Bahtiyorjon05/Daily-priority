@@ -167,6 +167,7 @@ describe('dictionary parity', () => {
     // is genuinely a word Uzbek borrows rather than one that got missed.
     expect(identical.sort()).toEqual([
       'auth.email', // "Email" is the same word in both
+      'email.footerRights', // "© {year} Daily Priority" — a brand line
       'prayer.asr', // proper noun
       'ui.adminDailyPriority', // brand name
       'ui.dailyPriority', // brand name

@@ -1,5 +1,8 @@
+
 import nodemailer from 'nodemailer'
-import { renderEmail, codeBlock } from './email-template'
+import { renderEmail, codeBlock, escapeHtml } from './email-template'
+import { getLocaleForEmail } from '@/lib/i18n/server'
+import { getTranslator } from '@/lib/i18n/translate'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://daily-priority.vercel.app'
 import crypto from 'crypto'
@@ -62,6 +65,20 @@ const createTransporter = () => {
 }
 
 // Generate a random 6-digit verification code
+/**
+ * Copy for one recipient, in their language.
+ *
+ * Every transactional sender takes an email address rather than a user id, so
+ * the language is resolved from the account behind that address. When there is
+ * no account — a password-reset request for an unknown address, for instance —
+ * this falls back to English rather than failing, which also avoids revealing
+ * whether the address is registered.
+ */
+export const forRecipient = async (email: string) => {
+  const locale = await getLocaleForEmail(email)
+  return { locale, t: getTranslator(locale) }
+}
+
 export const generateVerificationCode = (): string => {
   return crypto.randomInt(0, 1_000_000).toString().padStart(6, '0')
 }
@@ -192,20 +209,24 @@ export const sendVerificationEmail = async (email: string, code: string): Promis
     console.log('[EMAIL] 📧 Preparing to send verification email to:', email, '| Code:', code)
     const transporter = createTransporter()
 
+    const { locale, t } = await forRecipient(email)
+
     const mailOptions = {
       from: DEFAULT_FROM,
       to: email,
-      subject: 'Password Reset Verification Code',
+      subject: t('email.verify.subject'),
       html: renderEmail({
-        title: 'Your verification code',
-        eyebrow: 'Password reset',
-        preheader: `${code} is your Daily Priority verification code. It expires in 10 minutes.`,
+        locale,
+        title: t('email.verify.title'),
+        eyebrow: t('email.verify.eyebrow'),
+        preheader: t('email.verify.preheader', { code }),
         body: `
-          <p style="margin:0 0 6px;">You asked to reset your Daily Priority password. Enter this code to continue:</p>
-          ${codeBlock(code, 'Expires in 10 minutes')}
-          <p style="margin:0;">If this wasn't you, you can ignore this email — your password stays unchanged.</p>
+          <p style="margin:0 0 6px;">${escapeHtml(t('email.verify.lead'))}</p>
+          ${codeBlock(code, t('email.verify.expires'))}
+          <p style="margin:0;">${escapeHtml(t('email.verify.ignore'))}</p>
         `,
-        footnote: `Need help? Contact us at ${SUPPORT_LINK_HTML}.`,
+        footnote: t('email.footerHelp', { email: SUPPORT_LINK_HTML }),
+        footerNote: t('email.footerAuto'),
       }),
     }
 
@@ -229,20 +250,24 @@ export const sendPasswordResetEmail = async (email: string): Promise<boolean> =>
   try {
     const transporter = createTransporter()
 
+    const { locale, t } = await forRecipient(email)
+
     const mailOptions = {
       from: DEFAULT_FROM,
       to: email,
-      subject: 'Password Successfully Reset',
+      subject: t('email.changed.subject'),
       html: renderEmail({
-        title: 'Your password was changed',
-        eyebrow: 'Security',
-        preheader: 'Your Daily Priority password was successfully changed.',
+        locale,
+        title: t('email.changed.title'),
+        eyebrow: t('email.changed.eyebrow'),
+        preheader: t('email.changed.preheader'),
         body: `
-          <p style="margin:0 0 12px;">Your Daily Priority password has been changed successfully. You can sign in with it now.</p>
-          <p style="margin:0;"><strong>Didn't do this?</strong> Reset your password immediately and contact us — someone else may have access to your account.</p>
+          <p style="margin:0 0 12px;">${escapeHtml(t('email.changed.lead'))}</p>
+          <p style="margin:0;">${escapeHtml(t('email.changed.warn'))}</p>
         `,
-        cta: { label: 'Sign in', url: `${APP_URL}/signin` },
-        footnote: `Questions? Contact us at ${SUPPORT_LINK_HTML}.`,
+        cta: { label: t('email.changed.cta'), url: `${APP_URL}/signin` },
+        footnote: t('email.footerHelp', { email: SUPPORT_LINK_HTML }),
+        footerNote: t('email.footerAuto'),
       }),
     }
 
@@ -411,26 +436,24 @@ export const sendTwoFactorEmail = async (
   try {
     const transporter = createTransporter()
 
-    const title = type === 'enable' ? 'Enable Two-Factor Authentication' : 'Two-Factor Authentication'
-    const description =
-      type === 'enable'
-        ? 'You are setting up Two-Factor Authentication for your Daily Priority account. Please use the verification code below to complete the process:'
-        : 'You are signing in to your Daily Priority account. Please use the verification code below to complete your login:'
+    const { locale, t } = await forRecipient(email)
 
     const mailOptions = {
       from: DEFAULT_FROM,
       to: email,
-      subject: type === 'enable' ? 'Enable Two-Factor Authentication' : 'Your Login Verification Code',
+      subject: t('email.twofactor.subject'),
       html: renderEmail({
-        title,
-        eyebrow: 'Two-factor authentication',
-        preheader: `${code} is your Daily Priority security code. It expires in 10 minutes.`,
+        locale,
+        title: t('email.twofactor.title'),
+        eyebrow: t('email.twofactor.eyebrow'),
+        preheader: t('email.twofactor.preheader', { code }),
         body: `
-          <p style="margin:0 0 6px;">${description}</p>
-          ${codeBlock(code, 'Expires in 10 minutes')}
-          <p style="margin:0;">Never share this code. Daily Priority will never ask you for it.</p>
+          <p style="margin:0 0 6px;">${escapeHtml(t('email.twofactor.lead'))}</p>
+          ${codeBlock(code, t('email.verify.expires'))}
+          <p style="margin:0;">${escapeHtml(t('email.twofactor.ignore'))}</p>
         `,
-        footnote: `Didn't request this? Contact us at ${SUPPORT_LINK_HTML}.`,
+        footnote: t('email.footerHelp', { email: SUPPORT_LINK_HTML }),
+        footerNote: t('email.footerAuto'),
       }),
     }
 

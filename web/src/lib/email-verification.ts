@@ -4,7 +4,8 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { sendEmail } from '@/lib/email'
+import { sendEmail, forRecipient } from '@/lib/email'
+import { renderEmail, escapeHtml } from '@/lib/email-template'
 import crypto from 'crypto'
 
 const SUPPORT_EMAIL =
@@ -64,109 +65,22 @@ export async function sendVerificationEmail(
   const token = await createVerificationToken(email)
   const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token}`
 
-  const subject = 'Verify your email - Daily Priority'
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 40px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
-          .header {
-            text-align: center;
-            margin-bottom: 30px;
-          }
-          .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #3B82F6;
-            margin-bottom: 10px;
-          }
-          .content {
-            margin-bottom: 30px;
-          }
-          .button {
-            display: inline-block;
-            padding: 14px 32px;
-            background-color: #3B82F6;
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            text-align: center;
-          }
-          .button-container {
-            text-align: center;
-            margin: 30px 0;
-          }
-          .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            text-align: center;
-            font-size: 14px;
-            color: #6b7280;
-          }
-          .alt-link {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9fafb;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #6b7280;
-            word-break: break-all;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <div class="logo">📅 Daily Priority</div>
-            <p style="color: #6b7280; margin: 0;">Islamic Productivity Planner</p>
-          </div>
-          
-          <div class="content">
-            <h2 style="color: #1f2937; margin-bottom: 20px;">Welcome, ${name}!</h2>
-            <p>Thank you for joining Daily Priority. To get started, please verify your email address by clicking the button below:</p>
-          </div>
+  const { locale, t } = await forRecipient(email)
 
-          <div class="button-container">
-            <a href="${verificationUrl}" class="button">Verify Email Address</a>
-          </div>
+  const subject = t('email.confirm.subject')
+  const html = renderEmail({
+    locale,
+    title: t('email.confirm.title'),
+    eyebrow: t('email.confirm.eyebrow'),
+    preheader: t('email.confirm.preheaderLink'),
+    body: `
+      <p style="margin:0 0 6px;">${escapeHtml(t('email.confirm.lead'))}</p>
+    `,
+    cta: { label: t('email.confirm.cta'), url: verificationUrl },
+    footnote: t('email.footerHelp', { email: SUPPORT_EMAIL }),
+    footerNote: t('email.footerAuto'),
+  })
 
-          <div class="content">
-            <p><strong>This link will expire in 24 hours.</strong></p>
-            <p>If you didn't create an account with Daily Priority, you can safely ignore this email.</p>
-          </div>
-
-          <div class="alt-link">
-            <p><strong>Or copy and paste this URL into your browser:</strong></p>
-            <p>${verificationUrl}</p>
-          </div>
-
-          <div class="footer">
-            <p>© ${new Date().getFullYear()} Daily Priority. All rights reserved.</p>
-            <p style="margin-top: 10px;">
-              If you have any questions, please contact us at ${SUPPORT_EMAIL}
-            </p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `
 
   await sendEmail({
     to: email,

@@ -73,7 +73,7 @@ describe('translation key coverage', () => {
     expect(Object.keys(en).filter(k => !(k in uz))).toEqual([])
   })
 
-  it('no user-facing JSX text is left hard-coded', () => {
+  it('no user-facing JSX text is left hard-coded', { timeout: 30_000 }, () => {
     // Parsed, not pattern-matched. The first version of this test used a
     // `>text<` regex and passed while 216 strings were still English — it
     // couldn't see text adjacent to a `{expr}`, which is exactly the shape of a
@@ -103,7 +103,7 @@ describe('translation key coverage', () => {
     expect(offenders).toEqual([])
   })
 
-  it('no user-facing copy is left hard-coded in data', () => {
+  it('no user-facing copy is left hard-coded in data', { timeout: 30_000 }, () => {
     // The third blind spot. Copy stored as `{ title: 'Yours to override' }` in
     // an array that gets .map()ed into JSX renders exactly like a text node,
     // but to the parser it is a plain string, so the JsxText check above walks

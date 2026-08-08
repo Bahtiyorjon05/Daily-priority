@@ -25,6 +25,27 @@ export async function getUserLocale(userId: string): Promise<Locale> {
   }
 }
 
+/**
+ * Locale for an email address.
+ *
+ * The transactional senders are handed an address, not a user id — password
+ * reset and email confirmation both run before there is a session, and the reset
+ * flow deliberately accepts addresses that may not have an account at all. So
+ * this resolves by email and falls back to the default when there is no match,
+ * which also avoids leaking whether an address is registered.
+ */
+export async function getLocaleForEmail(email: string): Promise<Locale> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: email.trim().toLowerCase() },
+      select: { preferences: { select: { language: true } } },
+    })
+    return normalizeLocale(user?.preferences?.language)
+  } catch {
+    return DEFAULT_LOCALE
+  }
+}
+
 /** Convenience for senders that translate several strings for one recipient. */
 export async function getUserTranslator(userId: string) {
   const locale = await getUserLocale(userId)

@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getUserTranslator } from '@/lib/i18n/server'
+
+/** Prayer names arrive as English slot labels; these map them to message keys. */
+const PRAYER_KEY: Record<string, string> = {
+  Fajr: 'prayer.fajr',
+  Dhuhr: 'prayer.dhuhr',
+  Asr: 'prayer.asr',
+  Maghrib: 'prayer.maghrib',
+  Isha: 'prayer.isha',
+}
 import { sendPushToUser, isPushConfigured, isQuietHour } from '@/lib/push'
 import { todayKeyInTimeZone, localDayRange } from '@/lib/server-date'
 import { recordCronRun } from '@/lib/cron-heartbeat'
@@ -67,6 +77,11 @@ export async function GET(request: NextRequest) {
       const dayKey = todayKeyInTimeZone(tz)
       const nowMinutes = localHour * 60 + localMinute
 
+      // Resolved once per user, not per notification: all three branches below
+      // send to the same person, and this runs for every user every five
+      // minutes.
+      const { t } = await getUserTranslator(user.id)
+
       try {
         // --- Prayer reminders -------------------------------------------------
         if (prayerOn) {
@@ -89,8 +104,8 @@ export async function GET(request: NextRequest) {
               // Fire once inside a 5-minute window around the target.
               if (nowMinutes >= target && nowMinutes < target + 5) {
                 await sendPushToUser(user.id, {
-                  title: `${name} in ${lead} minutes`,
-                  body: `${name} is at ${hhmm}. Time to prepare. 🕌`,
+                  title: t('push.prayerTitle', { prayer: t(PRAYER_KEY[name] ?? name), minutes: lead }),
+                  body: t('push.prayerBody', { prayer: t(PRAYER_KEY[name] ?? name), time: hhmm }),
                   url: '/prayers',
                   tag: `prayer-${user.id}-${dayKey}-${name}`,
                 })
@@ -110,7 +125,10 @@ export async function GET(request: NextRequest) {
           const pending = habits.filter((h) => h.completions.length === 0)
           if (pending.length > 0) {
             await sendPushToUser(user.id, {
-              title: pending.length === 1 ? 'One habit left today' : `${pending.length} habits left today`,
+              title:
+                pending.length === 1
+                  ? t('push.habitsOne')
+                  : t('push.habitsMany', { count: pending.length }),
               body: pending.slice(0, 3).map((h) => h.title).join(', ') + (pending.length > 3 ? '…' : ''),
               url: '/habits',
               tag: `habit-${user.id}-${dayKey}`,
@@ -126,8 +144,9 @@ export async function GET(request: NextRequest) {
           })
           if (overdue > 0) {
             await sendPushToUser(user.id, {
-              title: `${overdue} overdue ${overdue === 1 ? 'task' : 'tasks'}`,
-              body: 'Open Daily Priority to catch up.',
+              title:
+                overdue === 1 ? t('push.overdueOne') : t('push.overdueMany', { count: overdue }),
+              body: t('push.overdueBody'),
               url: '/dashboard',
               tag: `tasks-${user.id}-${dayKey}`,
             })
