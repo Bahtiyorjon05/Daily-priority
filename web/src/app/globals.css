@@ -1948,31 +1948,30 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Improved button styling for light mode */
-button {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
+/* REMOVED: blanket `button` / `input` painting.
+   These were:
+     button { background: rgba(255,255,255,0.95); border; box-shadow }
+     .dark button { background: rgba(15,23,42,0.95); ... }
+     input, textarea, select { background: rgba(255,255,255,0.95); ... }
 
-.dark button {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
+   Three faults, and together they are why "Sign Up" was white-on-white in the
+   light-mode header.
 
-/* Enhanced input styling for better light mode appearance */
-input, textarea, select {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-}
+   1. They are element selectors sitting OUTSIDE any @layer. Unlayered rules beat
+      layered ones in the cascade no matter how specific, and Tailwind's
+      utilities all live in @layer utilities — so this painted over every
+      `bg-*` class in the app rather than providing a default under them.
+   2. They use the `background` SHORTHAND, which resets background-image. Any
+      button carrying a gradient lost it outright: the header's emerald
+      `bg-gradient-to-r` CTA became a 95%-white box while its `text-white`
+      label stayed white.
+   3. The bug could only ever show in light mode, because `.dark button` handed
+      dark buttons a dark fill — which is exactly why this survived so long, and
+      why the same symptom kept resurfacing on one control at a time.
 
-.dark input, .dark textarea, .dark select {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-}
+   Nothing replaces them. Every button and input in this app states its own
+   background; a ghost button is meant to be transparent, and this rule was
+   filling those in white too. */
 
 /* Improved text contrast for light mode */
 .text-foreground {
@@ -2029,15 +2028,11 @@ input, textarea, select {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Enhanced button hover effects */
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.dark button:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
+/* REMOVED: blanket `button:hover { transform: translateY(-2px) }`.
+   Same mistake as above — unlayered, so it overrode every `hover:scale-*` and
+   `hover:-translate-y-*` utility in the app, meaning the deliberate hover
+   motion on the CTAs never actually ran. It also lifted every icon button and
+   nav item, which was never the intent. */
 
 /* Focus states.
    NOTE: the previous rules used `ring: …`, which is a Tailwind utility name and
