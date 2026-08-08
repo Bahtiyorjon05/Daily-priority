@@ -148,17 +148,19 @@ describe('email URLs', () => {
   /** Run with only the given vars set, then restore the environment. */
   function withEnv(env: Record<string, string>, fn: () => void) {
     const saved: Record<string, string | undefined> = {}
+    const target = process.env as Record<string, string | undefined>
     for (const k of KEYS) {
-      saved[k] = process.env[k]
-      delete process.env[k]
+      saved[k] = target[k]
+      delete target[k]
     }
-    Object.assign(process.env, env)
+    Object.assign(process.env as Record<string, string>, env)
     try {
       fn()
     } finally {
+      const env = process.env as Record<string, string | undefined>
       for (const k of KEYS) {
-        if (saved[k] === undefined) delete process.env[k]
-        else process.env[k] = saved[k]
+        if (saved[k] === undefined) delete env[k]
+        else env[k] = saved[k]
       }
     }
   }

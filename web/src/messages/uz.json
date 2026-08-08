@@ -1726,5 +1726,9 @@
   "email.twofaRecover.title": "Tiklash kodingiz",
   "email.twofaRecover.preheader": "{code} ikki bosqichli parolingizni tiklash imkonini beradi.",
   "email.twofaRecover.lead": "Ikki bosqichli parolingizni tiklash va hisobingizga qaytish uchun bu koddan foydalaning:",
-  "email.twofaRecover.ignore": "Agar buni so'ramagan bo'lsangiz, kimdir hisobingizga kirishga urinayotgan bo'lishi mumkin. Parolingizni o'zgartiring."
+  "email.twofaRecover.ignore": "Agar buni so'ramagan bo'lsangiz, kimdir hisobingizga kirishga urinayotgan bo'lishi mumkin. Parolingizni o'zgartiring.",
+  "ui.editHabit": "Odatni tahrirlash",
+  "ui.habitUpdated": "Odat yangilandi",
+  "ui.editGoal": "Maqsadni tahrirlash",
+  "ui.goalUpdated": "Maqsad yangilandi"
 }

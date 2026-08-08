@@ -9,6 +9,7 @@ import { queueableFetch } from '@/lib/offline-queue'
 import {
   Target,
   Plus,
+  Pencil,
   Trash2,
   CheckCircle2,
   Circle,
@@ -62,6 +63,10 @@ export default function HabitsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const habitsPerPage = 12
   
+  // null = creating. The create form doubles as the edit form so the two can't
+  // drift apart in what they accept.
+  const [editingHabitId, setEditingHabitId] = useState<string | null>(null)
+
   const [newHabit, setNewHabit] = useState({
     title: '',
     description: '',
@@ -69,7 +74,33 @@ export default function HabitsPage() {
     targetDays: 7
   })
 
-  const newHabitModal = useModalBehavior(showNewHabit, () => setShowNewHabit(false))
+  const blankHabit = () => ({
+    title: '',
+    description: '',
+    frequency: 'DAILY' as 'DAILY' | 'WEEKLY' | 'CUSTOM',
+    targetDays: 7,
+  })
+
+  // Always close through here, so a stale editing id can't turn the next
+  // "New habit" into an edit of the last one.
+  const closeHabitEditor = () => {
+    setShowNewHabit(false)
+    setEditingHabitId(null)
+    setNewHabit(blankHabit())
+  }
+
+  const startEditHabit = (habit: Habit) => {
+    setEditingHabitId(habit.id)
+    setNewHabit({
+      title: habit.title,
+      description: habit.description ?? '',
+      frequency: (habit.frequency as 'DAILY' | 'WEEKLY' | 'CUSTOM') ?? 'DAILY',
+      targetDays: habit.targetDays ?? 7,
+    })
+    setShowNewHabit(true)
+  }
+
+  const newHabitModal = useModalBehavior(showNewHabit, () => closeHabitEditor())
   const deleteHabitModal = useModalBehavior(!!deletingHabit, () => setDeletingHabit(null))
 
   useEffect(() => {
@@ -104,23 +135,23 @@ export default function HabitsPage() {
     }
 
     try {
-      const response = await fetch('/api/habits', {
-        method: 'POST',
+      const editing = editingHabitId !== null
+      const response = await fetch(editing ? `/api/habits/${editingHabitId}` : '/api/habits', {
+        method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newHabit)
       })
 
       if (response.ok) {
-        const createdHabit = await response.json()
-        setHabits(prev => [createdHabit, ...prev])
-        setNewHabit({
-          title: '',
-          description: '',
-          frequency: 'DAILY',
-          targetDays: 7
-        })
-        setShowNewHabit(false)
-        toast.success(t('ui.habitCreatedSuccessfully'))
+        const saved = await response.json()
+        const habit = saved.habit ?? saved
+        // Replace in place when editing, so the card keeps its position rather
+        // than jumping to the top of the list.
+        setHabits(prev =>
+          editing ? prev.map(h => (h.id === habit.id ? { ...h, ...habit } : h)) : [habit, ...prev]
+        )
+        closeHabitEditor()
+        toast.success(editing ? t('ui.habitUpdated') : t('ui.habitCreatedSuccessfully'))
       } else {
         const error = await response.json()
         console.error('API error:', error)
@@ -428,14 +459,28 @@ export default function HabitsPage() {
                               </p>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeletingHabit(habit)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => startEditHabit(habit)}
+                              aria-label={t('ui.editHabit')}
+                              title={t('ui.editHabit')}
+                              className="text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeletingHabit(habit)}
+                              aria-label={t('ui.deleteHabit')}
+                              title={t('ui.deleteHabit')}
+                              className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Frequency Badge */}
@@ -609,7 +654,7 @@ export default function HabitsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => setShowNewHabit(false)}
+              onClick={closeHabitEditor}
             >
               <motion.div
                 ref={newHabitModal.ref}
@@ -623,7 +668,7 @@ export default function HabitsPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewHabit')}</h3>
+                    <h3 id="new-habit-title" className="text-2xl font-bold text-gray-900 dark:text-white">{editingHabitId ? t('ui.editHabit') : t('ui.createNewHabit')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 {t('ui.buildANewPositiveHabit')}
 </p>
@@ -631,7 +676,7 @@ export default function HabitsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setShowNewHabit(false)}
+                    onClick={closeHabitEditor}
                     className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                   >
                     <X className="h-5 w-5" />
@@ -706,10 +751,10 @@ export default function HabitsPage() {
                       }}
                       className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                     >
-                      {t('ui.createHabit')}
+                      {editingHabitId ? t('ui.saveChanges2') : t('ui.createHabit')}
                     </button>
                     <button
-                      onClick={() => setShowNewHabit(false)}
+                      onClick={closeHabitEditor}
                       className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
                       {t('common.cancel')}

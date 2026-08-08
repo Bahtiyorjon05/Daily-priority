@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target,
   Plus,
+  Pencil,
   Trash2,
   Edit,
   Save,
@@ -67,9 +68,10 @@ export default function GoalsPage() {
   const [stats, setStats] = useState<GoalsStats | null>(null)
   const [loading, setLoading] = useState(false)
   const [showNewGoal, setShowNewGoal] = useState(false)
-  const [editingGoal, setEditingGoal] = useState<string | null>(null)
   const [selectedType, setSelectedType] = useState<'DUNYA' | 'AKHIRAH' | null>(null)
   const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null)
+  // null = creating; the create form doubles as the edit form.
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null)
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState('')
@@ -92,7 +94,42 @@ export default function GoalsPage() {
     deadline: ''
   })
 
-  const newGoalModal = useModalBehavior(showNewGoal, () => setShowNewGoal(false))
+  const blankGoal = () => ({
+    title: '',
+    description: '',
+    goalType: 'DUNYA' as 'DUNYA' | 'AKHIRAH',
+    category: 'PERSONAL',
+    progress: 0,
+    target: 100,
+    deadline: '',
+  })
+
+  // Always close through here, so an editing id left behind can't turn the next
+  // "New goal" into an edit of the last one.
+  const closeGoalEditor = () => {
+    setShowNewGoal(false)
+    setEditingGoalId(null)
+    setSelectedType(null)
+    setNewGoal(blankGoal())
+  }
+
+  const startEditGoal = (goal: Goal) => {
+    setEditingGoalId(goal.id)
+    setNewGoal({
+      title: goal.title,
+      description: goal.description ?? '',
+      goalType: (goal.goalType as 'DUNYA' | 'AKHIRAH') ?? 'DUNYA',
+      category: goal.category ?? 'PERSONAL',
+      progress: goal.progress ?? 0,
+      target: goal.target ?? 100,
+      // The form's date input needs YYYY-MM-DD, not an ISO timestamp.
+      deadline: goal.deadline ? String(goal.deadline).slice(0, 10) : '',
+    })
+    setSelectedType((goal.goalType as 'DUNYA' | 'AKHIRAH') ?? 'DUNYA')
+    setShowNewGoal(true)
+  }
+
+  const newGoalModal = useModalBehavior(showNewGoal, () => closeGoalEditor())
   const deleteGoalModal = useModalBehavior(!!deletingGoal, () => setDeletingGoal(null))
 
   useEffect(() => {
@@ -155,27 +192,22 @@ export default function GoalsPage() {
     }
 
     try {
-      const response = await fetch('/api/goals', {
-        method: 'POST',
+      const editing = editingGoalId !== null
+      const response = await fetch(editing ? `/api/goals/${editingGoalId}` : '/api/goals', {
+        method: editing ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newGoal)
       })
 
       if (response.ok) {
-        const createdGoal = await response.json()
-        setGoals(prev => [createdGoal, ...prev])
-        setNewGoal({
-          title: '',
-          description: '',
-          goalType: 'DUNYA',
-          category: 'PERSONAL',
-          progress: 0,
-          target: 100,
-          deadline: ''
-        })
-        setShowNewGoal(false)
-        setSelectedType(null)
-        toast.success(t('ui.goalCreatedSuccessfully'))
+        const saved = await response.json()
+        const goal = saved.goal ?? saved
+        // Replace in place when editing so the card keeps its position.
+        setGoals(prev =>
+          editing ? prev.map(g => (g.id === goal.id ? { ...g, ...goal } : g)) : [goal, ...prev]
+        )
+        closeGoalEditor()
+        toast.success(editing ? t('ui.goalUpdated') : t('ui.goalCreatedSuccessfully'))
         // Refresh stats only
         const statsResponse = await fetch('/api/goals')
         if (statsResponse.ok) {
@@ -472,14 +504,28 @@ export default function GoalsPage() {
                     </div>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeletingGoal(goal)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => startEditGoal(goal)}
+                    aria-label={t('ui.editGoal')}
+                    title={t('ui.editGoal')}
+                    className="text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeletingGoal(goal)}
+                    aria-label={t('ui.deleteGoal')}
+                    title={t('ui.deleteGoal')}
+                    className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -834,7 +880,7 @@ export default function GoalsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => setShowNewGoal(false)}
+              onClick={closeGoalEditor}
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -851,7 +897,7 @@ export default function GoalsPage() {
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t('ui.createNewGoal')}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{editingGoalId ? t('ui.editGoal') : t('ui.createNewGoal')}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {newGoal.goalType === 'DUNYA' ? t('ui.creatingDunyaGoal') : t('ui.creatingAkhirahGoal')}
                     </p>
@@ -859,10 +905,7 @@ export default function GoalsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => {
-                      setShowNewGoal(false)
-                      setSelectedType(null)
-                    }}
+                    onClick={closeGoalEditor}
                     className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                   >
                     <X className="h-5 w-5" />
@@ -1014,13 +1057,10 @@ export default function GoalsPage() {
                       }}
                       className="flex-1 h-12 rounded-lg text-white font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                     >
-                      {t('ui.createGoal')}
+                      {editingGoalId ? t('ui.saveChanges2') : t('ui.createGoal')}
                     </button>
                     <button
-                      onClick={() => {
-                        setShowNewGoal(false)
-                        setSelectedType(null)
-                      }}
+                      onClick={closeGoalEditor}
                       className="h-12 px-3 sm:px-6 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 border-0 font-medium transition-all duration-200"
                     >
                       {t('common.cancel')}

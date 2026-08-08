@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import {
   BookOpen,
   Plus,
+  Pencil,
   Trash2,
   X,
   Save,
@@ -89,7 +90,45 @@ export default function JournalPage() {
     mood: 'neutral'
   })
 
-  const createModal = useModalBehavior(showCreateModal, () => setShowCreateModal(false))
+  const blankEntry = () => ({
+    date: todayKey(),
+    gratitude1: '',
+    gratitude2: '',
+    gratitude3: '',
+    goodDeeds: '',
+    lessons: '',
+    duas: '',
+    reflection: '',
+    mood: 'neutral',
+  })
+
+  // Always close through here. Clearing editingId separately from the form was
+  // how a stale id could turn the next "New entry" into an edit of the last one.
+  const closeEditor = () => {
+    setShowCreateModal(false)
+    setEditingId(null)
+    setNewEntry(blankEntry())
+    setValidationErrors([])
+  }
+
+  const startEdit = (entry: JournalEntry) => {
+    setEditingId(entry.id)
+    setNewEntry({
+      date: entry.date.slice(0, 10),
+      gratitude1: entry.gratitude1 ?? '',
+      gratitude2: entry.gratitude2 ?? '',
+      gratitude3: entry.gratitude3 ?? '',
+      goodDeeds: entry.goodDeeds ?? '',
+      lessons: entry.lessons ?? '',
+      duas: entry.duas ?? '',
+      reflection: entry.reflection ?? '',
+      mood: entry.mood ?? 'neutral',
+    })
+    setViewingEntry(null)
+    setShowCreateModal(true)
+  }
+
+  const createModal = useModalBehavior(showCreateModal, () => closeEditor())
 
   useEffect(() => {
     fetchEntries()
@@ -737,7 +776,7 @@ export default function JournalPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto"
-            onClick={() => setShowCreateModal(false)}
+            onClick={closeEditor}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
@@ -751,13 +790,13 @@ export default function JournalPage() {
               <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">{t('ui.newJournalEntry')}</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-gray-100">{editingId ? t('ui.editJournalEntry') : t('ui.newJournalEntry')}</h2>
                     <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                       <span className="text-red-500">★</span> 
                       {t('ui.allFieldsAreRequiredForACompleteEntry')}
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
+                  <Button variant="ghost" size="sm" onClick={closeEditor}>
                     <X className="h-5 w-5" />
                   </Button>
                 </div>
@@ -930,11 +969,11 @@ export default function JournalPage() {
                   className="flex-1 font-semibold shadow-lg hover:opacity-90 disabled:opacity-60"
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {saving ? 'Saving...' : t('ui.saveEntry')}
+                  {saving ? t('common.saving') : editingId ? t('ui.saveChanges2') : t('ui.saveEntry')}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={closeEditor}
                   disabled={saving}
                   style={{
                     background: 'white',
@@ -1046,6 +1085,15 @@ export default function JournalPage() {
                   <span className="text-xs text-slate-500 dark:text-gray-500">
 {t('ui.created')} {new Date(viewingEntry.createdAt).toLocaleDateString()}
                   </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEdit(viewingEntry)}
+                    className="border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    {t('common.edit')}
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

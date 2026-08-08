@@ -1726,5 +1726,9 @@
   "email.twofaRecover.title": "Your recovery code",
   "email.twofaRecover.preheader": "{code} lets you reset your two-factor password.",
   "email.twofaRecover.lead": "Use this code to reset your two-factor password and get back into your account:",
-  "email.twofaRecover.ignore": "If you didn't ask for this, someone may be trying to reach your account. Change your password."
+  "email.twofaRecover.ignore": "If you didn't ask for this, someone may be trying to reach your account. Change your password.",
+  "ui.editHabit": "Edit habit",
+  "ui.habitUpdated": "Habit updated",
+  "ui.editGoal": "Edit goal",
+  "ui.goalUpdated": "Goal updated"
 }
