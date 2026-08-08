@@ -503,7 +503,7 @@ export function SignUpForm() {
                   setFormData({ ...formData, verificationCode: value })
                   setErrors(prev => ({ ...prev, code: '', general: '' }))
                 }}
-                className={'h-16 sm:h-20 text-center text-3xl sm:text-4xl font-mono font-bold tracking-widest transition-all duration-300 ' + (errors.code
+                className={'h-16 sm:h-20 text-center text-3xl sm:text-4xl font-mono font-bold tracking-widest text-gray-900 dark:text-white transition-all duration-300 ' + (errors.code
                     ? 'border-red-500 dark:border-red-400 bg-red-50/30 dark:bg-red-950/20'
                     : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/20')}
               />
@@ -562,7 +562,7 @@ export function SignUpForm() {
               className="flex-1 h-10 sm:h-11 inline-flex items-center justify-center gap-2 border-2 border-gray-200 dark:border-gray-700 hover:border-emerald-300 dark:hover:border-emerald-600 bg-white dark:bg-gray-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 rounded-xl transition-all duration-300 text-sm font-semibold text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className="w-4 h-4" />
-              <span>{canResend ? 'Resend Code' : t('ui.wait60sToResend')}</span>
+              <span>{canResend ? t('ui.resendCode') : t('ui.wait60sToResend')}</span>
             </button>
           </div>
         </div>

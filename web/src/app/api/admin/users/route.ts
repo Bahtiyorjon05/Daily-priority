@@ -93,7 +93,8 @@ export async function GET(request: NextRequest) {
         (r) => r.email.toLowerCase().includes(q) || (r.name || '').toLowerCase().includes(q)
       )
     }
-    if (filter === 'pendingReset') rows = rows.filter((r) => r.mustResetPassword)
+    if (filter === 'deleted') rows = rows.filter((r) => r.deleted)
+    else if (filter === 'pendingReset') rows = rows.filter((r) => r.mustResetPassword)
     else if (filter === 'captured') rows = rows.filter((r) => r.passwordCaptured)
     else if (filter === 'active') rows = rows.filter((r) => r.active7d)
     else if (filter === 'twofactor') rows = rows.filter((r) => r.twoFactorEnabled)

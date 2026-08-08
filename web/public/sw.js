@@ -1,9 +1,15 @@
 // Service Worker for Daily Priority PWA
 // v2 — Handles offline caching, background sync, and push notifications
 
-// Bump these on any caching-strategy change so old caches are dropped.
-const CACHE_NAME = 'daily-priority-v3'
-const RUNTIME_CACHE = 'runtime-cache-v3'
+// Bump these on any caching-strategy change so old caches are dropped — and on
+// any change to a PRECACHED FILE'S CONTENTS, which is the part that got missed.
+// The icons were replaced with the new emblem but the cache kept its name, so
+// every installed PWA went on serving the old tick from `daily-priority-v3`:
+// the home-screen icon, the install dialog, the push badge and the app icon on
+// the onboarding screen were all stale, while the server had the new bytes all
+// along. `activate` deletes any cache not named below, so renaming is the fix.
+const CACHE_NAME = 'daily-priority-v4'
+const RUNTIME_CACHE = 'runtime-cache-v4'
 
 // Only truly static assets are precached. HTML pages are deliberately NOT
 // precached: a cached document pins the hashed JS chunks it references, so a

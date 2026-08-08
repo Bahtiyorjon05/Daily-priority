@@ -1734,5 +1734,8 @@
   "ui.entriesRecorded": "{count} entries recorded",
   "ui.hideStats": "Hide stats",
   "ui.showStats": "Show stats",
-  "ui.saved": "Saved"
+  "ui.saved": "Saved",
+  "admin.deletedRecordKept": "This person closed their account. Every task, habit, goal and journal entry below is kept on purpose — nothing was erased.",
+  "admin.deletionReason": "Reason given",
+  "admin.addressReleased": "They have since signed up again with this address, so it now belongs to a separate, new account."
 }

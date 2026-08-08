@@ -3,7 +3,7 @@
 import { useT } from '@/lib/i18n/client'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, X, Moon } from 'lucide-react'
+import { Download, X } from 'lucide-react'
 import { useState } from 'react'
 
 /** Floating install banner — shows on ALL devices (mobile + desktop) */
@@ -37,9 +37,15 @@ export function InstallPrompt() {
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
 
             <div className="p-3 flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/30 shrink-0">
-                <Moon className="h-5 w-5 text-white" />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/icon-192.png"
+                alt=""
+                aria-hidden
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 rounded-xl shadow-md shadow-emerald-500/30 ring-1 ring-emerald-900/10 dark:ring-white/10"
+              />
 
               <motion.button
                 whileTap={{ scale: 0.97 }}
@@ -119,9 +125,20 @@ export function InstallSection() {
           }} />
 
           <div className="relative p-6 sm:p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 mb-4">
-              <Moon className="h-8 w-8 text-white" />
-            </div>
+            {/*
+              Show the actual app icon, not a stand-in. This card is a preview of
+              what lands on the home screen, and a generic moon made that promise
+              about an icon the user would never see.
+            */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon-192.png"
+              alt=""
+              aria-hidden
+              width={64}
+              height={64}
+              className="mx-auto mb-4 h-16 w-16 rounded-2xl shadow-lg shadow-emerald-500/30 ring-1 ring-emerald-900/10 dark:ring-white/10"
+            />
 
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
               {t('ui.getTheApp')}

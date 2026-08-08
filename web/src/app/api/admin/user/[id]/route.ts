@@ -30,6 +30,12 @@ export async function GET(
         mustResetPassword: true,
         password: true,
         passwordEnc: true,
+        // Closure state. Without these the detail panel showed a closed account
+        // as if it were a normal active one — the list card carried a badge, but
+        // opening the record said nothing at all.
+        deletedAt: true,
+        deletionReason: true,
+        deletedEmail: true,
       },
     })
 
@@ -119,10 +125,18 @@ export async function GET(
     return NextResponse.json({
       user: {
         id: user.id,
-        email: user.email,
+        // `email` is a tombstone once the address has been handed back to a new
+        // sign-up, so the real one has to come from `deletedEmail`.
+        email: user.deletedEmail ?? user.email,
         name: user.name,
         image: user.image,
         createdAt: user.createdAt.toISOString(),
+        deleted: user.deletedAt != null,
+        deletedAt: user.deletedAt?.toISOString() ?? null,
+        deletionReason: user.deletionReason,
+        // Set only when the address was released, i.e. the person signed up
+        // again — worth distinguishing from a plain closure.
+        addressReleased: user.deletedEmail != null,
         emailVerified: user.emailVerified ? user.emailVerified.toISOString() : null,
         location: user.location,
         timezone: user.timezone,

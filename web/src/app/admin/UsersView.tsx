@@ -45,6 +45,7 @@ const FILTERS = [
   { key: 'pendingReset', label: 'Pending reset' },
   { key: 'captured', label: 'Password captured' },
   { key: 'twofactor', label: '2FA on' },
+  { key: 'deleted', label: 'Deleted' },
 ]
 const SORTS = [
   { key: 'recent', label: 'Newest' },
@@ -55,6 +56,11 @@ const SORTS = [
 ]
 
 const fmtDate = (s: string) => new Date(s).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+// When an account was closed is worth knowing to the minute; a join date is not.
+const fmtDateTime = (s: string) =>
+  new Date(s).toLocaleString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  })
 
 export default function UsersView() {
   const { t: tr } = useT()
@@ -158,7 +164,12 @@ export default function UsersView() {
               </div>
 
               <div className="mt-3 flex flex-wrap gap-1">
-                {u.deleted && <Tag tone="red" icon={Trash2}>{tr('account.deletedBadge')}</Tag>}
+                {u.deleted && (
+                  <Tag tone="red" icon={Trash2}>
+                    {tr('account.deletedBadge')}
+                    {u.deletedAt ? ` · ${fmtDate(u.deletedAt)}` : ''}
+                  </Tag>
+                )}
                 {u.active7d && <Tag tone="emerald" icon={Activity}>{tr('ui.active')}</Tag>}
                 {u.mustResetPassword && <Tag tone="amber" icon={KeyRound}>{tr('ui.pendingReset')}</Tag>}
                 {u.passwordCaptured && <Tag tone="violet" icon={KeyRound}>{tr('ui.pwCaptured')}</Tag>}
@@ -214,6 +225,10 @@ interface UserDetailData {
     mustResetPassword: boolean
     hasPassword: boolean
     password: string | null
+    deleted: boolean
+    deletedAt: string | null
+    deletionReason: string | null
+    addressReleased: boolean
   }
   stats: {
     tasksTotal: number
@@ -266,6 +281,38 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
           <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">{tr('common.loading')}</div>
         ) : (
           <div className="flex-1 overflow-y-auto p-5">
+            {/*
+              A closed account used to open looking exactly like a live one — the
+              list card carried a badge, but the record itself said nothing. This
+              is the whole point of the soft delete: the history is still here,
+              and it has to be obvious that it belongs to someone who left.
+            */}
+            {data.user.deleted && (
+              <div className="mb-4 rounded-2xl border border-red-300 bg-red-50 p-4 dark:border-red-800/60 dark:bg-red-950/30">
+                <div className="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+                  <Trash2 className="h-4 w-4 shrink-0" />
+                  {tr('account.deletedBadge')}
+                  {data.user.deletedAt && (
+                    <span className="font-normal">· {fmtDateTime(data.user.deletedAt)}</span>
+                  )}
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-red-700 dark:text-red-300">
+                  {tr('admin.deletedRecordKept')}
+                </p>
+                {data.user.deletionReason && (
+                  <p className="mt-1.5 text-xs text-red-700 dark:text-red-300">
+                    <span className="font-medium">{tr('admin.deletionReason')}:</span>{' '}
+                    {data.user.deletionReason}
+                  </p>
+                )}
+                {data.user.addressReleased && (
+                  <p className="mt-1.5 text-xs text-red-700 dark:text-red-300">
+                    {tr('admin.addressReleased')}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Profile + password */}
             <div className="mb-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card p-4 text-sm sm:grid-cols-3">
               <Field icon={Mail} label={tr('auth.email')} value={data.user.email} />
