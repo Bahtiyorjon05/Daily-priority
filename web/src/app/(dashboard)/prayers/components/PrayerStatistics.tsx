@@ -75,14 +75,14 @@ export default function PrayerStatistics({
         icon={TrendingUp}
         title={t('ui.weeklyAverage')}
         value={`${weeklyCompletion.toFixed(0)}%`}
-        subtitle="Last 7 days"
+        subtitle={t('ui.last7Days2')}
         color="from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30"
       />
       <StatCard
         icon={CheckCircle2}
         title={t('ui.monthlyAverage')}
         value={`${monthlyCompletion.toFixed(0)}%`}
-        subtitle="Last 30 days"
+        subtitle={t('ui.last30Days3')}
         color="from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30"
       />
       <StatCard

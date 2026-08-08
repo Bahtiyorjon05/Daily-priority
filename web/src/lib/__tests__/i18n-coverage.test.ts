@@ -182,4 +182,43 @@ describe('translation key coverage', () => {
       'derive the label from a message key, not from the identifier:\n' + offenders.join('\n')
     ).toEqual([])
   })
+  /**
+   * Third variant of the same blind spot.
+   *
+   * The other checks read JSX *text*; copy sitting in an attribute was never a
+   * candidate. That left `<LoadingState message="Loading your dashboard..." />`
+   * on the dashboard and in the shell, and `subtitle="Last 7 days"` in the
+   * prayer stats — all three with keys that already existed and were already
+   * translated. They simply were not wired up.
+   */
+  it('never passes user-facing copy as a bare string prop', () => {
+    // Props whose value a user reads. `title` is included because it also
+    // surfaces as a tooltip.
+    const COPY_PROPS = ['message', 'subtitle', 'placeholder', 'label', 'heading']
+    // The privacy policy is deliberately English-only for now — it is a legal
+    // document, and a machine-assisted translation of one is worse than none.
+    const EXEMPT = ['app/privacy/page.tsx']
+    const offenders: string[] = []
+
+    for (const file of FILES) {
+      if (!file.endsWith('.tsx')) continue
+      const rel = file.slice(SRC.length + 1).split('\\').join('/')
+      if (EXEMPT.includes(rel)) continue
+      const src = readFileSync(file, 'utf8')
+
+      for (const prop of COPY_PROPS) {
+        // Two or more words starting with a capital: a sentence, not a token
+        // like "lg" or an aria role. Single words are too often enum-ish.
+        const re = new RegExp(`\\b${prop}="([A-Z][^"]*\\s[^"]*)"`, 'g')
+        for (const m of src.matchAll(re)) {
+          offenders.push(`${rel}: ${prop}="${m[1]}"`)
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      'wrap these in t(...) — an attribute is still copy:\n' + offenders.join('\n')
+    ).toEqual([])
+  })
 })

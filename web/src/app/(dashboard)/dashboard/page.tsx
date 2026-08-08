@@ -734,7 +734,7 @@ export default function DashboardPageRedesigned() {
 
         {/* Loading State */}
         {loading && (
-          <LoadingState message="Loading your dashboard..." size="lg" />
+          <LoadingState message={tI18n('ui.loadingYourDashboard')} size="lg" />
         )}
 
         {/* Error State */}

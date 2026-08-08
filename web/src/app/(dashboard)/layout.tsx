@@ -346,7 +346,7 @@ function DashboardLayoutContent({
   if (status === 'loading' || needsPasswordSetup || needsOnboarding || (status === 'authenticated' && !checkedPassword)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-950 dark:via-emerald-950/20 dark:to-teal-950/20">
-        <LoadingSpinner size="xl" message="Loading your dashboard..." />
+        <LoadingSpinner size="xl" message={t('ui.loadingYourDashboard')} />
       </div>
     )
   }
