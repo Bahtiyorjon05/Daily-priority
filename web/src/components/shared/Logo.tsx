@@ -1,7 +1,14 @@
 'use client'
 
 import { useT } from '@/lib/i18n/client'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
+
+/**
+ * Single source for the in-app mark. `scripts/generate-icons.mjs` writes this
+ * file along with every PWA and store size, so there is one artwork to change.
+ */
+const BRAND_MARK = '/icon-512.png'
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl'
@@ -48,18 +55,27 @@ export default function Logo({
   const { t } = useT()
   const sizes = sizeClasses[size]
 
+  /**
+   * The brand mark, from the same file the PWA and Play Store icons come from.
+   *
+   * Was an inline SVG tick — a second, divergent logo that had to be edited
+   * separately from the icon set, so the app and its home-screen icon could
+   * disagree. Pointing at the file means replacing one image updates every
+   * surface that renders this component.
+   *
+   * No gradient tile behind it: the artwork carries its own background, and
+   * wrapping it in another rounded square produced a border inside a border.
+   */
   const LogoIcon = () => (
-    <div className={`${sizes.container} rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-xl shadow-emerald-500/30 dark:shadow-emerald-500/20 ring-2 ring-emerald-400/20 dark:ring-emerald-600/20`}>
-      <svg width="24" height="24" viewBox="0 0 100 100" fill="none" className="drop-shadow-md">
-        <circle cx="50" cy="50" r="42" fill="white" opacity="0.95"/>
-        <path 
-          d="M32 50 L42 60 L68 34" 
-          stroke="#10b981" 
-          strokeWidth="7" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        />
-      </svg>
+    <div className={`${sizes.container} relative shrink-0 overflow-hidden rounded-2xl shadow-lg shadow-emerald-900/20 ring-1 ring-black/5 dark:ring-white/10`}>
+      <Image
+        src={BRAND_MARK}
+        alt=""
+        fill
+        sizes="64px"
+        priority
+        className="object-cover"
+      />
     </div>
   )
 
