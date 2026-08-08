@@ -143,4 +143,43 @@ describe('translation key coverage', () => {
 
     expect(offenders).toEqual([])
   })
+  /**
+   * The blind spot this closes.
+   *
+   * The dashboard's status chips rendered
+   *   `filterOption.charAt(0).toUpperCase() + filterOption.slice(1)`
+   * over `['all', 'pending', 'completed']` — producing "All", "Pending" and
+   * "Completed" with no message key anywhere. Every other check in this file
+   * looks for English text in the source, and here the English text does not
+   * exist: it is manufactured at runtime from a state key. So the chips stayed
+   * English in Uzbek and nothing could detect it.
+   *
+   * Capitalising an identifier for display is always this bug. A person's
+   * initial or a chart axis is fine; a word a user reads is not.
+   */
+  it('never manufactures a user-facing label by capitalising an identifier', () => {
+    const offenders: string[] = []
+
+    // Keyboard shortcuts are the one legitimate case: `Ctrl`, `Shift`, `Enter`
+    // and the letter keys are what is printed on the physical keyboard, so
+    // localising them would stop them matching the hardware.
+    const EXEMPT = ['hooks/useKeyboardShortcuts.ts']
+
+    for (const file of FILES) {
+      const rel = file.slice(SRC.length + 1).split('\\').join('/')
+      if (EXEMPT.includes(rel)) continue
+      const src = readFileSync(file, 'utf8')
+      for (const m of src.matchAll(/(\w[\w.]*)\.charAt\(0\)\.toUpperCase\(\)\s*\+\s*\1\.slice\(1\)/g)) {
+        // An avatar initial is a single character, not a word — those use
+        // `charAt(0).toUpperCase()` with no `.slice(1)` concatenation and so
+        // never match here.
+        offenders.push(`${rel}: ${m[0]}`)
+      }
+    }
+
+    expect(
+      offenders,
+      'derive the label from a message key, not from the identifier:\n' + offenders.join('\n')
+    ).toEqual([])
+  })
 })

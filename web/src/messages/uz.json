@@ -1739,5 +1739,6 @@
   "admin.deletionReason": "Ko‘rsatilgan sabab",
   "admin.addressReleased": "Ular keyinchalik shu manzil bilan qaytadan ro‘yxatdan o‘tgan, shuning uchun u endi alohida, yangi hisobga tegishli.",
   "ui.editThisEntry": "Bu yozuvni tahrirlash",
-  "ui.deleteThisEntry": "Bu yozuvni o‘chirish"
+  "ui.deleteThisEntry": "Bu yozuvni o‘chirish",
+  "ui.cannotCompletePrayerYet": "{prayer} ni hozir bajarilgan deb belgilay olmaysiz — uning vaqti {time}."
 }

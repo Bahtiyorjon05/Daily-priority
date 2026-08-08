@@ -54,6 +54,7 @@ import LoadingState from './components/LoadingState'
 import ConfirmModal from '@/components/modals/ConfirmModal'
 import { optimizedFetch, PerformanceMonitor, clientCache } from '@/lib/performance'
 import { useUserProfile } from '@/hooks/useUserProfile'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface Task {
   id: string
@@ -107,6 +108,14 @@ function isTimeoutError(error: Error): boolean {
   const message = (error.message || '').toLowerCase()
   return error.name === 'AbortError' || message.includes('timeout')
 }
+
+// Status chips. Key drives the filter, labelKey drives the copy — deriving the
+// label from the key is what left these three words untranslated.
+const TASK_FILTERS = [
+  { key: 'all', labelKey: 'ui.allTasks' },
+  { key: 'pending', labelKey: 'ui.pending' },
+  { key: 'completed', labelKey: 'ui.completed' },
+] as const
 
 export default function DashboardPageRedesigned() {
   const { t: tI18n, locale } = useT()
@@ -1018,7 +1027,16 @@ export default function DashboardPageRedesigned() {
                       <Filter className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{tI18n('ui.filter')}</span>
                     </div>
-                    {['all', 'pending', 'completed'].map((filterOption) => (
+                    {/*
+                      The label used to be derived from the state key:
+                      `filterOption.charAt(0).toUpperCase() + slice(1)`. That
+                      produced "All" / "Pending" / "Completed" with no message
+                      key anywhere — and because the English text never appeared
+                      as a literal, neither the translation codemod nor the
+                      hard-coded-copy test could ever see it. Hence chips that
+                      stayed English while the rest of the page switched.
+                    */}
+                    {TASK_FILTERS.map(({ key: filterOption, labelKey }) => (
                       <Button
                         key={filterOption}
                         variant={filter === filterOption ? 'default' : 'ghost'}
@@ -1030,7 +1048,7 @@ export default function DashboardPageRedesigned() {
                         }
                         aria-pressed={filter === filterOption}
                       >
-                        {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+                        {tI18n(labelKey)}
                         {filter === filterOption && (
                           <span className="ml-2 bg-white/30 dark:bg-white/20 px-2 py-0.5 rounded-full text-xs font-semibold shadow-inner">
                             {filteredTasks.length}
@@ -1079,7 +1097,7 @@ export default function DashboardPageRedesigned() {
                                 size="icon"
                                 onClick={() => toggleTask(task.id)}
                                 disabled={task.status.toUpperCase() === 'COMPLETED'}
-                                className={'h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full flex-shrink-0 transition-all ring-2 shadow-md ' +
+                                className={'h-11 w-11 md:h-12 md:w-12 rounded-full flex-shrink-0 transition-all ring-2 shadow-md ' +
                                   (task.status.toUpperCase() === 'COMPLETED'
                                     ? 'text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-800/60 ring-emerald-400 dark:ring-emerald-500/50 shadow-emerald-300/60 dark:shadow-emerald-500/40 cursor-not-allowed opacity-70'
                                     : 'text-slate-400 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ring-slate-300 dark:ring-slate-600 hover:ring-emerald-400 dark:hover:ring-emerald-500/50 shadow-slate-300/40 cursor-pointer'
@@ -1142,24 +1160,24 @@ export default function DashboardPageRedesigned() {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1 sm:gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all self-start sm:self-center mt-1 sm:mt-0">
+                              <div className={`flex items-center gap-1 sm:gap-2 self-start sm:self-center mt-1 sm:mt-0 ${ROW_ACTIONS}`}>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setEditingTask(task)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0"
+                                  className="h-11 w-11 sm:h-10 sm:w-10 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-all flex-shrink-0"
                                   aria-label={tI18n('ui.editTask2')}
                                 >
-                                  <Edit2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  <Edit2 className="h-5 w-5" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => deleteTask(task.id)}
-                                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg sm:rounded-xl text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0"
+                                  className="h-11 w-11 sm:h-10 sm:w-10 rounded-xl text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-all flex-shrink-0"
                                   aria-label={tI18n('ui.deleteTask')}
                                 >
-                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  <Trash2 className="h-5 w-5" />
                                 </Button>
                               </div>
                             </div>

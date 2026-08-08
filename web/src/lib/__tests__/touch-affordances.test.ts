@@ -29,6 +29,13 @@ const CARD_PAGES = [
   'src/app/(dashboard)/journal/page.tsx',
   'src/app/(dashboard)/goals/page.tsx',
   'src/app/(dashboard)/habits/page.tsx',
+  // The dashboard gated its reveal on `sm:` instead, which loses the buttons on
+  // a wide touchscreen. TaskItem and OptimizedTaskCard still had the plain
+  // hover-only form — the latter is currently unused, but a broken pattern left
+  // in place is a trap for whoever revives it.
+  'src/app/(dashboard)/dashboard/page.tsx',
+  'src/app/(dashboard)/dashboard/components/TaskItem.tsx',
+  'src/app/(dashboard)/dashboard/components/OptimizedTaskCard.tsx',
 ]
 
 describe('row actions are reachable without a hover', () => {
@@ -36,8 +43,10 @@ describe('row actions are reachable without a hover', () => {
     // The exact broken shape: a bare `opacity-0` paired with a hover reveal.
     for (const page of CARD_PAGES) {
       const src = read(page)
+      // Also catches the `sm:opacity-0 sm:group-hover:` variant, which merely
+      // moves the problem to touch laptops.
       expect(
-        /opacity-0[^"'`]*group-hover:opacity-100/.test(src),
+        /(^|[\s"'`])(sm:|md:|lg:)?opacity-0[^"'`]*group-hover:opacity-100/.test(src),
         `${page}: opacity-0 + group-hover is invisible on touch`
       ).toBe(false)
     }

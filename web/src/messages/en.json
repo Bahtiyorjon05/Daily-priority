@@ -1739,5 +1739,6 @@
   "admin.deletionReason": "Reason given",
   "admin.addressReleased": "They have since signed up again with this address, so it now belongs to a separate, new account.",
   "ui.editThisEntry": "Edit this entry",
-  "ui.deleteThisEntry": "Delete this entry"
+  "ui.deleteThisEntry": "Delete this entry",
+  "ui.cannotCompletePrayerYet": "You can’t mark {prayer} complete yet — its time is {time}."
 }

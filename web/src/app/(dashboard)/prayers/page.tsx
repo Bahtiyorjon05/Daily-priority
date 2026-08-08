@@ -399,7 +399,12 @@ export default function PrayersPage() {
 
         if (currentTimeInMinutes < prayerTimeInMinutes) {
 
-          toast.error(`Cannot complete ${prayerName.charAt(0).toUpperCase() + prayerName.slice(1)} prayer yet. Prayer time is at ${prayerTime}`)
+          toast.error(
+            t('ui.cannotCompletePrayerYet', {
+              prayer: t(`prayer.${prayerName.toLowerCase()}`),
+              time: prayerTime,
+            })
+          )
 
           return
 

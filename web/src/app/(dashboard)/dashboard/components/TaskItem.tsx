@@ -6,6 +6,7 @@ import { CheckCircle2, Circle, Trash2, AlertCircle, Flag, Clock } from 'lucide-r
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { TaskStatus, Priority } from '@/types/models'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface Task {
   id: string
@@ -131,12 +132,9 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
               variant="ghost"
               size="icon"
               onClick={onDelete}
-              className="
-                h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 
-                opacity-0 group-hover:opacity-100 transition-all flex-shrink-0
-              "
+              className={`h-11 w-11 sm:h-10 sm:w-10 flex-shrink-0 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/20 ${ROW_ACTIONS}`}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-5 w-5" />
             </Button>
           </div>
         </CardContent>

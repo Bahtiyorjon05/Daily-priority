@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ROW_ACTIONS } from '@/components/shared/rowActions'
 
 interface Task {
   id: string
@@ -216,7 +217,7 @@ function TaskCard({
               variant="ghost"
               size="icon"
               onClick={handleDelete}
-              className="h-6 w-6 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className={`h-11 w-11 sm:h-10 sm:w-10 text-gray-500 hover:text-red-600 dark:text-gray-400 ${ROW_ACTIONS}`}
               aria-label={'Delete task: ' + (task.title)}
             >
               <Trash2 className="h-4 w-4" />
