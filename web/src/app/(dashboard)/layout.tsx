@@ -425,7 +425,7 @@ function DashboardLayoutContent({
   // the two lists cannot disagree — the earlier hardcoded pair drifted twice,
   // first losing Habits entirely and then showing Prayers/Focus/Goals in both.
   // Ordered by measured usage: prayers and habits are the most-used surfaces.
-  const BOTTOM_BAR_PATHS = ['/dashboard', '/prayers', '/habits', '/focus', '/goals']
+  const BOTTOM_BAR_PATHS = ['/dashboard', '/prayers', '/habits', '/goals']
 
   const userMenuItems = [
     { icon: User, label: t('nav.profileSettings'), action: () => router.push('/settings') },
