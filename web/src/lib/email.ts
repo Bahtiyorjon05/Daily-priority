@@ -3,8 +3,9 @@ import nodemailer from 'nodemailer'
 import { renderEmail, codeBlock, escapeHtml } from './email-template'
 import { getLocaleForEmail } from '@/lib/i18n/server'
 import { getTranslator } from '@/lib/i18n/translate'
+import { emailBaseUrl } from '@/lib/email-url'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://daily-priority.vercel.app'
+const APP_URL = emailBaseUrl()
 import crypto from 'crypto'
 import { prisma } from './prisma'
 

@@ -6,6 +6,7 @@
 import { prisma } from '@/lib/prisma'
 import { sendEmail, forRecipient } from '@/lib/email'
 import { renderEmail, escapeHtml } from '@/lib/email-template'
+import { emailBaseUrl } from '@/lib/email-url'
 import crypto from 'crypto'
 
 const SUPPORT_EMAIL =
@@ -63,7 +64,9 @@ export async function sendVerificationEmail(
   name: string
 ): Promise<void> {
   const token = await createVerificationToken(email)
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${token}`
+  // Was NEXTAUTH_URL with no fallback, so a stale localhost value made the
+  // confirmation link unusable for every new account.
+  const verificationUrl = `${emailBaseUrl()}/verify-email?token=${token}`
 
   const { locale, t } = await forRecipient(email)
 

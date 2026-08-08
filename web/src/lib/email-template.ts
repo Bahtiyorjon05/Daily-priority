@@ -16,6 +16,7 @@
  * translate an Uzbek email it believes is English.
  */
 import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/locales'
+import { emailBaseUrl } from '@/lib/email-url'
 
 const BRAND = {
   name: 'Daily Priority',
@@ -114,7 +115,7 @@ export function meter(percent: number, label: string): string {
 }
 
 export function renderEmail(options: EmailOptions): string {
-  const appUrl = options.appUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://daily-priority.vercel.app'
+  const appUrl = options.appUrl || emailBaseUrl()
   const year = new Date().getFullYear()
   const preheader = options.preheader || options.title
   const locale = options.locale || DEFAULT_LOCALE

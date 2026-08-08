@@ -6,6 +6,7 @@ import uz from '@/messages/uz.json'
 import { renderEmail, codeBlock, escapeHtml } from '@/lib/email-template'
 import { getTranslator } from '@/lib/i18n/translate'
 import { LOCALES } from '@/lib/i18n/locales'
+import { emailBaseUrl } from '@/lib/email-url'
 
 /**
  * Emails have to follow the recipient's language, and this is the easiest place
@@ -131,5 +132,75 @@ describe('email localisation', () => {
         /forRecipient|getLocaleForEmail/
       )
     }
+  })
+})
+
+describe('email URLs', () => {
+  const KEYS = [
+    'NODE_ENV',
+    'EMAIL_BASE_URL',
+    'NEXT_PUBLIC_BASE_URL',
+    'NEXT_PUBLIC_APP_URL',
+    'NEXTAUTH_URL',
+    'VERCEL_PROJECT_PRODUCTION_URL',
+  ] as const
+
+  /** Run with only the given vars set, then restore the environment. */
+  function withEnv(env: Record<string, string>, fn: () => void) {
+    const saved: Record<string, string | undefined> = {}
+    for (const k of KEYS) {
+      saved[k] = process.env[k]
+      delete process.env[k]
+    }
+    Object.assign(process.env, env)
+    try {
+      fn()
+    } finally {
+      for (const k of KEYS) {
+        if (saved[k] === undefined) delete process.env[k]
+        else process.env[k] = saved[k]
+      }
+    }
+  }
+
+  it('never puts a loopback origin in a production email', () => {
+    // The reported bug: NEXT_PUBLIC_APP_URL and NEXTAUTH_URL were both left at
+    // http://localhost:3000, so the footer link read "localhost:3000" and the
+    // header icon never loaded. An email is read on another device, so a
+    // loopback origin is unreachable by definition.
+    withEnv(
+      {
+        NODE_ENV: 'production',
+        NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+        NEXTAUTH_URL: 'http://127.0.0.1:3000',
+      },
+      () => {
+        const url = emailBaseUrl()
+        expect(url).not.toMatch(/localhost|127\.0\.0\.1/)
+        expect(url).toMatch(/^https:\/\//)
+      }
+    )
+  })
+
+  it('prefers an explicitly configured origin', () => {
+    withEnv({ NODE_ENV: 'production', NEXT_PUBLIC_BASE_URL: 'https://dailypriority.uz/' }, () => {
+      // Trailing slash trimmed, or every URL built from it doubles the slash.
+      expect(emailBaseUrl()).toBe('https://dailypriority.uz')
+    })
+  })
+
+  it('still allows localhost while developing', () => {
+    // In development you are the recipient, so a local origin is the useful one.
+    withEnv({ NODE_ENV: 'development', NEXT_PUBLIC_APP_URL: 'http://localhost:3000' }, () => {
+      expect(emailBaseUrl()).toBe('http://localhost:3000')
+    })
+  })
+
+  it('renders the header icon and footer link from that origin', () => {
+    withEnv({ NODE_ENV: 'production', NEXT_PUBLIC_BASE_URL: 'https://example.test' }, () => {
+      const html = renderEmail({ title: 'x', body: '<p>y</p>' })
+      expect(html).toContain('https://example.test/icon-192.png')
+      expect(html).not.toMatch(/localhost/)
+    })
   })
 })
