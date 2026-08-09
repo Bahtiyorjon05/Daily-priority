@@ -2224,6 +2224,64 @@ a:focus-visible,
    ------------------------------------------------------------------------ */
 
 /* Fajr → sunrise: the blue hour. Cool and still, with the first blush of warmth. */
+/* ============================================================
+   PER-PAGE ACCENTS
+
+   Prayers and the dashboard belong to the prayer day: they take their colour
+   from `data-phase` and shift from dawn to night. That is the point of them.
+
+   Journal, goals, habits and focus are not about the time of day. Tying them to
+   the phase meant four different jobs wearing one costume, and it made the whole
+   app read as a single undifferentiated surface — you could not tell at a glance
+   which page you were on. Each now has a fixed identity of its own, set by
+   `data-accent` on the page root:
+
+     journal  violet -> fuchsia -> rose    reflection, memory, the day written down
+     goals    amber  -> orange  -> rose    ambition, harvest, effort paying off
+     habits   teal   -> emerald -> lime    growth and repetition
+     focus    blue   -> blue    -> cyan    depth, quiet, concentration
+
+   Same three-stop structure as `.sky` so headers are interchangeable, but no
+   `--phase-transition`: these do not change, and animating them would imply they
+   might. Ink values are the readable-on-surface colour, contrast-checked in
+   accent-contrast.test.ts against both schemes.
+   ============================================================ */
+
+[data-accent='journal'] {
+  --acc-1: 124 58 237; --acc-2: 192 38 211; --acc-3: 225 29 72;
+  --acc-glow: 216 180 254;
+  --acc-ink: 109 40 217;      /* violet-700 on white */
+  --acc-soft: 245 240 255;
+}
+[data-accent='goals'] {
+  --acc-1: 217 119 6; --acc-2: 234 88 12; --acc-3: 219 39 119;
+  --acc-glow: 253 224 71;
+  --acc-ink: 180 83 9;        /* amber-700 */
+  --acc-soft: 255 247 237;
+}
+[data-accent='habits'] {
+  --acc-1: 13 148 136; --acc-2: 16 185 129; --acc-3: 132 204 22;
+  --acc-glow: 167 243 208;
+  --acc-ink: 15 118 110;      /* teal-700 */
+  --acc-soft: 236 253 245;
+}
+[data-accent='focus'] {
+  /* Blue rather than indigo: indigo-600 sat 47 units from the journal violet,
+     which the contrast test flagged — two pages reading as the same colour is
+     the exact problem this system exists to solve. Blue-700 is 99 away. */
+  --acc-1: 29 78 216; --acc-2: 59 130 246; --acc-3: 6 182 212;
+  --acc-glow: 147 197 253;
+  --acc-ink: 29 78 216;       /* blue-700 */
+  --acc-soft: 239 246 255;
+}
+
+/* Dark scheme: the field keeps its hue but drops to a depth that white text
+   sits on comfortably, and the ink lifts to a tint that reads on near-black. */
+.dark[data-accent='journal'] { --acc-ink: 216 180 254; --acc-soft: 46 16 101; }
+.dark[data-accent='goals']   { --acc-ink: 253 186 116; --acc-soft: 69 26 3; }
+.dark[data-accent='habits']  { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
+.dark[data-accent='focus']   { --acc-ink: 147 197 253; --acc-soft: 23 37 84; }
+
 [data-phase='dawn'] {
   --phase-accent: 99 102 241;       /* indigo-500 */
   --phase-accent-soft: 224 226 254;
@@ -2613,6 +2671,49 @@ a:focus-visible,
   /* Three-stop sky with the light source placed per phase.
      Doubled class for the same reason as .phase-hero: it has to win against
      `bg-card`, whose shorthand would otherwise wipe background-image. */
+  /*
+    Accent field — the header surface for a page with its own identity.
+    Same three-stop structure as `.sky`, and doubled selector for the same
+    reason: it must outrank `bg-card` and friends without !important.
+  */
+  .accent-field.accent-field {
+    background-color: rgb(var(--acc-1));
+    background-image:
+      radial-gradient(75% 60% at 15% 0%, rgb(var(--acc-glow) / 0.42), transparent 68%),
+      linear-gradient(150deg, rgb(var(--acc-1)) 0%, rgb(var(--acc-2)) 55%, rgb(var(--acc-3)) 100%);
+  }
+
+  /*
+    The page canvas. Deliberately near-neutral with only a wash of the accent:
+    the header carries the identity, and a fully tinted page would fight every
+    card on it. Painted with background-color first so a conflicting rule can
+    never leave it blank — the failure that blanked the dashboard hero.
+  */
+  .accent-canvas.accent-canvas {
+    background-color: rgb(var(--color-background));
+    background-image:
+      radial-gradient(60% 45% at 100% 0%, rgb(var(--acc-1) / 0.07), transparent 60%),
+      radial-gradient(50% 40% at 0% 8%, rgb(var(--acc-3) / 0.05), transparent 55%);
+  }
+
+  /* Readable accent ink for headings, icons and links on the page surface. */
+  .accent-ink { color: rgb(var(--acc-ink)); }
+
+  /* A soft accent plate: category pills, selected states, empty-state tiles. */
+  .accent-soft {
+    background-color: rgb(var(--acc-soft));
+    color: rgb(var(--acc-ink));
+  }
+
+  /* Solid accent action. White ink is safe: --acc-1/-2 are 600-weight or darker. */
+  .accent-solid {
+    background-image: linear-gradient(135deg, rgb(var(--acc-1)), rgb(var(--acc-2)));
+    color: #fff;
+  }
+
+  .accent-ring { --tw-ring-color: rgb(var(--acc-2) / 0.45); }
+  .accent-border { border-color: rgb(var(--acc-2) / 0.35); }
+
   .sky.sky {
     background-color: rgb(var(--sky-1));
     background-image:

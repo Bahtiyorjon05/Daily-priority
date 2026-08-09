@@ -339,11 +339,11 @@ export default function HabitsPage() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20 p-6">
+      <div data-accent="habits" className="accent-canvas min-h-screen p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 accent-border border-4 border-t-transparent rounded-full animate-spin mx-auto"></div>
               <p className="text-gray-600 dark:text-gray-400 font-medium">{t('ui.loadingYourHabits')}</p>
             </div>
           </div>
@@ -353,10 +353,11 @@ export default function HabitsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20 p-6">
+    <div data-accent="habits" className="accent-canvas min-h-screen p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
         <PhaseHeader
+          accent="habits"
           icon={Target}
           title={t('nav.habits')}
           subtitle={t('ui.buildLastingHabitsOneDayAtATime')}
@@ -644,7 +645,7 @@ export default function HabitsPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg modal-panel overflow-y-auto shadow-2xl border-4 border-emerald-400 dark:border-emerald-600"
+                className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg modal-panel overflow-y-auto accent-border border-4 shadow-2xl"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -672,7 +673,7 @@ export default function HabitsPage() {
                       value={newHabit.title}
                       onChange={(e) => setNewHabit(prev => ({ ...prev, title: e.target.value }))}
                       placeholder={t('ui.eGMorningExerciseReadQuran')}
-                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                       required
                     />
                   </div>
@@ -685,7 +686,7 @@ export default function HabitsPage() {
                       value={newHabit.description}
                       onChange={(e) => setNewHabit(prev => ({ ...prev, description: e.target.value }))}
                       placeholder={t('ui.whyIsThisHabitImportantToYou')}
-                      className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                     />
                   </div>
 
@@ -696,7 +697,7 @@ export default function HabitsPage() {
                     <select
                       value={newHabit.frequency}
                       onChange={(e) => setNewHabit(prev => ({ ...prev, frequency: e.target.value as 'DAILY' | 'WEEKLY' | 'CUSTOM' }))}
-                      className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:accent-ring focus:ring-2 focus:accent-border"
                     >
                       <option value="DAILY">{t('ui.daily2')}</option>
                       <option value="WEEKLY">{t('ui.weekly2')}</option>
@@ -715,7 +716,7 @@ export default function HabitsPage() {
                         max="7"
                         value={newHabit.targetDays}
                         onChange={(e) => setNewHabit(prev => ({ ...prev, targetDays: parseInt(e.target.value) || 1 }))}
-                        className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                        className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                       />
                     </div>
                   )}

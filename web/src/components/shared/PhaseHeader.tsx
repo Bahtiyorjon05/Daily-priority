@@ -28,16 +28,26 @@ import type { LucideIcon } from 'lucide-react'
  * same everywhere and measures better.
  */
 
+/**
+ * Pages that belong to the prayer day leave this unset and take the sky.
+ * Everything else names its own identity — see the accent tokens in globals.css
+ * for why journal, goals, habits and focus do not follow the phase.
+ */
+export type HeaderAccent = 'journal' | 'goals' | 'habits' | 'focus'
+
 export function PhaseHeader({
   icon: Icon,
   title,
   subtitle,
   meta,
   actions,
+  accent,
   children,
 }: {
   icon: LucideIcon
   title: string
+  /** Fixed palette for this page. Omit to follow the prayer phase. */
+  accent?: HeaderAccent
   /** One line under the title. Keep it to what the page is for. */
   subtitle?: string
   /** Small print beside the subtitle — a location, a date, a count. */
@@ -54,7 +64,10 @@ export function PhaseHeader({
       initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
-      className="sky relative overflow-hidden rounded-[28px] shadow-[0_18px_50px_-22px_rgb(0_0_0/0.5)] ring-1 ring-white/10"
+      data-accent={accent}
+      className={`${
+        accent ? 'accent-field' : 'sky'
+      } relative overflow-hidden rounded-[28px] shadow-[0_18px_50px_-22px_rgb(0_0_0/0.5)] ring-1 ring-white/10`}
     >
       {/* Islamic geometry as structure rather than decoration, per DESIGN.md. */}
       <div
@@ -71,7 +84,9 @@ export function PhaseHeader({
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 h-20"
         style={{
-          backgroundImage: 'linear-gradient(to top, rgb(var(--sky-glow) / 0.20), transparent)',
+          backgroundImage: `linear-gradient(to top, rgb(var(${
+            accent ? '--acc-glow' : '--sky-glow'
+          }) / 0.20), transparent)`,
         }}
       />
 

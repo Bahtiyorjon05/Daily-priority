@@ -626,7 +626,7 @@ export default function GoalsPage() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 p-6">
+      <div data-accent="goals" className="accent-canvas min-h-screen p-4 sm:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
@@ -640,10 +640,11 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-amber-50/20 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 p-6">
+    <div data-accent="goals" className="accent-canvas min-h-screen p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         {/* Header */}
         <PhaseHeader
+          accent="goals"
           icon={Target}
           title={t('nav.goals')}
           subtitle={t('ui.balanceYourWorldlyAndSpiritualAspirations')}
@@ -974,7 +975,7 @@ export default function GoalsPage() {
                       value={newGoal.title}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, title: e.target.value }))}
                       placeholder={t('ui.eGCompleteQuranMemorization')}
-                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                       required
                     />
                   </div>
@@ -987,7 +988,7 @@ export default function GoalsPage() {
                       value={newGoal.description}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, description: e.target.value }))}
                       placeholder={t('ui.describeYourGoalInDetail')}
-                      className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="min-h-[100px] bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                     />
                   </div>
 
@@ -998,7 +999,7 @@ export default function GoalsPage() {
                     <select
                       value={newGoal.category}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="w-full h-12 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:accent-ring focus:ring-2 focus:accent-border"
                       required
                     >
                       <option value="IBADAH">{t('ui.ibadahWorship')}</option>
@@ -1020,7 +1021,7 @@ export default function GoalsPage() {
                       value={newGoal.deadline}
                       onChange={(e) => setNewGoal(prev => ({ ...prev, deadline: e.target.value }))}
                       min={new Date().toISOString().split('T')[0]}
-                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-emerald-500 dark:focus:border-emerald-500"
+                      className="h-12 bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:accent-border"
                       required
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">

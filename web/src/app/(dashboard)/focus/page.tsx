@@ -14,6 +14,7 @@ import { clientCache } from '@/lib/performance'
 import { FocusTimer } from '@/components/focus/FocusTimer'
 import { FocusStatistics } from '@/components/focus/FocusStatistics'
 import { FocusSettingsPanel } from '@/components/focus/FocusSettingsPanel'
+import { PhaseHeader } from '@/components/shared/PhaseHeader'
 
 interface FocusStats {
   today: { focusTime: number; sessions: number }
@@ -376,41 +377,35 @@ export default function FocusPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/40 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 text-slate-900 dark:text-gray-100">
+    <div data-accent="focus" className="accent-canvas min-h-screen p-4 text-slate-900 dark:text-gray-100 md:p-8">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg">
-              <Brain className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-gray-100 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-white dark:to-gray-100 bg-clip-text [text-shadow:none] [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] supports-[background-clip:text]:text-transparent">{t('ui.focusSession')}</h1>
-              <p className="text-slate-600 dark:text-gray-400">{t('ui.deepWorkTimerWithStatistics')}</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setShowSettings(!showSettings)}
-            variant="outline"
-            size="lg"
-            className="bg-white dark:bg-gray-800 text-slate-700 dark:text-gray-300 border-2 border-slate-200 dark:border-gray-700 hover:border-purple-400 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors shadow-sm"
-          >
-            <Settings className="h-5 w-5 mr-2 text-slate-700 dark:text-gray-300" />
-            {t('nav.settings')}
-          </Button>
-        </div>
+        <PhaseHeader
+          accent="focus"
+          icon={Brain}
+          title={t('ui.focusSession')}
+          subtitle={t('ui.deepWorkTimerWithStatistics')}
+          actions={
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="inline-flex h-11 items-center gap-2 rounded-xl bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
+            >
+              <Settings className="h-4 w-4" />
+              {t('nav.settings')}
+            </button>
+          }
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
             <TabsTrigger 
               value="timer" 
-              className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
+              className="font-semibold text-slate-700 data-[state=active]:accent-soft data-[state=active]:shadow-md dark:text-gray-300"
             >
               {t('ui.timer')}
             </TabsTrigger>
             <TabsTrigger 
               value="statistics" 
-              className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-600 dark:data-[state=active]:to-indigo-600 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
+              className="font-semibold text-slate-700 data-[state=active]:accent-soft data-[state=active]:shadow-md dark:text-gray-300"
             >
               {t('ui.statistics')}
             </TabsTrigger>

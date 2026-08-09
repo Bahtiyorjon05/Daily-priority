@@ -385,7 +385,7 @@ export default function JournalPage() {
         exit={{ opacity: 0, scale: 0.9 }}
       >
         <Card
-          className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group border-2 hover:border-emerald-500 dark:hover:border-emerald-700"
+          className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer group border-2 hover:accent-border"
           onClick={() => setViewingEntry(entry)}
         >
           <CardHeader className={`pb-3 ${mood?.bg || 'bg-gray-100 dark:bg-gray-800'}`}>
@@ -485,7 +485,7 @@ export default function JournalPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <BookOpen className="h-12 w-12 text-emerald-600 dark:text-emerald-400 mx-auto mb-4 animate-pulse" />
+          <BookOpen className="h-12 w-12 accent-ink mx-auto mb-4 animate-pulse" />
           <p className="text-slate-600 dark:text-gray-400">{t('ui.loadingYourJournal')}</p>
         </div>
       </div>
@@ -493,8 +493,9 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div data-accent="journal" className="accent-canvas -m-4 space-y-4 p-4 sm:-m-6 sm:space-y-6 sm:p-6">
       <PhaseHeader
+        accent="journal"
         icon={BookOpen}
         title={t('ui.gratitudeJournal')}
         subtitle={t('ui.entriesRecorded', { count: entries.length })}
@@ -913,7 +914,7 @@ export default function JournalPage() {
                           onClick={() => setNewEntry({ ...newEntry, mood: mood.value })}
                           className={`p-2 sm:p-4 rounded-xl text-center transition-all transform hover:scale-105 ${
                             isSelected
-                              ? 'ring-4 ring-emerald-500 dark:ring-emerald-400 scale-105 shadow-lg'
+                              ? 'accent-ring scale-105 shadow-lg ring-4'
                               : 'hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm'
                           }`}
                           style={{
@@ -944,8 +945,8 @@ export default function JournalPage() {
 
                   {/* Selected mood preview */}
                   {newEntry.mood && (
-                    <div className="mt-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-700">
-                      <p className="text-sm text-center text-emerald-700 dark:text-emerald-300 font-medium flex items-center justify-center gap-2">
+                    <div className="mt-4 p-3 rounded-lg accent-soft accent-border border-2">
+                      <p className="text-sm text-center font-medium flex items-center justify-center gap-2">
                         <span className="text-2xl">{MOODS.find(m => m.value === newEntry.mood)?.emoji}</span>
                         <span>{t('ui.youFeel')} {MOODS.find(m => m.value === newEntry.mood)?.label?.toLowerCase()} {t('ui.today')}</span>
                       </p>
@@ -959,7 +960,7 @@ export default function JournalPage() {
                   onClick={createEntry}
                   disabled={saving}
                   style={{
-                    background: saving ? '#9ca3af' : 'linear-gradient(135deg, #059669 0%, #14b8a6 100%)',
+                    background: saving ? '#9ca3af' : 'linear-gradient(135deg, rgb(124 58 237) 0%, rgb(192 38 211) 100%)',
                     color: 'white',
                     border: 'none'
                   }}
@@ -1022,7 +1023,7 @@ export default function JournalPage() {
                       {viewingEntry.hijriDate && (
                         <p className="text-sm text-slate-600 dark:text-gray-400">{viewingEntry.hijriDate}</p>
                       )}
-                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">
+                      <p className="accent-ink mt-1 text-sm font-medium">
 {t('ui.feeling')} {MOODS.find(m => m.value === viewingEntry.mood)?.label || t('common.unknown')}
                       </p>
                     </div>
