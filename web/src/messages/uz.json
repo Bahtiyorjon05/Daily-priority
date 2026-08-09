@@ -1753,5 +1753,7 @@
   "ui.changesWillSync": "— o‘zgarishlar sinxronlanadi",
   "common.user": "Foydalanuvchi",
   "ui.quran": "Qur’on",
-  "ui.quranCitationFallback": "Qur’on 65:3"
+  "ui.quranCitationFallback": "Qur’on 65:3",
+  "ui.oneEvent": "1 ta tadbir",
+  "ui.eventCount": "{count} ta tadbir"
 }

@@ -1753,5 +1753,7 @@
   "ui.changesWillSync": "— changes will sync",
   "common.user": "User",
   "ui.quran": "Quran",
-  "ui.quranCitationFallback": "Quran 65:3"
+  "ui.quranCitationFallback": "Quran 65:3",
+  "ui.oneEvent": "1 event",
+  "ui.eventCount": "{count} events"
 }

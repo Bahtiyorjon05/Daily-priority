@@ -39,6 +39,7 @@ import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { optimizedFetch } from '@/lib/performance'
+import { PhaseHeader } from '@/components/shared/PhaseHeader'
 
 interface CalendarEvent {
   id: string
@@ -339,6 +340,27 @@ export default function CalendarPage() {
     })
   }
 
+  /*
+    Tapping a day used to open the "new event" form immediately. On a phone that
+    made the grid unusable for its main job — looking at what is already on a
+    day — because every touch became a form you had to dismiss. It now selects
+    the day, and the panel below lists what is on it with an explicit button to
+    add something.
+  */
+  const selectDay = (date: Date) => {
+    setSelectedDate((prev) =>
+      prev && prev.toDateString() === date.toDateString() ? null : date
+    )
+  }
+
+  const eventsOnSelectedDay = selectedDate
+    ? events.filter((event) => {
+        const d = selectedDate
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        return event.date.startsWith(key)
+      })
+    : []
+
   const openCreateModal = (date?: Date) => {
     setEditingEvent(null)
     resetForm()
@@ -479,45 +501,45 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
-      >
-        <div>
-          <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 dark:from-white dark:via-indigo-200 dark:to-purple-200 bg-clip-text text-transparent flex items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20">
-              <CalendarIcon className="h-7 w-7 text-white" strokeWidth={2.5} />
-            </div>
-            {tr('nav.calendar')}
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2 ml-1 font-medium">
-            {tr('ui.planYourDaysWithIslamicCalendarIntegration')}
-          </p>
-        </div>
-        <div className="text-right bg-gradient-to-br from-white to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 rounded-2xl px-3 sm:px-6 py-4 shadow-lg border border-indigo-100 dark:border-indigo-900/50">
-          {hijriDate && (
-            <>
-              <div className="flex items-center gap-2 justify-end text-sm text-slate-600 dark:text-slate-400 mb-1">
-                <Moon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" strokeWidth={2.5} />
-                <span className="font-semibold">{tr('ui.hijriDate')}</span>
-              </div>
-              <div className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-                {hijriDate.formatted}
-              </div>
-            </>
-          )}
-        </div>
-      </motion.div>
+    <div data-accent="calendar" className="accent-canvas min-h-screen space-y-4 p-4 sm:space-y-6 sm:p-6">
+      {/*
+        The header was a `flex items-center justify-between` with a 14×14 icon
+        tile and a Hijri card beside it — on a 360px screen the two collided and
+        the title wrapped under the icon. Same header as every other feature
+        page now, with the Hijri date as header meta so it has somewhere to go
+        at any width. The gradient-clipped heading is gone: DESIGN.md rules
+        those out because they vanish under Windows High Contrast.
+      */}
+      <PhaseHeader
+        accent="calendar"
+        icon={CalendarIcon}
+        title={tr('nav.calendar')}
+        subtitle={tr('ui.planYourDaysWithIslamicCalendarIntegration')}
+        meta={
+          hijriDate ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Moon className="h-3.5 w-3.5" strokeWidth={2.5} />
+              {hijriDate.formatted}
+            </span>
+          ) : undefined
+        }
+        actions={
+          <button
+            onClick={() => openCreateModal()}
+            className="inline-flex h-11 items-center gap-2 rounded-xl bg-white/15 px-4 text-sm font-semibold text-white ring-1 ring-white/25 backdrop-blur-md transition-colors hover:bg-white/25"
+          >
+            <Plus className="h-4 w-4" strokeWidth={3} />
+            {tr('ui.newEvent')}
+          </button>
+        }
+      />
 
       {/* Stats Dashboard */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
+        className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-5"
       >
         <Card className="border-2 border-indigo-200 dark:border-indigo-900 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/50 dark:to-indigo-900/30 shadow-lg hover:shadow-xl transition-all hover:scale-105">
           <CardContent className="p-4">
@@ -597,26 +619,28 @@ export default function CalendarPage() {
         transition={{ delay: 0.2 }}
       >
         <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-900 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-indigo-50/50 dark:from-slate-900/50 dark:to-indigo-950/30 border-b-2 border-slate-200 dark:border-slate-800">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
+          <CardHeader className="border-b border-slate-200 dark:border-slate-800">
+            {/* Wraps on a phone instead of overflowing; the "new event" button
+                moved up to the page header, so this row is navigation only. */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <CardTitle className="text-lg font-bold text-slate-900 dark:text-white sm:text-2xl">
                 {monthName}
               </CardTitle>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={goToToday}
-                  className="border-2 border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-semibold shadow-sm transition-all hover:shadow-md hover:scale-105"
+                  className="accent-border accent-ink h-11 border-2 bg-white font-semibold dark:bg-slate-900"
                 >
-                  <Clock className="h-4 w-4 mr-2 text-indigo-600 dark:text-indigo-400" strokeWidth={2.5} />
+                  <Clock className="mr-2 h-4 w-4" strokeWidth={2.5} />
                   {tr('common.today')}
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={goToPreviousMonth}
-                  className="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all hover:scale-110"
+                  className="h-11 w-11 border-2 border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
                 >
                   <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" strokeWidth={2.5} />
                 </Button>
@@ -624,28 +648,27 @@ export default function CalendarPage() {
                   variant="outline"
                   size="icon"
                   onClick={goToNextMonth}
-                  className="border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all hover:scale-110"
+                  className="h-11 w-11 border-2 border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
                 >
                   <ChevronRight className="h-5 w-5 text-slate-700 dark:text-slate-300" strokeWidth={2.5} />
-                </Button>
-                <Button
-                  onClick={() => openCreateModal()}
-                  className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-bold shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20 border-0 transition-all hover:scale-105 hover:shadow-2xl"
-                  style={{ background: 'linear-gradient(to right, rgb(99 102 241), rgb(168 85 247), rgb(236 72 153))' }}
-                >
-                  <Plus className="h-4 w-4 mr-2 text-white" strokeWidth={3} />
-                  <span className="text-white font-bold">{tr('ui.newEvent')}</span>
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             {/* Week days header — single letter on phones, full label from sm up */}
-            <div className="grid grid-cols-2 sm:grid-cols-7 gap-1 sm:gap-4 mb-2 sm:mb-4">
+            {/*
+              Seven columns at every width. This was `grid-cols-2 sm:grid-cols-7`,
+              which on a phone laid the month out two days per row — so the
+              columns no longer lined up under their weekday labels and the grid
+              stopped being a calendar at all. A month grid is 7 wide by
+              definition; on a small screen the cells get smaller, not fewer.
+            */}
+            <div className="mb-1.5 grid grid-cols-7 gap-1 sm:mb-3 sm:gap-2">
               {weekDays.map((day) => (
                 <div
                   key={day}
-                  className="text-center font-bold text-[10px] sm:text-base bg-gradient-to-br from-slate-100 to-indigo-50 dark:from-slate-800 dark:to-indigo-950/30 text-slate-700 dark:text-slate-300 py-1.5 sm:py-3 rounded-md sm:rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm"
+                  className="py-1.5 text-center text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:text-sm"
                 >
                   <span className="sm:hidden">{day.charAt(0)}</span>
                   <span className="hidden sm:inline">{day}</span>
@@ -654,7 +677,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-7 gap-1 sm:gap-4">{calendarDays.map((dayObj, index) => {
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">{calendarDays.map((dayObj, index) => {
                 const day = dayObj.day
                 const isCurrentMonth = dayObj.isCurrentMonth
                 
@@ -663,13 +686,18 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={`empty-${index}`}
-                      className="aspect-square sm:aspect-auto sm:h-44 rounded-md sm:rounded-xl bg-slate-50/30 dark:bg-slate-900/10 border border-slate-200/50 dark:border-slate-800/50"
+                      className="aspect-square rounded-lg bg-slate-50/40 dark:bg-slate-900/20 sm:aspect-auto sm:h-32 sm:rounded-xl"
                     />
                   )
                 }
                 
                 const dayEvents = isCurrentMonth ? getEventsForDate(day) : []
                 const isCurrentDay = isCurrentMonth && isToday(day)
+                const isSelectedDay =
+                  !!selectedDate &&
+                  selectedDate.getFullYear() === dayObj.year &&
+                  selectedDate.getMonth() === dayObj.month - 1 &&
+                  selectedDate.getDate() === day
                 const hijriKey = `${dayObj.year}-${dayObj.month}-${day}`
                 const hijriInfo = hijriDates[hijriKey]
 
@@ -680,21 +708,25 @@ export default function CalendarPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.01 }}
                     className={`
-                      relative aspect-square sm:aspect-auto sm:h-44 p-0.5 sm:p-3 rounded-md sm:rounded-xl border sm:border-2 cursor-pointer transition-all duration-200 group overflow-hidden sm:overflow-y-auto custom-scrollbar
+                      group relative aspect-square cursor-pointer overflow-hidden rounded-lg border p-1 transition-colors
+                      sm:aspect-auto sm:h-32 sm:overflow-y-auto sm:rounded-xl sm:border-2 sm:p-2.5 custom-scrollbar
                       ${isCurrentDay
-                        ? 'border-indigo-500 dark:border-indigo-400 bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/20 dark:to-pink-900/20 ring-4 ring-indigo-300/50 dark:ring-indigo-500/30 shadow-xl shadow-indigo-200/50 dark:shadow-indigo-500/20'
-                        : 'border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-2xl hover:shadow-indigo-200/30 dark:hover:shadow-indigo-500/20 hover:scale-[1.02] hover:z-10 hover:bg-gradient-to-br hover:from-indigo-50 hover:via-purple-50 hover:to-pink-50 dark:hover:from-indigo-900/20 dark:hover:via-purple-900/15 dark:hover:to-pink-900/15'
+                        ? 'accent-border accent-soft border-2 ring-2 accent-ring'
+                        : isSelectedDay
+                        ? 'accent-border border-2 bg-white dark:bg-slate-900'
+                        : 'border-slate-200 bg-white hover:accent-border dark:border-slate-800 dark:bg-slate-900'
                       }
+                      ${isCurrentMonth ? '' : 'opacity-45'}
                     `}
-                    onClick={() => openCreateModal(new Date(dayObj.year, dayObj.month - 1, day))}
+                    onClick={() => selectDay(new Date(dayObj.year, dayObj.month - 1, day))}
                   >
                     {/* Gregorian Day Number */}
                     <div className={`
-                      text-xs sm:text-xl font-bold mb-0 sm:mb-2 text-center sm:text-left transition-all duration-200
+                      mb-0 text-center text-sm font-bold sm:mb-1.5 sm:text-left sm:text-lg
                       ${isCurrentDay
-                        ? 'text-indigo-700 dark:text-indigo-300 sm:text-2xl'
+                        ? 'accent-ink'
                         : isCurrentMonth
-                        ? 'text-slate-700 dark:text-slate-300 sm:group-hover:text-indigo-600 dark:sm:group-hover:text-indigo-400'
+                        ? 'text-slate-700 dark:text-slate-200'
                         : 'text-slate-400 dark:text-slate-600'
                       }
                     `}>
@@ -703,12 +735,16 @@ export default function CalendarPage() {
 
                     {/* Phones: a dot per event instead of unreadable text chips */}
                     {dayEvents.length > 0 && (
-                      <div className="sm:hidden absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5">
+                      <div className="absolute inset-x-0 bottom-1 flex items-center justify-center gap-0.5 sm:hidden">
                         {dayEvents.slice(0, 3).map((event) => (
-                          <span key={event.id} className="h-1 w-1 rounded-full bg-indigo-500 dark:bg-indigo-400" />
+                          <span
+                            key={event.id}
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: 'rgb(var(--acc-2))' }}
+                          />
                         ))}
                         {dayEvents.length > 3 && (
-                          <span className="text-[7px] font-bold leading-none text-indigo-500 dark:text-indigo-400">+</span>
+                          <span className="accent-ink text-[8px] font-bold leading-none">+</span>
                         )}
                       </div>
                     )}
@@ -778,6 +814,78 @@ export default function CalendarPage() {
                 )
               })}
             </div>
+
+            {/*
+              The selected day, spelled out.
+
+              A phone cell is about 45px wide — enough for a number and a few
+              dots, and nothing else. Desktop can afford to list events inside
+              the cell; a phone cannot, so the detail lives here instead. Shown
+              at every width so the interaction is the same one everywhere.
+            */}
+            {selectedDate && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 overflow-hidden"
+              >
+                <div className="accent-border rounded-2xl border-2 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="accent-ink text-sm font-bold">
+                        {selectedDate.toLocaleDateString(undefined, {
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'long',
+                        })}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {eventsOnSelectedDay.length === 1
+                          ? tr('ui.oneEvent')
+                          : tr('ui.eventCount', { count: eventsOnSelectedDay.length })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => openCreateModal(selectedDate)}
+                      className="accent-solid inline-flex h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold shadow-sm"
+                    >
+                      <Plus className="h-4 w-4" strokeWidth={3} />
+                      {tr('ui.newEvent')}
+                    </button>
+                  </div>
+
+                  {eventsOnSelectedDay.length > 0 && (
+                    <ul className="mt-3 space-y-2">
+                      {eventsOnSelectedDay.map((event) => (
+                        <li key={event.id}>
+                          <button
+                            onClick={() => openEditModal(event)}
+                            className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition-colors hover:accent-border dark:border-slate-800 dark:bg-slate-900"
+                          >
+                            <span
+                              aria-hidden
+                              className="h-8 w-1.5 shrink-0 rounded-full"
+                              style={{ backgroundColor: 'rgb(var(--acc-2))' }}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                {event.title}
+                              </span>
+                              {event.location && (
+                                <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
+                                  {event.location}
+                                </span>
+                              )}
+                            </span>
+                            <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -793,7 +901,7 @@ export default function CalendarPage() {
           <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900">
             <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-b-2 border-emerald-100 dark:border-emerald-900/50">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg">
                     <TrendingUp className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </div>
@@ -890,7 +998,7 @@ export default function CalendarPage() {
           <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900">
             <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/30 border-b-2 border-slate-200 dark:border-slate-800">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-slate-700 to-gray-700 dark:from-slate-400 dark:to-gray-400 bg-clip-text text-transparent">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold text-slate-700 dark:text-slate-300 sm:text-2xl">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-400 to-gray-500 flex items-center justify-center shadow-lg">
                     <List className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </div>
@@ -1000,7 +1108,7 @@ export default function CalendarPage() {
               className="bg-gradient-to-br from-white via-slate-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/50 rounded-2xl p-4 sm:p-8 w-full max-w-lg shadow-2xl border-2 border-slate-300 dark:border-slate-700"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-indigo-900 dark:from-white dark:to-indigo-200 bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
                   {editingEvent ? tr('ui.editEvent') : tr('ui.createEvent')}
                 </h3>
                 <Button
@@ -1053,7 +1161,7 @@ export default function CalendarPage() {
               <div className="flex items-center gap-3 mt-8">
                 <Button
                   onClick={editingEvent ? updateEvent : createEvent}
-                  className="flex-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 font-bold shadow-xl shadow-indigo-500/30 dark:shadow-indigo-500/20 border-0 h-12 text-base transition-all hover:scale-105"
+                  className="accent-solid h-12 flex-1 border-0 text-base font-bold shadow-lg"
                   style={{ background: 'linear-gradient(to right, rgb(99 102 241), rgb(168 85 247), rgb(236 72 153))' }}
                 >
                   <Check className="h-5 w-5 mr-2 text-white" strokeWidth={3} />

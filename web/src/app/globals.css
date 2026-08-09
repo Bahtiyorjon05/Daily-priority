@@ -2240,6 +2240,7 @@ a:focus-visible,
      goals    amber  -> orange  -> rose    ambition, harvest, effort paying off
      habits   teal   -> emerald -> lime    growth and repetition
      focus    blue   -> blue    -> cyan    depth, quiet, concentration
+     calendar rose   -> rose    -> amber   a day turning over
 
    Same three-stop structure as `.sky` so headers are interchangeable, but no
    `--phase-transition`: these do not change, and animating them would imply they
@@ -2265,6 +2266,15 @@ a:focus-visible,
   --acc-ink: 15 118 110;      /* teal-700 */
   --acc-soft: 236 253 245;
 }
+[data-accent='calendar'] {
+  /* Rose into amber — a sunset, which is what a day turning over looks like.
+     Kept well clear of the journal violet (193 apart) and the goals amber
+     (118): those two are the nearest neighbours in hue. */
+  --acc-1: 190 18 60; --acc-2: 244 63 94; --acc-3: 245 158 11;
+  --acc-glow: 253 164 175;
+  --acc-ink: 190 18 60;       /* rose-700 */
+  --acc-soft: 255 241 242;
+}
 [data-accent='focus'] {
   /* Blue rather than indigo: indigo-600 sat 47 units from the journal violet,
      which the contrast test flagged — two pages reading as the same colour is
@@ -2280,6 +2290,7 @@ a:focus-visible,
 .dark[data-accent='journal'] { --acc-ink: 216 180 254; --acc-soft: 46 16 101; }
 .dark[data-accent='goals']   { --acc-ink: 253 186 116; --acc-soft: 69 26 3; }
 .dark[data-accent='habits']  { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
+.dark[data-accent='calendar'] { --acc-ink: 253 164 175; --acc-soft: 76 5 25; }
 .dark[data-accent='focus']   { --acc-ink: 147 197 253; --acc-soft: 23 37 84; }
 
 [data-phase='dawn'] {
