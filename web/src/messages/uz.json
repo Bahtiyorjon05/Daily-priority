@@ -1756,5 +1756,13 @@
   "ui.quranCitationFallback": "Qur’on 65:3",
   "ui.oneEvent": "1 ta tadbir",
   "ui.eventCount": "{count} ta tadbir",
-  "ui.ah": "hijriy"
+  "ui.ah": "hijriy",
+  "ui.focusWithDuration": "Diqqat ({minutes} daq)",
+  "ui.shortBreakWithDuration": "Qisqa ({minutes} daq)",
+  "ui.longBreakWithDuration": "Uzoq ({minutes} daq)",
+  "ui.focusMode": "Diqqat",
+  "ui.sessionsToday": "Bugun {count} ta bajarildi",
+  "ui.nextUp": "Keyingi: {mode}",
+  "ui.mute": "Ovozni o‘chirish",
+  "ui.unmute": "Ovozni yoqish"
 }

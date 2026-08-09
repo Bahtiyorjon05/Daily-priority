@@ -1756,5 +1756,13 @@
   "ui.quranCitationFallback": "Quran 65:3",
   "ui.oneEvent": "1 event",
   "ui.eventCount": "{count} events",
-  "ui.ah": "AH"
+  "ui.ah": "AH",
+  "ui.focusWithDuration": "Focus ({minutes}m)",
+  "ui.shortBreakWithDuration": "Short ({minutes}m)",
+  "ui.longBreakWithDuration": "Long ({minutes}m)",
+  "ui.focusMode": "Focus",
+  "ui.sessionsToday": "{count} done today",
+  "ui.nextUp": "Next: {mode}",
+  "ui.mute": "Mute",
+  "ui.unmute": "Unmute"
 }

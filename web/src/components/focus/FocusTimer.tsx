@@ -1,13 +1,37 @@
 'use client'
 
 import { useT } from '@/lib/i18n/client'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Zap, Coffee, Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { Zap, Coffee, Moon, Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react'
+
+/**
+ * The focus timer.
+ *
+ * Rewritten because the previous version was unusable on a phone and confusing
+ * on a laptop:
+ *
+ *  - The ring was a hard-coded `w-80 h-80` with an SVG whose geometry was
+ *    written in absolute pixels (`cx=160 r=140`). 320px plus the page padding
+ *    is wider than a 360px screen, so the timer — the entire point of the page
+ *    — was clipped. It is now a `viewBox` that scales to whatever space it has.
+ *
+ *  - Three separate palettes (purple / emerald / blue) were hard-coded across
+ *    twelve class strings, none of them the page's own. Focus now uses the page
+ *    accent; the two breaks share a single distinct treatment, because "you are
+ *    resting" is one state, not two.
+ *
+ *  - The three controls sat in a `flex gap-4` row of large buttons that
+ *    overflowed a narrow screen. Start is now the primary action at full width
+ *    on a phone, with reset and mute as square icon buttons beside it.
+ *
+ *  - The mode label fell through to `{mode}` for focus, rendering the raw
+ *    English identifier "focus" on an Uzbek dashboard.
+ */
+
+type Mode = 'focus' | 'shortBreak' | 'longBreak'
 
 interface FocusTimerProps {
-  mode: 'focus' | 'shortBreak' | 'longBreak'
+  mode: Mode
   timeLeft: number
   isActive: boolean
   completedSessions: number
@@ -20,9 +44,14 @@ interface FocusTimerProps {
   onStart: () => void
   onPause: () => void
   onReset: () => void
-  onSwitchMode: (mode: 'focus' | 'shortBreak' | 'longBreak') => void
+  onSwitchMode: (mode: Mode) => void
   onToggleMute: () => void
 }
+
+/** Geometry in viewBox units, so the ring scales with its container. */
+const SIZE = 200
+const RADIUS = 88
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 export function FocusTimer({
   mode,
@@ -35,172 +64,177 @@ export function FocusTimer({
   onPause,
   onReset,
   onSwitchMode,
-  onToggleMute
+  onToggleMute,
 }: FocusTimerProps) {
   const { t } = useT()
+  const reduceMotion = useReducedMotion()
+
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
-  const totalSeconds = mode === 'focus' ? settings.focusDuration * 60 : 
-                       mode === 'shortBreak' ? settings.shortBreakDuration * 60 : 
-                       settings.longBreakDuration * 60
-  const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100
 
-  const modeColors = {
-    focus: { 
-      from: 'from-purple-500', 
-      to: 'to-indigo-500', 
-      text: 'text-purple-600 dark:text-purple-400',
-      lightText: 'text-purple-700 dark:text-purple-300',
-      gradient: 'from-purple-50 to-indigo-100 dark:from-purple-950/40 dark:to-indigo-950/40',
-      border: 'border-purple-300 dark:border-purple-700',
-      buttonText: 'text-purple-900 dark:text-white',
-      buttonBg: 'bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-500 dark:to-indigo-500',
-      activeText: 'text-purple-900 dark:text-white'
-    },
-    shortBreak: { 
-      from: 'from-emerald-500', 
-      to: 'to-teal-500', 
-      text: 'text-emerald-600 dark:text-emerald-400',
-      lightText: 'text-emerald-700 dark:text-emerald-300',
-      gradient: 'from-emerald-50 to-teal-100 dark:from-emerald-950/40 dark:to-teal-950/40',
-      border: 'border-emerald-300 dark:border-emerald-700',
-      buttonText: 'text-emerald-900 dark:text-white',
-      buttonBg: 'bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-500 dark:to-teal-500',
-      activeText: 'text-emerald-900 dark:text-white'
-    },
-    longBreak: { 
-      from: 'from-blue-500', 
-      to: 'to-cyan-500', 
-      text: 'text-blue-600 dark:text-blue-400',
-      lightText: 'text-blue-700 dark:text-blue-300',
-      gradient: 'from-blue-50 to-cyan-100 dark:from-blue-950/40 dark:to-cyan-950/40',
-      border: 'border-blue-300 dark:border-blue-700',
-      buttonText: 'text-blue-900 dark:text-white',
-      buttonBg: 'bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-500 dark:to-cyan-500',
-      activeText: 'text-blue-900 dark:text-white'
-    }
-  }
+  const totalSeconds =
+    (mode === 'focus'
+      ? settings.focusDuration
+      : mode === 'shortBreak'
+        ? settings.shortBreakDuration
+        : settings.longBreakDuration) * 60
 
-  const currentColor = modeColors[mode]
+  // A zero-length session would divide by zero and paint a full ring.
+  const progress = totalSeconds > 0 ? (totalSeconds - timeLeft) / totalSeconds : 0
+
+  const isBreak = mode !== 'focus'
+  // Focus takes the page accent. Breaks take emerald — one treatment for both,
+  // because resting is a single state and giving each break its own colour made
+  // the page look like it had three unrelated themes.
+  const ring = isBreak ? 'rgb(16 185 129)' : 'rgb(var(--acc-2))'
+
+  const MODES: { key: Mode; icon: typeof Zap; label: string }[] = [
+    {
+      key: 'focus',
+      icon: Zap,
+      label: t('ui.focusWithDuration', { minutes: settings.focusDuration }),
+    },
+    {
+      key: 'shortBreak',
+      icon: Coffee,
+      label: t('ui.shortBreakWithDuration', { minutes: settings.shortBreakDuration }),
+    },
+    {
+      key: 'longBreak',
+      icon: Moon,
+      label: t('ui.longBreakWithDuration', { minutes: settings.longBreakDuration }),
+    },
+  ]
+
+  const modeLabel =
+    mode === 'shortBreak'
+      ? t('ui.shortBreak')
+      : mode === 'longBreak'
+        ? t('ui.longBreak')
+        : t('ui.focusMode')
 
   return (
-    <Card className={`border-2 ${currentColor.border} shadow-2xl bg-gradient-to-br from-white via-purple-50/20 to-indigo-50/20 dark:from-gray-800/90 dark:via-gray-800/90 dark:to-gray-800/90 backdrop-blur`}>
-      <CardHeader className="text-center pb-4">
-        <div className="flex justify-center gap-2 mb-4 flex-wrap">
-          <Button
-            variant={mode === 'focus' ? 'default' : 'outline'}
-            onClick={() => onSwitchMode('focus')}
-            disabled={isActive}
-            className={mode === 'focus' 
-              ? `${modeColors.focus.buttonBg} ${modeColors.focus.buttonText} shadow-xl shadow-purple-500/40 hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed` 
-              : 'bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-purple-300 dark:border-gray-600 hover:border-purple-500 dark:hover:border-purple-500 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-900/30 hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100'
-            }
-          >
-            <Zap className="h-4 w-4 mr-2" />
-{t('ui.focus')}{settings.focusDuration}m)
-          </Button>
-          <Button
-            variant={mode === 'shortBreak' ? 'default' : 'outline'}
-            onClick={() => onSwitchMode('shortBreak')}
-            disabled={isActive}
-            className={mode === 'shortBreak' 
-              ? `${modeColors.shortBreak.buttonBg} ${modeColors.shortBreak.buttonText} shadow-xl shadow-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed` 
-              : 'bg-gradient-to-br from-white to-emerald-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-emerald-300 dark:border-gray-600 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-200/50 dark:hover:shadow-emerald-900/30 hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100'
-            }
-          >
-            <Coffee className="h-4 w-4 mr-2" />
-{t('ui.short')}{settings.shortBreakDuration}m)
-          </Button>
-          <Button
-            variant={mode === 'longBreak' ? 'default' : 'outline'}
-            onClick={() => onSwitchMode('longBreak')}
-            disabled={isActive}
-            className={mode === 'longBreak' 
-              ? `${modeColors.longBreak.buttonBg} ${modeColors.longBreak.buttonText} shadow-xl shadow-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed` 
-              : 'bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-blue-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/30 hover:scale-105 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100'
-            }
-          >
-            <Coffee className="h-4 w-4 mr-2" />
-{t('ui.long')}{settings.longBreakDuration}m)
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="py-12">
-        <div className="flex flex-col items-center space-y-8">
-          {/* Timer Circle */}
-          <div className="relative w-80 h-80">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle cx="160" cy="160" r="140" stroke="currentColor" strokeWidth="12" fill="none" className="text-slate-200 dark:text-gray-700" />
-              <motion.circle
-                cx="160" cy="160" r="140" stroke="currentColor" strokeWidth="12" fill="none" strokeLinecap="round"
-                className={`${currentColor.text} transition-colors`}
-                initial={{ strokeDashoffset: 880 }}
-                animate={{ strokeDashoffset: 880 - (880 * progress) / 100 }}
-                style={{ strokeDasharray: 880 }}
-                transition={{ duration: 0.5 }}
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+      {/* Mode switch — an equal three-up grid, so the labels cannot overflow. */}
+      <div
+        role="tablist"
+        aria-label={t('ui.timer')}
+        className="grid grid-cols-3 gap-1.5 rounded-2xl bg-slate-100 p-1.5 dark:bg-slate-800"
+      >
+        {MODES.map(({ key, icon: Icon, label }) => {
+          const active = mode === key
+          return (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={active}
+              onClick={() => onSwitchMode(key)}
+              disabled={isActive}
+              // Switching mid-session would silently discard it, so the control
+              // is disabled rather than destructive.
+              title={isActive ? t('ui.pause') : label}
+              className={`flex h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 sm:text-sm ${
+                active
+                  ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-950 dark:text-white'
+                  : 'text-slate-600 hover:bg-white/60 dark:text-slate-400 dark:hover:bg-slate-950/40'
+              }`}
+            >
+              <Icon
+                className="h-4 w-4 shrink-0"
+                style={active ? { color: ring } : undefined}
               />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <motion.div
-                key={timeLeft}
-                initial={{ scale: 1 }}
-                animate={{ scale: timeLeft <= 10 && timeLeft > 0 ? [1, 1.05, 1] : 1 }}
-                transition={{ duration: 1, repeat: timeLeft <= 10 && timeLeft > 0 ? Infinity : 0 }}
-              >
-                <p className={`text-7xl font-bold ${currentColor.lightText}`}>
-                  {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-                </p>
-              </motion.div>
-              <p className="text-sm text-slate-600 dark:text-gray-400 mt-4 capitalize font-semibold">
-                {mode === 'shortBreak' ? t('ui.shortBreak') : mode === 'longBreak' ? t('ui.longBreak') : mode}
-              </p>
-              {completedSessions > 0 && (
-                <p className="text-xs text-slate-500 dark:text-gray-500 mt-2 font-medium">
-{t('ui.session')} {completedSessions + 1}
-                </p>
-              )}
-            </div>
-          </div>
+              <span className="truncate">{label}</span>
+            </button>
+          )
+        })}
+      </div>
 
-          {/* Controls */}
-          <div className="flex gap-4">
-            <Button
-              size="lg"
-              onClick={isActive ? onPause : onStart}
-              className={`${currentColor.buttonBg} ${currentColor.buttonText} hover:scale-110 transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-lg px-8`}
+      {/* Ring */}
+      <div className="mt-6 flex justify-center">
+        <div className="relative w-full max-w-[min(72vw,18rem)]">
+          <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full -rotate-90" aria-hidden>
+            <circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              strokeWidth="10"
+              className="stroke-slate-200 dark:stroke-slate-800"
+            />
+            <motion.circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              strokeWidth="10"
+              strokeLinecap="round"
+              stroke={ring}
+              strokeDasharray={CIRCUMFERENCE}
+              initial={false}
+              animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress) }}
+              transition={{ duration: reduceMotion ? 0 : 0.4, ease: 'linear' }}
+            />
+          </svg>
+
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <p
+              // tabular-nums so the digits do not jitter as they change.
+              className="text-[clamp(2.75rem,14vw,4.5rem)] font-bold leading-none tabular-nums text-slate-900 dark:text-white"
+              aria-live="off"
             >
-              {isActive ? (
-                <>
-                  <Pause className="h-5 w-5 mr-2" />
-                  {t('ui.pause')}
-                </>
-              ) : (
-                <>
-                  <Play className="h-5 w-5 mr-2" />
-                  {t('ui.start')}
-                </>
-              )}
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={onReset} 
-              className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-slate-400 dark:border-gray-600 hover:border-slate-600 dark:hover:border-gray-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-gray-700/50 hover:scale-105 transition-all duration-300 font-semibold"
-            >
-              <RotateCcw className="h-5 w-5 mr-2" />
-              {t('ui.reset')}
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={onToggleMute} 
-              className="bg-gradient-to-br from-white to-slate-50 dark:from-gray-800 dark:to-gray-700 text-slate-800 dark:text-gray-300 border-2 border-slate-400 dark:border-gray-600 hover:border-slate-600 dark:hover:border-gray-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-gray-700/50 hover:scale-105 transition-all duration-300 font-semibold"
-            >
-              {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-            </Button>
+              {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+            </p>
+            <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 sm:text-sm">
+              {modeLabel}
+            </p>
+            {completedSessions > 0 && (
+              <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+                {t('ui.sessionsToday', { count: completedSessions })}
+              </p>
+            )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Controls */}
+      <div className="mt-6 flex items-center gap-2">
+        <button
+          onClick={isActive ? onPause : onStart}
+          className="flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl text-base font-bold text-white shadow-lg transition-transform active:scale-[0.99]"
+          style={{ backgroundColor: ring }}
+        >
+          {isActive ? (
+            <>
+              <Pause className="h-5 w-5" />
+              {t('ui.pause')}
+            </>
+          ) : (
+            <>
+              <Play className="h-5 w-5" />
+              {t('ui.start')}
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={onReset}
+          aria-label={t('ui.reset')}
+          title={t('ui.reset')}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <RotateCcw className="h-5 w-5" />
+        </button>
+
+        <button
+          onClick={onToggleMute}
+          aria-label={isMuted ? t('ui.unmute') : t('ui.mute')}
+          title={isMuted ? t('ui.unmute') : t('ui.mute')}
+          aria-pressed={isMuted}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
   )
 }

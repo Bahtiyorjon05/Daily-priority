@@ -37,13 +37,13 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
           exit={{ opacity: 0, height: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="border-2 border-indigo-300 dark:border-indigo-700 bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-lg mb-6">
+          <Card className="accent-border mb-6 border-2 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-indigo-900 dark:text-indigo-100 font-bold">{t('ui.focusSettings')}</CardTitle>
+              <CardTitle className="accent-ink font-bold">{t('ui.focusSettings')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Durations */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-gray-300 font-semibold">{t('ui.focusDurationMin')}</Label>
                   <Input
@@ -136,7 +136,7 @@ export function FocusSettingsPanel({ show, settings, onSettingsChange, onSave }:
                 )}
               </div>
 
-              <Button onClick={onSave} className="w-full bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-600 dark:to-indigo-600 hover:from-purple-200 hover:to-indigo-200 dark:hover:from-purple-700 dark:hover:to-indigo-700 text-purple-900 dark:text-white font-semibold shadow-lg hover:shadow-xl transition-all">
+              <Button onClick={onSave} className="accent-solid h-12 w-full font-semibold shadow-sm">
                 {t('ui.saveSettings')}
               </Button>
             </CardContent>

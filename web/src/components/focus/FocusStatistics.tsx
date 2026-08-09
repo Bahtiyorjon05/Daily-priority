@@ -44,8 +44,8 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-2 border-purple-300 dark:border-purple-700 bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-900/20 shadow-lg hover:scale-105 transition-transform">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Card className="border-2 border-purple-300 dark:border-purple-700 bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-900/20 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -60,7 +60,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-900/20 shadow-lg hover:scale-105 transition-transform">
+        <Card className="border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-900/20 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -75,7 +75,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-orange-300 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 shadow-lg hover:scale-105 transition-transform">
+        <Card className="border-2 border-orange-300 dark:border-orange-700 bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/20 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -90,7 +90,7 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
           </CardContent>
         </Card>
 
-        <Card className="border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-lg hover:scale-105 transition-transform">
+        <Card className="border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -110,24 +110,24 @@ export function FocusStatistics({ stats }: FocusStatisticsProps) {
 
       {/* Detailed Statistics with Tabs */}
       <Tabs defaultValue="weekly" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-gray-800 border border-slate-200 dark:border-gray-700">
+        <TabsList className="grid h-12 w-full grid-cols-3 border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <TabsTrigger 
             value="daily" 
-            className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
+            className="h-10 font-semibold text-slate-600 data-[state=active]:accent-soft data-[state=active]:shadow-sm dark:text-slate-400"
           >
             <Calendar className="h-4 w-4 mr-2" />
             {t('ui.daily')}
           </TabsTrigger>
           <TabsTrigger 
             value="weekly" 
-            className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
+            className="h-10 font-semibold text-slate-600 data-[state=active]:accent-soft data-[state=active]:shadow-sm dark:text-slate-400"
           >
             <TrendingUp className="h-4 w-4 mr-2" />
             {t('ui.weekly')}
           </TabsTrigger>
           <TabsTrigger 
             value="monthly" 
-            className="text-slate-700 dark:text-gray-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-100 data-[state=active]:to-indigo-100 dark:data-[state=active]:from-purple-500 dark:data-[state=active]:to-indigo-500 data-[state=active]:text-purple-900 dark:data-[state=active]:text-white data-[state=active]:shadow-md font-semibold"
+            className="h-10 font-semibold text-slate-600 data-[state=active]:accent-soft data-[state=active]:shadow-sm dark:text-slate-400"
           >
             <BarChart3 className="h-4 w-4 mr-2" />
             {t('ui.monthly')}

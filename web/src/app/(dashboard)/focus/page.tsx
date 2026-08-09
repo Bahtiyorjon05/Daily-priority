@@ -396,16 +396,16 @@ export default function FocusPage() {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800 shadow-lg border border-slate-200 dark:border-gray-700">
+          <TabsList className="grid h-12 w-full grid-cols-2 border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <TabsTrigger 
               value="timer" 
-              className="font-semibold text-slate-700 data-[state=active]:accent-soft data-[state=active]:shadow-md dark:text-gray-300"
+              className="h-10 font-semibold text-slate-600 data-[state=active]:accent-soft data-[state=active]:shadow-sm dark:text-slate-400"
             >
               {t('ui.timer')}
             </TabsTrigger>
             <TabsTrigger 
               value="statistics" 
-              className="font-semibold text-slate-700 data-[state=active]:accent-soft data-[state=active]:shadow-md dark:text-gray-300"
+              className="h-10 font-semibold text-slate-600 data-[state=active]:accent-soft data-[state=active]:shadow-sm dark:text-slate-400"
             >
               {t('ui.statistics')}
             </TabsTrigger>
@@ -439,8 +439,8 @@ export default function FocusPage() {
               <FocusStatistics stats={stats} />
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-16 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-950/40">
-                  <Brain className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                <div className="accent-soft mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+                  <Brain className="accent-ink h-8 w-8" />
                 </div>
                 <h3 className="text-lg font-semibold">{t('ui.noFocusSessionsYet')}</h3>
                 <p className="mt-1 max-w-xs text-sm text-muted-foreground">
@@ -461,19 +461,17 @@ export default function FocusPage() {
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
-              className="fixed bottom-8 right-8 z-50"
+              className="fixed inset-x-4 bottom-24 z-50 sm:inset-x-auto sm:bottom-8 sm:right-8"
             >
-              <Card className="border-2 border-emerald-300 dark:border-emerald-600 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/80 dark:to-teal-900/80 shadow-2xl">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-                  <div>
-                    <p className="font-semibold text-emerald-900 dark:text-emerald-100">
-                      {completedSessions} {t('ui.session')}{completedSessions > 1 ? 's' : ''}!
-                    </p>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300">{t('ui.keepGoing')}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex items-center gap-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 shadow-2xl dark:border-emerald-700 dark:bg-emerald-950">
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div className="min-w-0">
+                  <p className="font-semibold text-emerald-900 dark:text-emerald-100">
+                    {t('ui.sessionsToday', { count: completedSessions })}
+                  </p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">{t('ui.keepGoing')}</p>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
