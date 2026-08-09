@@ -633,7 +633,7 @@ export default function HabitsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={closeHabitEditor}
             >
               <motion.div
@@ -644,7 +644,7 @@ export default function HabitsPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border-4 border-emerald-400 dark:border-emerald-600"
+                className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg modal-panel overflow-y-auto shadow-2xl border-4 border-emerald-400 dark:border-emerald-600"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div>
@@ -753,7 +753,7 @@ export default function HabitsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={() => setDeletingHabit(null)}
             >
               <motion.div

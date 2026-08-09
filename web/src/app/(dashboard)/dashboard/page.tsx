@@ -773,7 +773,7 @@ export default function DashboardPageRedesigned() {
                 {/* User Info - Compact */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                   <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border-2 border-white/30 shadow-lg shrink-0">
-                    <AvatarImage src={profile?.image || ''} alt={profile?.name || 'User'} />
+                    <AvatarImage src={profile?.image || ''} alt={profile?.name || tI18n('common.user')} />
                     <AvatarFallback className="bg-white/20 backdrop-blur-sm text-white text-lg font-bold">
                       {profile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
@@ -786,7 +786,7 @@ export default function DashboardPageRedesigned() {
                         {tI18n(getGreetingKey())},
                       </span>
                       <span className="block break-words text-lg sm:text-2xl">
-                        {profile?.name || 'User'}
+                        {profile?.name || tI18n('common.user')}
                       </span>
                     </h1>
                     <p className="text-white/80 text-xs sm:text-sm">{tI18n('ui.letSBeProductiveToday')}</p>
@@ -1371,7 +1371,7 @@ export default function DashboardPageRedesigned() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={() => setShowNewTask(false)}
             >
               <motion.div
@@ -1498,7 +1498,7 @@ export default function DashboardPageRedesigned() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={() => setEditingTask(null)}
             >
               <motion.div

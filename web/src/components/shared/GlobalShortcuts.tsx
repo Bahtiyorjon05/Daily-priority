@@ -73,7 +73,7 @@ export function GlobalShortcuts() {
               </button>
             </div>
 
-            <ul className="max-h-[60vh] space-y-1 overflow-y-auto p-4">
+            <ul className="max-h-[60dvh] space-y-1 overflow-y-auto p-4">
               {shortcuts.map((s) => (
                 <li key={s.key + s.description} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm">
                   <span className="text-gray-700 dark:text-gray-300">{s.description}</span>

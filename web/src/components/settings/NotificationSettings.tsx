@@ -150,7 +150,7 @@ export function NotificationSettings() {
                     className="rounded-lg border bg-background px-2 py-1"
                   >
                     {[0, 5, 10, 15, 20, 30].map((m) => (
-                      <option key={m} value={m}>{m === 0 ? 'at prayer time' : `${m} min before`}</option>
+                      <option key={m} value={m}>{m === 0 ? t('ui.atPrayerTime') : `${m} min before`}</option>
                     ))}
                   </select>
                 </div>

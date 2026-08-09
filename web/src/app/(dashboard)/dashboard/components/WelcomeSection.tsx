@@ -88,10 +88,10 @@ export default function WelcomeSection({ session }: WelcomeSectionProps) {
                   </p>
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-100 text-xs font-medium">
-                      {quote?.category || 'Quran'}
+                      {quote?.category || t('ui.quran')}
                     </div>
                     <p className="text-white/80 text-sm font-medium">
-                      — {quote?.source || 'Quran 65:3'}
+                      — {quote?.source || t('ui.quranCitationFallback')}
                     </p>
                   </div>
                   {showArabic && (

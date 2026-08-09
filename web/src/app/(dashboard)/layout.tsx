@@ -777,7 +777,7 @@ function DashboardLayoutContent({
                   className="relative bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-2xl transition-all duration-200 hover:scale-105 p-1 h-11 w-11 min-h-[44px] min-w-[44px] shrink-0"
                 >
                   <Avatar className="h-8 w-8 border-2 border-emerald-200 dark:border-emerald-800">
-                    <AvatarImage src={profile?.image || ''} alt={profile?.name || 'User'} />
+                    <AvatarImage src={profile?.image || ''} alt={profile?.name || t('common.user')} />
                     <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-semibold">
                       {profile?.name?.charAt(0) || 'U'}
                     </AvatarFallback>
@@ -806,7 +806,7 @@ function DashboardLayoutContent({
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm truncate">
-                              {profile?.name || 'User'}
+                              {profile?.name || t('common.user')}
                             </p>
                             <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
                               {t(getGreetingKey())} 👋

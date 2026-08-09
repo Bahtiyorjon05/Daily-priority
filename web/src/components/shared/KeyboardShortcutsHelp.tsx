@@ -78,7 +78,7 @@ export function KeyboardShortcutsHelp() {
                   </div>
 
                   {/* Content */}
-                  <div className="px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto">
+                  <div className="px-6 py-4 space-y-6 max-h-[70dvh] overflow-y-auto">
                     {SHORTCUTS_HELP.map((section) => (
                       <div key={section.category}>
                         <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">

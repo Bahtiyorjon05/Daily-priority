@@ -88,7 +88,7 @@ export default function PrayerHistory({ historyData, daysToShow = 7 }: PrayerHis
                     ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
                     : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                 }`}>
-                  {day.completionRate === 100 ? 'Perfect' : day.completionRate >= 80 ? 'Great' : day.completionRate >= 60 ? 'Good' : t('ui.needsEffort')}
+                  {day.completionRate === 100 ? t('ui.ratingPerfect') : day.completionRate >= 80 ? t('ui.ratingGreat') : day.completionRate >= 60 ? t('ui.ratingGood') : t('ui.needsEffort')}
                 </div>
               </div>
 

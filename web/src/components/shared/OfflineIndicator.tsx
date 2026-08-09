@@ -85,7 +85,7 @@ export function OfflineIndicator() {
             {!online ? (
               <>
                 <CloudOff className="h-3.5 w-3.5" />
-{t('ui.offline')}{pending > 0 ? ` — ${pending} change${pending === 1 ? '' : 's'} saved locally` : ' — changes will sync'}
+{t('ui.offline')}{pending > 0 ? ` — ${pending} change${pending === 1 ? '' : 's'} saved locally` : t('ui.changesWillSync')}
               </>
             ) : pending > 0 ? (
               <>

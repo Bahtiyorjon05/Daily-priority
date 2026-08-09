@@ -861,7 +861,7 @@ export default function GoalsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={closeGoalEditor}
             >
               <motion.div
@@ -871,7 +871,7 @@ export default function GoalsPage() {
                 ref={newGoalModal.ref}
                 {...newGoalModal.dialogProps}
                 onClick={(e) => e.stopPropagation()}
-                className={`bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border-4 ${
+                className={`bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 w-full max-w-lg modal-panel overflow-y-auto shadow-2xl border-4 ${
                   newGoal.goalType === 'DUNYA' 
                     ? 'border-amber-400 dark:border-amber-600' 
                     : 'border-purple-400 dark:border-purple-600'
@@ -1061,7 +1061,7 @@ export default function GoalsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-overlay"
               onClick={() => setDeletingGoal(null)}
             >
               <motion.div

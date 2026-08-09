@@ -221,4 +221,109 @@ describe('translation key coverage', () => {
       'wrap these in t(...) — an attribute is still copy:\n' + offenders.join('\n')
     ).toEqual([])
   })
+  /**
+   * Fifth variant. `{saving ? 'Deleting...' : 'Delete'}` in the journal delete
+   * dialog — a string rendered as a JSX child, but a StringLiteral rather than
+   * JsxText, so the parser check above walked straight past it. Every other
+   * shape of this bug is now covered; this was the one that made the delete
+   * confirmation come up in English on an Uzbek dashboard.
+   */
+  it('never renders a bare string literal as JSX content', () => {
+    const TFN = new Set(['t', 'tr', 'tI18n', 'tMsg'])
+    const isJsx = (n: ts.Node) =>
+      ts.isJsxElement(n) || ts.isJsxSelfClosingElement(n) || ts.isJsxFragment(n) ||
+      ts.isJsxAttribute(n) || ts.isJsxAttributes(n)
+
+    // A literal that is an argument to the translator is a key, not copy.
+    const insideTranslator = (n: ts.Node) => {
+      let p: ts.Node | undefined = n.parent
+      while (p) {
+        if (ts.isCallExpression(p)) {
+          const fn = p.expression
+          const name = ts.isIdentifier(fn)
+            ? fn.text
+            : ts.isPropertyAccessExpression(fn) ? fn.name.text : ''
+          if (TFN.has(name)) return true
+        }
+        if (isJsx(p)) return false
+        p = p.parent
+      }
+      return false
+    }
+
+    const known = new Set(Object.values(en as Record<string, string>))
+    const offenders: string[] = []
+
+    for (const file of FILES) {
+      if (!file.endsWith('.tsx')) continue
+      const src = readFileSync(file, 'utf8')
+      if (!src.includes("'use client'") && !src.includes('"use client"')) continue
+
+      const sf = ts.createSourceFile(file, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+      const visit = (node: ts.Node) => {
+        if (
+          ts.isJsxExpression(node) && node.expression && node.parent &&
+          (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))
+        ) {
+          const lits: ts.StringLiteralLike[] = []
+          // Stop at nested JSX: a child element carries its own copy and its
+          // own className, and walking in floods this with style strings.
+          //
+          // Also stop at comparisons and switch cases. `c === 'password
+          // (decrypted)'` in the admin table viewer tests a column name — the
+          // string is read, never rendered, so translating it would break the
+          // match.
+          const dig = (n: ts.Node) => {
+            if (isJsx(n)) return
+            if (ts.isCaseClause(n)) return
+            if (
+              ts.isBinaryExpression(n) &&
+              [
+                ts.SyntaxKind.EqualsEqualsEqualsToken,
+                ts.SyntaxKind.ExclamationEqualsEqualsToken,
+                ts.SyntaxKind.EqualsEqualsToken,
+                ts.SyntaxKind.ExclamationEqualsToken,
+              ].includes(n.operatorToken.kind)
+            ) {
+              // The comparison itself is not copy, but a ternary hanging off it
+              // still is — so keep walking the branches, not the operands.
+              return
+            }
+            if (ts.isStringLiteralLike(n)) { lits.push(n); return }
+            ts.forEachChild(n, dig)
+          }
+          dig(node.expression)
+
+          for (const lit of lits) {
+            const text = lit.text.trim()
+            if (!/[A-Za-z]{3}/.test(text)) continue
+            if (insideTranslator(lit)) continue
+            if (ALLOWED.has(text)) continue
+            // Message keys, enum members, date-format tokens and css-ish values
+            // are not copy.
+            if (/^[a-z][A-Za-z0-9]*\.[A-Za-z0-9]+$/.test(text)) continue
+            if (/^[A-Z0-9_]+$/.test(text)) continue
+            // Sentence-ish: has a space, ends in punctuation, or is a lone
+            // capitalised word.
+            const looksLikeCopy =
+              /\s/.test(text) || /[.!?…]$/.test(text) || /^[A-Z][a-z]+$/.test(text)
+            if (!looksLikeCopy) continue
+            // Style/format strings that happen to contain spaces.
+            if (/^(from|to|via|bg|text|border)-/.test(text)) continue
+            if (/^@keyframes|^\d+%|^[A-Za-z]+,\s|^(MMM|EEEE|yyyy)/.test(text)) continue
+            if (known.has(text)) continue
+
+            offenders.push(`${file.slice(SRC.length + 1)}: ${text.slice(0, 50)}`)
+          }
+        }
+        ts.forEachChild(node, visit)
+      }
+      visit(sf)
+    }
+
+    expect(
+      offenders,
+      'a string rendered in {…} is still copy — wrap it in t(...):\n' + offenders.join('\n')
+    ).toEqual([])
+  })
 })

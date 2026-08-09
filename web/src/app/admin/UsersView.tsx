@@ -271,7 +271,7 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
         {/* Header */}
         <div className="flex items-center justify-between border-b px-5 py-4">
           <div className="min-w-0">
-            <div className="truncate text-lg font-semibold">{data?.user.name || data?.user.email || 'User'}</div>
+            <div className="truncate text-lg font-semibold">{data?.user.name || data?.user.email || tr('common.user')}</div>
             {data && <div className="truncate text-xs text-muted-foreground">{data.user.email}</div>}
           </div>
           <button onClick={onClose} className="rounded-lg p-1.5 hover:bg-muted"><X className="h-5 w-5" /></button>

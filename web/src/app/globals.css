@@ -2422,6 +2422,31 @@ a:focus-visible,
    conflicting shorthand can never leave a surface blank.
    ========================================================================= */
 @layer utilities {
+
+  /*
+    Modal panel height.
+
+    `max-h-[90vh]` was cutting the bottom off every dialog on a phone: `vh` is
+    measured against the LARGEST viewport — the one with the browser's address
+    bar hidden — so while the bar is on screen, 90vh is taller than what you can
+    actually see. The panel's sticky footer then sticks to the bottom of a box
+    that extends past the screen, which is why "Save" and "Cancel" on the new
+    journal entry form were unreachable.
+
+    `dvh` tracks the viewport as it actually is, shrinking and growing with the
+    address bar. The `vh` line above it is the fallback for anything that does
+    not understand `dvh`, and is dropped by browsers that do.
+  */
+  .modal-panel {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+
+  /* Overlays that hold a panel: keep it clear of the home indicator / notch. */
+  .modal-overlay {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
   .phase-hero.phase-hero {
     /* Same vivid sky as the prayer panel — this used to carry its own
        `--phase-hero-from/to` pair that was never migrated, which is why the

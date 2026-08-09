@@ -1740,5 +1740,18 @@
   "admin.addressReleased": "Ular keyinchalik shu manzil bilan qaytadan ro‘yxatdan o‘tgan, shuning uchun u endi alohida, yangi hisobga tegishli.",
   "ui.editThisEntry": "Bu yozuvni tahrirlash",
   "ui.deleteThisEntry": "Bu yozuvni o‘chirish",
-  "ui.cannotCompletePrayerYet": "{prayer} ni hozir bajarilgan deb belgilay olmaysiz — uning vaqti {time}."
+  "ui.cannotCompletePrayerYet": "{prayer} ni hozir bajarilgan deb belgilay olmaysiz — uning vaqti {time}.",
+  "common.deleting": "O‘chirilmoqda…",
+  "common.unknown": "Noma’lum",
+  "common.never": "Hech qachon",
+  "common.hide": "Yashirish",
+  "common.show": "Ko‘rsatish",
+  "ui.ratingPerfect": "Mukammal",
+  "ui.ratingGreat": "Zo‘r",
+  "ui.ratingGood": "Yaxshi",
+  "ui.atPrayerTime": "namoz vaqtida",
+  "ui.changesWillSync": "— o‘zgarishlar sinxronlanadi",
+  "common.user": "Foydalanuvchi",
+  "ui.quran": "Qur’on",
+  "ui.quranCitationFallback": "Qur’on 65:3"
 }

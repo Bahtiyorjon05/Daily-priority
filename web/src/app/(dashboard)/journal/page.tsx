@@ -772,14 +772,14 @@ export default function JournalPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 modal-overlay overflow-y-auto"
             onClick={closeEditor}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full modal-panel overflow-y-auto"
               ref={createModal.ref}
               {...createModal.dialogProps}
               onClick={(e) => e.stopPropagation()}
@@ -992,14 +992,14 @@ export default function JournalPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 modal-overlay overflow-y-auto"
             onClick={() => setViewingEntry(null)}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full modal-panel overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 sm:p-6 z-10">
@@ -1023,7 +1023,7 @@ export default function JournalPage() {
                         <p className="text-sm text-slate-600 dark:text-gray-400">{viewingEntry.hijriDate}</p>
                       )}
                       <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">
-{t('ui.feeling')} {MOODS.find(m => m.value === viewingEntry.mood)?.label || 'Unknown'}
+{t('ui.feeling')} {MOODS.find(m => m.value === viewingEntry.mood)?.label || t('common.unknown')}
                       </p>
                     </div>
                   </div>
@@ -1117,7 +1117,7 @@ export default function JournalPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4 modal-overlay"
             onClick={() => setDeleteConfirm(null)}
           >
             <motion.div
@@ -1142,7 +1142,7 @@ export default function JournalPage() {
                   }}
                   className="flex-1 hover:opacity-90 disabled:opacity-60"
                 >
-                  {saving ? 'Deleting...' : 'Delete'}
+                  {saving ? t('common.deleting') : t('common.delete')}
                 </Button>
                 <Button
                   variant="outline"
@@ -1171,7 +1171,7 @@ export default function JournalPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4"
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] p-4 modal-overlay"
             onClick={() => setValidationErrors([])}
           >
             <motion.div

@@ -154,7 +154,7 @@ export default function PrayerStreak({
           <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
             {lastMissedDate 
               ? lastMissedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-              : 'Never'
+              : t('common.never')
             }
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">

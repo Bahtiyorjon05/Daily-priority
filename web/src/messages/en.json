@@ -1740,5 +1740,18 @@
   "admin.addressReleased": "They have since signed up again with this address, so it now belongs to a separate, new account.",
   "ui.editThisEntry": "Edit this entry",
   "ui.deleteThisEntry": "Delete this entry",
-  "ui.cannotCompletePrayerYet": "You can’t mark {prayer} complete yet — its time is {time}."
+  "ui.cannotCompletePrayerYet": "You can’t mark {prayer} complete yet — its time is {time}.",
+  "common.deleting": "Deleting…",
+  "common.unknown": "Unknown",
+  "common.never": "Never",
+  "common.hide": "Hide",
+  "common.show": "Show",
+  "ui.ratingPerfect": "Perfect",
+  "ui.ratingGreat": "Great",
+  "ui.ratingGood": "Good",
+  "ui.atPrayerTime": "at prayer time",
+  "ui.changesWillSync": "— changes will sync",
+  "common.user": "User",
+  "ui.quran": "Quran",
+  "ui.quranCitationFallback": "Quran 65:3"
 }

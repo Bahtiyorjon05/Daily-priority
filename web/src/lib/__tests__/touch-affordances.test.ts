@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -20,6 +20,18 @@ import { describe, expect, it } from 'vitest'
  */
 
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8')
+
+function walkTsx(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const p = join(dir, entry)
+    if (statSync(p).isDirectory()) {
+      if (entry !== '__tests__' && entry !== 'node_modules') walkTsx(p, out)
+    } else if (p.endsWith('.tsx')) {
+      out.push(p)
+    }
+  }
+  return out
+}
 
 /** Assertions must read code, not prose. */
 const stripComments = (src: string) =>
@@ -149,5 +161,46 @@ describe('popovers close when something else is pressed', () => {
     const hook = read('src/hooks/useDismissable.ts')
     expect(hook).toMatch(/onCloseRef/)
     expect(hook, 'effect must depend on open alone').toMatch(/\}, \[open\]\)/)
+  })
+})
+describe('dialogs fit the phone screen they are on', () => {
+  /**
+   * `max-h-[90vh]` cut the bottom off every dialog on a phone.
+   *
+   * `vh` is measured against the LARGEST viewport — the one with the browser's
+   * address bar hidden — so while the bar is showing, 90vh is taller than what
+   * you can actually see. The panel's sticky footer then sticks to the bottom of
+   * a box that runs past the screen, which is why Save and Cancel on the new
+   * journal entry form could not be reached.
+   */
+  it('sizes modal panels against the visible viewport', () => {
+    const offenders: string[] = []
+    for (const file of walkTsx(join(process.cwd(), 'src'))) {
+      const src = readFileSync(file, 'utf8')
+      for (const m of src.matchAll(/max-h-\[(\d+)vh\]/g)) {
+        offenders.push(`${file.split('src')[1]}: max-h-[${m[1]}vh]`)
+      }
+    }
+    expect(
+      offenders,
+      'use dvh (or the .modal-panel utility) — vh is taller than the screen on mobile:\n' +
+        offenders.join('\n')
+    ).toEqual([])
+  })
+
+  it('gives the modal-panel utility a vh fallback under the dvh rule', () => {
+    // Order matters: the fallback has to come first so browsers that understand
+    // dvh override it, and browsers that do not still get a sane height.
+    const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8')
+    const rule = /\.modal-panel\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(rule, '.modal-panel must exist').toBeTruthy()
+    expect(rule).toMatch(/max-height:\s*90vh/)
+    expect(rule).toMatch(/max-height:\s*90dvh/)
+    expect(rule.indexOf('90vh')).toBeLessThan(rule.indexOf('90dvh'))
+  })
+
+  it('keeps dialog overlays clear of the notch and home indicator', () => {
+    const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8')
+    expect(css).toMatch(/\.modal-overlay\s*\{[^}]*env\(safe-area-inset-bottom\)/)
   })
 })

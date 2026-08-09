@@ -58,7 +58,7 @@ const Modal = memo<ModalProps>(({
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
-    full: 'max-w-[95vw] max-h-[95vh]',
+    full: 'max-w-[95vw] max-h-[95dvh]',
   }
 
   return (
@@ -84,7 +84,7 @@ const Modal = memo<ModalProps>(({
               transition={{ duration: 0.2 }}
               className={cn(
                 'relative w-full rounded-xl bg-background border shadow-2xl pointer-events-auto',
-                'flex flex-col max-h-[90vh]',
+                'flex flex-col modal-panel',
                 sizeClasses[size],
                 className
               )}
