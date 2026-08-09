@@ -349,22 +349,28 @@ export default function CalendarPage() {
   */
   const selectDay = (date: Date) => {
     /*
-      A desktop cell is 128px tall and already lists the day's events, so a
-      click there can only sensibly mean "add something to this day" — going
-      through a selection step first is a wasted click.
+      Which behaviour you get follows the LAYOUT, not the input device.
 
-      A phone cell is about 45px: a number and a few dots. It cannot show what
-      is on the day, so a tap has to mean "show me this day" and the panel below
-      does the telling.
+      At `sm` and up a cell is 128px tall and already lists the day's events and
+      its Hijri date, so a click there can only mean "add something to this day"
+      — a selection step first is a wasted click. Below `sm` the cell is about
+      45px: a number and a few dots, nothing else. It cannot show what is on the
+      day, so a tap has to mean "show me this day" and the panel below tells you.
 
-      Read at click time rather than held in state, so there is nothing to get
-      out of step with the viewport and no hydration mismatch.
+      This was keyed on `(hover: hover) and (pointer: fine)`, which was wrong.
+      Plenty of Android browsers and WebViews report a fine, hovering pointer, so
+      phones took the desktop path: the panel never opened, and the Hijri date it
+      exists to show was unreachable. Cell size is what decides whether the
+      information fits, and cell size follows the viewport width — so the
+      breakpoint here is the same 640px the grid switches at.
+
+      Read at click time, so resizing needs no bookkeeping and there is no
+      hydration mismatch.
     */
-    const finePointer =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const roomInTheCell =
+      typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches
 
-    if (finePointer) {
+    if (roomInTheCell) {
       openCreateModal(date)
       return
     }
@@ -885,14 +891,16 @@ export default function CalendarPage() {
                           year: 'numeric',
                         })}
                       </p>
-                      {selectedHijri && (
+                      {selectedHijri ? (
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <Moon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
                           {Math.floor(selectedHijri.day)} {selectedHijri.month} {selectedHijri.year}
                           {' '}
                           {tr('ui.ah')}
                         </p>
-                      )}
+                      ) : hijriLoading ? (
+                        <span className="mt-1 block h-3.5 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                      ) : null}
                       {selectedHijri?.event && (
                         <p className="accent-ink mt-1 text-xs font-bold">
                           🌙 {selectedHijri.event}

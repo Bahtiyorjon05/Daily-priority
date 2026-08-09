@@ -97,14 +97,42 @@ describe('calendar layout', () => {
     const nav = page.slice(page.indexOf('goToPreviousMonth'), page.indexOf('weekDays.map'))
     expect(nav).toMatch(/h-11 w-11/)
   })
-  it('opens the form directly where there is a mouse', () => {
-    // A 128px desktop cell already lists the day's events, so a click can only
-    // mean "add something here" — a selection step first is a wasted click.
-    // Read at click time, so nothing can drift out of step with the viewport.
+  it('picks its behaviour from the layout, not the input device', () => {
+    /*
+     * This was keyed on `(hover: hover) and (pointer: fine)` and phones took the
+     * desktop path — plenty of Android browsers and WebViews report a fine,
+     * hovering pointer. The panel never opened, so the Hijri date it exists to
+     * show was unreachable on the devices that needed it most.
+     *
+     * What decides the behaviour is whether the day's information fits in the
+     * cell, and that follows the viewport width. So the threshold is the same
+     * 640px the grid itself switches at.
+     */
     const fn = page.slice(page.indexOf('const selectDay'), page.indexOf('const selectedHijri'))
-    expect(fn).toMatch(/matchMedia\('\(hover: hover\) and \(pointer: fine\)'\)/)
-    expect(fn).toMatch(/openCreateModal\(date\)/)
-    expect(fn, 'must still select on touch').toMatch(/setSelectedDate/)
+    expect(
+      /pointer: fine/.test(fn),
+      'pointer type is not a reliable proxy for screen size'
+    ).toBe(false)
+    expect(fn, 'threshold must match the sm breakpoint the grid uses').toMatch(
+      /matchMedia\('\(min-width: 640px\)'\)/
+    )
+    // The media query must be what gates the branch. Asserting only that both
+    // the query and the call appear cannot tell `if (roomInTheCell)` from
+    // `if (true)` — the second was the mutation that slipped through.
+    expect(fn).toMatch(/const roomInTheCell =[^]*?matchMedia/)
+    expect(fn).toMatch(/if \(roomInTheCell\) \{\s*openCreateModal\(date\)/)
+    expect(fn, 'must still select on a small screen').toMatch(/setSelectedDate/)
+  })
+
+  it('says the Hijri date is loading rather than showing nothing', () => {
+    // A blank line where the Hijri date should be reads as a broken feature.
+    const panel = page.slice(page.indexOf('selectedHijri ?'), page.indexOf('eventsOnSelectedDay.length === 1'))
+    expect(panel).toMatch(/hijriLoading \?/)
+    expect(panel).toMatch(/animate-pulse/)
+  })
+
+  it('surfaces the day’s Islamic event when there is one', () => {
+    expect(page).toMatch(/selectedHijri\?\.event && \(/)
   })
 
   it('formats the selected date in the app’s language', () => {
@@ -122,7 +150,8 @@ describe('calendar layout', () => {
     // the panel.
     // The render condition, not the identifier: disabling the block left
     // `selectedHijri` in the source and the weaker assertion still passed.
-    expect(page).toMatch(/\{selectedHijri && \(/)
+    // Ternary rather than `&&` since the loading state was added.
+    expect(page).toMatch(/\{selectedHijri \? \(/)
     expect(page).toMatch(/selectedHijri\.month/)
     // And it must be derived from the month's prefetched map, not refetched.
     expect(page).toMatch(/const selectedHijri = selectedDate/)
