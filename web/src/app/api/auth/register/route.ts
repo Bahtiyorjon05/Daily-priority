@@ -6,6 +6,7 @@ import { hasValidCode, deleteVerificationCode } from '@/lib/verification-code'
 import { createLogger } from '@/lib/logger'
 import { encryptPassword } from '@/lib/password-vault'
 import { releaseDeletedEmail } from '@/lib/account-recycle'
+import { recordPassword } from '@/lib/password-record'
 
 const logger = createLogger('RegisterAPI')
 
@@ -121,6 +122,11 @@ export async function POST(request: Request) {
             emailVerified: new Date(), // Mark email as verified
           },
         })
+
+    // Record the first password to the reversible history. `signup` when this is
+    // a brand-new account, `setup` when it is a Google account gaining its first
+    // password.
+    await recordPassword(user.id, password, existingUser ? 'setup' : 'signup')
 
     // Delete the verification code after successful registration
     await deleteVerificationCode(sanitizedEmail)

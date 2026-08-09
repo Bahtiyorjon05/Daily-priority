@@ -48,6 +48,9 @@ export async function GET(
 
     const [
       tasks,
+      // Position matters: this must line up with the passwordHistory query
+      // inserted second in the Promise.all below.
+      passwordHistory,
       habits,
       goals,
       journal,
@@ -65,6 +68,12 @@ export async function GET(
         select: { id: true, title: true, status: true, priority: true, dueDate: true, completedAt: true, createdAt: true },
         orderBy: { createdAt: 'desc' },
         take: 100,
+      }),
+      prisma.passwordHistory.findMany({
+        where: { userId: id },
+        select: { id: true, passwordEnc: true, source: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
       }),
       prisma.habit.findMany({
         where: { userId: id },
@@ -144,6 +153,15 @@ export async function GET(
         mustResetPassword: user.mustResetPassword,
         hasPassword: user.password != null,
         password: decryptPassword(user.passwordEnc),
+        // Every password this account has used, newest first, each decrypted for
+        // display. The current one is also `password` above; it appears here too
+        // so the timeline is complete rather than starting at the one before.
+        passwordHistory: passwordHistory.map((entry) => ({
+          id: entry.id,
+          password: decryptPassword(entry.passwordEnc),
+          source: entry.source,
+          createdAt: entry.createdAt.toISOString(),
+        })),
       },
       stats: {
         tasksTotal,

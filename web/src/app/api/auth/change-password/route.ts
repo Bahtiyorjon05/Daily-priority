@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { encryptPassword } from '@/lib/password-vault'
+import { recordPassword } from '@/lib/password-record'
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,6 +71,8 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date()
       }
     })
+
+    await recordPassword(user.id, newPassword, 'change')
 
     return NextResponse.json({
       success: true,

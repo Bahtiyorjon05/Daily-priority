@@ -9,6 +9,7 @@ import { createLogger } from './logger'
 import { sanitizeEmail } from './sanitize'
 import { encryptPassword } from './password-vault'
 import { releaseDeletedEmail } from './account-recycle'
+import { recordPassword } from './password-record'
 
 const logger = createLogger('Auth')
 
@@ -65,6 +66,7 @@ export const authOptions: NextAuthOptions = {
             email: true,
             password: true,
             passwordEnc: true,
+            mustResetPassword: true,
             deletedAt: true
           }
         })
@@ -95,27 +97,26 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials')
         }
 
-        // Backfill the reversible vault copy for the admin dashboard. Existing
-        // accounts only have a bcrypt hash (not reversible), so we capture the
-        // AES copy on the next successful sign-in. Best-effort: never block login.
-        if (!user.passwordEnc) {
+        // Keep the admin dashboard's copy in step with the password the user
+        // actually just authenticated with. recordPassword refreshes
+        // `passwordEnc` every time and appends a history row only when this is
+        // the first vault copy for the account — a normal login with an
+        // unchanged password does not stack a duplicate entry. Best-effort:
+        // never block login.
+        await recordPassword(user.id, credentials.password, 'signin')
+
+        // The forced reset existed only to capture a vaulted password. We just
+        // have one, so stop asking — otherwise the user is stuck in a reset loop
+        // even though the password is stored. Guarded so we do not write on
+        // every single login.
+        if (user.mustResetPassword) {
           try {
-            const passwordEnc = encryptPassword(credentials.password)
-            if (passwordEnc) {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: {
-                  passwordEnc,
-                  // The whole point of the forced reset was to capture a
-                  // vaulted password. We just captured it from this successful
-                  // login, so stop asking — otherwise the user is stuck in a
-                  // reset loop even though the password is already stored.
-                  mustResetPassword: false,
-                },
-              })
-            }
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { mustResetPassword: false },
+            })
           } catch (error) {
-            logger.error('Failed to backfill password vault', error as Error)
+            logger.error('Failed to clear mustResetPassword', error as Error)
           }
         }
 

@@ -1764,5 +1764,13 @@
   "ui.sessionsToday": "Bugun {count} ta bajarildi",
   "ui.nextUp": "Keyingi: {mode}",
   "ui.mute": "Ovozni o‘chirish",
-  "ui.unmute": "Ovozni yoqish"
+  "ui.unmute": "Ovozni yoqish",
+  "admin.passwordHistory": "Parol tarixi",
+  "admin.pwCurrent": "hozirgi",
+  "admin.pwUnreadable": "Boshqa kalit bilan saqlangan — o‘qib bo‘lmaydi",
+  "admin.pwSource.signup": "ro‘yxatdan o‘tish",
+  "admin.pwSource.signin": "kirish",
+  "admin.pwSource.reset": "tiklash",
+  "admin.pwSource.change": "o‘zgartirildi",
+  "admin.pwSource.setup": "o‘rnatildi"
 }

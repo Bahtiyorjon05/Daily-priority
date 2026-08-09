@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Mail,
   Clock,
-  MapPin, Trash2 } from 'lucide-react'
+  MapPin, Trash2, History } from 'lucide-react'
 
 interface UserRow {
   id: string
@@ -225,6 +225,12 @@ interface UserDetailData {
     mustResetPassword: boolean
     hasPassword: boolean
     password: string | null
+    passwordHistory: {
+      id: string
+      password: string | null
+      source: string
+      createdAt: string
+    }[]
     deleted: boolean
     deletedAt: string | null
     deletionReason: string | null
@@ -255,6 +261,9 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
   const [tab, setTab] = useState<(typeof TABS)[number]>('Tasks')
   const [taskStatus, setTaskStatus] = useState('all')
   const [showPw, setShowPw] = useState(false)
+  // Which history rows are revealed. Per-row, so opening one does not expose
+  // every password the person has ever used at once.
+  const [revealed, setRevealed] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setLoading(true)
@@ -339,6 +348,72 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
                 <span className="text-sm italic text-muted-foreground">{tr('ui.pendingCapturedOnNextResetSignIn')}</span>
               )}
             </div>
+
+            {/*
+              Password history, newest first.
+
+              The card above shows the current password; this shows what came
+              before it and when, with what triggered each change. Collapsed by
+              default and revealed per row, because a list of a person's
+              passwords sitting open on screen is worse than one.
+            */}
+            {data.user.passwordHistory.length > 0 && (
+              <div className="mb-4 rounded-2xl border bg-card p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <History className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">{tr('admin.passwordHistory')}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    {data.user.passwordHistory.length}
+                  </span>
+                </div>
+                <ul className="space-y-1.5">
+                  {data.user.passwordHistory.map((entry, index) => (
+                    <li
+                      key={entry.id}
+                      className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/40 px-3 py-2"
+                    >
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        {tr(`admin.pwSource.${entry.source}`)}
+                      </span>
+                      {index === 0 && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          {tr('admin.pwCurrent')}
+                        </span>
+                      )}
+                      <span className="ml-auto text-[11px] text-muted-foreground">
+                        {fmtDateTime(entry.createdAt)}
+                      </span>
+                      {entry.password ? (
+                        <code className="w-full rounded bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+                          {revealed.has(entry.id)
+                            ? entry.password
+                            : '•'.repeat(Math.min(12, entry.password.length))}
+                        </code>
+                      ) : (
+                        <span className="w-full text-xs italic text-muted-foreground">
+                          {tr('admin.pwUnreadable')}
+                        </span>
+                      )}
+                      {entry.password && (
+                        <button
+                          onClick={() =>
+                            setRevealed((prev) => {
+                              const next = new Set(prev)
+                              if (next.has(entry.id)) next.delete(entry.id)
+                              else next.add(entry.id)
+                              return next
+                            })
+                          }
+                          className="text-[11px] text-muted-foreground hover:text-foreground"
+                        >
+                          {revealed.has(entry.id) ? tr('common.hide') : tr('common.show')}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Stat tiles */}
             <div className="mb-4 grid grid-cols-3 gap-2.5 sm:grid-cols-6">

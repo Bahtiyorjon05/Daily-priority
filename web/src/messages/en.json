@@ -1764,5 +1764,13 @@
   "ui.sessionsToday": "{count} done today",
   "ui.nextUp": "Next: {mode}",
   "ui.mute": "Mute",
-  "ui.unmute": "Unmute"
+  "ui.unmute": "Unmute",
+  "admin.passwordHistory": "Password history",
+  "admin.pwCurrent": "current",
+  "admin.pwUnreadable": "Stored with a different vault key — cannot be read",
+  "admin.pwSource.signup": "sign-up",
+  "admin.pwSource.signin": "sign-in",
+  "admin.pwSource.reset": "reset",
+  "admin.pwSource.change": "changed",
+  "admin.pwSource.setup": "set"
 }

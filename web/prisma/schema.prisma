@@ -63,10 +63,35 @@ model User {
   twoFactorTokens  TwoFactorToken[]
   preferences      UserPreference?
   settings         UserSettings?
+  passwordHistory  PasswordHistory[]
 
   @@index([email])
   @@index([createdAt])
   @@map("users")
+}
+
+/// One row per password this account has ever used, newest by `createdAt`.
+///
+/// Same AES-256-GCM vault format as `User.passwordEnc`, so the admin console can
+/// decrypt and display each one. The current password is the most recent row;
+/// `passwordEnc` on the user is kept in step as a convenience.
+///
+/// This is deliberately reversible history. It exists because the admin design
+/// of this app shows passwords, and it multiplies the blast radius of a database
+/// leak accordingly — anyone with the DB dump plus PASSWORD_VAULT_KEY can read
+/// every password every user has ever set, most of which are reused elsewhere.
+/// `source` records what wrote the row (reset / signin / signup / change) so the
+/// history reads as a timeline rather than a bare list.
+model PasswordHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  passwordEnc String
+  source      String
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("password_history")
 }
 
 /// Heartbeat + outcome of each scheduled job, so the admin console can show

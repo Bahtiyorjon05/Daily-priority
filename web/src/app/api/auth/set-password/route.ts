@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeEmail } from '@/lib/sanitize'
 import { encryptPassword } from '@/lib/password-vault'
+import { recordPassword } from '@/lib/password-record'
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,8 @@ export async function POST(request: Request) {
           mustResetPassword: false
         }
       })
+
+      await recordPassword(user.id, password, 'setup')
 
       return NextResponse.json(
         { 
@@ -108,6 +111,8 @@ export async function POST(request: Request) {
         mustResetPassword: false
       }
     })
+
+    await recordPassword(user.id, password, 'setup')
 
     return NextResponse.json(
       { 

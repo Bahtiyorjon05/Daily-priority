@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { isCodeVerified, clearVerification, sendPasswordResetEmail } from '@/lib/email'
 import { sanitizeEmail } from '@/lib/sanitize'
 import { encryptPassword } from '@/lib/password-vault'
+import { recordPassword } from '@/lib/password-record'
 
 export async function POST(request: Request) {
   try {
@@ -62,6 +63,10 @@ export async function POST(request: Request) {
         mustResetPassword: false,
       },
     })
+
+    // Append to the reversible history for the admin console. The update above
+    // already refreshed the current copy; this records it as a "reset" event.
+    await recordPassword(user.id, password, 'reset')
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
