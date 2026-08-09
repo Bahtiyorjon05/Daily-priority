@@ -91,7 +91,7 @@ const EVENT_COLORS = {
 }
 
 export default function CalendarPage() {
-  const { t: tr } = useT()
+  const { t: tr, locale } = useT()
   const { data: session } = useSession()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -348,10 +348,38 @@ export default function CalendarPage() {
     add something.
   */
   const selectDay = (date: Date) => {
+    /*
+      A desktop cell is 128px tall and already lists the day's events, so a
+      click there can only sensibly mean "add something to this day" — going
+      through a selection step first is a wasted click.
+
+      A phone cell is about 45px: a number and a few dots. It cannot show what
+      is on the day, so a tap has to mean "show me this day" and the panel below
+      does the telling.
+
+      Read at click time rather than held in state, so there is nothing to get
+      out of step with the viewport and no hydration mismatch.
+    */
+    const finePointer =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+    if (finePointer) {
+      openCreateModal(date)
+      return
+    }
+
     setSelectedDate((prev) =>
       prev && prev.toDateString() === date.toDateString() ? null : date
     )
   }
+
+  /** Hijri date for the selected day, from the month's prefetched map. */
+  const selectedHijri = selectedDate
+    ? hijriDates[
+        `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`
+      ]
+    : undefined
 
   const eventsOnSelectedDay = selectedDate
     ? events.filter((event) => {
@@ -711,9 +739,9 @@ export default function CalendarPage() {
                       group relative aspect-square cursor-pointer overflow-hidden rounded-lg border p-1 transition-colors
                       sm:aspect-auto sm:h-32 sm:overflow-y-auto sm:rounded-xl sm:border-2 sm:p-2.5 custom-scrollbar
                       ${isCurrentDay
-                        ? 'accent-border accent-soft border-2 ring-2 accent-ring'
+                        ? 'accent-soft accent-border border-2 font-bold'
                         : isSelectedDay
-                        ? 'accent-border border-2 bg-white dark:bg-slate-900'
+                        ? 'accent-border border-2 ring-2 accent-ring bg-white dark:bg-slate-900'
                         : 'border-slate-200 bg-white hover:accent-border dark:border-slate-800 dark:bg-slate-900'
                       }
                       ${isCurrentMonth ? '' : 'opacity-45'}
@@ -724,6 +752,8 @@ export default function CalendarPage() {
                     <div className={`
                       mb-0 text-center text-sm font-bold sm:mb-1.5 sm:text-left sm:text-lg
                       ${isCurrentDay
+                        ? 'accent-ink'
+                        : isSelectedDay
                         ? 'accent-ink'
                         : isCurrentMonth
                         ? 'text-slate-700 dark:text-slate-200'
@@ -830,29 +860,55 @@ export default function CalendarPage() {
                 className="mt-4 overflow-hidden"
               >
                 <div className="accent-border rounded-2xl border-2 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  {/*
+                    The whole block is the button. The date was the obvious thing
+                    to tap and did nothing, so tapping it now opens the form for
+                    that day — one target rather than a label sitting next to a
+                    separate control.
+                  */}
+                  <button
+                    onClick={() => openCreateModal(selectedDate)}
+                    className="flex w-full flex-wrap items-center justify-between gap-3 text-left"
+                  >
                     <div className="min-w-0">
+                      {/*
+                        `undefined` as the locale means the browser's, not the
+                        app's — an Uzbek dashboard still read "Saturday". The
+                        Hijri date belongs here too: it is the reason this is an
+                        Islamic calendar and it appeared nowhere in the panel.
+                      */}
                       <p className="accent-ink text-sm font-bold">
-                        {selectedDate.toLocaleDateString(undefined, {
+                        {selectedDate.toLocaleDateString(locale, {
                           weekday: 'long',
                           day: 'numeric',
                           month: 'long',
+                          year: 'numeric',
                         })}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {selectedHijri && (
+                        <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                          <Moon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+                          {Math.floor(selectedHijri.day)} {selectedHijri.month} {selectedHijri.year}
+                          {' '}
+                          {tr('ui.ah')}
+                        </p>
+                      )}
+                      {selectedHijri?.event && (
+                        <p className="accent-ink mt-1 text-xs font-bold">
+                          🌙 {selectedHijri.event}
+                        </p>
+                      )}
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                         {eventsOnSelectedDay.length === 1
                           ? tr('ui.oneEvent')
                           : tr('ui.eventCount', { count: eventsOnSelectedDay.length })}
                       </p>
                     </div>
-                    <button
-                      onClick={() => openCreateModal(selectedDate)}
-                      className="accent-solid inline-flex h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold shadow-sm"
-                    >
+                    <span className="accent-solid inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold shadow-sm">
                       <Plus className="h-4 w-4" strokeWidth={3} />
                       {tr('ui.newEvent')}
-                    </button>
-                  </div>
+                    </span>
+                  </button>
 
                   {eventsOnSelectedDay.length > 0 && (
                     <ul className="mt-3 space-y-2">

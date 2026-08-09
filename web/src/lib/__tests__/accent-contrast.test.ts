@@ -66,7 +66,32 @@ describe('per-page accents', () => {
       // Dark scheme must restate ink and soft, or the light values carry over
       // onto a near-black page.
       expect(css, `${accent} needs dark-scheme ink`).toMatch(
-        new RegExp(`\\.dark\\[data-accent='${accent}'\\][^}]*--acc-ink`)
+        new RegExp(`\\.dark \\[data-accent='${accent}'\\][^}]*--acc-ink`)
+      )
+    }
+  })
+
+  it('writes a dark-scheme selector that can actually match', () => {
+    /*
+     * The first version of this file checked that `.dark[data-accent='x']`
+     * existed and passed — while the rule could never match anything. `.dark` is
+     * on <html> and `data-accent` is on the page's own <div>, so the compound
+     * form asks for a single element that is both. Every accented page kept its
+     * light ink in dark mode and the calendar's selected day came up white on
+     * black.
+     *
+     * `data-phase` uses the compound form legitimately, because it is set on
+     * <html> alongside `.dark`. Checking for the rule's presence is not the same
+     * as checking that it applies.
+     */
+    expect(
+      /\.dark\[data-accent=/.test(css),
+      'compound .dark[data-accent] cannot match — data-accent is not on <html>'
+    ).toBe(false)
+
+    for (const accent of ACCENTS) {
+      expect(css, `${accent} needs a descendant dark rule`).toMatch(
+        new RegExp(`\.dark \[data-accent='${accent}'\]`)
       )
     }
   })
@@ -74,7 +99,7 @@ describe('per-page accents', () => {
   it('keeps accent ink readable on the page background', () => {
     for (const accent of ACCENTS) {
       const light = contrast(token(`[data-accent='${accent}']`, 'acc-ink'), LIGHT_BG)
-      const dark = contrast(token(`.dark[data-accent='${accent}']`, 'acc-ink'), DARK_BG)
+      const dark = contrast(token(`.dark [data-accent='${accent}']`, 'acc-ink'), DARK_BG)
       expect(light, `${accent} ink on light: ${light.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
       expect(dark, `${accent} ink on dark: ${dark.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
     }
@@ -88,8 +113,8 @@ describe('per-page accents', () => {
         token(`[data-accent='${accent}']`, 'acc-soft')
       )
       const dark = contrast(
-        token(`.dark[data-accent='${accent}']`, 'acc-ink'),
-        token(`.dark[data-accent='${accent}']`, 'acc-soft')
+        token(`.dark [data-accent='${accent}']`, 'acc-ink'),
+        token(`.dark [data-accent='${accent}']`, 'acc-soft')
       )
       expect(light, `${accent} soft plate, light: ${light.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)
       expect(dark, `${accent} soft plate, dark: ${dark.toFixed(2)}`).toBeGreaterThanOrEqual(4.5)

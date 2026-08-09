@@ -1755,5 +1755,6 @@
   "ui.quran": "Qur’on",
   "ui.quranCitationFallback": "Qur’on 65:3",
   "ui.oneEvent": "1 ta tadbir",
-  "ui.eventCount": "{count} ta tadbir"
+  "ui.eventCount": "{count} ta tadbir",
+  "ui.ah": "hijriy"
 }

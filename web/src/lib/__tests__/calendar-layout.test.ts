@@ -97,4 +97,45 @@ describe('calendar layout', () => {
     const nav = page.slice(page.indexOf('goToPreviousMonth'), page.indexOf('weekDays.map'))
     expect(nav).toMatch(/h-11 w-11/)
   })
+  it('opens the form directly where there is a mouse', () => {
+    // A 128px desktop cell already lists the day's events, so a click can only
+    // mean "add something here" — a selection step first is a wasted click.
+    // Read at click time, so nothing can drift out of step with the viewport.
+    const fn = page.slice(page.indexOf('const selectDay'), page.indexOf('const selectedHijri'))
+    expect(fn).toMatch(/matchMedia\('\(hover: hover\) and \(pointer: fine\)'\)/)
+    expect(fn).toMatch(/openCreateModal\(date\)/)
+    expect(fn, 'must still select on touch').toMatch(/setSelectedDate/)
+  })
+
+  it('formats the selected date in the app’s language', () => {
+    // `toLocaleDateString(undefined, …)` uses the browser's locale, so an Uzbek
+    // dashboard still read "Saturday".
+    expect(
+      /toLocaleDateString\(undefined/.test(page),
+      'undefined locale falls back to the browser, not the app'
+    ).toBe(false)
+    expect(page).toMatch(/toLocaleDateString\(locale/)
+  })
+
+  it('shows the Hijri date for the selected day', () => {
+    // It is the reason this is an Islamic calendar, and it appeared nowhere in
+    // the panel.
+    // The render condition, not the identifier: disabling the block left
+    // `selectedHijri` in the source and the weaker assertion still passed.
+    expect(page).toMatch(/\{selectedHijri && \(/)
+    expect(page).toMatch(/selectedHijri\.month/)
+    // And it must be derived from the month's prefetched map, not refetched.
+    expect(page).toMatch(/const selectedHijri = selectedDate/)
+  })
+
+  it('tells today apart from the selected day', () => {
+    // Two states on one cell need two different signals — a fill and a ring —
+    // not two shades of the same accent.
+    // Anchored on code, not a comment — comments are stripped above, so
+    // `indexOf` on one returns -1 and the slice comes back empty.
+    const start = page.indexOf('const isSelectedDay')
+    const cell = page.slice(start, page.indexOf('dayEvents.length > 0', start))
+    expect(cell, 'today needs a fill').toMatch(/isCurrentDay[^]*?accent-soft/)
+    expect(cell, 'selection needs a ring').toMatch(/isSelectedDay[^]*?accent-ring/)
+  })
 })

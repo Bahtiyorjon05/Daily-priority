@@ -2285,13 +2285,22 @@ a:focus-visible,
   --acc-soft: 239 246 255;
 }
 
-/* Dark scheme: the field keeps its hue but drops to a depth that white text
-   sits on comfortably, and the ink lifts to a tint that reads on near-black. */
-.dark[data-accent='journal'] { --acc-ink: 216 180 254; --acc-soft: 46 16 101; }
-.dark[data-accent='goals']   { --acc-ink: 253 186 116; --acc-soft: 69 26 3; }
-.dark[data-accent='habits']  { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
-.dark[data-accent='calendar'] { --acc-ink: 253 164 175; --acc-soft: 76 5 25; }
-.dark[data-accent='focus']   { --acc-ink: 147 197 253; --acc-soft: 23 37 84; }
+/* Dark scheme.
+
+   DESCENDANT combinator, not a compound selector. `.dark` lives on <html> and
+   `data-accent` lives on the page's own <div>, so `.dark [data-accent='x']` asks
+   for one element that is both and matches nothing — every accented page kept
+   its LIGHT ink and its near-white soft plate in dark mode, which is why the
+   selected day on the calendar came up white on black.
+
+   `data-phase` gets away with the compound form because it is set on <html> too.
+   This is the same trap the sky-contrast test fell into: the rule existed, so a
+   check for its presence passed, while it could never actually match. */
+.dark [data-accent='journal'] { --acc-ink: 216 180 254; --acc-soft: 46 16 101; }
+.dark [data-accent='goals']   { --acc-ink: 253 186 116; --acc-soft: 69 26 3; }
+.dark [data-accent='habits']  { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
+.dark [data-accent='calendar'] { --acc-ink: 253 164 175; --acc-soft: 76 5 25; }
+.dark [data-accent='focus']   { --acc-ink: 147 197 253; --acc-soft: 23 37 84; }
 
 [data-phase='dawn'] {
   --phase-accent: 99 102 241;       /* indigo-500 */
