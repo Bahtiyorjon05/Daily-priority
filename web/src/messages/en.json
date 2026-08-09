@@ -1772,5 +1772,10 @@
   "admin.pwSource.signin": "sign-in",
   "admin.pwSource.reset": "reset",
   "admin.pwSource.change": "changed",
-  "admin.pwSource.setup": "set"
+  "admin.pwSource.setup": "set",
+  "ui.joinUsOnTelegram": "Join us on Telegram",
+  "ui.telegramChannel": "Channel",
+  "ui.telegramChannelBlurb": "Announcements, updates and reminders.",
+  "ui.telegramGroup": "Discussion group",
+  "ui.telegramGroupBlurb": "Ask questions and talk with other users."
 }

@@ -1772,5 +1772,10 @@
   "admin.pwSource.signin": "kirish",
   "admin.pwSource.reset": "tiklash",
   "admin.pwSource.change": "o‘zgartirildi",
-  "admin.pwSource.setup": "o‘rnatildi"
+  "admin.pwSource.setup": "o‘rnatildi",
+  "ui.joinUsOnTelegram": "Telegramda bizga qo‘shiling",
+  "ui.telegramChannel": "Kanal",
+  "ui.telegramChannelBlurb": "E’lonlar, yangilanishlar va eslatmalar.",
+  "ui.telegramGroup": "Muhokama guruhi",
+  "ui.telegramGroupBlurb": "Savol bering va boshqa foydalanuvchilar bilan suhbatlashing."
 }

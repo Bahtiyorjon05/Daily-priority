@@ -33,7 +33,10 @@ import {
   CheckCircle2,
   TrendingUp,
   LayoutDashboard,
-  ShieldCheck
+  ShieldCheck,
+  Megaphone,
+  MessagesSquare,
+  ExternalLink
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -53,6 +56,8 @@ import { GlobalShortcuts } from '@/components/shared/GlobalShortcuts'
 import { OfflineIndicator } from '@/components/shared/OfflineIndicator'
 import { AdhanPlayer } from '@/components/shared/AdhanPlayer'
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher'
+import { TelegramMenu } from '@/components/shared/TelegramMenu'
+import { TELEGRAM } from '@/components/shared/Telegram'
 import { useT } from '@/lib/i18n/client'
 
 function DashboardLayoutContent({
@@ -753,6 +758,9 @@ function DashboardLayoutContent({
               {/* Time-of-day atmosphere ("The Prayer Day") */}
               <PhaseIndicator />
 
+              {/* Telegram — channel and discussion group */}
+              <TelegramMenu />
+
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -818,6 +826,32 @@ function DashboardLayoutContent({
                       {/* Always-available install entry — the floating banner
                           snoozes for a week once dismissed, this doesn't. */}
                       <InstallMenuItem onNavigate={() => setShowProfileDropdown(false)} />
+
+                      {/* Telegram. Also in the header, but people look for
+                          community links under their own profile, and the header
+                          icon is easy to read as decoration. */}
+                      <div className="border-b-2 border-gray-100 dark:border-gray-800">
+                        {[
+                          { href: TELEGRAM.channel, label: t('ui.telegramChannel'), handle: TELEGRAM.channelHandle, icon: Megaphone },
+                          { href: TELEGRAM.group, label: t('ui.telegramGroup'), handle: TELEGRAM.groupHandle, icon: MessagesSquare },
+                        ].map(({ href, label, handle, icon: Icon }) => (
+                          <a
+                            key={href}
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setShowProfileDropdown(false)}
+                            className="flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                          >
+                            <Icon className="h-4 w-4 shrink-0 text-[#229ED9] dark:text-[#3EAEE5]" />
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-medium text-gray-900 dark:text-gray-100">{label}</span>
+                              <span className="block truncate text-xs text-muted-foreground">{handle}</span>
+                            </span>
+                            <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          </a>
+                        ))}
+                      </div>
 
                       {/* Owner-only shortcut to the admin console */}
                       {isOwner && (

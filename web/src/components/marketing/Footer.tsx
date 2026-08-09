@@ -3,6 +3,8 @@
 import { useT } from '@/lib/i18n/client'
 import { Heart, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { TELEGRAM, TelegramIcon } from '@/components/shared/Telegram'
+import { ExternalLink } from 'lucide-react'
 
 export function Footer() {
   const { t } = useT()
@@ -64,6 +66,52 @@ export function Footer() {
 </p>
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
+          </div>
+
+          {/*
+            Community. Two cards rather than two small links: the footer is where
+            people go looking for "is anyone actually behind this", and a 12px
+            underlined link does not answer that.
+          */}
+          <div className="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
+            {[
+              {
+                href: TELEGRAM.channel,
+                label: t('ui.telegramChannel'),
+                handle: TELEGRAM.channelHandle,
+                blurb: t('ui.telegramChannelBlurb'),
+              },
+              {
+                href: TELEGRAM.group,
+                label: t('ui.telegramGroup'),
+                handle: TELEGRAM.groupHandle,
+                blurb: t('ui.telegramGroupBlurb'),
+              },
+            ].map(({ href, label, handle, blurb }) => (
+              <a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/70 p-4 text-left transition-colors hover:border-[#229ED9]/50 hover:bg-white dark:border-slate-700 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#229ED9]/10">
+                  <TelegramIcon className="h-5 w-5 text-[#229ED9] dark:text-[#3EAEE5]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{label}</span>
+                    <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-snug text-slate-600 dark:text-slate-400">
+                    {blurb}
+                  </span>
+                  <span className="mt-1 block truncate text-[11px] font-semibold text-[#229ED9] dark:text-[#3EAEE5]">
+                    {handle}
+                  </span>
+                </span>
+              </a>
+            ))}
           </div>
 
           {/* Decorative divider */}

@@ -10,6 +10,8 @@ import { useTheme } from '@/components/theme-provider'
 import { Logo } from './Logo'
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
+import { TelegramMenu } from '@/components/shared/TelegramMenu'
+import { TELEGRAM, TelegramIcon } from '@/components/shared/Telegram'
 
 export function Navbar() {
   const { theme, setTheme, systemTheme } = useTheme()
@@ -106,6 +108,10 @@ export function Navbar() {
             </button>
 
               <div className="hidden md:flex items-center gap-2">
+                {/* Telegram, alongside the language control — same reasoning as
+                    the dashboard header: two destinations, so a menu rather
+                    than a link that has to pick one. */}
+                <TelegramMenu />
                 <LocaleSwitcher variant="inline" />
                 <Link href="/signin">
                   <Button 
@@ -207,6 +213,26 @@ export function Navbar() {
               <LocaleSwitcher variant="inline" className="mb-2 scale-110" />
 
               <div className="flex flex-col gap-4 w-full max-w-sm">
+                {[
+                  { href: TELEGRAM.channel, label: t('ui.telegramChannel'), handle: TELEGRAM.channelHandle },
+                  { href: TELEGRAM.group, label: t('ui.telegramGroup'), handle: TELEGRAM.groupHandle },
+                ].map(({ href, label, handle }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center gap-3 rounded-xl border-2 border-slate-200 px-4 py-3 dark:border-slate-700"
+                  >
+                    <TelegramIcon className="h-5 w-5 shrink-0 text-[#229ED9] dark:text-[#3EAEE5]" />
+                    <span className="min-w-0 flex-1 text-left">
+                      <span className="block text-base font-medium">{label}</span>
+                      <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{handle}</span>
+                    </span>
+                  </a>
+                ))}
+
                 <Link href="/signin" onClick={() => setMobileMenuOpen(false)} className="w-full">
                   <Button 
                     variant="outline" 

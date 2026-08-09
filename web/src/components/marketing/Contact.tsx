@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, MessageSquare, Send, Sparkles, Loader2, CheckCircle2, PartyPopper } from 'lucide-react'
 import { toast } from 'sonner'
+import { TELEGRAM } from '@/components/shared/Telegram'
 
 
 export function Contact() {
@@ -465,7 +466,7 @@ export function Contact() {
                   </motion.a>
 
                   <motion.a
-                    href="https://t.me/Bahtiyorjon05"
+                    href={TELEGRAM.support}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05, y: -3 }}
