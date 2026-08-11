@@ -139,10 +139,23 @@ interface AnalyticsData {
       avgPerDay: number
     }
   }
+  activity: {
+    habits: { total: number; completionsThisWeek: number }
+    goals: { total: number; completed: number }
+    journal: { total: number; thisWeek: number }
+    focus: {
+      sessionsThisWeek: number
+      minutesThisWeek: number
+      sessionsAllTime: number
+      minutesAllTime: number
+    }
+    prayers: { loggedThisWeek: number; onTimeThisWeek: number }
+  }
   insights: Array<{
     type: string
-    title: string
-    description: string
+    /** Message code — the API deliberately sends no English. */
+    code: string
+    params?: Record<string, string | number>
     icon: string
     value?: string
   }>
@@ -218,7 +231,7 @@ export default function AnalyticsPage() {
     )
   }
 
-  const { overview, weekly, monthly, lastMonth, trends, insights, taskStats } = analytics
+  const { overview, weekly, monthly, lastMonth, trends, insights, taskStats, activity } = analytics
 
   // Prepare chart data with graceful fallbacks
   const normalizedCompletionRate = Math.min(
@@ -867,6 +880,83 @@ export default function AnalyticsPage() {
         </Card>
       </motion.div>
 
+      {/*
+        The rest of the app.
+
+        This page was called Analytics and looked only at tasks — habits, goals,
+        journal entries, focus sessions and prayers were all absent, even though
+        every one of them is tracked. Counted server-side, so nothing here is
+        derived from a guess.
+      */}
+      {activity && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.95 }}
+        >
+          <Card className="border-2 border-slate-200 shadow-lg dark:border-slate-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-emerald-500" />
+                {t('analytics.acrossTheApp')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+                {[
+                  {
+                    label: t('nav.habits'),
+                    value: activity.habits.completionsThisWeek,
+                    hint: t('analytics.completionsThisWeek'),
+                    tone: 'text-teal-600 dark:text-teal-400',
+                  },
+                  {
+                    label: t('nav.goals'),
+                    value: `${activity.goals.completed}/${activity.goals.total}`,
+                    hint: t('analytics.goalsCompleted'),
+                    tone: 'text-amber-600 dark:text-amber-400',
+                  },
+                  {
+                    label: t('nav.journal'),
+                    value: activity.journal.thisWeek,
+                    hint: t('analytics.entriesThisWeek'),
+                    tone: 'text-violet-600 dark:text-violet-400',
+                  },
+                  {
+                    label: t('nav.focus'),
+                    // Real session minutes, not an estimate off a task field.
+                    value: `${Math.round(activity.focus.minutesThisWeek / 60)}h`,
+                    hint: t('analytics.focusedThisWeek', { count: activity.focus.sessionsThisWeek }),
+                    tone: 'text-blue-600 dark:text-blue-400',
+                  },
+                  {
+                    label: t('nav.prayers'),
+                    value: activity.prayers.loggedThisWeek,
+                    hint: t('analytics.onTimeCount', { count: activity.prayers.onTimeThisWeek }),
+                    tone: 'text-emerald-600 dark:text-emerald-400',
+                  },
+                ].map((tile) => (
+                  <div
+                    key={tile.label}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {tile.label}
+                    </p>
+                    <p className={`mt-1.5 text-2xl font-bold leading-none tabular-nums ${tile.tone}`}>
+                      {tile.value}
+                    </p>
+                    <p className="mt-1 truncate text-[11px] text-slate-500 dark:text-slate-400">
+                      {tile.hint}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* Insights */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -907,11 +997,14 @@ export default function AnalyticsPage() {
                           <Icon className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-slate-900 dark:text-white mb-1">
-                            {insight.title}
+                          {/* Translated here, from a code the API sent. It used
+                              to render `insight.title` — English built on the
+                              server, which no dictionary could reach. */}
+                          <h4 className="mb-1 font-semibold text-slate-900 dark:text-white">
+                            {t(`analytics.insight.${insight.code}.title`)}
                           </h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            {insight.description}
+                          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                            {t(`analytics.insight.${insight.code}.body`, insight.params)}
                           </p>
                           {insight.value && (
                             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-2">

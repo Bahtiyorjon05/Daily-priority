@@ -47,6 +47,56 @@ export async function GET(request: Request) {
       }
     })
 
+    /*
+      Everything else the user actually does.
+
+      This route queried `task` and nothing else, then reported "focus time"
+      derived from the `estimatedTime` field on those tasks — a number labelled
+      as one thing and computed from another. Meanwhile habits, goals, journal
+      entries, real focus sessions and prayers were absent, on a page called
+      Analytics.
+
+      One parallel batch, and all counted server-side so the client is not
+      totalling records it had to download first.
+    */
+    const [
+      habitsTotal,
+      habitCompletionsWeek,
+      goalsTotal,
+      goalsCompleted,
+      journalWeek,
+      journalTotal,
+      focusWeek,
+      focusAllTime,
+      prayersWeek,
+      prayersOnTimeWeek,
+    ] = await Promise.all([
+      prisma.habit.count({ where: { userId } }),
+      prisma.habitCompletion.count({
+        where: { habit: { userId }, date: { gte: startOfWeek } },
+      }),
+      prisma.goal.count({ where: { userId } }),
+      prisma.goal.count({ where: { userId, status: 'COMPLETED' } }),
+      prisma.journalEntry.count({ where: { userId, date: { gte: startOfWeek } } }),
+      prisma.journalEntry.count({ where: { userId } }),
+      prisma.focusSession.aggregate({
+        where: { userId, date: { gte: startOfWeek } },
+        _sum: { duration: true },
+        _count: { _all: true },
+      }),
+      prisma.focusSession.aggregate({
+        where: { userId },
+        _sum: { duration: true },
+        _count: { _all: true },
+      }),
+      prisma.prayerTracking.count({
+        where: { userId, date: { gte: startOfWeek }, completedAt: { not: null } },
+      }),
+      prisma.prayerTracking.count({
+        where: { userId, date: { gte: startOfWeek }, completedAt: { not: null }, onTime: true },
+      }),
+    ])
+
     const completedTasks = allTasks.filter(task => task.status === 'COMPLETED')
     const todayTasks = allTasks.filter(task => task.createdAt >= startOfToday)
     const weekTasks = allTasks.filter(task => task.createdAt >= startOfWeek)
@@ -262,7 +312,27 @@ export async function GET(request: Request) {
         streak,
         productivityScore,
         averageTaskTime: avgFocusTime > 0 ? parseFloat((totalEstimatedMinutes / Math.max(completedTasks.length, 1)).toFixed(1)) : 0,
-        focusTime: parseFloat(avgFocusTime.toFixed(1))
+        /*
+          Hours actually spent in focus sessions. This used to be
+          `totalEstimatedMinutes / completedTasks` — an estimate the user typed
+          on a task, divided by a task count, presented as time focused. It
+          could be non-zero for someone who had never run a single session.
+        */
+        focusTime: parseFloat((((focusAllTime._sum.duration || 0) / 60)).toFixed(1)),
+      },
+
+      /* The rest of the app, which this page did not look at. */
+      activity: {
+        habits: { total: habitsTotal, completionsThisWeek: habitCompletionsWeek },
+        goals: { total: goalsTotal, completed: goalsCompleted },
+        journal: { total: journalTotal, thisWeek: journalWeek },
+        focus: {
+          sessionsThisWeek: focusWeek._count._all,
+          minutesThisWeek: focusWeek._sum.duration || 0,
+          sessionsAllTime: focusAllTime._count._all,
+          minutesAllTime: focusAllTime._sum.duration || 0,
+        },
+        prayers: { loggedThisWeek: prayersWeek, onTimeThisWeek: prayersOnTimeWeek },
       },
       weekly: {
         created: weekTotal,
@@ -334,224 +404,128 @@ function generateInsights(
   priorityBreakdown: any[],
   peakHours: number[]
 ) {
-  const insights = []
+  /*
+    Insights are emitted as a CODE plus numbers, never as prose.
 
-  // Priority insights based on ACTUAL data
+    They used to be built here as English template literals —
+    `${rate}% of high-priority tasks done. Great focus!` — and rendered straight
+    to the page. Server-generated English cannot be translated on the client, so
+    the whole panel stayed English on an Uzbek dashboard no matter how complete
+    the dictionary was. Twenty-four of them.
+
+    The client looks up `analytics.insight.<code>.title` / `.body` and
+    interpolates `params`. Numbers are rounded here so the two sides cannot
+    disagree about precision.
+  */
+  const insights: {
+    type: 'positive' | 'warning' | 'achievement' | 'improvement'
+    code: string
+    params?: Record<string, string | number>
+    icon: string
+    value?: string
+  }[] = []
+
+  const round1 = (n: number) => Number(n.toFixed(1))
+
+  // --- Priority ---
   const urgentTasks = priorityBreakdown.find(p => p.priority === 'URGENT')
   const highTasks = priorityBreakdown.find(p => p.priority === 'HIGH')
   const urgentTotal = urgentTasks ? urgentTasks.total : 0
   const urgentCompleted = urgentTasks ? urgentTasks.completed : 0
   const highTotal = highTasks ? highTasks.total : 0
-  
+
   if (urgentTotal > 10) {
     insights.push({
-      type: 'warning',
-      title: '⚠️ Too Many Urgent Tasks',
-      description: `${urgentTotal} urgent tasks detected. Consider better planning to avoid last-minute rushes.`,
-      icon: 'alert',
-      value: `${urgentTotal} urgent`
+      type: 'warning', code: 'urgentOverload',
+      params: { count: urgentTotal }, icon: 'alert',
     })
   } else if (urgentTotal > 0 && urgentCompleted === urgentTotal) {
     insights.push({
-      type: 'achievement',
-      title: '🎯 All Urgent Tasks Done',
-      description: `${urgentCompleted} urgent tasks completed! Excellent prioritization!`,
-      icon: 'award'
+      type: 'achievement', code: 'urgentAllDone',
+      params: { count: urgentCompleted }, icon: 'award',
     })
   }
 
   if (highTotal > 0) {
     const highCompleted = highTasks ? highTasks.completed : 0
-    const highCompletionRate = highTotal > 0 ? (highCompleted / highTotal) * 100 : 0
-    if (highCompletionRate >= 80) {
+    const highRate = (highCompleted / highTotal) * 100
+    if (highRate >= 80) {
       insights.push({
-        type: 'positive',
-        title: '🔥 Prioritizing Well',
-        description: `${highCompletionRate.toFixed(0)}% of high-priority tasks done. Great focus!`,
-        icon: 'star'
+        type: 'positive', code: 'highPriorityFocus',
+        params: { rate: Math.round(highRate) }, icon: 'star',
       })
     }
   }
 
-  // Peak hours insight based on ACTUAL data
+  // --- Peak hours ---
+  // Sent as bare 24-hour numbers. The old version built "2PM (Afternoon)"
+  // server-side, which is a second untranslatable string inside the first.
   if (peakHours.length > 0) {
-    const hourNames = peakHours.map(h => {
-      if (h >= 5 && h < 12) return `${h}AM (Morning)`
-      if (h >= 12 && h < 17) return `${h === 12 ? 12 : h - 12}PM (Afternoon)`
-      if (h >= 17 && h < 21) return `${h - 12}PM (Evening)`
-      return `${h > 12 ? h - 12 : h}${h >= 12 ? 'PM' : 'AM'} (Night)`
-    })
     insights.push({
-      type: 'positive',
-      title: '⏰ Peak Productivity Hours',
-      description: `You're most productive at ${hourNames.join(', ')}. Schedule important tasks then!`,
-      icon: 'clock'
+      type: 'positive', code: 'peakHours',
+      params: { hours: peakHours.map(h => `${String(h).padStart(2, '0')}:00`).join(', ') },
+      icon: 'clock',
     })
   }
 
-  // Streak insights based on ACTUAL data
+  // --- Streak ---
   if (streak >= 30) {
-    insights.push({
-      type: 'achievement',
-      title: '🏆 Month-Long Streak!',
-      description: `${streak} consecutive days of task completion! You're unstoppable!`,
-      icon: 'award',
-      value: `${streak} days`
-    })
+    insights.push({ type: 'achievement', code: 'streakMonth', params: { days: streak }, icon: 'award', value: `${streak}` })
   } else if (streak >= 14) {
-    insights.push({
-      type: 'achievement',
-      title: '🔥 Two-Week Streak!',
-      description: `${streak} days in a row! Consistency is your superpower.`,
-      icon: 'star',
-      value: `${streak} days`
-    })
+    insights.push({ type: 'achievement', code: 'streakTwoWeeks', params: { days: streak }, icon: 'star', value: `${streak}` })
   } else if (streak >= 7) {
-    insights.push({
-      type: 'achievement',
-      title: '✨ Week-Long Streak!',
-      description: `${streak}-day streak achieved! Keep pushing forward.`,
-      icon: 'star',
-      value: `${streak} days`
-    })
+    insights.push({ type: 'achievement', code: 'streakWeek', params: { days: streak }, icon: 'star', value: `${streak}` })
   } else if (streak >= 3) {
-    insights.push({
-      type: 'positive',
-      title: '💪 Building Momentum',
-      description: `${streak}-day streak! ${7 - streak} more days to hit a full week.`,
-      icon: 'trending'
-    })
+    insights.push({ type: 'positive', code: 'streakBuilding', params: { days: streak, remaining: 7 - streak }, icon: 'trending' })
   } else if (streak === 0 && todayTasks > 0) {
-    insights.push({
-      type: 'improvement',
-      title: '🎯 Build Your Streak',
-      description: 'You created tasks today! Complete one to start your consistency streak.',
-      icon: 'target'
-    })
+    insights.push({ type: 'improvement', code: 'streakStart', icon: 'target' })
   }
 
-  // Completion rate insights based on ACTUAL performance
+  // --- Completion rate ---
   if (completionRate >= 90) {
-    insights.push({
-      type: 'achievement',
-      title: '⭐ Exceptional Completion Rate',
-      description: `${completionRate.toFixed(1)}% completion rate! You're crushing your tasks!`,
-      icon: 'award'
-    })
+    insights.push({ type: 'achievement', code: 'completionExceptional', params: { rate: round1(completionRate) }, icon: 'award' })
   } else if (completionRate >= 75) {
-    insights.push({
-      type: 'positive',
-      title: '✅ Strong Performance',
-      description: `${completionRate.toFixed(1)}% of tasks completed. Excellent work!`,
-      icon: 'trending'
-    })
+    insights.push({ type: 'positive', code: 'completionStrong', params: { rate: round1(completionRate) }, icon: 'trending' })
   } else if (completionRate >= 50) {
-    insights.push({
-      type: 'positive',
-      title: '📈 Decent Progress',
-      description: `${completionRate.toFixed(1)}% completion rate. Room to improve!`,
-      icon: 'trending'
-    })
-  } else if (completionRate > 0 && completionRate < 50) {
-    insights.push({
-      type: 'improvement',
-      title: '💡 Improve Task Completion',
-      description: `${completionRate.toFixed(1)}% completion. Try breaking tasks into smaller steps.`,
-      icon: 'target'
-    })
+    insights.push({ type: 'positive', code: 'completionDecent', params: { rate: round1(completionRate) }, icon: 'trending' })
+  } else if (completionRate > 0) {
+    insights.push({ type: 'improvement', code: 'completionImprove', params: { rate: round1(completionRate) }, icon: 'target' })
   }
 
-  // Weekly performance insights
+  // --- This week ---
   const weekAvgPerDay = weekTasks / 7
   if (weekCompletionRate >= 80) {
-    insights.push({
-      type: 'positive',
-      title: '🎯 Strong Week',
-      description: `${weekCompletionRate.toFixed(1)}% weekly completion rate. Fantastic!`,
-      icon: 'star'
-    })
+    insights.push({ type: 'positive', code: 'weekStrong', params: { rate: round1(weekCompletionRate) }, icon: 'star' })
   }
-
   if (weekAvgPerDay >= 10) {
-    insights.push({
-      type: 'positive',
-      title: '🚀 High Velocity',
-      description: `${weekAvgPerDay.toFixed(1)} tasks/day this week. Great planning!`,
-      icon: 'star'
-    })
+    insights.push({ type: 'positive', code: 'velocityHigh', params: { perDay: round1(weekAvgPerDay) }, icon: 'star' })
   } else if (weekAvgPerDay >= 5) {
-    insights.push({
-      type: 'positive',
-      title: 'Good Pace',
-      description: `${weekAvgPerDay.toFixed(1)} tasks per day. Solid productivity!`,
-      icon: 'trending'
-    })
+    insights.push({ type: 'positive', code: 'velocityGood', params: { perDay: round1(weekAvgPerDay) }, icon: 'trending' })
   } else if (weekTasks > 0 && weekAvgPerDay < 3) {
-    insights.push({
-      type: 'improvement',
-      title: 'Create More Tasks',
-      description: `Only ${weekAvgPerDay.toFixed(1)} tasks/day. Consider adding more goals.`,
-      icon: 'target'
-    })
+    insights.push({ type: 'improvement', code: 'velocityLow', params: { perDay: round1(weekAvgPerDay) }, icon: 'target' })
   }
 
-  // Monthly trend insights based on ACTUAL comparison
+  // --- Month over month ---
   if (completionRateChange > 10) {
-    insights.push({
-      type: 'achievement',
-      title: '📊 Major Improvement',
-      description: `Completion rate up ${completionRateChange.toFixed(1)}% from last month!`,
-      icon: 'award'
-    })
+    insights.push({ type: 'achievement', code: 'trendMajorUp', params: { delta: round1(completionRateChange) }, icon: 'award' })
   } else if (completionRateChange > 0) {
-    insights.push({
-      type: 'positive',
-      title: '📈 Trending Up',
-      description: `${completionRateChange.toFixed(1)}% better than last month!`,
-      icon: 'trending'
-    })
+    insights.push({ type: 'positive', code: 'trendUp', params: { delta: round1(completionRateChange) }, icon: 'trending' })
   } else if (completionRateChange < -10) {
-    insights.push({
-      type: 'improvement',
-      title: '⚠️ Completion Rate Dropped',
-      description: `Down ${Math.abs(completionRateChange).toFixed(1)}% from last month. Refocus!`,
-      icon: 'target'
-    })
+    insights.push({ type: 'improvement', code: 'trendDown', params: { delta: round1(Math.abs(completionRateChange)) }, icon: 'target' })
   }
 
-  // Monthly volume insights
   const monthAvgPerDay = monthTasks / 30
   if (monthAvgPerDay >= 8) {
-    insights.push({
-      type: 'positive',
-      title: '🔥 Highly Active',
-      description: `${monthAvgPerDay.toFixed(1)} tasks/day this month. Impressive!`,
-      icon: 'star'
-    })
+    insights.push({ type: 'positive', code: 'monthActive', params: { perDay: round1(monthAvgPerDay) }, icon: 'star' })
   }
 
-  // Today's activity
+  // --- Today ---
   if (todayTasks >= 10) {
-    insights.push({
-      type: 'positive',
-      title: '💪 Productive Today',
-      description: `${todayTasks} tasks created today! You're on fire!`,
-      icon: 'star'
-    })
+    insights.push({ type: 'positive', code: 'todayProductive', params: { count: todayTasks }, icon: 'star' })
   } else if (todayTasks >= 5) {
-    insights.push({
-      type: 'positive',
-      title: '✨ Good Day',
-      description: `${todayTasks} tasks today. Keep it up!`,
-      icon: 'trending'
-    })
+    insights.push({ type: 'positive', code: 'todayGood', params: { count: todayTasks }, icon: 'trending' })
   } else if (todayTasks === 0 && weekTasks < 5) {
-    insights.push({
-      type: 'improvement',
-      title: '🌅 Start Your Day',
-      description: 'Create your first task! Small steps lead to big achievements.',
-      icon: 'target'
-    })
+    insights.push({ type: 'improvement', code: 'todayStart', icon: 'target' })
   }
 
   // Return insights (limit to most relevant 12)
