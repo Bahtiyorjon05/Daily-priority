@@ -110,13 +110,32 @@ export function LocaleSwitcher({
 
       <AnimatePresence>
         {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[65] bg-black/40 backdrop-blur-[2px] sm:hidden"
+              aria-hidden="true"
+            />
           <motion.div
             role="menu"
             initial={{ opacity: 0, y: reduceMotion ? 0 : -6, scale: reduceMotion ? 1 : 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: reduceMotion ? 0 : -6, scale: reduceMotion ? 1 : 0.96 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className="absolute right-0 z-50 mt-2 w-52 origin-top-right overflow-hidden rounded-2xl border border-black/[0.07] bg-white/95 p-1.5 shadow-xl shadow-black/10 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/40"
+            /*
+              Centred on a phone, anchored to the button from `sm` up — the same
+              shape as the phase, notification and Telegram panels.
+
+              This was `absolute right-0` at every width. Language is the
+              LEFTMOST control in the header, so anchoring a 208px panel to its
+              right edge pushed it off toward the left of the screen: it opened
+              half out of view while every neighbouring popover appeared neatly
+              in the middle. Anchoring only works for controls on the right.
+            */
+            className="fixed left-3 right-3 top-[4.5rem] z-[70] mx-auto max-w-xs overflow-hidden rounded-2xl border border-black/[0.07] bg-white/95 p-1.5 shadow-xl shadow-black/10 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/95 dark:shadow-black/40 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mx-0 sm:mt-2 sm:w-52 sm:max-w-none sm:origin-top-right"
           >
             <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
               {t('locale.switch')}
@@ -147,6 +166,7 @@ export function LocaleSwitcher({
               )
             })}
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

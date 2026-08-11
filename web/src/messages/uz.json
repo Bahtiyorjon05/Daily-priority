@@ -1777,5 +1777,7 @@
   "ui.telegramChannel": "Kanal",
   "ui.telegramChannelBlurb": "E’lonlar, yangilanishlar va eslatmalar.",
   "ui.telegramGroup": "Muhokama guruhi",
-  "ui.telegramGroupBlurb": "Savol bering va boshqa foydalanuvchilar bilan suhbatlashing."
+  "ui.telegramGroupBlurb": "Savol bering va boshqa foydalanuvchilar bilan suhbatlashing.",
+  "ui.prayed": "O‘qildi",
+  "ui.prayNow": "Hozir o‘qing"
 }

@@ -1777,5 +1777,7 @@
   "ui.telegramChannel": "Channel",
   "ui.telegramChannelBlurb": "Announcements, updates and reminders.",
   "ui.telegramGroup": "Discussion group",
-  "ui.telegramGroupBlurb": "Ask questions and talk with other users."
+  "ui.telegramGroupBlurb": "Ask questions and talk with other users.",
+  "ui.prayed": "Prayed",
+  "ui.prayNow": "Pray now"
 }

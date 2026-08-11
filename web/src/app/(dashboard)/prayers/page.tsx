@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { Moon, Sun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, BarChart3, History, RefreshCw, Flame, Award } from 'lucide-react'
+import { Moon, Sun, Sunrise, Sunset, CloudSun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, AlertTriangle, BarChart3, History, RefreshCw, Flame, Award } from 'lucide-react'
 import {
   fetchPrayerTimes,
   getNextPrayerFromTimes,
@@ -843,19 +843,65 @@ export default function PrayersPage() {
 
 
 
+  /*
+    `displayName` was hard-coded English. The Arabic names are not the same in
+    Uzbek — Bomdod, Peshin, Shom, Xufton — so the five most important words on
+    the page stayed English on an Uzbek dashboard. It slipped every i18n guard
+    because a single word in an object property trips neither the JSX-text check
+    nor the copy-in-data check, which requires a space.
+  */
   const prayers: { name: PrayerName; displayName: string; icon: React.ComponentType<any> }[] = [
-
-    { name: 'fajr', displayName: 'Fajr', icon: Moon },
-
-    { name: 'dhuhr', displayName: 'Dhuhr', icon: Sun },
-
-    { name: 'asr', displayName: 'Asr', icon: Sun },
-
-    { name: 'maghrib', displayName: 'Maghrib', icon: Moon },
-
-    { name: 'isha', displayName: 'Isha', icon: Moon }
-
+    { name: 'fajr', displayName: t('prayer.fajr'), icon: Sunrise },
+    { name: 'dhuhr', displayName: t('prayer.dhuhr'), icon: Sun },
+    { name: 'asr', displayName: t('prayer.asr'), icon: CloudSun },
+    { name: 'maghrib', displayName: t('prayer.maghrib'), icon: Sunset },
+    { name: 'isha', displayName: t('prayer.isha'), icon: Moon },
   ]
+
+  /*
+    What state each prayer is in, which the page previously could not express.
+
+    It knew only "completed" and "is next", so a prayer whose time had passed
+    unprayed looked identical to one still hours away — the single most useful
+    thing this page could tell you was the thing it did not say.
+
+      done     prayed
+      current  its window is open: from its adhan until the next one
+      missed   the window closed and it was not prayed
+      upcoming still to come
+
+    Isha's window runs past midnight, so it has no "next" to close it; it stays
+    current for the rest of the day rather than being called missed at 23:59.
+  */
+  const minutesNow = (() => {
+    const now = new Date()
+    return now.getHours() * 60 + now.getMinutes()
+  })()
+
+  const toMinutes = (hhmm: string | undefined): number | null => {
+    if (!hhmm) return null
+    const [h, m] = hhmm.split(':').map(Number)
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null
+  }
+
+  type PrayerState = 'done' | 'current' | 'missed' | 'upcoming'
+
+  const prayerStateOf = (name: PrayerName): PrayerState => {
+    if (prayerStatus[name]) return 'done'
+
+    const start = toMinutes(prayerTimes?.[name])
+    // Without a time there is nothing to compare, and guessing "missed" would
+    // accuse someone on the strength of a failed fetch.
+    if (start === null) return 'upcoming'
+    if (minutesNow < start) return 'upcoming'
+
+    const i = PRAYER_SEQUENCE.indexOf(name)
+    const nextName = PRAYER_SEQUENCE[i + 1]
+    const end = nextName ? toMinutes(prayerTimes?.[nextName]) : null
+    if (end === null) return 'current'
+
+    return minutesNow < end ? 'current' : 'missed'
+  }
 
 
 
@@ -1388,7 +1434,17 @@ export default function PrayersPage() {
 
             const isCompleted = prayerStatus[prayer.name]
 
-            const isNext = nextPrayer?.name.toLowerCase() === prayer.displayName.toLowerCase()
+            /*
+              Compared against `displayName`, which is now translated, while
+              `nextPrayer.name` comes from prayer-times.ts as English ('Fajr').
+              In Uzbek that is "bomdod" === "fajr" — never true, so the "up next"
+              highlight would have silently vanished. Match on the canonical key.
+            */
+            const isNext = nextPrayer?.name.toLowerCase() === prayer.name
+
+            const state = prayerStateOf(prayer.name)
+            const isMissed = state === 'missed'
+            const isCurrent = state === 'current'
 
 
 
@@ -1398,7 +1454,30 @@ export default function PrayersPage() {
 
                 key={prayer.name}
 
-                className={'bg-white dark:bg-gray-800 rounded-2xl border border-white/30 dark:border-gray-700/40 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer ui-element ' + (isNext ? 'ring-2 ring-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20' : '') + ' ' + (isCompleted ? 'opacity-75' : '')}
+                /*
+                  Four states, four readings. Before, everything was the same
+                  white card with a faint emerald ring for "next" and 75% opacity
+                  for "done" — so a missed prayer and one three hours away looked
+                  identical.
+
+                  done      emerald, settled, no urgency
+                  current   amber, a live ring, the one thing to act on now
+                  missed    rose, stated plainly and without decoration
+                  upcoming  quiet slate, present but not competing
+
+                  `hover:scale-105` is gone: on a five-card grid it made the
+                  whole page twitch, and it never fired on touch anyway.
+                */
+                className={
+                  'rounded-2xl p-5 sm:p-6 border-2 transition-colors cursor-pointer ' +
+                  (isCompleted
+                    ? 'border-emerald-300 bg-emerald-50/70 dark:border-emerald-800 dark:bg-emerald-950/30'
+                    : isCurrent
+                      ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-300/60 dark:border-amber-600 dark:bg-amber-950/30 dark:ring-amber-700/50'
+                      : isMissed
+                        ? 'border-rose-300 bg-rose-50/70 dark:border-rose-900 dark:bg-rose-950/25'
+                        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700')
+                }
 
                 onClick={() => togglePrayerStatus(prayer.name)}
 
@@ -1408,35 +1487,53 @@ export default function PrayersPage() {
 
                   <div className="flex items-center gap-4">
 
-                    <div className={'w-12 h-12 rounded-xl flex items-center justify-center transition-all ' + (isCompleted
-
-                        ? 'bg-emerald-100 dark:bg-emerald-900/50'
-
-                        : 'bg-gradient-to-br from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-500')}>
-
-                      <Icon className={'h-6 w-6 ' + (isCompleted ? 'text-emerald-600 dark:text-emerald-400' : 'text-white')} />
-
+                    <div
+                      className={
+                        'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ' +
+                        (isCompleted
+                          ? 'bg-emerald-600 text-white'
+                          : isCurrent
+                            ? 'bg-amber-500 text-white'
+                            : isMissed
+                              ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300'
+                              : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400')
+                      }
+                    >
+                      <Icon className="h-6 w-6" />
                     </div>
 
                     <div>
 
-                      <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-300">{prayer.displayName}</h3>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{prayer.displayName}</h3>
 
-                      <p className="text-2xl font-mono font-bold text-emerald-700 dark:text-emerald-400">
-
+                      <p className="font-mono text-2xl font-bold tabular-nums text-slate-700 dark:text-slate-200">
                         {time}
-
                       </p>
 
-                      {isNext && (
-
-                        <p className="text-xs text-emerald-700 dark:text-emerald-500 font-medium mt-1">
-
-                          {t('ui.nextPrayer')}
-
-                        </p>
-
-                      )}
+                      {/* One badge, naming the state in words as well as colour —
+                          colour alone excludes anyone who cannot distinguish it. */}
+                      <span
+                        className={
+                          'mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ' +
+                          (isCompleted
+                            ? 'bg-emerald-600 text-white'
+                            : isCurrent
+                              ? 'bg-amber-500 text-white'
+                              : isMissed
+                                ? 'bg-rose-600 text-white'
+                                : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300')
+                        }
+                      >
+                        {isCompleted ? (
+                          <><CheckCircle2 className="h-3 w-3" />{t('ui.prayed')}</>
+                        ) : isCurrent ? (
+                          <><Clock className="h-3 w-3" />{t('ui.prayNow')}</>
+                        ) : isMissed ? (
+                          <><AlertTriangle className="h-3 w-3" />{t('ui.missed')}</>
+                        ) : (
+                          <>{t('ui.upcoming')}</>
+                        )}
+                      </span>
 
                     </div>
 
