@@ -1920,5 +1920,17 @@
   "ui.ramadanLog": "Your log",
   "ui.ramadanDayN": "day {n}",
   "ui.ramadanFastedShort": "Fasted",
-  "ui.ramadanTaraweehShort": "Taraweeh"
+  "ui.ramadanTaraweehShort": "Taraweeh",
+  "ui.reviewThisWeek": "This week",
+  "ui.reviewOfCreated": "of {count} created",
+  "ui.reviewAcrossHabits": "across {count} habits",
+  "ui.reviewSessions": "{count} sessions",
+  "ui.reviewOnTime": "{percent}% on time",
+  "ui.reviewEntries": "entries",
+  "ui.reviewDone": "done",
+  "ui.reviewToday": "today?",
+  "ui.reviewBestStreak": "Longest: {habit}, {days} days",
+  "ui.reviewNothingYet": "Nothing logged this week yet. One small thing is enough to start.",
+  "ui.reviewLogAPrayer": "Log a prayer",
+  "ui.reviewReadAyah": "Read an ayah"
 }

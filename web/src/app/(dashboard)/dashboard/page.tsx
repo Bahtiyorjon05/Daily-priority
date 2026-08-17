@@ -55,6 +55,7 @@ import ConfirmModal from '@/components/modals/ConfirmModal'
 import { optimizedFetch, PerformanceMonitor, clientCache } from '@/lib/performance'
 import { useUserProfile } from '@/hooks/useUserProfile'
 import { ROW_ACTIONS } from '@/components/shared/rowActions'
+import { WeekReview } from '@/components/dashboard/WeekReview'
 
 interface Task {
   id: string
@@ -817,6 +818,16 @@ export default function DashboardPageRedesigned() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/*
+          The week, and the streaks.
+
+          Placed above the stat grid because a streak is the one number that is
+          interesting before you have done much — and the measured problem on this
+          app is that most accounts finish onboarding and then create nothing.
+          "You have no tasks" is a poor first thing to read on returning.
+        */}
+        <WeekReview />
 
         {/* Stats Grid - Compact */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

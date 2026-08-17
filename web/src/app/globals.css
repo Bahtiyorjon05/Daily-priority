@@ -107,6 +107,34 @@
 
 /* Global adjustments to keep legacy Tailwind utilities legible in dark mode */
 @layer base {
+  /*
+    Interactive things look interactive.
+
+    Browsers give `<button>` `cursor: default`, and Tailwind's preflight does not
+    change it — so every button in this app looked like text. On a page built
+    almost entirely from buttons (the Qur'an surah list, the Ramadan toggles)
+    there was no way to tell what could be pressed.
+
+    In `@layer base` on purpose: the blanket `button { … }` rules that used to sit
+    OUTSIDE any layer beat every Tailwind utility and caused the white-on-white
+    header bug. Here a `cursor-*` utility still overrides.
+
+    `:disabled` excluded — a pointer over a control that does nothing is a lie —
+    and `[aria-disabled='true']` with it, since a disabled link is not a real
+    `:disabled`.
+  */
+  button:not(:disabled):not([aria-disabled='true']),
+  [role='button']:not([aria-disabled='true']),
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
   .dark .text-black,
   .dark .text-gray-900,
   .dark .text-slate-900 {

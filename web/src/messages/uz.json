@@ -1920,5 +1920,17 @@
   "ui.ramadanLog": "Daftaringiz",
   "ui.ramadanDayN": "{n}-kun",
   "ui.ramadanFastedShort": "Ro‘za",
-  "ui.ramadanTaraweehShort": "Tarovih"
+  "ui.ramadanTaraweehShort": "Tarovih",
+  "ui.reviewThisWeek": "Bu hafta",
+  "ui.reviewOfCreated": "{count} tadan",
+  "ui.reviewAcrossHabits": "{count} ta odat bo‘yicha",
+  "ui.reviewSessions": "{count} seans",
+  "ui.reviewOnTime": "{percent}% o‘z vaqtida",
+  "ui.reviewEntries": "yozuv",
+  "ui.reviewDone": "bajarildi",
+  "ui.reviewToday": "bugun?",
+  "ui.reviewBestStreak": "Eng uzuni: {habit}, {days} kun",
+  "ui.reviewNothingYet": "Bu hafta hali hech narsa belgilanmagan. Boshlash uchun bitta kichik ish kifoya.",
+  "ui.reviewLogAPrayer": "Namozni belgilash",
+  "ui.reviewReadAyah": "Bir oyat o‘qish"
 }
