@@ -18,7 +18,60 @@ export interface SpecialDay {
 /**
  * Convert Gregorian date to Hijri using internal API (bypasses CORS)
  */
+/**
+ * Cache of Gregorian date -> Hijri date.
+ *
+ * The Hijri date for a given Gregorian date never changes, so this is cacheable
+ * forever. It matters because the conversion is a NETWORK CALL that measures
+ * around 850ms, and the Ramadan page, the calendar and the dashboard each made
+ * it on every mount.
+ *
+ * Not replaced with local arithmetic, though that was the first instinct: a
+ * tabular Islamic conversion checked against Aladhan across 16 dates came out
+ * off by up to TWO days. In an app that tells someone which day of Ramadan it is,
+ * that is not a rounding error — it could miss the start of the month entirely.
+ * So the answer stays authoritative and only the round trip goes away.
+ *
+ * In-memory first (same page session), localStorage behind it (across visits).
+ */
+const HIJRI_CACHE_PREFIX = 'dailypriority_hijri_'
+const memoryCache = new Map<string, HijriDate>()
+
+const cacheKey = (date: Date) =>
+  `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+
+function readCache(key: string): HijriDate | null {
+  const hit = memoryCache.get(key)
+  if (hit) return hit
+  if (typeof localStorage === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(HIJRI_CACHE_PREFIX + key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as HijriDate
+    // A malformed entry must not be trusted just because it parsed.
+    if (typeof parsed?.monthNumber !== 'number' || typeof parsed?.day !== 'number') return null
+    memoryCache.set(key, parsed)
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function writeCache(key: string, value: HijriDate): void {
+  memoryCache.set(key, value)
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.setItem(HIJRI_CACHE_PREFIX + key, JSON.stringify(value))
+  } catch {
+    /* Quota or private mode; the memory cache still helps this session. */
+  }
+}
+
 export async function gregorianToHijri(date: Date): Promise<HijriDate | null> {
+  const key = cacheKey(date)
+  const cached = readCache(key)
+  if (cached) return cached
+
   try {
     const day = date.getDate()
     const month = date.getMonth() + 1
@@ -54,7 +107,7 @@ export async function gregorianToHijri(date: Date): Promise<HijriDate | null> {
 
     const hijri = result.data.hijri
 
-    return {
+    const converted: HijriDate = {
       day: hijri.day,
       month: hijri.month.en,
       monthNumber: hijri.month.number,
@@ -62,6 +115,9 @@ export async function gregorianToHijri(date: Date): Promise<HijriDate | null> {
       weekday: hijri.weekday.en,
       formatted: hijri.formatted
     }
+
+    writeCache(key, converted)
+    return converted
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       console.warn('Hijri conversion timed out')

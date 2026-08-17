@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Moon, Sunrise, Sunset, Check, Loader2, Star, Utensils } from 'lucide-react'
+import { Moon, Sunrise, Sunset, Check, Loader2, Star, Utensils, Ban, Flame, CalendarDays } from 'lucide-react'
 import { toast } from 'sonner'
 import { useT } from '@/lib/i18n/client'
 import { PhaseHeader, HeaderStat } from '@/components/shared/PhaseHeader'
@@ -10,6 +10,8 @@ import { usePrayerCalc } from '@/hooks/usePrayerCalc'
 import { fetchPrayerTimes, getStoredPrayerTimes, type PrayerTimes } from '@/lib/prayer-times'
 import { getUserLocation } from '@/lib/location-service'
 import { gregorianToHijri, type HijriDate } from '@/lib/hijri'
+import { fastingOccasion, isForbiddenToFast } from '@/lib/fasting'
+import { streakFromDates } from '@/lib/streaks'
 
 /**
  * Ramadan.
@@ -175,6 +177,48 @@ export default function RamadanPage() {
     })
   }, [isRamadan, hijri, now])
 
+  /*
+    Today's occasion, so the page has something true to say for eleven months of
+    the year rather than sitting empty until Ramadan.
+  */
+  const occasion = useMemo(() => fastingOccasion(now, hijri), [now, hijri])
+  const forbidden = useMemo(() => isForbiddenToFast(now, hijri), [now, hijri])
+
+  const logged = useMemo(() => new Map((days ?? []).map((d) => [d.key, d])), [days])
+
+  /*
+    A calendar of the current Gregorian month.
+
+    Gregorian, not Hijri: the grid has to line up with the weekday headers and
+    with the dates on the person's phone. The Hijri day is what gets labelled
+    inside each cell, not what arranges them.
+  */
+  const monthGrid = useMemo(() => {
+    const first = new Date(now.getFullYear(), now.getMonth(), 1)
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    // Sunday-first, matching the calendar page's weekday row.
+    const lead = first.getDay()
+    const cells: ({ date: Date; key: string } | null)[] = Array(lead).fill(null)
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(now.getFullYear(), now.getMonth(), d)
+      cells.push({ date, key: toKey(date) })
+    }
+    return cells
+  }, [now])
+
+  const stats = useMemo(() => {
+    const all = days ?? []
+    const fastedDates = all.filter((d) => d.fasted).map((d) => new Date(d.key))
+    const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    return {
+      total: fastedDates.length,
+      thisMonth: all.filter((d) => d.fasted && d.key.startsWith(monthPrefix)).length,
+      taraweeh: all.filter((d) => d.taraweeh).length,
+      // Same definition as every other streak in the app.
+      run: streakFromDates(fastedDates, now),
+    }
+  }, [days, now])
+
   const fmt = (total: number) => {
     const h = Math.floor(total / 3600)
     const m = Math.floor((total % 3600) / 60)
@@ -232,18 +276,56 @@ export default function RamadanPage() {
         </div>
       )}
 
+      {/*
+        What today is. The page used to say nothing at all outside Ramadan; now it
+        names the occasion when there is one, and says plainly when there is not
+        rather than implying you have missed something.
+      */}
+      {!isRamadan && (
+        <div
+          className={`rounded-2xl border-2 p-4 ${
+            forbidden
+              ? 'border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30'
+              : occasion
+                ? 'accent-border accent-soft'
+                : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900'
+          }`}
+        >
+          <p className="flex items-center gap-2 text-sm font-bold">
+            {forbidden ? <Ban className="h-4 w-4 shrink-0" /> : <Utensils className="h-4 w-4 shrink-0" />}
+            {forbidden
+              ? t('ui.ramadanForbidden')
+              : occasion
+                ? t('ui.ramadanNaflToday')
+                : t('ui.ramadanNaflNone')}
+          </p>
+          {occasion && (
+            <p className="mt-1 text-sm opacity-90">{t(occasion.key)}</p>
+          )}
+        </div>
+      )}
+
       {/* Today's two acts. Separate, because they are separate. */}
       <div className="grid gap-2 sm:grid-cols-2">
         {(
           [
-            { key: 'fasted' as const, label: t('ui.ramadanIFasted'), icon: Utensils, on: today?.fasted ?? false },
-            { key: 'taraweeh' as const, label: t('ui.ramadanIPrayedTaraweeh'), icon: Star, on: today?.taraweeh ?? false },
+            {
+              key: 'fasted' as const,
+              label: isRamadan ? t('ui.ramadanIFasted') : t('ui.ramadanIFastedNafl'),
+              icon: Utensils,
+              on: today?.fasted ?? false,
+              // Fasting the two Eids is forbidden by unanimous agreement, so the
+              // app should not offer to record it.
+              blocked: forbidden,
+            },
+            { key: 'taraweeh' as const, label: t('ui.ramadanIPrayedTaraweeh'), icon: Star, on: today?.taraweeh ?? false, blocked: false },
           ]
-        ).map(({ key, label, icon: Icon, on }) => (
+        ).map(({ key, label, icon: Icon, on, blocked }) => (
           <button
             key={key}
             onClick={() => setToday({ [key]: !on })}
-            disabled={busy || days === null}
+            disabled={busy || days === null || blocked}
+            title={blocked ? t('ui.ramadanForbidden') : label}
             aria-pressed={on}
             className={`flex h-16 items-center gap-3 rounded-2xl border-2 px-5 text-left font-semibold transition-colors disabled:opacity-60 ${
               on
@@ -301,6 +383,95 @@ export default function RamadanPage() {
           </div>
         </div>
       )}
+
+      {/* Statistics. Four numbers that each answer a different question. */}
+      {days !== null && stats.total > 0 && (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            { label: t('ui.ramadanTotalFasts'), value: stats.total, icon: Utensils },
+            { label: t('ui.ramadanLongestRun'), value: stats.run, icon: Flame, hint: t('ui.days') },
+            { label: t('ui.ramadanThisMonth'), value: stats.thisMonth, icon: CalendarDays },
+            { label: t('ui.ramadanTaraweehTotal'), value: stats.taraweeh, icon: Star },
+          ].map(({ label, value, icon: Icon, hint }) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+            >
+              <Icon className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              <p className="mt-1.5 text-2xl font-bold leading-none tabular-nums text-slate-900 dark:text-white">
+                {value}
+              </p>
+              <p className="mt-1 truncate text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {label}
+              </p>
+              {hint && <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">{hint}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/*
+        The month at a glance.
+
+        Gregorian layout, because the grid has to line up with the weekday row and
+        with the dates on the person's phone — the Hijri day is what labels a cell,
+        not what arranges it. Seven columns at every width, for the same reason the
+        calendar page is: a month grid that is not seven wide is not a month grid.
+      */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-bold text-slate-900 dark:text-white">
+            {now.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
+          </h2>
+          <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-600" />
+              {t('ui.ramadanLegendFasted')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="accent-soft h-2.5 w-2.5 rounded-sm ring-1 ring-inset ring-current" />
+              {t('ui.ramadanLegendRecommended')}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-rose-500" />
+              {t('ui.ramadanLegendEid')}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-7 gap-1.5">
+          {monthGrid.map((cell, i) => {
+            if (!cell) return <div key={`pad-${i}`} aria-hidden />
+
+            const entry = logged.get(cell.key)
+            // The occasion needs the Hijri date for that day, which is only
+            // fetched for today — so other days get weekday-only occasions. Being
+            // wrong about Ashura on a grid would be worse than not marking it.
+            const occ = fastingOccasion(cell.date, null)
+            const isToday = cell.key === todayKey
+            const future = cell.date.getTime() > now.getTime()
+
+            return (
+              <div
+                key={cell.key}
+                className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-xs ${
+                  entry?.fasted
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : occ?.kind === 'forbidden'
+                      ? 'border-rose-400 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
+                      : occ
+                        ? 'accent-border accent-soft'
+                        : 'border-slate-200 text-slate-500 dark:border-slate-800 dark:text-slate-400'
+                } ${isToday ? 'ring-2 accent-ring' : ''} ${future ? 'opacity-45' : ''}`}
+                title={occ ? t(occ.key) : undefined}
+              >
+                <span className="font-bold tabular-nums">{cell.date.getDate()}</span>
+                {entry?.taraweeh && <Star className="mt-0.5 h-2.5 w-2.5" />}
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       {/* The log so far. */}
       {days === null ? (

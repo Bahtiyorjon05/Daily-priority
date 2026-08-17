@@ -76,6 +76,7 @@ export default function QuranPage() {
     it. Paged, and the page number is part of the saved position.
   */
   const [page, setPage] = useState(0)
+  const [needsRefetch, setNeedsRefetch] = useState(false)
   const readerRef = useRef<HTMLDivElement>(null)
 
   const loadProgress = useCallback(async () => {
@@ -101,6 +102,12 @@ export default function QuranPage() {
     setShowTranslation((v) => {
       const next = !v
       localStorage.setItem('dailypriority_quran_translation', next ? '1' : '0')
+      /*
+        Turning it ON has to refetch: the previous request may have asked for
+        Arabic only, so the translation simply is not in memory. Turning it OFF
+        needs nothing — the text is already there and hiding it is instant.
+      */
+      if (next) setNeedsRefetch(true)
       return next
     })
   }, [])
@@ -112,7 +119,9 @@ export default function QuranPage() {
       setPage(0)
       setLoadingSurah(true)
       try {
-        const res = await fetch(`/api/quran/surah/${n}?locale=${locale}`)
+        const res = await fetch(
+          `/api/quran/surah/${n}?locale=${locale}&translation=${showTranslation ? '1' : '0'}`
+        )
         if (!res.ok) throw new Error('failed')
         const json = await res.json()
         setAyahs(json.ayahs)
@@ -132,7 +141,7 @@ export default function QuranPage() {
         setLoadingSurah(false)
       }
     },
-    [locale, t]
+    [locale, t, showTranslation]
   )
 
   /**
@@ -166,6 +175,31 @@ export default function QuranPage() {
     },
     [loadProgress, t]
   )
+
+  /*
+    Refetch after the translation is switched on, keeping the chunk the reader is
+    on. Without this, turning it on shows nothing at all — the previous request
+    asked for Arabic only, so there is no translation in memory to reveal.
+  */
+  useEffect(() => {
+    if (!needsRefetch || open === null) {
+      if (needsRefetch) setNeedsRefetch(false)
+      return
+    }
+    const keepPage = page
+    setNeedsRefetch(false)
+    ;(async () => {
+      try {
+        const res = await fetch(`/api/quran/surah/${open}?locale=${locale}&translation=1`)
+        if (!res.ok) return
+        const json = await res.json()
+        setAyahs(json.ayahs)
+        setPage(keepPage)
+      } catch {
+        /* The Arabic already on screen is still readable. */
+      }
+    })()
+  }, [needsRefetch, open, locale, page])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
