@@ -1857,5 +1857,8 @@
   "email.weekly.personalBest": "shaxsiy rekord",
   "email.weekly.bestHint": "eng yaxshi {count}",
   "email.weekly.quiet": "Sokin hafta bo‘ldi — bu ham bo‘ladi. Qaytadan boshlash uchun bugun bitta kichik ish kifoya.",
-  "email.weekly.footnote": "Bu xatni Sozlamalar → Bildirishnomalar → Haftalik hisobot xatida o‘chirib qo‘yishingiz mumkin."
+  "email.weekly.footnote": "Bu xatni Sozlamalar → Bildirishnomalar → Haftalik hisobot xatida o‘chirib qo‘yishingiz mumkin.",
+  "ui.asrCalculation": "Asr hisobi",
+  "ui.hanafi": "Hanafiy",
+  "ui.shafi": "Shofiy"
 }

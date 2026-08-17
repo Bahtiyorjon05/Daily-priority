@@ -12,7 +12,27 @@ export async function GET(request: NextRequest) {
     const day = searchParams.get('day')
     const month = searchParams.get('month')
     const year = searchParams.get('year')
-    const school = searchParams.get('school') || '0' // 0=Standard Shafi, 1=Hanafi
+    /*
+      Both of these decide what time the app tells you to pray, so neither can
+      stay a constant.
+
+      `school` picks the Asr calculation: 1 = Hanafi, 0 = Shafi'i (with Maliki
+      and Hanbali). Asr falls 40-90 minutes later in the Hanafi school. This
+      defaulted to '0' while the app's users are overwhelmingly Hanafi, so Asr
+      has been shown early for nearly everyone.
+
+      `method` picks the Fajr/Isha twilight convention. It was hard-coded to 2 —
+      ISNA, a North American convention at 15°/15° — which is not what Central
+      Asia uses. 14 is the Spiritual Administration of Muslims of Russia.
+
+      Both are validated against the sets Aladhan accepts rather than passed
+      through: a junk value here would silently return times for a different
+      convention instead of failing.
+    */
+    const school = searchParams.get('school') === '0' ? '0' : '1'
+    const VALID_METHODS = new Set(['1', '2', '3', '4', '5', '7', '8', '9', '10', '11', '12', '13', '14', '15'])
+    const requestedMethod = searchParams.get('method') ?? '14'
+    const method = VALID_METHODS.has(requestedMethod) ? requestedMethod : '14'
 
     // Validation
     if (!latitude || !longitude || !day || !month || !year) {
@@ -44,8 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Call Aladhan API from server side (bypasses CORS)
-    // school parameter: 0=Standard (Shafi, Maliki, Hanbali), 1=Hanafi
-    const aladhanUrl = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lon}&method=2&school=${school}`
+    const aladhanUrl = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lon}&method=${method}&school=${school}`
 
     console.log('Fetching prayer times from Aladhan:', aladhanUrl)
 

@@ -45,6 +45,7 @@ const PrayerChart = dynamic(() => import('./components/PrayerChart'), {
 import PrayerStreak from './components/PrayerStreak'
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { usePrayerCalc } from '@/hooks/usePrayerCalc'
 
 
 
@@ -111,6 +112,7 @@ interface PrayerStatus {
 
 export default function PrayersPage() {
   const { t } = useT()
+  const { calc, save: savePrayerCalc } = usePrayerCalc()
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null)
 
   const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string; timeUntil: string } | null>(null)
@@ -293,7 +295,7 @@ export default function PrayersPage() {
 
       setPrayerTimesError(null)
 
-      const cachedTimes = getStoredPrayerTimes(latitude, longitude)
+      const cachedTimes = getStoredPrayerTimes(latitude, longitude, calc)
 
       if (cachedTimes) {
 
@@ -301,7 +303,7 @@ export default function PrayersPage() {
 
       } else {
 
-        const times = await fetchPrayerTimes(latitude, longitude, undefined, 1) // Always use Hanafi calculation
+        const times = await fetchPrayerTimes(latitude, longitude, undefined, calc)
 
         if (!times) {
 
@@ -1178,6 +1180,50 @@ export default function PrayersPage() {
                 <RefreshCw className={`h-3.5 w-3.5 ${isRefreshingLocation ? 'animate-spin' : ''}`} />
               </button>
             </>
+          }
+          actions={
+            /*
+              The madhab belongs here, not buried in Settings: it changes the Asr
+              time on this very screen, and the person most likely to want it is
+              the one looking at a time that disagrees with their mosque.
+
+              Two options, so a segmented control rather than a menu — the same
+              reasoning as the language toggle.
+            */
+            <div
+              role="group"
+              aria-label={t('ui.asrCalculation')}
+              className="inline-flex items-center gap-0.5 rounded-xl bg-white/15 p-1 ring-1 ring-white/20 backdrop-blur-md"
+            >
+              {([1, 0] as const).map((school) => {
+                const active = calc.school === school
+                return (
+                  <button
+                    key={school}
+                    type="button"
+                    onClick={async () => {
+                      if (active) return
+                      try {
+                        await savePrayerCalc({ school })
+                        // The cached times were produced by the other school, so
+                        // they must be refetched. getStoredPrayerTimes now treats
+                        // a different convention as a miss, so this returns fresh
+                        // times rather than the ones already on screen.
+                        await loadPrayerData({ showToast: false, suppressSpinner: true })
+                      } catch {
+                        toast.error(t('ui.failedToSaveSettings'))
+                      }
+                    }}
+                    aria-pressed={active}
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors ${
+                      active ? 'bg-white text-slate-900' : 'text-white/75 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {school === 1 ? t('ui.hanafi') : t('ui.shafi')}
+                  </button>
+                )
+              })}
+            </div>
           }
         >
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">

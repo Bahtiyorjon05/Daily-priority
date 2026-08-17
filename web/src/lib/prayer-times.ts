@@ -64,18 +64,42 @@ export interface PrayerTimeResponse {
 }
 
 /**
+ * Which convention to calculate with.
+ *
+ * `school` decides Asr: 1 = Hanafi (40-90 minutes later), 0 = Shafi'i, Maliki and
+ * Hanbali, which agree with each other here.
+ *
+ * `method` decides the Fajr and Isha twilight angles, as an Aladhan method id.
+ * 14 is the Spiritual Administration of Muslims of Russia, which covers Central
+ * Asia; 2 is ISNA, the North American convention this app shipped with.
+ */
+export type PrayerCalc = { school: 0 | 1; method: number }
+
+/** Hanafi + Central Asia. See the note on UserPreference.asrSchool for why. */
+export const DEFAULT_CALC: PrayerCalc = { school: 1, method: 14 }
+
+/**
  * Save prayer times to localStorage for faster loading
  */
 export function savePrayerTimes(
   prayerTimes: PrayerTimes,
   latitude: number,
-  longitude: number
+  longitude: number,
+  calc?: PrayerCalc
 ): void {
   try {
     const data = {
       prayerTimes,
       latitude,
       longitude,
+      /*
+        The cache has to record WHICH convention produced these times. It was
+        keyed on date and location alone, so switching from Shafi'i to Hanafi
+        showed the same Asr as before — the change appeared to do nothing, which
+        is worse than not offering it.
+      */
+      school: calc?.school ?? DEFAULT_CALC.school,
+      method: calc?.method ?? DEFAULT_CALC.method,
       timestamp: Date.now(),
       date: new Date().toDateString(),
     }
@@ -90,7 +114,8 @@ export function savePrayerTimes(
  */
 export function getStoredPrayerTimes(
   latitude: number,
-  longitude: number
+  longitude: number,
+  calc?: PrayerCalc
 ): PrayerTimes | null {
   try {
     const stored = localStorage.getItem('dailypriority_prayer_times')
@@ -99,12 +124,17 @@ export function getStoredPrayerTimes(
     const data = JSON.parse(stored)
     const currentDate = new Date().toDateString()
 
-    // Check if cached data is for today and same location (within 50km)
+    const want = calc ?? DEFAULT_CALC
+    // Today, near enough the same place, AND the same calculation convention.
+    // A cache entry from a different school is not a hit — it is a wrong answer
+    // served quickly.
     if (
       data.date === currentDate &&
       data.prayerTimes &&
       Math.abs(data.latitude - latitude) < 0.5 &&
-      Math.abs(data.longitude - longitude) < 0.5
+      Math.abs(data.longitude - longitude) < 0.5 &&
+      (data.school ?? DEFAULT_CALC.school) === want.school &&
+      (data.method ?? DEFAULT_CALC.method) === want.method
     ) {
       return data.prayerTimes
     }
@@ -123,12 +153,12 @@ export async function fetchPrayerTimes(
   latitude: number,
   longitude: number,
   date?: Date,
-  school: 0 | 1 = 0 // 0=Standard (Shafi), 1=Hanafi
+  calc: PrayerCalc = DEFAULT_CALC
 ): Promise<PrayerTimes | null> {
   try {
     // Check cache first for today's prayer times
     if (!date || date.toDateString() === new Date().toDateString()) {
-      const cached = getStoredPrayerTimes(latitude, longitude)
+      const cached = getStoredPrayerTimes(latitude, longitude, calc)
       if (cached) {
         console.log('Using cached prayer times')
         return cached
@@ -140,9 +170,10 @@ export async function fetchPrayerTimes(
     const month = targetDate.getMonth() + 1
     const year = targetDate.getFullYear()
 
-    // Use internal API route instead of direct Aladhan API call
-    // school parameter: 0=Standard (Shafi, Maliki, Hanbali), 1=Hanafi
-    const url = `/api/prayer-times/fetch?latitude=${latitude}&longitude=${longitude}&day=${day}&month=${month}&year=${year}&school=${school}`
+    const url =
+      `/api/prayer-times/fetch?latitude=${latitude}&longitude=${longitude}` +
+      `&day=${day}&month=${month}&year=${year}` +
+      `&school=${calc.school}&method=${calc.method}`
 
     // Add AbortController for timeout
     const controller = new AbortController()
@@ -175,7 +206,7 @@ export async function fetchPrayerTimes(
 
     // Cache the prayer times for today
     if (!date || date.toDateString() === new Date().toDateString()) {
-      savePrayerTimes(result.data, latitude, longitude)
+      savePrayerTimes(result.data, latitude, longitude, calc)
     }
 
     return result.data

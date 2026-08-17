@@ -13,6 +13,7 @@ import {
   getNextPrayer,
   type PrayerTime,
 } from '@/lib/prayer-times'
+import { usePrayerCalc } from '@/hooks/usePrayerCalc'
 
 /**
  * Prayer times.
@@ -61,6 +62,9 @@ function toMinutes(hhmm?: string): number | null {
 export default function PrayerTimesWidget() {
   const { t } = useT()
   const { phase } = usePrayerPhase()
+  // Hanafi or Shafi'i, per user. Was a literal `1` here and a literal `0` in
+  // two other paths.
+  const { calc } = usePrayerCalc()
   const reduceMotion = useReducedMotion()
 
   const [prayers, setPrayers] = useState<PrayerTime[]>([])
@@ -86,7 +90,7 @@ export default function PrayerTimesWidget() {
       const position = await getCurrentLocation()
       const { latitude, longitude } = position.coords
 
-      const times = await fetchPrayerTimes(latitude, longitude, undefined, 1)
+      const times = await fetchPrayerTimes(latitude, longitude, undefined, calc)
       if (!times) throw new Error(t('ui.failedToFetchPrayerTimes'))
 
       const enhanced = enhancePrayerTimes(times)

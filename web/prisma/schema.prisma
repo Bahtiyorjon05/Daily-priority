@@ -420,6 +420,23 @@ model UserPreference {
   prayerReminderMinutes Int     @default(10)
   ramadanMode           Boolean @default(false)
   language              String  @default("en")
+  /// Juristic school for the Asr calculation. 1 = Hanafi, 0 = Shafi'i (and
+  /// Maliki/Hanbali, which agree with it here). Asr falls roughly 40-90 minutes
+  /// later in the Hanafi school, so this is not a cosmetic preference — getting
+  /// it wrong makes the app tell you the wrong time for a prayer.
+  ///
+  /// Defaults to Hanafi: the app's users are overwhelmingly in Uzbekistan and
+  /// Central Asia, where that is the prevailing school. It shipped hard-coded to
+  /// Shafi'i, so every existing user has been shown Asr early.
+  asrSchool             Int     @default(1)
+  /// Twilight convention for Fajr and Isha, as an Aladhan method id.
+  /// 1 = Karachi · 2 = ISNA · 3 = Muslim World League · 13 = Diyanet (Turkey)
+  /// 14 = Spiritual Administration of Muslims of Russia (Central Asia)
+  ///
+  /// Was hard-coded to 2 (ISNA), a North American convention using 15°/15° that
+  /// is not what Central Asia uses. Selectable now, and worth checking against a
+  /// local timetable rather than trusting a default.
+  calculationMethod     Int     @default(14)
   user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_preferences")

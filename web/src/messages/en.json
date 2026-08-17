@@ -1857,5 +1857,8 @@
   "email.weekly.personalBest": "personal best",
   "email.weekly.bestHint": "best {count}",
   "email.weekly.quiet": "A quiet week — that happens. One small thing today is enough to start again.",
-  "email.weekly.footnote": "You can turn this email off in Settings → Notifications → Weekly review email."
+  "email.weekly.footnote": "You can turn this email off in Settings → Notifications → Weekly review email.",
+  "ui.asrCalculation": "Asr calculation",
+  "ui.hanafi": "Hanafi",
+  "ui.shafi": "Shafi"
 }

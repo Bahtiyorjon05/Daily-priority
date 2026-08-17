@@ -8,6 +8,7 @@ import {
   getCurrentLocation,
   enhancePrayerTimes,
   getNextPrayer,
+  DEFAULT_CALC,
   type PrayerTime,
   type PrayerTimes
 } from '@/lib/prayer-times'
@@ -40,7 +41,9 @@ export function usePrayerTimes() {
       setLocation(locationName)
 
       // Fetch prayer times using CURRENT coordinates
-      const prayerTimes = await fetchPrayerTimes(latitude, longitude)
+      // No consumers today, but it defaulted to Shafi'i while the live screens
+      // passed Hanafi — two conventions in one app, waiting to be revived.
+      const prayerTimes = await fetchPrayerTimes(latitude, longitude, undefined, DEFAULT_CALC)
 
       if (!prayerTimes) {
         throw new Error('Failed to fetch prayer times')
