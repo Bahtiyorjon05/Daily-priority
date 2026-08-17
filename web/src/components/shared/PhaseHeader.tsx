@@ -33,7 +33,7 @@ import type { LucideIcon } from 'lucide-react'
  * Everything else names its own identity — see the accent tokens in globals.css
  * for why journal, goals, habits and focus do not follow the phase.
  */
-export type HeaderAccent = 'journal' | 'goals' | 'habits' | 'focus' | 'calendar'
+export type HeaderAccent = 'journal' | 'goals' | 'habits' | 'focus' | 'calendar' | 'quran'
 
 export function PhaseHeader({
   icon: Icon,

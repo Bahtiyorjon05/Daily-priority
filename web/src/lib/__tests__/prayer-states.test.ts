@@ -110,4 +110,61 @@ describe('prayer states', () => {
     const grid = page.slice(page.indexOf('prayers.map'), page.indexOf('prayers.map') + 3000)
     expect(grid).not.toMatch(/hover:scale-105/)
   })
+  it('closes the Fajr window at sunrise, not at Dhuhr', () => {
+    /*
+     * Fajr is qaza once the sun is up. Treating the next prayer in the sequence
+     * as the boundary told someone at 09:00 they still had hours to pray Fajr —
+     * wrong, and it defeats the point of having a "missed" state at all.
+     */
+    const fn = stateFn()
+    expect(fn).toMatch(/name === 'fajr'/)
+    expect(fn).toMatch(/toMinutes\(prayerTimes\?\.sunrise\)/)
+  })
+
+  it('still runs adhan to adhan for the other four', () => {
+    const fn = stateFn()
+    expect(fn).toMatch(/PRAYER_SEQUENCE\.indexOf\(name\)/)
+    expect(fn).toMatch(/nextName \? toMinutes/)
+  })
+
+  it('keeps the madhab toggle legible on the header field', () => {
+    /*
+     * Measured: the unselected label was white at 0.75 opacity, which lands
+     * around 3.3:1 on the lightest field this header can paint — under AA for
+     * small text, and it read as disabled rather than tappable. Full white is
+     * 5.52:1. The selected state is near-black on a white plate at 17.85:1.
+     *
+     * Neither state may use a `dark:` variant: this control sits ON the accent
+     * field, which is dark in both schemes, so a theme-aware colour resolves
+     * against the page behind it instead of the surface it is on.
+     */
+    const toggle = page.slice(
+      page.indexOf("aria-label={t('ui.asrCalculation')}"),
+      page.indexOf("{school === 1 ? t('ui.hanafi')")
+    )
+    expect(toggle.length, 'sliced an empty toggle').toBeGreaterThan(100)
+    expect(toggle).toMatch(/bg-white text-\[#0f172a\]/)
+    expect(toggle, 'unselected must be full white, not 0.75').not.toMatch(/text-white\/75/)
+    expect(toggle, 'no theme variant on a surface that is dark in both').not.toMatch(/dark:/)
+  })
+
+  it('refetches with the school it just saved', () => {
+    /*
+     * `loadPrayerData` is a `useCallback(..., [])`, created once on mount, so it
+     * captured the first render's calc. Switching school saved the preference
+     * and then refetched with the OLD one — the toggle moved and Asr did not.
+     * The loader reads a ref at call time instead.
+     */
+    expect(page).toMatch(/getStoredPrayerTimes\(latitude, longitude, calcRef\.current\)/)
+    expect(page).toMatch(/fetchPrayerTimes\(latitude, longitude, undefined, calcRef\.current\)/)
+    expect(
+      /fetchPrayerTimes\(latitude, longitude, undefined, calc\)/.test(page),
+      'reading `calc` directly re-introduces the frozen closure'
+    ).toBe(false)
+
+    // And the ref has to be current before the refetch runs, which means the
+    // save updates it synchronously rather than waiting for a render.
+    const hook = readFileSync(join(process.cwd(), 'src/hooks/usePrayerCalc.ts'), 'utf8')
+    expect(hook).toMatch(/calcRef\.current = merged/)
+  })
 })

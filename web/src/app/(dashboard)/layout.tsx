@@ -383,6 +383,13 @@ function DashboardLayoutContent({
       color: 'from-emerald-500 to-teal-500'
     },
     {
+      path: '/quran',
+      icon: BookOpen,
+      label: t('nav.quran'),
+      description: t('ui.quranSubtitle'),
+      color: 'from-emerald-700 to-amber-600'
+    },
+    {
       path: '/adhkar',
       icon: Sparkles,
       label: t('nav.adhkar'),

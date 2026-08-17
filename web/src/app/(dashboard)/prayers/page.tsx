@@ -113,7 +113,7 @@ interface PrayerStatus {
 
 export default function PrayersPage() {
   const { t } = useT()
-  const { calc, save: savePrayerCalc } = usePrayerCalc()
+  const { calc, calcRef, save: savePrayerCalc } = usePrayerCalc()
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null)
 
   const [nextPrayer, setNextPrayer] = useState<{ name: string; time: string; timeUntil: string } | null>(null)
@@ -296,7 +296,7 @@ export default function PrayersPage() {
 
       setPrayerTimesError(null)
 
-      const cachedTimes = getStoredPrayerTimes(latitude, longitude, calc)
+      const cachedTimes = getStoredPrayerTimes(latitude, longitude, calcRef.current)
 
       if (cachedTimes) {
 
@@ -304,7 +304,7 @@ export default function PrayersPage() {
 
       } else {
 
-        const times = await fetchPrayerTimes(latitude, longitude, undefined, calc)
+        const times = await fetchPrayerTimes(latitude, longitude, undefined, calcRef.current)
 
         if (!times) {
 
@@ -898,9 +898,26 @@ export default function PrayersPage() {
     if (start === null) return 'upcoming'
     if (minutesNow < start) return 'upcoming'
 
-    const i = PRAYER_SEQUENCE.indexOf(name)
-    const nextName = PRAYER_SEQUENCE[i + 1]
-    const end = nextName ? toMinutes(prayerTimes?.[nextName]) : null
+    /*
+      Where each window ENDS. Not simply "the next prayer in the list".
+
+      Fajr's window closes at SUNRISE, not at Dhuhr. Once the sun is up, Fajr is
+      qaza even though hours remain before Dhuhr — treating Dhuhr as the boundary
+      told someone at 09:00 that they still had time to pray Fajr, which is
+      wrong, and it is the whole reason the distinction matters on this page.
+
+      The rest do run adhan to adhan. Isha has no following prayer today, so it
+      stays current rather than turning missed at 23:59.
+    */
+    const end =
+      name === 'fajr'
+        ? toMinutes(prayerTimes?.sunrise)
+        : (() => {
+            const i = PRAYER_SEQUENCE.indexOf(name)
+            const nextName = PRAYER_SEQUENCE[i + 1]
+            return nextName ? toMinutes(prayerTimes?.[nextName]) : null
+          })()
+
     if (end === null) return 'current'
 
     return minutesNow < end ? 'current' : 'missed'
@@ -1216,8 +1233,22 @@ export default function PrayersPage() {
                       }
                     }}
                     aria-pressed={active}
-                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors ${
-                      active ? 'bg-white text-slate-900' : 'text-white/75 hover:bg-white/10 hover:text-white'
+                    /*
+                      Both states are stated in literal colours, and neither has a
+                      `dark:` variant — this control sits on the accent field,
+                      which is dark in BOTH schemes. A theme-aware token here
+                      resolves against the page instead of the field it is
+                      actually on, which is what made the labels wash out.
+
+                      Selected: solid white plate with near-black ink, so it reads
+                      as pressed at a glance. Unselected: bright enough to be a
+                      legible option rather than a disabled one — 0.75 white on
+                      this field was too faint to look tappable.
+                    */
+                    className={`min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${
+                      active
+                        ? 'bg-white text-[#0f172a] shadow-sm'
+                        : 'text-white hover:bg-white/20'
                     }`}
                   >
                     {school === 1 ? t('ui.hanafi') : t('ui.shafi')}

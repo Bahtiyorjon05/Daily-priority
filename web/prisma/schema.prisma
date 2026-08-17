@@ -65,6 +65,8 @@ model User {
   settings         UserSettings?
   passwordHistory  PasswordHistory[]
   qadaDebts        QadaDebt[]
+  quranProgress    QuranProgress?
+  quranReadingLog  QuranReadingLog[]
 
   @@index([email])
   @@index([createdAt])
@@ -119,6 +121,48 @@ model QadaDebt {
   @@unique([userId, prayer])
   @@index([userId])
   @@map("qada_debts")
+}
+
+/// Where someone is in the Quran, and how far they have got overall.
+///
+/// One row per user. `lastSurah`/`lastAyah` is the bookmark — the thing that
+/// makes reopening the app cost nothing. `pagesRead` is the running total, kept
+/// separately because it must not go backwards when someone re-reads a surah or
+/// jumps to Yaseen for a Friday.
+model QuranProgress {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  /// 1-114
+  lastSurah   Int      @default(1)
+  /// Ayah within that surah, 1-based.
+  lastAyah    Int      @default(1)
+  /// Page in the Madani mushaf, so progress reads out of 604.
+  lastPage    Int      @default(1)
+  /// Distinct pages ever reached. Monotonic on purpose.
+  pagesRead   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quran_progress")
+}
+
+/// One row per day someone read, for the streak and the history.
+///
+/// Separate from QuranProgress because a streak is a question about days, not
+/// about position: reading four pages in one sitting is one day, and the debt of
+/// a missed day cannot be reconstructed from a bookmark.
+model QuranReadingLog {
+  id        String   @id @default(cuid())
+  userId    String
+  /// Midnight in the user's day, so one row per calendar day.
+  date      DateTime
+  pages     Int      @default(1)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date(sort: Desc)])
+  @@map("quran_reading_log")
 }
 
 /// Heartbeat + outcome of each scheduled job, so the admin console can show

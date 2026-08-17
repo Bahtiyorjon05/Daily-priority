@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { DEFAULT_CALC, type PrayerCalc } from '@/lib/prayer-times'
 
 /**
@@ -19,6 +19,21 @@ import { DEFAULT_CALC, type PrayerCalc } from '@/lib/prayer-times'
 export function usePrayerCalc() {
   const [calc, setCalc] = useState<PrayerCalc>(DEFAULT_CALC)
   const [loaded, setLoaded] = useState(false)
+
+  /*
+    A ref alongside the state, kept current every render.
+
+    Callers fetch prayer times from inside `useCallback(..., [])` — a loader
+    created once on mount. That closure captured the first render's `calc`, so
+    switching school saved the preference and then refetched with the OLD one:
+    the toggle moved, the request did not, and Asr stayed exactly where it was.
+
+    Reading `calcRef.current` at call time sidesteps the frozen closure without
+    forcing every loader to re-declare its dependencies, which is the pattern
+    this page already uses for prayer times.
+  */
+  const calcRef = useRef<PrayerCalc>(DEFAULT_CALC)
+  calcRef.current = calc
 
   useEffect(() => {
     let cancelled = false
@@ -47,6 +62,15 @@ export function usePrayerCalc() {
   const save = useCallback(async (next: Partial<PrayerCalc>) => {
     const merged = { ...calc, ...next }
     setCalc(merged)
+    /*
+      Set the ref synchronously as well.
+
+      `setCalc` schedules a render, and the ref is assigned during render — but a
+      caller that awaits this and then immediately refetches runs BEFORE that
+      render commits. Without this line the refetch would still read the previous
+      school, which is the whole bug this ref exists to prevent.
+    */
+    calcRef.current = merged
     const res = await fetch('/api/user/prayer-calc', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -59,10 +83,11 @@ export function usePrayerCalc() {
       // Put it back: showing a school the server rejected would be a lie about
       // which times are on screen.
       setCalc(calc)
+      calcRef.current = calc
       throw new Error('Failed to save prayer settings')
     }
     return merged
   }, [calc])
 
-  return { calc, loaded, save }
+  return { calc, calcRef, loaded, save }
 }

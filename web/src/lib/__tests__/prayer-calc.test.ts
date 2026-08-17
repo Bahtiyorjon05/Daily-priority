@@ -64,7 +64,9 @@ describe('prayer calculation settings', () => {
       ['dashboard widget', widget],
     ] as const) {
       expect(src, `${name} must read the user preference`).toMatch(/usePrayerCalc\(\)/)
-      expect(src, `${name} must pass it through`).toMatch(/undefined, calc\)/)
+      // `calcRef.current` on the prayers page: its loader is a
+      // `useCallback(..., [])` and would otherwise fetch with a frozen calc.
+      expect(src, `${name} must pass it through`).toMatch(/undefined, (calc|calcRef\.current)\)/)
       // The literals that used to be here.
       expect(
         /fetchPrayerTimes\([^)]*, 1\)|fetchPrayerTimes\([^)]*, 0\)/.test(src),
