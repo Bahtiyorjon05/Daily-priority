@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { useT } from '@/lib/i18n/client'
 import { PhaseHeader, HeaderStat } from '@/components/shared/PhaseHeader'
 import { SURAHS, QURAN_PAGES, surahByNumber, type Surah } from '@/lib/quran/surahs'
+import { surahName, surahMeaning, surahSearchTerms } from '@/lib/quran/name'
 
 /**
  * Quran reading.
@@ -204,14 +205,13 @@ export default function QuranPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return SURAHS
-    // Number, transliteration or meaning — people look for "36", "Yaseen" and
-    // "The Cow" in roughly equal measure.
-    return SURAHS.filter(
-      (s) =>
-        String(s.n) === q ||
-        s.en.toLowerCase().includes(q) ||
-        s.meaning.toLowerCase().includes(q) ||
-        s.ar.includes(query.trim())
+    /*
+      Number, name or meaning, in EITHER language — people look for "36",
+      "Yaseen", "Yosin" and "Sigir" in roughly equal measure, and someone reading
+      in Uzbek may still type the name they saw somewhere in English.
+    */
+    return SURAHS.filter((s) =>
+      surahSearchTerms(s).some((term) => term.includes(q))
     )
   }, [query])
 
@@ -221,6 +221,10 @@ export default function QuranPage() {
     [progress?.finishedSurahs]
   )
   const alreadyFinished = open !== null && finishedSet.has(open)
+
+  /* The bookmarked surah's name, in the reader's language like every other one. */
+  const bookmarked = progress ? surahByNumber(progress.lastSurah) : undefined
+  const continueName = bookmarked ? surahName(bookmarked, locale) : ''
 
   /*
     Fixed-size chunks rather than one giant list.
@@ -282,7 +286,7 @@ export default function QuranPage() {
                   {t('ui.quranContinue')}
                 </span>
                 <span className="block truncate font-bold text-slate-900 dark:text-white">
-                  {surahByNumber(progress.lastSurah)?.en} · {t('ui.quranAyah', { n: progress.lastAyah })}
+                  {continueName} · {t('ui.quranAyah', { n: progress.lastAyah })}
                 </span>
               </span>
               <ChevronRight className="h-5 w-5 shrink-0 text-slate-400" />
@@ -307,6 +311,8 @@ export default function QuranPage() {
               <SurahRow
                 key={s.n}
                 surah={s}
+                name={surahName(s, locale)}
+                meaning={surahMeaning(s, locale)}
                 isFinished={finishedSet.has(s.n)}
                 isBookmark={progress?.lastSurah === s.n && progress.pagesRead > 0}
                 onOpen={() => openSurah(s.n)}
@@ -351,8 +357,12 @@ export default function QuranPage() {
               </button>
 
               <div className="min-w-0 text-right">
-                <p className="truncate font-bold text-slate-900 dark:text-white">{current?.en}</p>
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">{current?.meaning}</p>
+                <p className="truncate font-bold text-slate-900 dark:text-white">
+                  {current ? surahName(current, locale) : ''}
+                </p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                  {current ? surahMeaning(current, locale) : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -468,7 +478,11 @@ export default function QuranPage() {
                       the next surah is one tap away. "Nothing happened" was the
                       whole complaint.
                     */
-                    toast.success(t('ui.quranFinishedToast', { surah: current?.en ?? '' }))
+                    toast.success(
+                      t('ui.quranFinishedToast', {
+                        surah: current ? surahName(current, locale) : '',
+                      })
+                    )
                     setOpen(null)
                     setAyahs(null)
                   }}
@@ -487,6 +501,8 @@ export default function QuranPage() {
 
 function SurahRow({
   surah,
+  name,
+  meaning,
   isFinished,
   isBookmark,
   onOpen,
@@ -494,6 +510,10 @@ function SurahRow({
   ayahLabel,
 }: {
   surah: Surah
+  /* Resolved by the caller, which has the locale — the row renders, it does not
+     decide what language anything is in. */
+  name: string
+  meaning: string
   isFinished: boolean
   isBookmark: boolean
   onOpen: () => void
@@ -521,10 +541,10 @@ function SurahRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-semibold text-slate-900 dark:text-white">
-          {surah.en}
+          {name}
         </span>
         <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
-          {surah.meaning} · {ayahLabel} · {placeLabel}
+          {meaning} · {ayahLabel} · {placeLabel}
         </span>
       </span>
       <span

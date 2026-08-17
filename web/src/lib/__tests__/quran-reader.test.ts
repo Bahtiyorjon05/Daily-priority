@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SURAHS, QURAN_PAGES } from '@/lib/quran/surahs'
+import { SURAHS, QURAN_PAGES, surahByNumber } from '@/lib/quran/surahs'
+import { SURAH_NAMES_UZ } from '@/lib/quran/names-uz'
+import { surahName, surahMeaning, surahSearchTerms } from '@/lib/quran/name'
 
 /**
  * The Quran reader.
@@ -189,5 +191,119 @@ describe('finishing a surah', () => {
     // The same button claiming "I finished this" on a surah already ticked reads
     // as though the first press failed.
     expect(page).toMatch(/alreadyFinished \? t\('ui\.quranReadAgain'\)/)
+  })
+})
+
+describe('surah names in the language the reader chose', () => {
+  /*
+    The Uzbek reader saw "Al-Baqara · The Cow". Both halves were English: the
+    source gives the English transliteration convention with the article attached,
+    and the meaning was never translated at all. On the one page of this app that
+    exists to be read in your own language, that was the wrong language twice.
+  */
+
+  it('names every one of the 114 in Uzbek', () => {
+    const gaps = SURAHS.filter((s) => {
+      const uz = SURAH_NAMES_UZ[s.n]
+      return !uz?.uz?.trim() || !uz?.meaning?.trim()
+    }).map((s) => s.n)
+    expect(gaps, `surahs with no Uzbek name: ${gaps.join(', ')}`).toEqual([])
+  })
+
+  it('drops the article, the way an Uzbek mushaf writes it', () => {
+    // "Al-Baqara" is the English convention. An Uzbek copy says "Baqara", and
+    // that is the name the reader is scanning the list for.
+    const withArticle = SURAHS.filter((s) =>
+      /^(Al|An|Ar|At|As|Ash|Az)-/.test(SURAH_NAMES_UZ[s.n].uz)
+    ).map((s) => s.n)
+    expect(withArticle, `still carrying the English article: ${withArticle.join(', ')}`).toEqual([])
+    expect(surahName(surahByNumber(2)!, 'uz')).toBe('Baqara')
+    expect(surahName(surahByNumber(2)!, 'en')).toBe('Al-Baqara')
+  })
+
+  it('translates the meanings rather than copying them', () => {
+    /*
+      The failure this catches is a half-filled table: rows added with the English
+      meaning pasted across as a placeholder. Proper nouns legitimately match —
+      Quraysh is Quraysh in both — so a small number is expected, and 113 of 114
+      differ.
+    */
+    const copied = SURAHS.filter((s) => SURAH_NAMES_UZ[s.n].meaning === s.meaning)
+    expect(copied.length, `copied from English: ${copied.map((s) => s.n).join(', ')}`).toBeLessThan(5)
+    expect(surahMeaning(surahByNumber(2)!, 'uz')).toBe('Sigir')
+    expect(surahMeaning(surahByNumber(18)!, 'uz')).toBe("G'or")
+  })
+
+  it('leaves no English function words in an Uzbek meaning', () => {
+    // "The Cow" surviving in the table is the exact bug being fixed, and it would
+    // read as Uzbek to anyone skimming the file.
+    const leaks = SURAHS.filter((s) =>
+      /\b(the|of|who|and)\b/i.test(SURAH_NAMES_UZ[s.n].meaning)
+    ).map((s) => `${s.n}: ${SURAH_NAMES_UZ[s.n].meaning}`)
+    expect(leaks, leaks.join(' | ')).toEqual([])
+  })
+
+  it('gives no two surahs the same Uzbek name', () => {
+    // A duplicate means a row was filled in from the wrong line, and the list
+    // would show the same name twice with different Arabic beside it.
+    const seen = new Map<string, number>()
+    const clashes: string[] = []
+    for (const s of SURAHS) {
+      const uz = SURAH_NAMES_UZ[s.n].uz
+      const owner = seen.get(uz)
+      if (owner) clashes.push(`${owner} and ${s.n} are both "${uz}"`)
+      else seen.set(uz, s.n)
+    }
+    expect(clashes, clashes.join(' | ')).toEqual([])
+  })
+
+  it('falls back to a name rather than to nothing', () => {
+    // An unknown locale should still name the surah. A blank row is worse than a
+    // row in the wrong language.
+    expect(surahName(surahByNumber(36)!, 'ru')).toBe('Yaseen')
+    expect(surahMeaning(surahByNumber(36)!, 'ru')).toBeTruthy()
+  })
+
+  it('finds a surah by its name in either language', () => {
+    /*
+      Search deliberately spans both. Someone reading in Uzbek may type "Baqarah"
+      from memory or paste it from elsewhere, and a search that knows the surah
+      exists but will not find it under the name you typed is worse than none.
+    */
+    const baqara = surahByNumber(2)!
+    for (const q of ['baqara', 'sigir', 'cow', '2']) {
+      expect(
+        surahSearchTerms(baqara).some((term) => term.includes(q)),
+        `should be findable by "${q}"`
+      ).toBe(true)
+    }
+    const yasin = surahByNumber(36)!
+    for (const q of ['yosin', 'yaseen', '36']) {
+      expect(
+        surahSearchTerms(yasin).some((term) => term.includes(q)),
+        `should be findable by "${q}"`
+      ).toBe(true)
+    }
+  })
+
+  it('renders every name through the locale helper, never the raw field', () => {
+    /*
+      Four separate surfaces reached into `surah.en` on their own, which is how the
+      list could be translated while the reader header stayed English. Anchored on
+      the field access, so adding a fifth surface that skips the helper fails here.
+    */
+    expect(page).not.toMatch(/\.en\b/)
+    expect(page).not.toMatch(/surah\.meaning|current\?\.meaning/)
+    expect(page).toMatch(/surahName\(s, locale\)/)
+    expect(page).toMatch(/surahMeaning\(s, locale\)/)
+    expect(page).toMatch(/surahName\(current, locale\)/)
+    expect(page).toMatch(/surahSearchTerms\(s\)/)
+  })
+
+  it('names the bookmarked surah and the finish toast in the same language', () => {
+    // The two places most likely to be left behind: one is a string interpolated
+    // into a toast, the other a chained lookup.
+    expect(page).toMatch(/const continueName = bookmarked \? surahName\(bookmarked, locale\)/)
+    expect(page).toMatch(/surah: current \? surahName\(current, locale\) : ''/)
   })
 })
