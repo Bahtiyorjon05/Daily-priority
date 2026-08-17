@@ -1893,5 +1893,8 @@
   "ui.quranMakkah": "Makka",
   "ui.quranMadinah": "Madina",
   "ui.qadaAutoAdded": "O‘tgan kunlardan {count} namoz qo‘shildi",
-  "ui.qadaAutoRule": "Faqat ilovadan foydalangan va namoz belgilanmagan kunlar hisoblandi. Ilovadan oldingi yoki foydalanmagan kunlaringiz hisoblanmaydi — ularni quyida o‘zingiz qo‘shing."
+  "ui.qadaAutoRule": "Faqat ilovadan foydalangan va namoz belgilanmagan kunlar hisoblandi. Ilovadan oldingi yoki foydalanmagan kunlaringiz hisoblanmaydi — ularni quyida o‘zingiz qo‘shing.",
+  "ui.quranTranslation": "Tarjima",
+  "ui.quranPageOf": "{total} dan {page}",
+  "common.previous": "Oldingi"
 }

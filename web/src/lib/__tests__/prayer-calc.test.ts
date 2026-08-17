@@ -55,7 +55,22 @@ describe('prayer calculation settings', () => {
     // toggle looks broken.
     expect(lib).toMatch(/\(data\.school \?\? DEFAULT_CALC\.school\) === want\.school/)
     expect(lib).toMatch(/\(data\.method \?\? DEFAULT_CALC\.method\) === want\.method/)
-    expect(lib, 'and it must be recorded on write').toMatch(/school: calc\?\.school/)
+    expect(lib, 'and it must be recorded on write').toMatch(/school: calc\.school/)
+    /*
+      Required rather than optional on both cache functions.
+
+      It WAS optional, and the prayers page called savePrayerTimes without it —
+      so freshly fetched Shafi'i times were cached tagged as Hanafi, and
+      switching back returned the wrong school's times under the right label.
+      That is the "Asr never changes" bug, and an optional parameter is what
+      allowed it: making it required turned a silent default into a compile
+      error at the one call site that had forgotten.
+    */
+    expect(lib, 'the convention must be a required parameter').toContain('calc: PrayerCalc')
+    expect(
+      lib,
+      'an optional convention lets a call site silently default to Hanafi'
+    ).not.toContain('calc?: PrayerCalc')
   })
 
   it('resolves the convention in one place for every surface', () => {

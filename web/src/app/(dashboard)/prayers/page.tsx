@@ -17,7 +17,6 @@ import {
   getNextPrayerFromTimes,
   getQiblaDirection,
   getStoredPrayerTimes,
-  savePrayerTimes,
   type PrayerTimes,
 } from '@/lib/prayer-times'
 import {
@@ -316,7 +315,10 @@ export default function PrayersPage() {
 
         setPrayerTimes(times)
 
-        savePrayerTimes(times, latitude, longitude)
+        // No savePrayerTimes here: `fetchPrayerTimes` already cached these with
+        // the convention it used. This line called it AGAIN without the calc,
+        // re-tagging Shafi'i times as Hanafi — which is why switching school
+        // appeared to leave Asr unchanged.
 
       }
 

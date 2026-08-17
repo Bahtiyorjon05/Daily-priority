@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  BookOpen, Search, ArrowLeft, Flame, Bookmark, BookmarkCheck, Loader2, ChevronRight,
+  BookOpen, Search, ArrowLeft, Flame, Bookmark, BookmarkCheck, Loader2,
+  ChevronRight, ChevronLeft, Languages,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useT } from '@/lib/i18n/client'
@@ -31,6 +32,14 @@ type Ayah = {
   sajda: boolean
 }
 
+/** Which 20-ayah chunk holds a given ayah. Module scope so `openSurah` can use it
+ *  without depending on a callback declared further down the component. */
+const PER_PAGE = 20
+function pageOfAyahStatic(list: { n: number }[], ayahNumber: number): number {
+  const i = list.findIndex((a) => a.n === ayahNumber)
+  return i < 0 ? 0 : Math.floor(i / PER_PAGE)
+}
+
 type Progress = {
   lastSurah: number
   lastAyah: number
@@ -50,6 +59,21 @@ export default function QuranPage() {
   const [ayahs, setAyahs] = useState<Ayah[] | null>(null)
   const [loadingSurah, setLoadingSurah] = useState(false)
   const [query, setQuery] = useState('')
+  /*
+    Translation on or off, and remembered.
+
+    Someone reciting wants Arabic alone at a readable size; someone studying
+    wants both. Forcing the translation on halves how much Arabic fits on a
+    screen, and asking again every time you open a surah is its own small
+    annoyance — so the choice persists locally.
+  */
+  const [showTranslation, setShowTranslation] = useState(true)
+  /*
+    Al-Baqara is 286 ayahs. Rendering all of them meant a page thousands of
+    elements long that scrolled forever and lost your place the moment you left
+    it. Paged, and the page number is part of the saved position.
+  */
+  const [page, setPage] = useState(0)
   const readerRef = useRef<HTMLDivElement>(null)
 
   const loadProgress = useCallback(async () => {
@@ -65,17 +89,39 @@ export default function QuranPage() {
     loadProgress()
   }, [loadProgress])
 
+  // Restore the translation preference before the first surah opens.
+  useEffect(() => {
+    const stored = localStorage.getItem('dailypriority_quran_translation')
+    if (stored !== null) setShowTranslation(stored === '1')
+  }, [])
+
+  const toggleTranslation = useCallback(() => {
+    setShowTranslation((v) => {
+      const next = !v
+      localStorage.setItem('dailypriority_quran_translation', next ? '1' : '0')
+      return next
+    })
+  }, [])
+
   const openSurah = useCallback(
-    async (n: number) => {
+    async (n: number, jumpToAyah?: number) => {
       setOpen(n)
       setAyahs(null)
+      setPage(0)
       setLoadingSurah(true)
       try {
         const res = await fetch(`/api/quran/surah/${n}?locale=${locale}`)
         if (!res.ok) throw new Error('failed')
         const json = await res.json()
         setAyahs(json.ayahs)
-        // Top of the reader, not wherever the list was scrolled to.
+        /*
+          Land on the chunk holding the saved ayah. Reopening a bookmark at ayah
+          200 of Al-Baqara and being shown ayah 1 is the bookmark failing at the
+          only job it has.
+        */
+        if (jumpToAyah && jumpToAyah > 1) {
+          setPage(pageOfAyahStatic(json.ayahs, jumpToAyah))
+        }
         readerRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
       } catch {
         toast.error(t('ui.quranLoadFailed'))
@@ -122,6 +168,17 @@ export default function QuranPage() {
 
   const current = open ? surahByNumber(open) : undefined
 
+  /*
+    Fixed-size chunks rather than one giant list.
+
+    20 keeps even Al-Baqara (286 ayahs, 15 pages) to a screen or two per page,
+    which is roughly a sitting — and it means leaving the page and coming back
+    lands you in the same chunk rather than somewhere in a 3,000-element scroll.
+  */
+  const pageCount = ayahs ? Math.max(1, Math.ceil(ayahs.length / PER_PAGE)) : 1
+  const pageAyahs = ayahs ? ayahs.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE) : []
+
+
   return (
     <div data-accent="quran" className="accent-canvas min-h-screen space-y-4 p-4 sm:space-y-6 sm:p-6">
       <PhaseHeader
@@ -159,7 +216,7 @@ export default function QuranPage() {
           {/* Continue where they stopped — the reason this page has a server at all. */}
           {progress && progress.pagesRead > 0 && (
             <button
-              onClick={() => openSurah(progress.lastSurah)}
+              onClick={() => openSurah(progress.lastSurah, progress.lastAyah)}
               className="accent-border flex w-full items-center gap-4 rounded-2xl border-2 bg-white p-4 text-left transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
             >
               <span className="accent-soft flex h-12 w-12 shrink-0 items-center justify-center rounded-xl">
@@ -222,9 +279,25 @@ export default function QuranPage() {
               {t('ui.quranAllSurahs')}
             </button>
 
-            <div className="min-w-0 text-right">
-              <p className="truncate font-bold text-slate-900 dark:text-white">{current?.en}</p>
-              <p className="truncate text-xs text-slate-500 dark:text-slate-400">{current?.meaning}</p>
+            <div className="flex items-center gap-2">
+              {/* Arabic alone for reciting, both for studying. Remembered. */}
+              <button
+                onClick={toggleTranslation}
+                aria-pressed={showTranslation}
+                className={`inline-flex h-11 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors ${
+                  showTranslation
+                    ? 'accent-border accent-ink'
+                    : 'border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400'
+                }`}
+              >
+                <Languages className="h-4 w-4" />
+                {t('ui.quranTranslation')}
+              </button>
+
+              <div className="min-w-0 text-right">
+                <p className="truncate font-bold text-slate-900 dark:text-white">{current?.en}</p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">{current?.meaning}</p>
+              </div>
             </div>
           </div>
 
@@ -235,7 +308,7 @@ export default function QuranPage() {
           ) : (
             <>
               <div className="space-y-2">
-                {ayahs.map((a) => (
+                {pageAyahs.map((a) => (
                   <div
                     key={a.n}
                     className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5"
@@ -269,7 +342,7 @@ export default function QuranPage() {
                       {a.ar}
                     </p>
 
-                    {a.tr && (
+                    {showTranslation && a.tr && (
                       <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-relaxed text-slate-600 dark:border-slate-800 dark:text-slate-300">
                         {a.tr}
                       </p>
@@ -278,16 +351,60 @@ export default function QuranPage() {
                 ))}
               </div>
 
-              {/* Finishing a surah is the common case, so it gets its own action. */}
-              <button
-                onClick={() => {
-                  const last = ayahs[ayahs.length - 1]
-                  savePosition(open, last.n, last.page)
-                }}
-                className="accent-solid h-14 w-full rounded-2xl text-base font-bold shadow-lg"
-              >
-                {t('ui.quranFinished')}
-              </button>
+              {/* Pager. Only when there is more than one chunk — a pager on
+                  Al-Fatiha would be noise. */}
+              {pageCount > 1 && (
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    onClick={() => {
+                      setPage((p) => Math.max(0, p - 1))
+                      readerRef.current?.scrollIntoView({ block: 'start' })
+                    }}
+                    disabled={page === 0}
+                    className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    {t('common.previous')}
+                  </button>
+
+                  <p className="shrink-0 text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                    {t('ui.quranPageOf', { page: page + 1, total: pageCount })}
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      /*
+                        Moving on is also a reading event: it saves the position
+                        at the last ayah just read, so leaving mid-surah keeps
+                        your place without a separate deliberate action.
+                      */
+                      const last = pageAyahs[pageAyahs.length - 1]
+                      if (last) savePosition(open, last.n, last.page)
+                      setPage((p) => Math.min(pageCount - 1, p + 1))
+                      readerRef.current?.scrollIntoView({ block: 'start' })
+                    }}
+                    disabled={page >= pageCount - 1}
+                    className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                  >
+                    {t('common.next')}
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Finishing is only offered on the last chunk — on page 3 of 15
+                  it would be a lie. */}
+              {page >= pageCount - 1 && (
+                <button
+                  onClick={() => {
+                    const last = ayahs[ayahs.length - 1]
+                    savePosition(open, last.n, last.page)
+                  }}
+                  className="accent-solid h-14 w-full rounded-2xl text-base font-bold shadow-lg"
+                >
+                  {t('ui.quranFinished')}
+                </button>
+              )}
             </>
           )}
         </div>

@@ -85,7 +85,16 @@ export function savePrayerTimes(
   prayerTimes: PrayerTimes,
   latitude: number,
   longitude: number,
-  calc?: PrayerCalc
+  /*
+    Required, not optional.
+
+    It was optional, and the prayers page called this without it — so freshly
+    fetched Shafi'i times were cached TAGGED AS HANAFI. Switching back then hit
+    that entry and returned the wrong school's times under the right label, which
+    is exactly the "Asr never changes" symptom. A required parameter makes the
+    compiler find every call site instead of trusting each one to remember.
+  */
+  calc: PrayerCalc
 ): void {
   try {
     const data = {
@@ -98,8 +107,8 @@ export function savePrayerTimes(
         showed the same Asr as before — the change appeared to do nothing, which
         is worse than not offering it.
       */
-      school: calc?.school ?? DEFAULT_CALC.school,
-      method: calc?.method ?? DEFAULT_CALC.method,
+      school: calc.school,
+      method: calc.method,
       timestamp: Date.now(),
       date: new Date().toDateString(),
     }
@@ -115,7 +124,7 @@ export function savePrayerTimes(
 export function getStoredPrayerTimes(
   latitude: number,
   longitude: number,
-  calc?: PrayerCalc
+  calc: PrayerCalc
 ): PrayerTimes | null {
   try {
     const stored = localStorage.getItem('dailypriority_prayer_times')
@@ -124,7 +133,7 @@ export function getStoredPrayerTimes(
     const data = JSON.parse(stored)
     const currentDate = new Date().toDateString()
 
-    const want = calc ?? DEFAULT_CALC
+    const want = calc
     // Today, near enough the same place, AND the same calculation convention.
     // A cache entry from a different school is not a hit — it is a wrong answer
     // served quickly.
