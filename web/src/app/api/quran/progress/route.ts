@@ -57,7 +57,7 @@ export async function GET() {
     }
     const userId = session.user.id
 
-    const [progress, logs] = await Promise.all([
+    const [progress, logs, finished] = await Promise.all([
       prisma.quranProgress.findUnique({
         where: { userId },
         select: { lastSurah: true, lastAyah: true, lastPage: true, pagesRead: true, updatedAt: true },
@@ -66,6 +66,11 @@ export async function GET() {
         where: { userId, date: { gte: new Date(Date.now() - STREAK_WINDOW_DAYS * 86_400_000) } },
         select: { date: true, pages: true },
         orderBy: { date: 'desc' },
+      }),
+      prisma.quranSurahRead.findMany({
+        where: { userId },
+        select: { surah: true },
+        orderBy: { surah: 'asc' },
       }),
     ])
 
@@ -87,6 +92,13 @@ export async function GET() {
           .filter((l) => l.date.getTime() >= Date.now() - 7 * 86_400_000)
           .reduce((n, l) => n + l.pages, 0),
         lastReadAt: progress?.updatedAt ?? null,
+        /*
+          Which surahs are finished, and how many. This is what makes the button
+          mean something: `pagesRead` is a maximum, so finishing a short surah
+          after a long one moved no number at all.
+        */
+        finishedSurahs: finished.map((f) => f.surah),
+        finishedCount: finished.length,
       },
     })
   } catch (error) {
@@ -134,6 +146,9 @@ export async function PATCH(request: NextRequest) {
     const pagesRead = Math.max(existing?.pagesRead ?? 0, page)
 
     const today = startOfDay()
+    // Only when the reader says so — turning a page saves position without
+    // claiming the surah is done.
+    const finished = body.finished === true
 
     const [progress] = await prisma.$transaction([
       prisma.quranProgress.upsert({
@@ -149,9 +164,20 @@ export async function PATCH(request: NextRequest) {
         create: { userId, date: today, pages: 1 },
         update: { pages: { increment: 1 } },
       }),
+      // Upsert rather than create: re-reading a surah refreshes the date instead
+      // of failing on the unique index.
+      ...(finished
+        ? [
+            prisma.quranSurahRead.upsert({
+              where: { userId_surah: { userId, surah: surahNumber } },
+              create: { userId, surah: surahNumber },
+              update: { completedAt: new Date() },
+            }),
+          ]
+        : []),
     ])
 
-    return NextResponse.json({ success: true, data: progress })
+    return NextResponse.json({ success: true, data: progress, finished })
   } catch (error) {
     console.error('[quran] progress write failed', error)
     return NextResponse.json({ error: 'Failed to save progress' }, { status: 500 })

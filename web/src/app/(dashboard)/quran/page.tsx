@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   BookOpen, Search, ArrowLeft, Flame, Bookmark, BookmarkCheck, Loader2,
-  ChevronRight, ChevronLeft, Languages,
+  ChevronRight, ChevronLeft, Languages, CheckCircle2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useT } from '@/lib/i18n/client'
@@ -41,6 +41,8 @@ function pageOfAyahStatic(list: { n: number }[], ayahNumber: number): number {
 }
 
 type Progress = {
+  finishedSurahs: number[]
+  finishedCount: number
   lastSurah: number
   lastAyah: number
   lastPage: number
@@ -133,20 +135,33 @@ export default function QuranPage() {
     [locale, t]
   )
 
-  /** Saves the bookmark. Called when someone marks where they stopped. */
+  /**
+   * Saves the bookmark, and optionally records the surah as finished.
+   *
+   * `finished` is what makes the button mean anything. Without it the only stored
+   * progress was `pagesRead`, a running maximum — so finishing Al-Fatiha after
+   * having read Al-Baqara changed no number, updated no percentage, and left the
+   * reader on the same screen. It looked broken because nothing happened.
+   */
   const savePosition = useCallback(
-    async (surah: number, ayah: number, page: number) => {
+    async (
+      surah: number,
+      ayah: number,
+      mushafPage: number,
+      opts: { finished?: boolean } = {}
+    ) => {
       try {
         const res = await fetch('/api/quran/progress', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ surah, ayah, page }),
+          body: JSON.stringify({ surah, ayah, page: mushafPage, finished: opts.finished }),
         })
         if (!res.ok) throw new Error('failed')
         await loadProgress()
-        toast.success(t('ui.quranSaved'))
+        return true
       } catch {
         toast.error(t('ui.failedToSaveSettings'))
+        return false
       }
     },
     [loadProgress, t]
@@ -167,6 +182,11 @@ export default function QuranPage() {
   }, [query])
 
   const current = open ? surahByNumber(open) : undefined
+  const finishedSet = useMemo(
+    () => new Set(progress?.finishedSurahs ?? []),
+    [progress?.finishedSurahs]
+  )
+  const alreadyFinished = open !== null && finishedSet.has(open)
 
   /*
     Fixed-size chunks rather than one giant list.
@@ -200,8 +220,9 @@ export default function QuranPage() {
             icon={Flame}
           />
           <HeaderStat
-            label={t('ui.quranPagesReached')}
-            value={progress?.pagesRead ?? 0}
+            label={t('ui.quranSurahsDone')}
+            value={`${progress?.finishedCount ?? 0}/114`}
+            icon={CheckCircle2}
           />
           <HeaderStat
             label={t('ui.quranThisWeek')}
@@ -252,6 +273,7 @@ export default function QuranPage() {
               <SurahRow
                 key={s.n}
                 surah={s}
+                isFinished={finishedSet.has(s.n)}
                 isBookmark={progress?.lastSurah === s.n && progress.pagesRead > 0}
                 onOpen={() => openSurah(s.n)}
                 placeLabel={t(s.place === 'makkah' ? 'ui.quranMakkah' : 'ui.quranMadinah')}
@@ -318,7 +340,11 @@ export default function QuranPage() {
                         {a.n}
                       </span>
                       <button
-                        onClick={() => savePosition(open, a.n, a.page)}
+                        onClick={async () => {
+                          if (await savePosition(open, a.n, a.page)) {
+                            toast.success(t('ui.quranSaved'))
+                          }
+                        }}
                         aria-label={t('ui.quranMarkHere')}
                         title={t('ui.quranMarkHere')}
                         className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
@@ -379,6 +405,7 @@ export default function QuranPage() {
                         your place without a separate deliberate action.
                       */
                       const last = pageAyahs[pageAyahs.length - 1]
+                      // No toast: a confirmation on every page turn is noise.
                       if (last) savePosition(open, last.n, last.page)
                       setPage((p) => Math.min(pageCount - 1, p + 1))
                       readerRef.current?.scrollIntoView({ block: 'start' })
@@ -396,13 +423,24 @@ export default function QuranPage() {
                   it would be a lie. */}
               {page >= pageCount - 1 && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const last = ayahs[ayahs.length - 1]
-                    savePosition(open, last.n, last.page)
+                    const ok = await savePosition(open, last.n, last.page, { finished: true })
+                    if (!ok) return
+                    /*
+                      Three consequences, where before there were none: the surah
+                      is recorded as finished, the confirmation names it, and the
+                      reader returns to the list where the tick is now visible and
+                      the next surah is one tap away. "Nothing happened" was the
+                      whole complaint.
+                    */
+                    toast.success(t('ui.quranFinishedToast', { surah: current?.en ?? '' }))
+                    setOpen(null)
+                    setAyahs(null)
                   }}
                   className="accent-solid h-14 w-full rounded-2xl text-base font-bold shadow-lg"
                 >
-                  {t('ui.quranFinished')}
+                  {alreadyFinished ? t('ui.quranReadAgain') : t('ui.quranFinished')}
                 </button>
               )}
             </>
@@ -415,12 +453,14 @@ export default function QuranPage() {
 
 function SurahRow({
   surah,
+  isFinished,
   isBookmark,
   onOpen,
   placeLabel,
   ayahLabel,
 }: {
   surah: Surah
+  isFinished: boolean
   isBookmark: boolean
   onOpen: () => void
   placeLabel: string
@@ -436,8 +476,14 @@ function SurahRow({
           : 'border-slate-200 hover:accent-border dark:border-slate-800'
       }`}
     >
-      <span className="accent-soft flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tabular-nums">
-        {surah.n}
+      {/* The number becomes a tick once finished — same slot, so the row does not
+          reflow, and the state is legible without reading any text. */}
+      <span
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-bold tabular-nums ${
+          isFinished ? 'bg-emerald-600 text-white' : 'accent-soft'
+        }`}
+      >
+        {isFinished ? <CheckCircle2 className="h-5 w-5" /> : surah.n}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-semibold text-slate-900 dark:text-white">

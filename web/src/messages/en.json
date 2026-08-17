@@ -1896,5 +1896,8 @@
   "ui.qadaAutoRule": "Counted only for days you used the app and a prayer was left unlogged. Prayers from before you started, or from days you were away, are not counted — add those yourself below.",
   "ui.quranTranslation": "Translation",
   "ui.quranPageOf": "{page} of {total}",
-  "common.previous": "Previous"
+  "common.previous": "Previous",
+  "ui.quranSurahsDone": "Surahs finished",
+  "ui.quranFinishedToast": "{surah} marked as finished.",
+  "ui.quranReadAgain": "I read this again"
 }

@@ -1896,5 +1896,8 @@
   "ui.qadaAutoRule": "Faqat ilovadan foydalangan va namoz belgilanmagan kunlar hisoblandi. Ilovadan oldingi yoki foydalanmagan kunlaringiz hisoblanmaydi — ularni quyida o‘zingiz qo‘shing.",
   "ui.quranTranslation": "Tarjima",
   "ui.quranPageOf": "{total} dan {page}",
-  "common.previous": "Oldingi"
+  "common.previous": "Oldingi",
+  "ui.quranSurahsDone": "Tugatilgan suralar",
+  "ui.quranFinishedToast": "{surah} tugatildi deb belgilandi.",
+  "ui.quranReadAgain": "Buni yana o‘qidim"
 }

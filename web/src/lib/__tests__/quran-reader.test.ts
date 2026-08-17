@@ -23,6 +23,13 @@ const raw = readFileSync(
 )
 const page = raw.replace(/\{?\/\*[^]*?\*\/\}?/g, '').replace(/^\s*\/\/.*$/gm, '')
 
+const api = readFileSync(
+  join(process.cwd(), 'src/app/api/quran/progress/route.ts'),
+  'utf8'
+).replace(/\/\*[^]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+
+const schema = readFileSync(join(process.cwd(), 'prisma/schema.prisma'), 'utf8')
+
 describe('quran data', () => {
   it('bundles all 114 surahs with correct ayah counts', () => {
     expect(SURAHS.length).toBe(114)
@@ -109,5 +116,78 @@ describe('quran reader', () => {
     expect(page).toMatch(/dir="rtl"/)
     expect(page).toMatch(/lang="ar"/)
     expect(page).toMatch(/var\(--font-amiri\)/)
+  })
+})
+
+/**
+ * "I finished this surah" appeared to do nothing, and it very nearly did.
+ *
+ * The only stored progress was `pagesRead`, a running maximum. So finishing
+ * Al-Fatiha after having read Al-Baqara moved no number, changed no percentage,
+ * and left the reader on the same screen. Nothing was broken; nothing was
+ * happening.
+ *
+ * Verified against the live database: finishing surah 1 after surah 2 records
+ * the completion while `pagesRead` correctly stays at 49; turning a page in
+ * surah 36 does NOT mark it finished; re-finishing refreshes the date and leaves
+ * one row rather than failing on the unique index.
+ */
+describe('finishing a surah', () => {
+  it('records completions in their own table', () => {
+    const model = /model QuranSurahRead \{([^]*?)\n\}/.exec(schema)?.[1] ?? ''
+    expect(model, 'QuranSurahRead not found').toBeTruthy()
+    // One row per surah per user — re-reading refreshes rather than duplicating.
+    expect(model).toMatch(/@@unique\(\[userId, surah\]\)/)
+    expect(model).toMatch(/onDelete: Cascade/)
+  })
+
+  it('only records a completion when the reader says so', () => {
+    // Turning a page saves position; it must not claim the surah is done.
+    expect(api).toMatch(/const finished = body\.finished === true/)
+    expect(api).toMatch(/\.\.\.\(finished/)
+  })
+
+  it('refreshes rather than fails on a re-read', () => {
+    expect(api).toMatch(/prisma\.quranSurahRead\.upsert/)
+    expect(api).toMatch(/update: \{ completedAt: new Date\(\) \}/)
+  })
+
+  it('returns the finished list so the UI can show it', () => {
+    expect(api).toMatch(/finishedSurahs: finished\.map\(\(f\) => f\.surah\)/)
+    expect(api).toMatch(/finishedCount: finished\.length/)
+  })
+
+  it('gives the button visible consequences', () => {
+    const handler = page.slice(
+      page.indexOf('{ finished: true }') - 400,
+      page.indexOf('{ finished: true }') + 700
+    )
+    expect(handler, 'records the completion').toMatch(/\{ finished: true \}/)
+    expect(handler, 'names the surah in the confirmation').toMatch(/ui\.quranFinishedToast/)
+    expect(handler, 'returns to the list where the tick is visible').toMatch(/setOpen\(null\)/)
+    // And it must not claim success when the save failed.
+    expect(handler).toMatch(/if \(!ok\) return/)
+  })
+
+  it('shows a tick in the list and a count in the header', () => {
+    expect(page).toMatch(/isFinished=\{finishedSet\.has\(s\.n\)\}/)
+    expect(page).toMatch(/isFinished \? <CheckCircle2/)
+    // A number that moves when a short surah is finished, which pagesRead cannot.
+    expect(page).toMatch(/ui\.quranSurahsDone/)
+    expect(page).toMatch(/progress\?\.finishedCount \?\? 0\}\/114/)
+  })
+
+  it('does not toast on every page turn', () => {
+    // A confirmation each time you move forward is noise; the deliberate actions
+    // (mark my place, finished) are the ones that confirm.
+    const pager = page.slice(page.indexOf("t('common.next')") - 1200, page.indexOf("t('common.next')"))
+    expect(pager).toMatch(/savePosition\(open, last\.n, last\.page\)/)
+    expect(pager).not.toMatch(/toast\.success/)
+  })
+
+  it('offers "read again" once a surah is done', () => {
+    // The same button claiming "I finished this" on a surah already ticked reads
+    // as though the first press failed.
+    expect(page).toMatch(/alreadyFinished \? t\('ui\.quranReadAgain'\)/)
   })
 })

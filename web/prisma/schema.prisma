@@ -67,6 +67,7 @@ model User {
   qadaDebts        QadaDebt[]
   quranProgress    QuranProgress?
   quranReadingLog  QuranReadingLog[]
+  quranSurahsRead  QuranSurahRead[]
 
   @@index([email])
   @@index([createdAt])
@@ -163,6 +164,30 @@ model QuranReadingLog {
   @@unique([userId, date])
   @@index([userId, date(sort: Desc)])
   @@map("quran_reading_log")
+}
+
+/// Surahs this person has finished.
+///
+/// The missing piece that made "I finished this surah" feel broken. Progress was
+/// only ever `pagesRead`, a running maximum — so finishing Al-Fatiha after
+/// reading Al-Baqara moved nothing, updated no percentage, and left the reader
+/// staring at the same screen. A completion is a fact about a surah, not about a
+/// page number, and it needs its own row to be one.
+///
+/// `completedAt` is overwritten on a re-read rather than appended to: the
+/// question this answers is "have I finished this one", and a list of every time
+/// someone re-read Yaseen would answer a different question nobody asked.
+model QuranSurahRead {
+  id          String   @id @default(cuid())
+  userId      String
+  /// 1-114
+  surah       Int
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, surah])
+  @@index([userId])
+  @@map("quran_surahs_read")
 }
 
 /// Heartbeat + outcome of each scheduled job, so the admin console can show
