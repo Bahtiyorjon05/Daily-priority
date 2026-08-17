@@ -47,7 +47,7 @@ function token(selector: string, name: string): RGB {
   return [Number(decl![1]), Number(decl![2]), Number(decl![3])]
 }
 
-const ACCENTS = ['journal', 'goals', 'habits', 'focus', 'calendar', 'quran'] as const
+const ACCENTS = ['journal', 'goals', 'habits', 'focus', 'calendar', 'quran', 'ramadan'] as const
 
 const LIGHT_BG: RGB = [250, 251, 252] // --color-background
 const DARK_BG: RGB = [18, 18, 18]

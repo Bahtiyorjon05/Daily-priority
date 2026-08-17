@@ -68,6 +68,7 @@ model User {
   quranProgress    QuranProgress?
   quranReadingLog  QuranReadingLog[]
   quranSurahsRead  QuranSurahRead[]
+  ramadanDays      RamadanDay[]
 
   @@index([email])
   @@index([createdAt])
@@ -188,6 +189,34 @@ model QuranSurahRead {
   @@unique([userId, surah])
   @@index([userId])
   @@map("quran_surahs_read")
+}
+
+/// One row per day of Ramadan, per user.
+///
+/// Fasting and Taraweeh are tracked separately because they are separate acts —
+/// someone can fast without praying Taraweeh and the reverse, and collapsing
+/// them into "did Ramadan today" would answer neither question.
+///
+/// Keyed on the Gregorian date rather than the Ramadan day number: the Hijri day
+/// depends on a moon sighting that varies by country, so the date the device was
+/// on is the only key that cannot drift. `hijriDay` is stored alongside for
+/// display, not for identity.
+model RamadanDay {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime
+  /// 1-30, as the app understood it that day. Display only.
+  hijriDay  Int?
+  fasted    Boolean  @default(false)
+  taraweeh  Boolean  @default(false)
+  /// Free-text note — what was hard, what to remember.
+  note      String?
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date(sort: Desc)])
+  @@map("ramadan_days")
 }
 
 /// Heartbeat + outcome of each scheduled job, so the admin console can show

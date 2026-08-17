@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 /**
  * Server-side proxy for Aladhan Prayer Times API
@@ -120,7 +123,59 @@ export async function GET(request: NextRequest) {
         : 'Unknown'
     }
 
-    console.log('Successfully fetched prayer times:', prayerTimes)
+    /*
+      Persist today's times for the signed-in user.
+
+      The reminders cron reads `PrayerTime` to decide when to notify — and
+      nothing in the codebase ever wrote to that table, so it was empty and
+      prayer reminders could never fire. The job has run thousands of times with
+      that branch doing nothing at all.
+
+      Done here rather than through a separate endpoint so it costs no extra
+      round trip, and opportunistically: this route is deliberately outside the
+      auth guard (the marketing page uses it), so an anonymous caller simply gets
+      times and nothing is stored. Only today is persisted — a reminder for a date
+      in the past or future is meaningless.
+
+      Best-effort. Failing to cache times must never fail the request that
+      produced them.
+    */
+    try {
+      const session = await getServerSession(authOptions)
+      const userId = session?.user?.id
+
+      if (userId) {
+        const requested = new Date(Number(year), Number(month) - 1, Number(day))
+        const today = new Date()
+        const isToday =
+          requested.getFullYear() === today.getFullYear() &&
+          requested.getMonth() === today.getMonth() &&
+          requested.getDate() === today.getDate()
+
+        if (isToday) {
+          const date = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+          const row = {
+            fajr: prayerTimes.fajr,
+            dhuhr: prayerTimes.dhuhr,
+            asr: prayerTimes.asr,
+            maghrib: prayerTimes.maghrib,
+            isha: prayerTimes.isha,
+            // The model requires a location; coordinates are what we actually
+            // know, so store those rather than invent a city name.
+            location: `${lat.toFixed(4)},${lon.toFixed(4)}`,
+          }
+          await prisma.prayerTime.upsert({
+            where: { userId_date: { userId, date } },
+            create: { userId, date, ...row },
+            // Overwritten, not skipped: switching madhab changes Asr, and a
+            // reminder based on the old school would fire at the wrong time.
+            update: row,
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[prayer-times] failed to persist for reminders', error)
+    }
 
     return NextResponse.json({
       success: true,

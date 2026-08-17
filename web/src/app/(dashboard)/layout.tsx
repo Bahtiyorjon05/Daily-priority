@@ -390,6 +390,13 @@ function DashboardLayoutContent({
       color: 'from-emerald-700 to-amber-600'
     },
     {
+      path: '/ramadan',
+      icon: Moon,
+      label: t('nav.ramadan'),
+      description: t('ui.ramadanSubtitleActive'),
+      color: 'from-violet-800 to-amber-600'
+    },
+    {
       path: '/adhkar',
       icon: Sparkles,
       label: t('nav.adhkar'),

@@ -2242,6 +2242,7 @@ a:focus-visible,
      focus    blue   -> blue    -> cyan    depth, quiet, concentration
      calendar rose   -> rose    -> amber   a day turning over
      quran    emerald-> green   -> gold    a mushaf binding
+     ramadan  violet -> violet  -> amber   night into lantern light
 
    Same three-stop structure as `.sky` so headers are interchangeable, but no
    `--phase-transition`: these do not change, and animating them would imply they
@@ -2266,6 +2267,15 @@ a:focus-visible,
   --acc-glow: 167 243 208;
   --acc-ink: 15 118 110;      /* teal-700 */
   --acc-soft: 236 253 245;
+}
+[data-accent='ramadan'] {
+  /* Night into lantern light. Deep violet rather than indigo: indigo-950 measured
+     59 from the Quran emerald, just inside the separation floor this suite
+     enforces. */
+  --acc-1: 46 16 101; --acc-2: 91 33 182; --acc-3: 217 119 6;
+  --acc-glow: 253 230 138;
+  --acc-ink: 91 33 182;       /* violet-800 */
+  --acc-soft: 245 243 255;
 }
 [data-accent='quran'] {
   /* Deep emerald into gold — a mushaf binding. Nearest neighbour is habits
@@ -2309,6 +2319,7 @@ a:focus-visible,
 .dark [data-accent='goals']   { --acc-ink: 253 186 116; --acc-soft: 69 26 3; }
 .dark [data-accent='habits']  { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
 .dark [data-accent='quran']    { --acc-ink: 110 231 183; --acc-soft: 6 46 41; }
+.dark [data-accent='ramadan']  { --acc-ink: 196 181 253; --acc-soft: 46 16 101; }
 .dark [data-accent='calendar'] { --acc-ink: 253 164 175; --acc-soft: 76 5 25; }
 .dark [data-accent='focus']   { --acc-ink: 147 197 253; --acc-soft: 23 37 84; }
 
