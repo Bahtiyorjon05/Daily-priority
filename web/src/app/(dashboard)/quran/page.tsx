@@ -134,7 +134,8 @@ export default function QuranPage() {
         if (jumpToAyah && jumpToAyah > 1) {
           setPage(pageOfAyahStatic(json.ayahs, jumpToAyah))
         }
-        readerRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
+        // Scrolling happens in an effect below, once this content is actually
+        // on the page. See the note there.
       } catch {
         toast.error(t('ui.quranLoadFailed'))
         setOpen(null)
@@ -144,6 +145,42 @@ export default function QuranPage() {
     },
     [locale, t, showTranslation]
   )
+
+  /*
+    Start a new surah, or a new chunk, at the top.
+
+    This has to run AFTER React has put the content on the page, which is why it
+    is an effect and not a line in the click handler. It used to be called right
+    after `setAyahs(...)`, and the surah text was not in the DOM yet:
+
+      - React batches, so nothing had been committed when the scroll ran. The
+        browser scrolled against the old layout.
+      - Worse, on a second visit the surah comes back from the HTTP cache -- it is
+        cached for a year -- so `await fetch` resolved before React had rendered
+        the reader at all. `readerRef.current` was still null and the scroll was a
+        silent no-op, leaving the window wherever the LIST had been scrolled to.
+        Finishing a surah leaves you at the bottom of a long page, so the next
+        surah opened several thousand pixels in, part-way down its text.
+
+    Keyed on surah and chunk, and guarded by a signature, so it fires once per
+    move rather than on every render -- and does NOT fire when the translation
+    refetch replaces `ayahs` for the chunk you are already reading.
+  */
+  const lastScrolled = useRef<string | null>(null)
+  useEffect(() => {
+    if (open === null) {
+      lastScrolled.current = null
+      return
+    }
+    // Nothing to scroll to until the ayahs are rendered.
+    if (!ayahs) return
+    const signature = `${open}:${page}`
+    if (lastScrolled.current === signature) return
+    lastScrolled.current = signature
+    // `auto`, explicitly: a `scroll-behavior: smooth` inherited from anywhere
+    // would animate a jump that has to be instantaneous to feel like an open.
+    readerRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
+  }, [open, page, ayahs])
 
   /**
    * Saves the bookmark, and optionally records the surah as finished.
@@ -328,7 +365,7 @@ export default function QuranPage() {
           </div>
         </>
       ) : (
-        <div ref={readerRef} className="space-y-4">
+        <div ref={readerRef} className="scroll-mt-24 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               onClick={() => {
@@ -428,7 +465,6 @@ export default function QuranPage() {
                   <button
                     onClick={() => {
                       setPage((p) => Math.max(0, p - 1))
-                      readerRef.current?.scrollIntoView({ block: 'start' })
                     }}
                     disabled={page === 0}
                     className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
@@ -452,7 +488,6 @@ export default function QuranPage() {
                       // No toast: a confirmation on every page turn is noise.
                       if (last) savePosition(open, last.n, last.page)
                       setPage((p) => Math.min(pageCount - 1, p + 1))
-                      readerRef.current?.scrollIntoView({ block: 'start' })
                     }}
                     disabled={page >= pageCount - 1}
                     className="inline-flex h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
