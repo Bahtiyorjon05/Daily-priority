@@ -387,14 +387,14 @@ function DashboardLayoutContent({
       icon: BookOpen,
       label: t('nav.quran'),
       description: t('ui.quranSubtitle'),
-      color: 'from-emerald-700 to-amber-600'
+      color: 'from-emerald-900 via-emerald-600 to-yellow-500'
     },
     {
       path: '/ramadan',
       icon: Moon,
       label: t('nav.ramadan'),
       description: t('ui.ramadanSubtitleActive'),
-      color: 'from-violet-800 to-amber-600'
+      color: 'from-indigo-950 via-violet-700 to-fuchsia-500'
     },
     {
       path: '/adhkar',
@@ -408,35 +408,35 @@ function DashboardLayoutContent({
       icon: Zap,
       label: t('nav.focus'),
       description: t('ui.pomodoroDeepWork'),
-      color: 'from-orange-500 to-amber-500'
+      color: 'from-blue-700 via-blue-500 to-cyan-400'
     },
     {
       path: '/calendar',
       icon: Calendar,
       label: t('nav.calendar'),
       description: t('ui.scheduleEvents'),
-      color: 'from-teal-500 to-cyan-500'
+      color: 'from-rose-700 via-rose-500 to-amber-400'
     },
     {
       path: '/goals',
       icon: Target,
       label: t('nav.goals'),
       description: t('ui.trackYourProgress'),
-      color: 'from-amber-500 to-yellow-500'
+      color: 'from-amber-600 via-orange-500 to-pink-500'
     },
     {
       path: '/habits',
       icon: CheckCircle2,
       label: t('nav.habits'),
       description: t('ui.buildPositiveHabits'),
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-teal-600 via-emerald-500 to-lime-400'
     },
     {
       path: '/journal',
       icon: BookHeart,
       label: t('nav.journal'),
       description: t('ui.reflectGrow'),
-      color: 'from-pink-500 to-rose-500'
+      color: 'from-violet-600 via-fuchsia-600 to-rose-500'
     },
     {
       path: '/settings',

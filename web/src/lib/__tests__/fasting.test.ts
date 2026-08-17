@@ -191,3 +191,64 @@ describe('performance of the islamic data', () => {
     expect(surahRoute).toMatch(/s-maxage=\$\{REVALIDATE\}/)
   })
 })
+
+describe('sidebar previews the page you are going to', () => {
+  const layout = read('src/app/(dashboard)/layout.tsx')
+  const entries = [
+    ...layout.matchAll(/path: '(\/[a-z]+)',[\s\S]*?color: '([^']+)'/g),
+  ].map((m) => ({ path: m[1], color: m[2] }))
+
+  const partStartingWith = (color: string, prefix: string) =>
+    color.split(' ').find((part) => part.startsWith(prefix))
+
+  it('found every nav entry', () => {
+    expect(entries.length).toBeGreaterThanOrEqual(12)
+  })
+
+  it('gives every page a different gradient', () => {
+    /*
+      Quran and Ramadan both ended in amber-600, which is exactly why they read as
+      the same tile at 32px — and Quran's emerald start was the same family as
+      Prayers. A duplicate here is invisible in review and obvious in the sidebar.
+    */
+    const seen = new Map<string, string>()
+    const clashes: string[] = []
+    for (const e of entries) {
+      const owner = seen.get(e.color)
+      if (owner) clashes.push(`${owner} and ${e.path} share "${e.color}"`)
+      else seen.set(e.color, e.path)
+    }
+    expect(clashes, clashes.join('; ')).toEqual([])
+  })
+
+  it('does not let the two newest pages start or end on the same colour', () => {
+    // Gold for the mushaf, fuchsia for the night — the two ends are what the eye
+    // catches on a 32px tile, so neither may match.
+    const quranColor = entries.find((e) => e.path === '/quran')?.color ?? ''
+    const ramadanColor = entries.find((e) => e.path === '/ramadan')?.color ?? ''
+    expect(quranColor).toBeTruthy()
+    expect(ramadanColor).toBeTruthy()
+    expect(partStartingWith(quranColor, 'to-')).not.toBe(partStartingWith(ramadanColor, 'to-'))
+    expect(partStartingWith(quranColor, 'from-')).not.toBe(
+      partStartingWith(ramadanColor, 'from-')
+    )
+  })
+
+  it('previews the accent of each accented page', () => {
+    // Borrowed from palettes already separated in RGB and contrast-checked in both
+    // schemes, rather than inventing a second unverified set of colours.
+    const expected: Record<string, string> = {
+      '/quran': 'emerald',
+      '/ramadan': 'violet',
+      '/journal': 'violet',
+      '/goals': 'amber',
+      '/habits': 'teal',
+      '/focus': 'blue',
+      '/calendar': 'rose',
+    }
+    for (const [path, hue] of Object.entries(expected)) {
+      const color = entries.find((e) => e.path === path)?.color ?? ''
+      expect(color, `${path} should carry its accent hue`).toContain(hue)
+    }
+  })
+})

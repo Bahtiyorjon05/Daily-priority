@@ -50,7 +50,15 @@ export function fastingOccasion(
     // Ramadan is obligatory, not nafl — the page handles that month directly.
     if (monthNumber === 9) return null
 
-    // Shawwal 1 and Dhul Hijjah 10-13: fasting is forbidden.
+    /*
+      Shawwal 1 and Dhul Hijjah 10-13: fasting is forbidden.
+
+      These RETURN rather than joining the candidate list, and that early exit —
+      not the weight — is what guarantees a forbidden day can never be outranked
+      by "it is also a Monday". Weight only decides between competing *sunnah*
+      occasions further down. The value here is set high for consistency but is
+      never compared, so nothing about this ruling depends on it.
+    */
     if (monthNumber === 10 && d === 1) {
       return { key: 'fasting.eidFitr', kind: 'forbidden', weight: 100 }
     }
