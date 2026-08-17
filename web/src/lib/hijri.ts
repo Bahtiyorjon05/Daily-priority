@@ -10,9 +10,62 @@ export interface HijriDate {
 }
 
 export interface SpecialDay {
-  name: string
-  description: string
+  /*
+    Message keys, not text.
+
+    These were English sentences returned from a library function and rendered
+    straight onto the prayers page, so "First Day of Ramadan" appeared above an
+    otherwise fully Uzbek screen. A key follows the language switch; a string
+    cannot.
+  */
+  nameKey: string
+  descriptionKey: string
+  /** Interpolation for the keys that take a number. */
+  values?: Record<string, string | number>
   type: 'eid' | 'ramadan' | 'special'
+}
+
+/** Ramadan is the ninth Hijri month. One definition for the whole app. */
+export const RAMADAN_MONTH = 9
+
+/*
+  The twelve Hijri months, as message keys.
+
+  These keys already existed, already translated, and were used by nothing — an
+  earlier sweep had lifted the English names out of this file into the dictionary
+  without changing where the names were read from, so the app kept rendering the
+  API's `month.en`. Pointing at them beats adding a second set.
+*/
+const HIJRI_MONTH_KEYS = [
+  'ui.muharram',
+  'ui.safar',
+  'ui.rabiAlAwwal',
+  'ui.rabiAlThani',
+  'ui.jumadaAlAwwal',
+  'ui.jumadaAlThani',
+  'ui.rajab',
+  'ui.shaban',
+  'ui.ramadan',
+  'ui.shawwal',
+  'ui.dhuAlQiDah',
+  'ui.dhuAlHijjah',
+] as const
+
+/**
+ * Message key for a Hijri month, 1-12.
+ *
+ * Derived from the month NUMBER rather than passed through from the API's `en`
+ * field, which is how "Rabi' al-Awwal" ended up on Uzbek screens. The number is
+ * language-neutral and the name is looked up at the render site.
+ *
+ * An unusable number falls back to the first month rather than returning a key
+ * that resolves to nothing: the month arrives from an API response and from a
+ * cached payload, and a missing message renders as the raw key.
+ */
+export function hijriMonthKey(monthNumber: number): string {
+  const n = Math.trunc(monthNumber)
+  if (!Number.isFinite(n) || n < 1 || n > 12) return HIJRI_MONTH_KEYS[0]
+  return HIJRI_MONTH_KEYS[n - 1]
 }
 
 /**
@@ -186,23 +239,13 @@ export async function hijriToGregorian(
 }
 
 /**
- * Get Islamic month names
+ * The twelve Hijri months as message keys, in order.
+ *
+ * Keys rather than names for the same reason as everything else here: the caller
+ * has the locale, this file does not.
  */
-export function getIslamicMonths(): string[] {
-  return [
-    'Muharram',
-    'Safar',
-    "Rabi' al-Awwal",
-    "Rabi' al-Thani",
-    'Jumada al-Awwal',
-    'Jumada al-Thani',
-    'Rajab',
-    "Sha'ban",
-    'Ramadan',
-    'Shawwal',
-    "Dhu al-Qi'dah",
-    'Dhu al-Hijjah'
-  ]
+export function getIslamicMonthKeys(): readonly string[] {
+  return HIJRI_MONTH_KEYS
 }
 
 /**
@@ -216,21 +259,22 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   if (hijri.monthNumber === 9) {
     if (hijri.day === 1) {
       return {
-        name: 'First Day of Ramadan',
-        description: 'The blessed month of fasting begins',
+        nameKey: 'ui.firstDayOfRamadan',
+        descriptionKey: 'ui.theBlessedMonthOfFastingBegins',
         type: 'ramadan'
       }
     }
     if (hijri.day >= 21 && hijri.day % 2 === 1) {
       return {
-        name: 'Laylatul Qadr (Possible)',
-        description: 'One of the last odd nights - seek the Night of Power',
+        nameKey: 'ui.laylatulQadrPossible',
+        descriptionKey: 'ui.oneOfTheLastOddNightsSeekTheNightOfPower',
         type: 'special'
       }
     }
     return {
-      name: 'Ramadan Day ' + (hijri.day),
-      description: 'Blessed month of fasting and worship',
+      nameKey: 'ui.ramadanDayNumber',
+      descriptionKey: 'ui.blessedMonthOfFastingAndWorship',
+      values: { day: Math.floor(hijri.day) },
       type: 'ramadan'
     }
   }
@@ -238,8 +282,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Eid al-Fitr
   if (hijri.monthNumber === 10 && hijri.day === 1) {
     return {
-      name: 'Eid al-Fitr',
-      description: 'Festival of Breaking the Fast',
+      nameKey: 'ui.eidAlFitr',
+      descriptionKey: 'ui.festivalOfBreakingTheFast',
       type: 'eid'
     }
   }
@@ -247,8 +291,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Eid al-Adha
   if (hijri.monthNumber === 12 && hijri.day === 10) {
     return {
-      name: 'Eid al-Adha',
-      description: 'Festival of Sacrifice',
+      nameKey: 'ui.eidAlAdha',
+      descriptionKey: 'ui.festivalOfSacrifice',
       type: 'eid'
     }
   }
@@ -256,8 +300,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Day of Arafah
   if (hijri.monthNumber === 12 && hijri.day === 9) {
     return {
-      name: 'Day of Arafah',
-      description: 'The best day of the year - highly recommended to fast',
+      nameKey: 'ui.dayOfArafah',
+      descriptionKey: 'ui.theBestDayOfTheYearHighlyRecommendedToFast',
       type: 'special'
     }
   }
@@ -265,8 +309,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Ashura
   if (hijri.monthNumber === 1 && hijri.day === 10) {
     return {
-      name: 'Day of Ashura',
-      description: 'Recommended day of fasting',
+      nameKey: 'ui.dayOfAshura',
+      descriptionKey: 'ui.recommendedDayOfFasting',
       type: 'special'
     }
   }
@@ -274,8 +318,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Mawlid
   if (hijri.monthNumber === 3 && hijri.day === 12) {
     return {
-      name: 'Mawlid al-Nabi',
-      description: 'Birthday of Prophet Muhammad ﷺ',
+      nameKey: 'ui.mawlidAlNabi',
+      descriptionKey: 'ui.birthdayOfProphetMuhammad',
       type: 'special'
     }
   }
@@ -283,8 +327,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Lailat al-Miraj
   if (hijri.monthNumber === 7 && hijri.day === 27) {
     return {
-      name: 'Lailat al-Miraj',
-      description: 'The Night Journey',
+      nameKey: 'ui.lailatAlMiraj',
+      descriptionKey: 'ui.theNightJourney',
       type: 'special'
     }
   }
@@ -292,8 +336,8 @@ export async function getSpecialDay(date: Date): Promise<SpecialDay | null> {
   // Lailat al-Bara'ah
   if (hijri.monthNumber === 8 && hijri.day === 15) {
     return {
-      name: "Lailat al-Bara'ah",
-      description: 'The Night of Forgiveness',
+      nameKey: 'ui.lailatAlBaraAh',
+      descriptionKey: 'ui.theNightOfForgiveness',
       type: 'special'
     }
   }

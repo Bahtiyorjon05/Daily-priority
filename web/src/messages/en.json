@@ -1955,5 +1955,9 @@
   "ui.ramadanIFastedNafl": "I fasted today",
   "ui.ramadanLegendFasted": "Fasted",
   "ui.ramadanLegendRecommended": "Recommended",
-  "ui.ramadanLegendEid": "Eid"
+  "ui.ramadanLegendEid": "Eid",
+  "ui.shaban": "Sha'ban",
+  "ui.islamicNewYear": "Islamic New Year",
+  "ui.laylatulQadr": "Laylatul Qadr",
+  "ui.ramadanDayNumber": "Ramadan, day {day}"
 }

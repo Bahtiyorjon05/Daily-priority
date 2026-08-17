@@ -26,7 +26,9 @@ import {
   hasLocationChanged,
   type UnifiedLocation,
 } from '@/lib/location-service'
-import { gregorianToHijri, getSpecialDay, type HijriDate, type SpecialDay } from '@/lib/hijri'
+import {
+  gregorianToHijri, getSpecialDay, hijriMonthKey, type HijriDate, type SpecialDay,
+} from '@/lib/hijri'
 
 import { toast } from 'sonner'
 
@@ -1378,11 +1380,13 @@ export default function PrayersPage() {
 
                     <h3 className="font-bold text-lg text-emerald-700 dark:text-emerald-300">
 
-                      {specialDay.name}
+                      {t(specialDay.nameKey, specialDay.values)}
 
                     </h3>
 
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{specialDay.description}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                      {t(specialDay.descriptionKey)}
+                    </p>
 
                   </div>
 
@@ -1416,7 +1420,9 @@ export default function PrayersPage() {
 
               <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
 
-                {hijriDate ? (hijriDate.day) + ' ' + (hijriDate.month) + ' ' + (hijriDate.year) : 'Loading...'}
+                {hijriDate
+                  ? `${Math.floor(hijriDate.day)} ${t(hijriMonthKey(hijriDate.monthNumber))} ${hijriDate.year}`
+                  : t('ui.loading')}
 
               </p>
 

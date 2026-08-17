@@ -1,5 +1,7 @@
 // Enhanced Prayer Times Utilities with Location Services
 
+import { gregorianToHijri, RAMADAN_MONTH } from '@/lib/hijri'
+
 export interface PrayerTime {
   name: string
   time: string
@@ -469,15 +471,17 @@ export async function getHijriDate(): Promise<string | null> {
 }
 
 /**
- * Check if currently Ramadan
+ * Whether today falls in Ramadan.
+ *
+ * By month NUMBER. This used to lowercase the formatted Hijri date and look for
+ * the substring "ramadan", which is a language-dependent test in an app that
+ * switches language — the Uzbek name is "Ramazon", so it would have quietly
+ * answered false. The number is the same in every language.
  */
 export async function isRamadan(): Promise<boolean> {
   try {
-    const hijriDate = await getHijriDate()
-    if (!hijriDate) return false
-
-    // Check if month name contains "Ramadan"
-    return hijriDate.toLowerCase().includes('ramadan')
+    const hijri = await gregorianToHijri(new Date())
+    return hijri?.monthNumber === RAMADAN_MONTH
   } catch (error) {
     console.error('Error checking Ramadan:', error)
     return false

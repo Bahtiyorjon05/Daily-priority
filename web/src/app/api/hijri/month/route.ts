@@ -5,18 +5,24 @@ import { NextRequest, NextResponse } from 'next/server'
  * Uses Aladhan's calendar endpoint for maximum performance
  */
 
-// Islamic holidays and important dates (Hijri calendar)
-const ISLAMIC_EVENTS: Record<string, string> = {
-  '1-1': '🌙 Islamic New Year',
-  '10-1': '⭐ Day of Ashura',
-  '12-3': '🕌 Mawlid al-Nabi',
-  '27-7': '✨ Isra & Mi\'raj',
-  '15-8': "🌟 Laylat al-Bara'ah",
-  '1-9': '🌙 Ramadan Begins',
-  '27-9': '⭐ Laylat al-Qadr',
-  '1-10': '🎉 Eid al-Fitr',
-  '9-12': '🕋 Day of Arafah',
-  '10-12': '🎉 Eid al-Adha',
+/*
+  Islamic holidays, as message keys.
+
+  These were English strings rendered straight onto the calendar, so an Uzbek
+  reader's month grid said "Eid al-Fitr" and "Ramadan Begins". The emoji is kept
+  separate from the name: an emoji is the same in every language, a name is not.
+*/
+const ISLAMIC_EVENTS: Record<string, { key: string; emoji: string }> = {
+  '1-1': { key: 'ui.islamicNewYear', emoji: '🌙' },
+  '10-1': { key: 'ui.dayOfAshura', emoji: '⭐' },
+  '12-3': { key: 'ui.mawlidAlNabi', emoji: '🕌' },
+  '27-7': { key: 'ui.lailatAlMiraj', emoji: '✨' },
+  '15-8': { key: 'ui.lailatAlBaraAh', emoji: '🌟' },
+  '1-9': { key: 'ui.firstDayOfRamadan', emoji: '🌙' },
+  '27-9': { key: 'ui.laylatulQadr', emoji: '⭐' },
+  '1-10': { key: 'ui.eidAlFitr', emoji: '🎉' },
+  '9-12': { key: 'ui.dayOfArafah', emoji: '🕋' },
+  '10-12': { key: 'ui.eidAlAdha', emoji: '🎉' },
 }
 
 export async function GET(request: NextRequest) {
@@ -61,12 +67,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Process the calendar data
-    const hijriDates: Record<string, { 
+    const hijriDates: Record<string, {
       day: number
+      monthNumber: number
       month: string
       monthAr: string
       year: number
-      event?: string
+      eventKey?: string
+      eventEmoji?: string
     }> = {}
 
     // data.data is array of days in the month
@@ -80,12 +88,19 @@ export async function GET(request: NextRequest) {
       const eventKey = `${parseInt(hijri.day, 10)}-${parseInt(hijri.month.number, 10)}`
       const event = ISLAMIC_EVENTS[eventKey]
       
+      /*
+        `monthNumber` is what the client renders from — the name is looked up in
+        the reader's language there. `month` stays in the payload only so a
+        response already sitting in the CDN from before this change keeps working:
+        this endpoint caches for a day and serves stale for a week.
+      */
       hijriDates[key] = {
         day: parseInt(hijri.day, 10),
-        month: hijri.month.en, // Full month name
+        monthNumber: parseInt(hijri.month.number, 10),
+        month: hijri.month.en,
         monthAr: hijri.month.ar,
         year: parseInt(hijri.year, 10),
-        ...(event && { event })
+        ...(event && { eventKey: event.key, eventEmoji: event.emoji })
       }
     })
 

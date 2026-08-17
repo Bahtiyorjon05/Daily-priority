@@ -132,7 +132,7 @@ describe('calendar layout', () => {
   })
 
   it('surfaces the day’s Islamic event when there is one', () => {
-    expect(page).toMatch(/selectedHijri\?\.event && \(/)
+    expect(page).toMatch(/selectedHijri\?\.eventKey && \(/)
   })
 
   it('formats the selected date in the app’s language', () => {
@@ -152,7 +152,7 @@ describe('calendar layout', () => {
     // `selectedHijri` in the source and the weaker assertion still passed.
     // Ternary rather than `&&` since the loading state was added.
     expect(page).toMatch(/\{selectedHijri \? \(/)
-    expect(page).toMatch(/selectedHijri\.month/)
+    expect(page).toMatch(/hijriMonthLabel\(selectedHijri\)/)
     // And it must be derived from the month's prefetched map, not refetched.
     expect(page).toMatch(/const selectedHijri = selectedDate/)
   })

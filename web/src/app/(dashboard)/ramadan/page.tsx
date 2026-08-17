@@ -9,7 +9,7 @@ import { PhaseHeader, HeaderStat } from '@/components/shared/PhaseHeader'
 import { usePrayerCalc } from '@/hooks/usePrayerCalc'
 import { fetchPrayerTimes, getStoredPrayerTimes, type PrayerTimes } from '@/lib/prayer-times'
 import { getUserLocation } from '@/lib/location-service'
-import { gregorianToHijri, type HijriDate } from '@/lib/hijri'
+import { gregorianToHijri, hijriMonthKey, RAMADAN_MONTH, type HijriDate } from '@/lib/hijri'
 import { fastingOccasion, isForbiddenToFast } from '@/lib/fasting'
 import { streakFromDates } from '@/lib/streaks'
 
@@ -29,7 +29,6 @@ import { streakFromDates } from '@/lib/streaks'
  */
 
 const DAY_MS = 86_400_000
-const RAMADAN_MONTH = 9
 
 type RamadanDay = {
   key: string
@@ -236,7 +235,7 @@ export default function RamadanPage() {
         meta={
           hijri ? (
             <span>
-              {Math.floor(hijri.day)} {hijri.month} {hijri.year}
+              {Math.floor(hijri.day)} {t(hijriMonthKey(hijri.monthNumber))} {hijri.year}
             </span>
           ) : undefined
         }

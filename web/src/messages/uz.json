@@ -1955,5 +1955,9 @@
   "ui.ramadanIFastedNafl": "Bugun ro‘za tutdim",
   "ui.ramadanLegendFasted": "Ro‘za",
   "ui.ramadanLegendRecommended": "Mustahab",
-  "ui.ramadanLegendEid": "Hayit"
+  "ui.ramadanLegendEid": "Hayit",
+  "ui.shaban": "Sha'bon",
+  "ui.islamicNewYear": "Hijriy yangi yil",
+  "ui.laylatulQadr": "Qadr kechasi",
+  "ui.ramadanDayNumber": "Ramazon, {day}-kun"
 }

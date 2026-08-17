@@ -40,6 +40,7 @@ import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
 import { optimizedFetch } from '@/lib/performance'
 import { PhaseHeader } from '@/components/shared/PhaseHeader'
+import { hijriMonthKey } from '@/lib/hijri'
 
 interface CalendarEvent {
   id: string
@@ -59,10 +60,15 @@ interface CalendarEvent {
 
 interface HijriDate {
   day: number
+  /* Render from the number, not the name — the API's name is English. */
+  monthNumber?: number
+  /** English name, from the API. Only a fallback for a stale cached response. */
   month: string
   monthAr: string
   year: number
-  event?: string // Islamic holiday/event if present
+  /** Message key for an Islamic holiday, if this day is one. */
+  eventKey?: string
+  eventEmoji?: string
 }
 
 interface CalendarDay {
@@ -99,7 +105,17 @@ export default function CalendarPage() {
   const [showEventModal, setShowEventModal] = useState(false)
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
   const [loading, setLoading] = useState(false)
-  const [hijriDate, setHijriDate] = useState<HijriDate & { formatted?: string } | null>(null)
+  /*
+    Today's Hijri date, from /api/hijri/convert -- a DIFFERENT shape from the
+    month endpoint: `month` is an object there. Its `formatted` string was being
+    rendered directly and is built English-side ("5 Safar 1448 AH"), so the header
+    is assembled from the parts instead.
+  */
+  const [hijriDate, setHijriDate] = useState<{
+    day: number
+    month: { number: number; en: string }
+    year: number
+  } | null>(null)
   const [hijriDates, setHijriDates] = useState<Record<string, HijriDate>>({})
   const [hijriLoading, setHijriLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'calendar' | 'agenda'>('calendar')
@@ -128,10 +144,10 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (session?.user?.id) {
-      // Clear old hijri cache formats on first load (v3 is the latest)
+      // Clear old hijri cache formats on first load (v4 is the latest)
       const keys = Object.keys(sessionStorage)
       keys.forEach(key => {
-        if (key.startsWith('hijri-') && !key.includes('hijri-v3-')) {
+        if (key.startsWith('hijri-') && !key.includes('hijri-v4-')) {
           sessionStorage.removeItem(key)
         }
       })
@@ -172,7 +188,7 @@ export default function CalendarPage() {
       const year = currentDate.getFullYear()
 
       // Only fetch current month
-      const cacheKey = `hijri-v3-${year}-${month}`
+      const cacheKey = `hijri-v4-${year}-${month}`
       const cached = sessionStorage.getItem(cacheKey)
       
       if (cached) {
@@ -380,6 +396,15 @@ export default function CalendarPage() {
     )
   }
 
+  /*
+    The month name in the reader's language.
+
+    Falls back to the API's English name only when a response cached before this
+    change has no `monthNumber` — a name in the wrong language beats a blank.
+  */
+  const hijriMonthLabel = (h: HijriDate) =>
+    h.monthNumber ? tr(hijriMonthKey(h.monthNumber)) : h.month
+
   /** Hijri date for the selected day, from the month's prefetched map. */
   const selectedHijri = selectedDate
     ? hijriDates[
@@ -553,7 +578,8 @@ export default function CalendarPage() {
           hijriDate ? (
             <span className="inline-flex items-center gap-1.5">
               <Moon className="h-3.5 w-3.5" strokeWidth={2.5} />
-              {hijriDate.formatted}
+              {hijriDate.day} {tr(hijriMonthKey(hijriDate.month?.number))} {hijriDate.year}{' '}
+              {tr('ui.ah')}
             </span>
           ) : undefined
         }
@@ -799,16 +825,16 @@ export default function CalendarPage() {
                           <Moon className={`h-4 w-4 flex-shrink-0 ${isCurrentDay ? 'text-emerald-600 dark:text-emerald-400' : 'text-emerald-500 dark:text-emerald-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400'}`} strokeWidth={2.5} />
                           <div className="flex flex-col min-w-0 flex-1">
                             <span className={`text-xs font-bold leading-snug break-words ${isCurrentDay ? 'text-emerald-800 dark:text-emerald-200' : 'text-emerald-700 dark:text-emerald-300 group-hover:text-emerald-800 dark:group-hover:text-emerald-200'}`}>
-                              {Math.floor(hijriInfo.day)} {hijriInfo.month}
+                              {Math.floor(hijriInfo.day)} {hijriMonthLabel(hijriInfo)}
                             </span>
                             <span className={`text-[10px] font-semibold ${isCurrentDay ? 'text-emerald-600 dark:text-emerald-400' : 'text-emerald-500 dark:text-emerald-500'}`}>
-                              {hijriInfo.year} AH
+                              {hijriInfo.year} {tr('ui.ah')}
                             </span>
                           </div>
                         </div>
                         
                         {/* Islamic Holiday/Event Badge */}
-                        {hijriInfo.event && (
+                        {hijriInfo.eventKey && (
                           <div className={`
                             text-[11px] px-2.5 py-2 rounded-lg font-bold break-words text-center leading-snug
                             bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-200 
@@ -817,8 +843,8 @@ export default function CalendarPage() {
                             border-2 border-amber-400 dark:border-amber-600
                             shadow-md animate-pulse
                             hover:scale-105 transition-transform
-                          `} title={hijriInfo.event}>
-                            🌙 {hijriInfo.event}
+                          `} title={tr(hijriInfo.eventKey)}>
+                            {hijriInfo.eventEmoji ?? '🌙'} {tr(hijriInfo.eventKey)}
                           </div>
                         )}
                       </div>
@@ -894,16 +920,17 @@ export default function CalendarPage() {
                       {selectedHijri ? (
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                           <Moon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
-                          {Math.floor(selectedHijri.day)} {selectedHijri.month} {selectedHijri.year}
+                          {Math.floor(selectedHijri.day)} {hijriMonthLabel(selectedHijri)}{' '}
+                          {selectedHijri.year}
                           {' '}
                           {tr('ui.ah')}
                         </p>
                       ) : hijriLoading ? (
                         <span className="mt-1 block h-3.5 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
                       ) : null}
-                      {selectedHijri?.event && (
+                      {selectedHijri?.eventKey && (
                         <p className="accent-ink mt-1 text-xs font-bold">
-                          🌙 {selectedHijri.event}
+                          {selectedHijri.eventEmoji ?? '🌙'} {tr(selectedHijri.eventKey)}
                         </p>
                       )}
                       <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
