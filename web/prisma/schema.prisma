@@ -64,6 +64,7 @@ model User {
   preferences      UserPreference?
   settings         UserSettings?
   passwordHistory  PasswordHistory[]
+  qadaDebts        QadaDebt[]
 
   @@index([email])
   @@index([createdAt])
@@ -92,6 +93,32 @@ model PasswordHistory {
 
   @@index([userId, createdAt])
   @@map("password_history")
+}
+
+/// Qazo — prayers owed and prayers made up, one row per prayer per user.
+///
+/// Stored as two running totals rather than a row per prayer prayed. People
+/// arrive with a debt measured in months or years and no record of it, so the
+/// only honest starting point is a number they set themselves; a ledger of
+/// individual makeups would be a fiction with better data structures.
+///
+/// `owed` only ever grows and `madeUp` only ever grows, so the remaining debt is
+/// a subtraction that can be audited. Never stored as a single net figure: that
+/// loses the distinction between "I have paid off 400" and "I owed 400 fewer
+/// than I thought", which matters to the person keeping it.
+model QadaDebt {
+  id        String   @id @default(cuid())
+  userId    String
+  /// fajr | dhuhr | asr | maghrib | isha
+  prayer    String
+  owed      Int      @default(0)
+  madeUp    Int      @default(0)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, prayer])
+  @@index([userId])
+  @@map("qada_debts")
 }
 
 /// Heartbeat + outcome of each scheduled job, so the admin console can show

@@ -1860,5 +1860,17 @@
   "email.weekly.footnote": "You can turn this email off in Settings → Notifications → Weekly review email.",
   "ui.asrCalculation": "Asr calculation",
   "ui.hanafi": "Hanafi",
-  "ui.shafi": "Shafi"
+  "ui.shafi": "Shafi",
+  "nav.qada": "Qada",
+  "ui.qada": "Qada",
+  "ui.qadaRemaining": "Prayers still owed",
+  "ui.qadaMadeUpOf": "{madeUp} made up of {owed}",
+  "ui.qadaAllCleared": "Every prayer you recorded has been made up. May Allah accept it.",
+  "ui.qadaHowItWorks": "Set how many prayers you believe you owe, then mark each one as you make it up. Only you see these numbers.",
+  "ui.qadaAddMissedToday": "{count} prayers passed unlogged today",
+  "ui.qadaAddToCount": "Add to qazo",
+  "ui.qadaOwedMadeUp": "{owed} owed · {madeUp} made up",
+  "ui.qadaAddOwed": "Add one {prayer} owed",
+  "ui.qadaRemoveOwed": "Remove one {prayer} owed",
+  "ui.qadaPrayed": "Prayed"
 }

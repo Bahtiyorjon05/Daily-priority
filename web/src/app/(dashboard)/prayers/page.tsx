@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { Moon, Sun, Sunrise, Sunset, CloudSun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, AlertTriangle, BarChart3, History, RefreshCw, Flame, Award } from 'lucide-react'
+import { Moon, Sun, Sunrise, Sunset, CloudSun, Clock, MapPin, Compass, Calendar as CalendarIcon, CheckCircle2, Circle, AlertTriangle, Repeat, BarChart3, History, RefreshCw, Flame, Award } from 'lucide-react'
 import {
   fetchPrayerTimes,
   getNextPrayerFromTimes,
@@ -46,6 +46,7 @@ import PrayerStreak from './components/PrayerStreak'
 
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { usePrayerCalc } from '@/hooks/usePrayerCalc'
+import { QadaTracker } from '@/components/prayer/QadaTracker'
 
 
 
@@ -1259,7 +1260,7 @@ export default function PrayersPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
-          <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
 
             <TabsTrigger 
 
@@ -1272,6 +1273,20 @@ export default function PrayersPage() {
               <Clock className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
 
               {t('common.today')}
+
+            </TabsTrigger>
+
+            <TabsTrigger
+
+              value="qada"
+
+              className="rounded-lg text-xs sm:text-sm px-1 sm:px-3 data-[state=active]:bg-emerald-100 dark:data-[state=active]:bg-emerald-900/30 data-[state=active]:text-emerald-700 dark:data-[state=active]:text-emerald-300 transition-all"
+
+            >
+
+              <Repeat className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
+
+              {t('nav.qada')}
 
             </TabsTrigger>
 
@@ -1703,6 +1718,18 @@ export default function PrayersPage() {
 
 
           {/* History Tab */}
+
+          <TabsContent value="qada" className="mt-6">
+            {/*
+              Today's missed prayers are offered to the tracker rather than added
+              by it. A job that increments a religious debt on someone's behalf
+              would be wrong more often than right — a prayer logged late, logged
+              on another device, or simply prayed without being ticked.
+            */}
+            <QadaTracker
+              missedToday={PRAYER_SEQUENCE.filter((p) => prayerStateOf(p) === 'missed')}
+            />
+          </TabsContent>
 
           <TabsContent value="history" className="mt-6">
 

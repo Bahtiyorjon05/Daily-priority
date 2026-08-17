@@ -1860,5 +1860,17 @@
   "email.weekly.footnote": "Bu xatni Sozlamalar → Bildirishnomalar → Haftalik hisobot xatida o‘chirib qo‘yishingiz mumkin.",
   "ui.asrCalculation": "Asr hisobi",
   "ui.hanafi": "Hanafiy",
-  "ui.shafi": "Shofiy"
+  "ui.shafi": "Shofiy",
+  "nav.qada": "Qazo",
+  "ui.qada": "Qazo",
+  "ui.qadaRemaining": "Qolgan qazo namozlar",
+  "ui.qadaMadeUpOf": "{owed} dan {madeUp} tasi o‘qildi",
+  "ui.qadaAllCleared": "Belgilagan barcha qazo namozlaringiz o‘qildi. Alloh qabul qilsin.",
+  "ui.qadaHowItWorks": "Qancha qazo namozingiz borligini belgilang, so‘ng har birini o‘qiganingizda belgilab boring. Bu raqamlarni faqat siz ko‘rasiz.",
+  "ui.qadaAddMissedToday": "Bugun {count} namoz belgilanmagan holda o‘tdi",
+  "ui.qadaAddToCount": "Qazoga qo‘shish",
+  "ui.qadaOwedMadeUp": "{owed} qazo · {madeUp} o‘qildi",
+  "ui.qadaAddOwed": "Bitta {prayer} qazo qo‘shish",
+  "ui.qadaRemoveOwed": "Bitta {prayer} qazoni olib tashlash",
+  "ui.qadaPrayed": "O‘qildi"
 }
