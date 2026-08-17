@@ -508,6 +508,11 @@ model UserPreference {
   /// is not what Central Asia uses. Selectable now, and worth checking against a
   /// local timetable rather than trusting a default.
   calculationMethod     Int     @default(14)
+  /// Watermark for the qazo sweep: the last date already examined for missed
+  /// prayers. Advancing it is what makes the sweep idempotent — without it,
+  /// every page load would re-count the same missed prayers and the debt would
+  /// climb forever.
+  qadaAutoThrough       DateTime?
   user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_preferences")

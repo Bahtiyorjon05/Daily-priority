@@ -35,6 +35,7 @@ export function QadaTracker({ missedToday = [] }: { missedToday?: string[] }) {
   const { t } = useT()
   const [rows, setRows] = useState<Row[] | null>(null)
   const [totals, setTotals] = useState<Totals>({ owed: 0, madeUp: 0, remaining: 0 })
+  const [autoAdded, setAutoAdded] = useState(0)
   const [busy, setBusy] = useState(false)
 
   const load = useCallback(async () => {
@@ -44,6 +45,9 @@ export function QadaTracker({ missedToday = [] }: { missedToday?: string[] }) {
       const json = await res.json()
       setRows(json.data)
       setTotals(json.totals)
+      // Only from the initial read: a later PATCH sweeps again and reports 0,
+      // which would wipe the notice while the reader was still looking at it.
+      setAutoAdded((prev) => prev || (json.autoAdded ?? 0))
     } catch {
       setRows([])
     }
@@ -139,10 +143,28 @@ export function QadaTracker({ missedToday = [] }: { missedToday?: string[] }) {
       </div>
 
       {/*
-        Today's missed prayers, offered rather than added automatically. A
-        background job that increments a religious debt on someone's behalf would
-        be wrong far more often than it was right — a prayer logged late, or on
-        another device, or simply prayed without being ticked.
+        What the sweep counted, said out loud.
+
+        A debt that grows on its own with no explanation is alarming and looks
+        like a bug. This states the number, the rule it used, and leaves the
+        correction one tap away — the manual controls below exist precisely
+        because an automatic count can be wrong about a specific day.
+      */}
+      {autoAdded > 0 && (
+        <div className="accent-soft rounded-2xl p-4">
+          <p className="text-sm font-semibold">
+            {t('ui.qadaAutoAdded', { count: autoAdded })}
+          </p>
+          <p className="mt-1 text-xs leading-relaxed opacity-90">
+            {t('ui.qadaAutoRule')}
+          </p>
+        </div>
+      )}
+
+      {/*
+        Today's missed prayers stay a button, not part of the sweep. Today is not
+        over — a prayer whose window has closed may still be prayed as qazo within
+        the day, and the app should not decide that for anyone.
       */}
       {missedToday.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">

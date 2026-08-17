@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { sweepQada } from '@/lib/qada-sweep'
 
 /**
  * Qazo — prayers owed and prayers made up.
@@ -32,6 +33,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    /*
+      Sweep before reading, so opening the tab shows the real figure rather than
+      whatever it was last time. Idempotent via the watermark, and best-effort:
+      a failed sweep must still let someone see and adjust the debt they have.
+    */
+    let swept = { added: 0, days: 0 }
+    try {
+      swept = await sweepQada(session.user.id)
+    } catch (error) {
+      console.error('[qada] sweep failed', error)
+    }
+
     const rows = await prisma.qadaDebt.findMany({
       where: { userId: session.user.id },
       select: { prayer: true, owed: true, madeUp: true },
@@ -60,6 +73,10 @@ export async function GET() {
         madeUp: data.reduce((n, d) => n + d.madeUp, 0),
         remaining: data.reduce((n, d) => n + d.remaining, 0),
       },
+      /* What the sweep just added, so the UI can say so rather than have the
+         number change under the reader with no explanation. */
+      autoAdded: swept.added,
+      autoDays: swept.days,
     })
   } catch (error) {
     console.error('[qada] read failed', error)

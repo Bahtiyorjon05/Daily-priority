@@ -1891,5 +1891,7 @@
   "ui.quranSaved": "Joy saqlandi.",
   "ui.quranLoadFailed": "Sura yuklanmadi. Qayta urinib ko‘ring.",
   "ui.quranMakkah": "Makka",
-  "ui.quranMadinah": "Madina"
+  "ui.quranMadinah": "Madina",
+  "ui.qadaAutoAdded": "O‘tgan kunlardan {count} namoz qo‘shildi",
+  "ui.qadaAutoRule": "Faqat ilovadan foydalangan va namoz belgilanmagan kunlar hisoblandi. Ilovadan oldingi yoki foydalanmagan kunlaringiz hisoblanmaydi — ularni quyida o‘zingiz qo‘shing."
 }

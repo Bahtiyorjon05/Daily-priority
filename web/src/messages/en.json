@@ -1891,5 +1891,7 @@
   "ui.quranSaved": "Place saved.",
   "ui.quranLoadFailed": "Could not load that surah. Try again.",
   "ui.quranMakkah": "Makkah",
-  "ui.quranMadinah": "Madinah"
+  "ui.quranMadinah": "Madinah",
+  "ui.qadaAutoAdded": "{count} prayers added from days that have passed",
+  "ui.qadaAutoRule": "Counted only for days you used the app and a prayer was left unlogged. Prayers from before you started, or from days you were away, are not counted — add those yourself below."
 }

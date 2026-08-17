@@ -28,6 +28,7 @@ const strip = (s: string) => s.replace(/\/\*[^]*?\*\//g, '').replace(/^\s*\/\/.*
 const api = strip(read('src/app/api/qada/route.ts'))
 const ui = strip(read('src/components/prayer/QadaTracker.tsx'))
 const page = strip(read('src/app/(dashboard)/prayers/page.tsx'))
+const sweep = strip(read('src/lib/qada-sweep.ts'))
 const schema = read('prisma/schema.prisma')
 
 describe('qada tracking', () => {
@@ -111,5 +112,81 @@ describe('qada tracking', () => {
       if (!(uz as Record<string, string>)[k]) missing.push(`uz ${k}`)
     }
     expect(missing, missing.join('\n')).toEqual([])
+  })
+  /**
+   * The automatic sweep. Verified against the live database before shipping:
+   *
+   *   day A — Fajr + Dhuhr logged, three left    -> 3 added
+   *   day B — a row exists, nothing completed    -> 5 added
+   *   day C — dormant, no rows at all            -> 0 added
+   *   second run                                 -> 0 added (idempotent)
+   *   watermark                                  -> yesterday, today untouched
+   */
+  it('only counts days the app was demonstrably used', () => {
+    /*
+     * Treating every unlogged prayer as missed reads absence of a log as
+     * evidence of a missed prayer, and it usually is not: someone who signs up,
+     * uses the app for three days and returns two months later probably prayed
+     * and stopped ticking boxes. Charging them 300 silently would be wrong, and
+     * the kind of wrong that makes a person delete the app.
+     */
+    expect(sweep).toMatch(/if \(!entry\.logged\) continue/)
+    expect(sweep).toMatch(/entry\.logged = true/)
+  })
+
+  it('never sweeps today', () => {
+    // Today's prayers may still be prayed — including as qazo within the day.
+    expect(sweep).toMatch(/const yesterday = startOfDay\(new Date\(Date\.now\(\) - DAY\)\)/)
+    expect(sweep).toMatch(/date: \{ gte: from, lte: yesterday \}/)
+  })
+
+  it('is idempotent through a watermark', () => {
+    // Without it, every page load re-counts the same days and the debt climbs
+    // forever.
+    expect(sweep).toMatch(/qadaAutoThrough/)
+    expect(sweep).toMatch(/startOfDay\(prefs\.qadaAutoThrough\)\.getTime\(\) \+ DAY/)
+    // The UPDATE branch specifically: `create` carries the same string, so a
+    // gutted `update: {}` matched a file-wide search and passed.
+    expect(sweep).toMatch(/update: \{ qadaAutoThrough: yesterday \}/)
+  })
+
+  it('advances the watermark in the same transaction as the increments', () => {
+    // A failure must re-run the whole window rather than half-apply it.
+    const tx = sweep.slice(sweep.indexOf('await prisma.$transaction'))
+    expect(tx).toMatch(/tx\.qadaDebt\.upsert/)
+    // `tx.`, not `prisma.` — the same call on the ambient client is outside the
+    // transaction and matched the looser assertion this replaced.
+    expect(tx).toMatch(/await tx\.userPreference\.upsert/)
+    expect(tx).toMatch(/increment: count/)
+  })
+
+  it('bounds a first run', () => {
+    // A long-dormant account must not trigger an enormous single sweep.
+    // Used in the floor, not just declared — leaving the const in place while
+    // widening the window passed the previous version of this check.
+    expect(sweep).toMatch(/Date\.now\(\) - MAX_WINDOW_DAYS \* DAY/)
+    // `[^)]*` cannot cross the closing parens inside `getTime()`, so the first
+    // version of this could never match the real expression.
+    expect(sweep).toMatch(/Math\.max\([^;]*floor\.getTime\(\)/)
+  })
+
+  it('reads the window in one query', () => {
+    // Per-day queries would be dozens of round trips on a page load.
+    expect(sweep).toMatch(/prisma\.prayerTracking\.findMany/)
+    expect((sweep.match(/prisma\.prayerTracking\./g) ?? []).length).toBe(1)
+  })
+
+  it('says what it added rather than letting the number move silently', () => {
+    // A debt that grows on its own with no explanation looks like a bug.
+    expect(api).toMatch(/autoAdded: swept\.added/)
+    expect(ui).toMatch(/ui\.qadaAutoAdded/)
+    expect(ui, 'and the rule it used').toMatch(/ui\.qadaAutoRule/)
+  })
+
+  it('lets a failed sweep still show the debt', () => {
+    // Best-effort: someone must always be able to see and adjust what they owe.
+    const guard = api.slice(api.indexOf('let swept'), api.indexOf('const rows'))
+    expect(guard).toMatch(/try \{/)
+    expect(guard).toMatch(/catch \(error\)/)
   })
 })
