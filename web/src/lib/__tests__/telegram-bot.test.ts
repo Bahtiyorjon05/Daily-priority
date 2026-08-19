@@ -222,7 +222,7 @@ describe('capture from a chat message', () => {
     // `text`, not `msg.text`: a menu tap has already been resolved to its
     // command by then, and capturing the raw label would create a task called
     // "Vazifalar" every time somebody pressed the Tasks button.
-    expect(bot).toMatch(/return addTaskFrom\(msg, user\.id, lang, text\)/)
+    expect(bot).toMatch(/addTaskFrom\(say, msg, user\.id, lang, text\)/)
   })
 
   it('still treats a mistyped command as a command', () => {
@@ -321,8 +321,8 @@ describe('the permanent menu', () => {
     */
     expect(bot).toMatch(/const text = MENU_COMMAND\[raw\] \?\? raw/)
     const capture = bot.slice(bot.indexOf('default: {'))
-    expect(capture).toMatch(/addTaskFrom\(msg, user\.id, lang, text\)/)
-    expect(capture).not.toMatch(/addTaskFrom\(msg, user\.id, lang, msg\.text\)/)
+    expect(capture).toMatch(/addTaskFrom\(say, msg, user\.id, lang, text\)/)
+    expect(capture).not.toMatch(/lang, msg\.text\)/)
   })
 })
 

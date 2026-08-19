@@ -89,6 +89,27 @@ describe('a reply that fails must say so', () => {
     expect(helper).toMatch(/await sendMessage\(/)
   })
 
+  it('carries the send failure into the outcome', () => {
+    /*
+      The first version of this diagnostic returned "start" whether or not the
+      message went out, which is the same blindness it was written to remove.
+      The outcome has to name the failure.
+    */
+    expect(bot).toMatch(/failures\.length \? `\$\{name\}:send-failed:\$\{failures\[0\]\}` : name/)
+    // Per invocation, not module scope: two updates can be in flight in one
+    // instance and a shared buffer would blame the wrong person.
+    expect(bot).toMatch(/const failures: string\[\] = \[\]/)
+    /*
+      Exactly one `await reply(` inside handleMessage: the one in `say`. Every
+      other path has to go through the collector or its failure vanishes again.
+    */
+    const handler = bot.slice(
+      bot.indexOf('export async function handleMessage'),
+      bot.indexOf('export async function reply(')
+    )
+    expect(handler.match(/await reply\(/g) ?? []).toHaveLength(1)
+  })
+
   it('reports the outcome back through the webhook', () => {
     /*
       Telegram ignores the body and the endpoint is secret-gated, so this costs
