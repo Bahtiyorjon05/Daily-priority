@@ -21,7 +21,16 @@ const publicRoutes = new Set([
   // the policy, and Android fetches the asset links file anonymously. A redirect
   // here fails app verification and shows a URL bar in the wrapped app.
   '/privacy',
-  '/.well-known'
+  '/.well-known',
+  /*
+    Telegram delivers bot updates here and has no session cookie to offer, so a
+    session check 401s every update before the handler runs and the bot looks
+    completely dead. It is not unprotected: the route requires the secret token
+    Telegram was given at registration, in a header, and refuses anything else.
+    That is the authentication for this endpoint -- a cookie would be the wrong
+    one.
+  */
+  '/api/telegram/webhook'
 ])
 
 const semiProtectedRoutes = new Set(['/set-password'])

@@ -14,7 +14,24 @@ import 'dotenv/config'
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const SECRET = process.env.TELEGRAM_WEBHOOK_SECRET
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL
+
+/*
+  The PUBLIC url, which is not what the local .env holds.
+
+  `NEXT_PUBLIC_APP_URL` is http://localhost:3000 during development, and running
+  this script from a dev machine would then point Telegram's webhook at a
+  loopback address -- or, worse, silently open the Mini App on a URL that only
+  works on that one laptop. Telegram requires HTTPS for both, so it is demanded
+  here with a message that says what to do rather than "bad webhook".
+
+  Override with TELEGRAM_PUBLIC_URL, or pass the url as the first argument.
+*/
+const APP_URL =
+  process.argv[2] ??
+  process.env.TELEGRAM_PUBLIC_URL ??
+  (process.env.NEXT_PUBLIC_APP_URL?.startsWith('https://')
+    ? process.env.NEXT_PUBLIC_APP_URL
+    : undefined)
 
 async function call(method: string, payload: Record<string, unknown> = {}) {
   const res = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
@@ -28,8 +45,21 @@ async function call(method: string, payload: Record<string, unknown> = {}) {
 }
 
 async function main() {
-  for (const [name, value] of Object.entries({ TELEGRAM_BOT_TOKEN: TOKEN, TELEGRAM_WEBHOOK_SECRET: SECRET, NEXT_PUBLIC_APP_URL: APP_URL })) {
+  for (const [name, value] of Object.entries({
+    TELEGRAM_BOT_TOKEN: TOKEN,
+    TELEGRAM_WEBHOOK_SECRET: SECRET,
+  })) {
     if (!value) throw new Error(`${name} is not set`)
+  }
+  if (!APP_URL?.startsWith('https://')) {
+    throw new Error(
+      [
+        'Need the public HTTPS url. Telegram accepts nothing else for a webhook',
+        'or a Mini App, and the local NEXT_PUBLIC_APP_URL is a localhost address.',
+        '',
+        '  npx tsx scripts/telegram-setup.ts https://your-domain.com',
+      ].join('\n')
+    )
   }
 
   const me = await call('getMe')
