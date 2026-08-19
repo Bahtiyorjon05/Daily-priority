@@ -10,11 +10,20 @@ import { QURAN_PAGES, surahByNumber } from '@/lib/quran/surahs'
  * Three separate ideas, deliberately not collapsed into one number:
  *
  *   bookmark   where to reopen — the thing that makes coming back free
- *   pagesRead  how far through the mushaf, monotonic so re-reading a surah or
- *              jumping to Yaseen on a Friday never makes progress go backwards
+ *   pagesRead  how many DISTINCT mushaf pages have been read, counted from rows
  *   streak     consecutive days with any reading at all, which is a question
  *              about days and cannot be derived from a bookmark
+ *
+ * `pagesRead` used to be `max(page)`, which is not a count of anything.
+ * Opening An-Nas once is page 604 of 604, so it reported the entire Quran as
+ * read -- a live account showed 100% having read almost none of it. Rows are
+ * counted now: a progress bar that cannot go wrong in the reader's favour is
+ * worth more than one that flatters.
  */
+
+/** A chunk is 20 ayahs, which cannot span more than a handful of mushaf pages;
+ *  anything beyond this is a client bug or an attack, not a reading session. */
+const MAX_PAGES_PER_WRITE = 40
 
 /** Enough history to show a 90-day streak without reading the whole table. */
 const STREAK_WINDOW_DAYS = 400
@@ -57,7 +66,7 @@ export async function GET() {
     }
     const userId = session.user.id
 
-    const [progress, logs, finished] = await Promise.all([
+    const [progress, logs, finished, pagesRead] = await Promise.all([
       prisma.quranProgress.findUnique({
         where: { userId },
         select: { lastSurah: true, lastAyah: true, lastPage: true, pagesRead: true, updatedAt: true },
@@ -72,10 +81,11 @@ export async function GET() {
         select: { surah: true },
         orderBy: { surah: 'asc' },
       }),
+      // Counted, not maximised. See the note at the top of this file.
+      prisma.quranPageRead.count({ where: { userId } }),
     ])
 
     const todayKey = startOfDay().getTime()
-    const pagesRead = progress?.pagesRead ?? 0
 
     return NextResponse.json({
       success: true,
@@ -92,6 +102,8 @@ export async function GET() {
           .filter((l) => l.date.getTime() >= Date.now() - 7 * 86_400_000)
           .reduce((n, l) => n + l.pages, 0),
         lastReadAt: progress?.updatedAt ?? null,
+        // Where to reopen. Not progress, and never again counted as it.
+        hasPosition: Boolean(progress),
         /*
           Which surahs are finished, and how many. This is what makes the button
           mean something: `pagesRead` is a maximum, so finishing a short surah
@@ -133,17 +145,23 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Page out of range' }, { status: 400 })
     }
 
-    const existing = await prisma.quranProgress.findUnique({
-      where: { userId },
-      select: { pagesRead: true },
-    })
-
     /*
-      pagesRead only ever climbs. It is "how far through the mushaf have you
-      been", not "which page are you on" — so re-reading Al-Fatiha or opening
-      Yaseen for a Friday must not undo months of progress.
+      Which mushaf pages this sitting actually covered.
+
+      The client sends the pages spanned by the chunk on screen, because that is
+      the only place that knows them -- the ayah/page mapping comes down with the
+      text. Bounded and de-duplicated here regardless: this is a write loop, and
+      a client that sent 5,000 numbers would create 5,000 rows.
     */
-    const pagesRead = Math.max(existing?.pagesRead ?? 0, page)
+    const covered: unknown[] = Array.isArray(body.pages) ? body.pages : [page]
+    const pagesCovered: number[] = [
+      ...new Set(
+        covered
+          .map((p: unknown) => Math.trunc(Number(p)))
+          .filter((p: number) => Number.isFinite(p) && p >= 1 && p <= QURAN_PAGES)
+      ),
+    ].slice(0, MAX_PAGES_PER_WRITE)
+    if (!pagesCovered.includes(page)) pagesCovered.push(page)
 
     const today = startOfDay()
     // Only when the reader says so — turning a page saves position without
@@ -153,9 +171,18 @@ export async function PATCH(request: NextRequest) {
     const [progress] = await prisma.$transaction([
       prisma.quranProgress.upsert({
         where: { userId },
-        create: { userId, lastSurah: surahNumber, lastAyah: ayah, lastPage: page, pagesRead },
-        update: { lastSurah: surahNumber, lastAyah: ayah, lastPage: page, pagesRead },
-        select: { lastSurah: true, lastAyah: true, lastPage: true, pagesRead: true },
+        create: { userId, lastSurah: surahNumber, lastAyah: ayah, lastPage: page },
+        update: { lastSurah: surahNumber, lastAyah: ayah, lastPage: page },
+        select: { lastSurah: true, lastAyah: true, lastPage: true },
+      }),
+      /*
+        One row per page, ever. `createMany` with `skipDuplicates` rather than an
+        upsert loop: re-reading a page is the normal case, not an error, and it
+        must not turn one page turn into twenty round trips.
+      */
+      prisma.quranPageRead.createMany({
+        data: pagesCovered.map((p) => ({ userId, page: p })),
+        skipDuplicates: true,
       }),
       // One row per day. Re-reading later the same day increments the count
       // rather than creating a second row and inflating the streak.
@@ -177,7 +204,15 @@ export async function PATCH(request: NextRequest) {
         : []),
     ])
 
-    return NextResponse.json({ success: true, data: progress, finished })
+    // Counted after the write, so the client can show the new total without a
+    // second request.
+    const pagesRead = await prisma.quranPageRead.count({ where: { userId } })
+
+    return NextResponse.json({
+      success: true,
+      data: { ...progress, pagesRead },
+      finished,
+    })
   } catch (error) {
     console.error('[quran] progress write failed', error)
     return NextResponse.json({ error: 'Failed to save progress' }, { status: 500 })

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   BookOpen, Search, ArrowLeft, Flame, Bookmark, BookmarkCheck, Loader2,
-  ChevronRight, ChevronLeft, Languages, CheckCircle2,
+  ChevronRight, ChevronLeft, Languages, CheckCircle2, Copy, Minus, Plus, Type,
+  X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useT } from '@/lib/i18n/client'
@@ -41,6 +42,30 @@ function pageOfAyahStatic(list: { n: number }[], ayahNumber: number): number {
   return i < 0 ? 0 : Math.floor(i / PER_PAGE)
 }
 
+/** A verse someone saved, as it comes back from the server. */
+type SavedVerse = {
+  surah: number
+  ayah: number
+  page: number
+}
+
+/*
+  Arabic size, in px.
+
+  A Quran reader with one fixed text size is a Quran reader that suits one pair
+  of eyes. The range is deliberately narrow at the bottom: below about 20px the
+  diacritics stop being distinguishable, which is worse than useless for Arabic.
+*/
+const ARABIC_SIZES = [22, 26, 30, 36, 42] as const
+const DEFAULT_SIZE_INDEX = 1
+const SIZE_STORAGE_KEY = 'dailypriority_quran_size'
+
+/** Saved verses shown on the list. A shortcut, not an archive. */
+const SAVED_SHOWN = 12
+
+/** Stable key for one verse. */
+const verseKey = (surah: number, ayah: number) => `${surah}:${ayah}`
+
 type Progress = {
   finishedSurahs: number[]
   finishedCount: number
@@ -49,6 +74,8 @@ type Progress = {
   lastPage: number
   pagesRead: number
   percent: number
+  /** Whether there is a place to go back to at all. */
+  hasPosition: boolean
   streak: number
   readToday: boolean
   pagesThisWeek: number
@@ -80,6 +107,22 @@ export default function QuranPage() {
   const [needsRefetch, setNeedsRefetch] = useState(false)
   const readerRef = useRef<HTMLDivElement>(null)
 
+  /*
+    Saved verses.
+
+    Held as a Set of "surah:ayah" so the reader can answer "is this one saved"
+    while rendering twenty ayahs, without scanning an array twenty times.
+  */
+  const [saved, setSaved] = useState<SavedVerse[]>([])
+  const savedSet = useMemo(
+    () => new Set(saved.map((v) => verseKey(v.surah, v.ayah))),
+    [saved]
+  )
+  const [savingVerse, setSavingVerse] = useState<string | null>(null)
+
+  /** Arabic size, remembered — see ARABIC_SIZES. */
+  const [sizeIndex, setSizeIndex] = useState(DEFAULT_SIZE_INDEX)
+
   const loadProgress = useCallback(async () => {
     try {
       const res = await fetch('/api/quran/progress', { cache: 'no-store' })
@@ -89,14 +132,39 @@ export default function QuranPage() {
     }
   }, [])
 
+  const loadSaved = useCallback(async () => {
+    try {
+      const res = await fetch('/api/quran/bookmarks', { cache: 'no-store' })
+      if (res.ok) setSaved((await res.json()).data ?? [])
+    } catch {
+      /* Reading still works with no saved list; it is not worth a banner. */
+    }
+  }, [])
+
   useEffect(() => {
     loadProgress()
-  }, [loadProgress])
+    loadSaved()
+  }, [loadProgress, loadSaved])
 
-  // Restore the translation preference before the first surah opens.
+  // Restore the reading preferences before the first surah opens.
   useEffect(() => {
     const stored = localStorage.getItem('dailypriority_quran_translation')
     if (stored !== null) setShowTranslation(stored === '1')
+
+    const size = Number(localStorage.getItem(SIZE_STORAGE_KEY))
+    // Guarded, not trusted: a stale or hand-edited value must not index off the
+    // end of the array and render Arabic at `undefined`px.
+    if (Number.isInteger(size) && size >= 0 && size < ARABIC_SIZES.length) {
+      setSizeIndex(size)
+    }
+  }, [])
+
+  const stepSize = useCallback((delta: number) => {
+    setSizeIndex((i) => {
+      const next = Math.min(ARABIC_SIZES.length - 1, Math.max(0, i + delta))
+      localStorage.setItem(SIZE_STORAGE_KEY, String(next))
+      return next
+    })
   }, [])
 
   const toggleTranslation = useCallback(() => {
@@ -182,6 +250,96 @@ export default function QuranPage() {
     readerRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' })
   }, [open, page, ayahs])
 
+  /*
+    Jump to one ayah inside the surah already open.
+
+    Two steps, because the ayah may not be in the chunk on screen: move to the
+    chunk that holds it, then scroll to the element once it exists. The chunk
+    signature is claimed here so the top-of-chunk effect above does not scroll to
+    the top a moment before this scrolls to the verse -- they would fight, and
+    which one won would depend on render timing.
+  */
+  const [pendingAyah, setPendingAyah] = useState<number | null>(null)
+
+  const jumpToAyah = useCallback(
+    (ayahNumber: number) => {
+      if (!ayahs || open === null) return
+      const target = pageOfAyahStatic(ayahs, ayahNumber)
+      lastScrolled.current = `${open}:${target}`
+      setPage(target)
+      setPendingAyah(ayahNumber)
+    },
+    [ayahs, open]
+  )
+
+  useEffect(() => {
+    if (pendingAyah === null || !ayahs) return
+    const el = document.getElementById(`ayah-${pendingAyah}`)
+    if (!el) return
+    el.scrollIntoView({ block: 'start', behavior: 'auto' })
+    setPendingAyah(null)
+  }, [pendingAyah, page, ayahs])
+
+  /**
+   * Save or unsave one verse.
+   *
+   * The server owns the toggle: the client says "this verse", the server says
+   * whether it is now saved. A client that decided for itself would double-save
+   * or fail to remove whenever its list was a moment stale, and the previous
+   * version of this button had no state at all -- it wrote to the reading
+   * POSITION, so tapping it silently replaced the last one and nothing on the
+   * page changed. That is why it read as broken.
+   */
+  const toggleVerse = useCallback(
+    async (surah: number, ayah: number, mushafPage: number) => {
+      const key = verseKey(surah, ayah)
+      setSavingVerse(key)
+      try {
+        const res = await fetch('/api/quran/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ surah, ayah, page: mushafPage }),
+        })
+        if (!res.ok) throw new Error('failed')
+        const { saved: nowSaved } = await res.json()
+        setSaved((list) =>
+          nowSaved
+            ? [{ surah, ayah, page: mushafPage }, ...list.filter((v) => verseKey(v.surah, v.ayah) !== key)]
+            : list.filter((v) => verseKey(v.surah, v.ayah) !== key)
+        )
+        toast.success(t(nowSaved ? 'ui.quranVerseSaved' : 'ui.quranVerseRemoved'))
+      } catch {
+        toast.error(t('ui.quranVerseSaveFailed'))
+      } finally {
+        setSavingVerse(null)
+      }
+    },
+    [t]
+  )
+
+  /**
+   * Copy one verse, with its reference.
+   *
+   * Arabic and translation together, because a verse pasted without its source
+   * is a quote no one can check.
+   */
+  const copyVerse = useCallback(
+    async (surah: Surah | undefined, a: Ayah) => {
+      const name = surah ? surahName(surah, locale) : ''
+      const parts = [a.ar, showTranslation && a.tr ? a.tr : '', `${name} ${a.n}`]
+      try {
+        await navigator.clipboard.writeText(parts.filter(Boolean).join('\n\n'))
+        toast.success(t('ui.quranCopied'))
+      } catch {
+        // Clipboard access is refused in plenty of ordinary situations --
+        // an insecure context, a locked-down browser -- and silence there
+        // looks exactly like a dead button.
+        toast.error(t('ui.quranCopyFailed'))
+      }
+    },
+    [locale, showTranslation, t]
+  )
+
   /**
    * Saves the bookmark, and optionally records the surah as finished.
    *
@@ -195,13 +353,28 @@ export default function QuranPage() {
       surah: number,
       ayah: number,
       mushafPage: number,
-      opts: { finished?: boolean } = {}
+      opts: { finished?: boolean; pages?: number[] } = {}
     ) => {
       try {
         const res = await fetch('/api/quran/progress', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ surah, ayah, page: mushafPage, finished: opts.finished }),
+          /*
+            `pages` is which mushaf pages this sitting actually covered.
+
+            Progress used to be the HIGHEST page reached, so opening An-Nas once
+            -- page 604 of 604 -- reported the whole Quran as read, and a live
+            account showed 100%. The client is the only side that knows which
+            pages were on screen, because the ayah/page mapping comes down with
+            the text, so it has to say.
+          */
+          body: JSON.stringify({
+            surah,
+            ayah,
+            page: mushafPage,
+            pages: opts.pages,
+            finished: opts.finished,
+          }),
         })
         if (!res.ok) throw new Error('failed')
         await loadProgress()
@@ -271,7 +444,24 @@ export default function QuranPage() {
     lands you in the same chunk rather than somewhere in a 3,000-element scroll.
   */
   const pageCount = ayahs ? Math.max(1, Math.ceil(ayahs.length / PER_PAGE)) : 1
-  const pageAyahs = ayahs ? ayahs.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE) : []
+  const pageAyahs = useMemo(
+    () => (ayahs ? ayahs.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE) : []),
+    [ayahs, page]
+  )
+
+  /** The distinct mushaf pages this chunk covers -- what counts as read. */
+  const pagesOnScreen = useMemo(
+    () => [...new Set(pageAyahs.map((a) => a.page))],
+    [pageAyahs]
+  )
+
+  const arabicSize = ARABIC_SIZES[sizeIndex]
+
+  /** Saved verses in the surah being read, in order, for the jump strip. */
+  const savedHere = useMemo(
+    () => (open === null ? [] : saved.filter((v) => v.surah === open).sort((a, b) => a.ayah - b.ayah)),
+    [saved, open]
+  )
 
 
   return (
@@ -286,7 +476,9 @@ export default function QuranPage() {
           <HeaderStat
             label={t('ui.quranProgress')}
             value={`${progress?.percent ?? 0}%`}
-            hint={t('ui.quranOfPages', { pages: QURAN_PAGES })}
+            /* The count, not just the percent: "2%" alone tells you nothing about
+               whether the number is even measuring the right thing. */
+            hint={`${progress?.pagesRead ?? 0} ${t('ui.quranOfPages', { pages: QURAN_PAGES })}`}
           />
           <HeaderStat
             label={t('ui.currentStreak')}
@@ -310,7 +502,7 @@ export default function QuranPage() {
       {open === null ? (
         <>
           {/* Continue where they stopped — the reason this page has a server at all. */}
-          {progress && progress.pagesRead > 0 && (
+          {progress?.hasPosition && (
             <button
               onClick={() => openSurah(progress.lastSurah, progress.lastAyah)}
               className="accent-border flex w-full items-center gap-4 rounded-2xl border-2 bg-white p-4 text-left transition-colors hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
@@ -328,6 +520,63 @@ export default function QuranPage() {
               </span>
               <ChevronRight className="h-5 w-5 shrink-0 text-slate-400" />
             </button>
+          )}
+
+
+          {/*
+            Saved verses.
+
+            The other half of the fix. The per-ayah button had no list behind it,
+            so even when it did write something there was nowhere to see it and
+            no way back. Newest first, capped -- this is a shortcut, not an
+            archive page, and twenty rows of chips would bury the surah list.
+          */}
+          {saved.length > 0 && (
+            <section
+              aria-label={t('ui.quranSavedVerses')}
+              className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                  <BookmarkCheck className="accent-ink h-4 w-4" />
+                  {t('ui.quranSavedVerses')}
+                </h2>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('ui.quranSavedCount', { count: saved.length })}
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {saved.slice(0, SAVED_SHOWN).map((v) => {
+                  const s = surahByNumber(v.surah)
+                  return (
+                    <span
+                      key={verseKey(v.surah, v.ayah)}
+                      className="accent-border inline-flex items-center overflow-hidden rounded-xl border-2"
+                    >
+                      <button
+                        onClick={() => openSurah(v.surah, v.ayah)}
+                        className="h-10 px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        {s ? surahName(s, locale) : v.surah}{' '}
+                        <span className="tabular-nums opacity-70">{v.ayah}</span>
+                      </button>
+                      {/* Removable from here too: the verse you want gone is not
+                          always the one you are looking at. */}
+                      <button
+                        onClick={() => toggleVerse(v.surah, v.ayah, v.page)}
+                        disabled={savingVerse === verseKey(v.surah, v.ayah)}
+                        aria-label={t('ui.quranUnsaveVerse')}
+                        title={t('ui.quranUnsaveVerse')}
+                        className="flex h-10 w-9 items-center justify-center text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-40 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            </section>
           )}
 
           {/* Search */}
@@ -351,7 +600,7 @@ export default function QuranPage() {
                 name={surahName(s, locale)}
                 meaning={surahMeaning(s, locale)}
                 isFinished={finishedSet.has(s.n)}
-                isBookmark={progress?.lastSurah === s.n && progress.pagesRead > 0}
+                isBookmark={progress?.lastSurah === s.n && progress.hasPosition}
                 onOpen={() => openSurah(s.n)}
                 placeLabel={t(s.place === 'makkah' ? 'ui.quranMakkah' : 'ui.quranMadinah')}
                 ayahLabel={t('ui.quranAyahs', { count: s.ayahs })}
@@ -366,19 +615,47 @@ export default function QuranPage() {
         </>
       ) : (
         <div ref={readerRef} className="scroll-mt-24 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <button
-              onClick={() => {
-                setOpen(null)
-                setAyahs(null)
-              }}
-              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {t('ui.quranAllSurahs')}
-            </button>
+          {/*
+            One header row that names the surah and carries the reading controls.
 
-            <div className="flex items-center gap-2">
+            The name led on the RIGHT before, tucked beside the toggle, which put
+            the least important control and the most important label in the same
+            visual slot. The surah you are reading is the heading of this screen.
+          */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900 sm:p-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setOpen(null)
+                  setAyahs(null)
+                }}
+                aria-label={t('ui.quranAllSurahs')}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-lg font-bold leading-tight text-slate-900 dark:text-white">
+                  {current ? surahName(current, locale) : ''}
+                </p>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                  {current ? surahMeaning(current, locale) : ''}
+                  {current ? ` \u00b7 ${t('ui.quranAyahs', { count: current.ayahs })}` : ''}
+                </p>
+              </div>
+
+              <span
+                dir="rtl"
+                lang="ar"
+                className="hidden shrink-0 text-xl text-slate-700 dark:text-slate-200 sm:block"
+                style={{ fontFamily: 'var(--font-amiri), serif' }}
+              >
+                {current?.ar}
+              </span>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
               {/* Arabic alone for reciting, both for studying. Remembered. */}
               <button
                 onClick={toggleTranslation}
@@ -393,15 +670,62 @@ export default function QuranPage() {
                 {t('ui.quranTranslation')}
               </button>
 
-              <div className="min-w-0 text-right">
-                <p className="truncate font-bold text-slate-900 dark:text-white">
-                  {current ? surahName(current, locale) : ''}
-                </p>
-                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                  {current ? surahMeaning(current, locale) : ''}
-                </p>
+              {/*
+                Arabic size.
+
+                One fixed size suits one pair of eyes. This is the control people
+                reach for most in any Quran app and the page had none at all --
+                the size was hardcoded at 26px, and 30px above `sm`.
+              */}
+              <div className="inline-flex h-11 items-center rounded-xl border border-slate-200 dark:border-slate-700">
+                <button
+                  onClick={() => stepSize(-1)}
+                  disabled={sizeIndex === 0}
+                  aria-label={t('ui.quranTextSmaller')}
+                  title={t('ui.quranTextSmaller')}
+                  className="flex h-full w-11 items-center justify-center rounded-l-xl text-slate-500 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <Type className="h-4 w-4 shrink-0 text-slate-400" />
+                <button
+                  onClick={() => stepSize(1)}
+                  disabled={sizeIndex === ARABIC_SIZES.length - 1}
+                  aria-label={t('ui.quranTextLarger')}
+                  title={t('ui.quranTextLarger')}
+                  className="flex h-full w-11 items-center justify-center rounded-r-xl text-slate-500 transition-colors hover:bg-slate-50 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
               </div>
+
+              {pageCount > 1 && (
+                <span className="ml-auto shrink-0 text-xs font-semibold tabular-nums text-slate-500 dark:text-slate-400">
+                  {t('ui.quranPageOf', { page: page + 1, total: pageCount })}
+                </span>
+              )}
             </div>
+
+            {/*
+              Verses saved inside this surah, as a jump strip.
+
+              A saved verse that you cannot get back to quickly is a note in a
+              drawer. Only rendered when there is something in it.
+            */}
+            {savedHere.length > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 dark:border-slate-800">
+                <BookmarkCheck className="accent-ink h-4 w-4 shrink-0" />
+                {savedHere.map((v) => (
+                  <button
+                    key={v.ayah}
+                    onClick={() => jumpToAyah(v.ayah)}
+                    className="accent-soft accent-ink h-8 min-w-8 rounded-lg px-2 text-xs font-bold tabular-nums transition-opacity hover:opacity-80"
+                  >
+                    {v.ayah}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {loadingSurah || !ayahs ? (
@@ -410,52 +734,126 @@ export default function QuranPage() {
             </div>
           ) : (
             <>
-              <div className="space-y-2">
-                {pageAyahs.map((a) => (
-                  <div
-                    key={a.n}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 sm:p-5"
-                  >
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className="accent-soft inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-bold tabular-nums">
-                        {a.n}
-                      </span>
-                      <button
-                        onClick={async () => {
-                          if (await savePosition(open, a.n, a.page)) {
-                            toast.success(t('ui.quranSaved'))
-                          }
-                        }}
-                        aria-label={t('ui.quranMarkHere')}
-                        title={t('ui.quranMarkHere')}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
-                      >
-                        <Bookmark className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    {/*
-                      Arabic is set right-to-left at a genuinely readable size with
-                      loose leading — the diacritics need the room, and a Quran
-                      rendered at body size is not a Quran anyone reads twice.
-                      `--font-amiri` is already loaded in the app.
-                    */}
-                    <p
-                      dir="rtl"
-                      lang="ar"
-                      className="text-right text-[26px] leading-[2.1] text-slate-900 dark:text-white sm:text-[30px]"
-                      style={{ fontFamily: 'var(--font-amiri), serif' }}
+              <div className="space-y-2.5">
+                {pageAyahs.map((a) => {
+                  const key = verseKey(open, a.n)
+                  const isSaved = savedSet.has(key)
+                  const isPosition =
+                    progress?.lastSurah === open && progress.lastAyah === a.n
+                  return (
+                    <div
+                      key={a.n}
+                      id={`ayah-${a.n}`}
+                      /*
+                        Saved and "where you stopped" are different things, shown
+                        differently: a saved verse keeps a standing accent border,
+                        the reading position gets a soft tint that moves.
+                      */
+                      className={`scroll-mt-24 rounded-2xl border bg-white p-4 transition-colors dark:bg-slate-900 sm:p-5 ${
+                        isSaved
+                          ? 'accent-border border-2'
+                          : 'border-slate-200 dark:border-slate-800'
+                      } ${isPosition ? 'accent-soft' : ''}`}
                     >
-                      {a.ar}
-                    </p>
+                      <div className="mb-3 flex items-center justify-between gap-2">
+                        <div className="flex min-w-0 items-center gap-2">
+                          {/* The ayah number in a ring rather than a filled chip,
+                              closer to how a mushaf marks the end of a verse. */}
+                          <span className="accent-ring accent-ink inline-flex h-8 min-w-8 items-center justify-center rounded-full border-2 px-2 text-xs font-bold tabular-nums">
+                            {a.n}
+                          </span>
 
-                    {showTranslation && a.tr && (
-                      <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-relaxed text-slate-600 dark:border-slate-800 dark:text-slate-300">
-                        {a.tr}
+                          {isPosition && (
+                            <span className="accent-ink truncate text-[11px] font-bold uppercase tracking-wide">
+                              {t('ui.quranYouStoppedHere')}
+                            </span>
+                          )}
+
+                          {/*
+                            Sajda. The data carried this flag from the first
+                            release and nothing ever rendered it, so someone
+                            reciting from this page had no way to know a
+                            prostration was due -- the one thing a mushaf would
+                            never leave out.
+                          */}
+                          {a.sajda && (
+                            <span
+                              title={t('ui.quranSajdaNote')}
+                              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900 dark:bg-amber-950 dark:text-amber-200"
+                            >
+                              {t('ui.quranSajda')}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            onClick={() => copyVerse(current, a)}
+                            aria-label={t('ui.quranCopyVerse')}
+                            title={t('ui.quranCopyVerse')}
+                            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                          >
+                            <Copy className="h-[18px] w-[18px]" />
+                          </button>
+
+                          {/*
+                            The button that started all this. It used to write to
+                            the reading POSITION, so it replaced the previous mark
+                            and changed nothing anyone could see. It toggles a
+                            saved verse now, and says so in the icon, the fill and
+                            the pressed state.
+                          */}
+                          <button
+                            onClick={() => toggleVerse(open, a.n, a.page)}
+                            disabled={savingVerse === key}
+                            aria-pressed={isSaved}
+                            aria-label={t(isSaved ? 'ui.quranUnsaveVerse' : 'ui.quranSaveVerse')}
+                            title={t(isSaved ? 'ui.quranUnsaveVerse' : 'ui.quranSaveVerse')}
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors disabled:opacity-50 ${
+                              isSaved
+                                ? 'accent-solid'
+                                : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                            }`}
+                          >
+                            {savingVerse === key ? (
+                              <Loader2 className="h-[18px] w-[18px] animate-spin" />
+                            ) : isSaved ? (
+                              <BookmarkCheck className="h-[18px] w-[18px]" />
+                            ) : (
+                              <Bookmark className="h-[18px] w-[18px]" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/*
+                        Arabic is set right-to-left with loose leading -- the
+                        diacritics need the room, and a Quran rendered at body
+                        size is not a Quran anyone reads twice. The size is the
+                        reader's own choice; see ARABIC_SIZES.
+                        `--font-amiri` is already loaded in the app.
+                      */}
+                      <p
+                        dir="rtl"
+                        lang="ar"
+                        className="text-right text-slate-900 dark:text-white"
+                        style={{
+                          fontFamily: 'var(--font-amiri), serif',
+                          fontSize: `${arabicSize}px`,
+                          lineHeight: 2.1,
+                        }}
+                      >
+                        {a.ar}
                       </p>
-                    )}
-                  </div>
-                ))}
+
+                      {showTranslation && a.tr && (
+                        <p className="mt-3 border-t border-slate-100 pt-3 text-sm leading-relaxed text-slate-600 dark:border-slate-800 dark:text-slate-300">
+                          {a.tr}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Pager. Only when there is more than one chunk — a pager on
@@ -486,7 +884,7 @@ export default function QuranPage() {
                       */
                       const last = pageAyahs[pageAyahs.length - 1]
                       // No toast: a confirmation on every page turn is noise.
-                      if (last) savePosition(open, last.n, last.page)
+                      if (last) savePosition(open, last.n, last.page, { pages: pagesOnScreen })
                       setPage((p) => Math.min(pageCount - 1, p + 1))
                     }}
                     disabled={page >= pageCount - 1}
@@ -504,7 +902,10 @@ export default function QuranPage() {
                 <button
                   onClick={async () => {
                     const last = ayahs[ayahs.length - 1]
-                    const ok = await savePosition(open, last.n, last.page, { finished: true })
+                    const ok = await savePosition(open, last.n, last.page, {
+                      finished: true,
+                      pages: pagesOnScreen,
+                    })
                     if (!ok) return
                     /*
                       Three consequences, where before there were none: the surah

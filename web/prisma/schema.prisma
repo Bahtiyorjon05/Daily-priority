@@ -68,6 +68,8 @@ model User {
   quranProgress    QuranProgress?
   quranReadingLog  QuranReadingLog[]
   quranSurahsRead  QuranSurahRead[]
+  quranBookmarks   QuranBookmark[]
+  quranPagesRead   QuranPageRead[]
   ramadanDays      RamadanDay[]
 
   @@index([email])
@@ -140,7 +142,8 @@ model QuranProgress {
   lastAyah    Int      @default(1)
   /// Page in the Madani mushaf, so progress reads out of 604.
   lastPage    Int      @default(1)
-  /// Distinct pages ever reached. Monotonic on purpose.
+  /// DEPRECATED: the highest page reached, which was never a count. Kept so no
+  /// live column is dropped; the real total is `QuranPageRead`.
   pagesRead   Int      @default(0)
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -189,6 +192,48 @@ model QuranSurahRead {
   @@unique([userId, surah])
   @@index([userId])
   @@map("quran_surahs_read")
+}
+
+/// Verses someone deliberately saved.
+///
+/// Separate from the reading position, which is one moving pointer. The bookmark
+/// icon on each ayah wrote to that pointer, so tapping it silently replaced the
+/// last one and changed nothing on screen — the icon promised "save this verse"
+/// and delivered "move my place". These are the saved verses it promised.
+model QuranBookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  /// 1-114
+  surah     Int
+  /// Ayah within that surah, 1-based.
+  ayah      Int
+  /// Mushaf page, so reopening a saved verse lands on the right chunk.
+  page      Int      @default(1)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, surah, ayah])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("quran_bookmarks")
+}
+
+/// Distinct mushaf pages this person has actually read.
+///
+/// `QuranProgress.pagesRead` was `max(page)`, which is not a count of anything.
+/// Opening An-Nas once — page 604 of 604 — reported the whole Quran as read, and
+/// a live account showed 100% for exactly that reason. Rows here are counted, so
+/// the percentage answers the question it claims to.
+model QuranPageRead {
+  id     String   @id @default(cuid())
+  userId String
+  /// 1-604 in the Madani mushaf.
+  page   Int
+  readAt DateTime @default(now())
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, page])
+  @@index([userId])
+  @@map("quran_pages_read")
 }
 
 /// One row per day of Ramadan, per user.

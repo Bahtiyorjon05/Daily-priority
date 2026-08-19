@@ -172,7 +172,8 @@ describe('opening a surah', () => {
     await waitFor(() => expect(screen.getByText(AYAH(2, 1))).toBeTruthy())
     const afterFirst = scrolls.length
 
-    await user.click(screen.getByText('ui.quranAllSurahs'))
+    // The back control is an icon now, so it is found by its accessible name.
+    await user.click(screen.getByLabelText('ui.quranAllSurahs'))
     await waitFor(() => expect(screen.getByText('Yaseen')).toBeTruthy())
 
     await user.click(screen.getByText('Yaseen'))

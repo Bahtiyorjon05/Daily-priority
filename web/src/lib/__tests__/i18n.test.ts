@@ -179,6 +179,7 @@ describe('dictionary parity', () => {
       'ui.muharram', // Hijri month, same name in Uzbek
       'ui.push', // technical term, borrowed as-is
       'ui.qibla', // Arabic term, identical in Uzbek
+      'ui.quranSajda', // Arabic term, identical in Uzbek
       'ui.rajab', // Hijri month, same name in Uzbek
       'ui.safar', // Hijri month, same name in Uzbek
       'ui.shift', // keyboard key

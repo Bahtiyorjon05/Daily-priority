@@ -100,7 +100,7 @@ describe('quran reader', () => {
     // Turning the page is a reading event; without this, leaving mid-surah loses
     // the place unless you remember to press a separate button.
     const next = page.slice(page.indexOf("t('common.next')") - 1400, page.indexOf("t('common.next')"))
-    expect(next).toMatch(/savePosition\(open, last\.n, last\.page\)/)
+    expect(next).toMatch(/savePosition\(open, last\.n, last\.page, \{ pages: pagesOnScreen \}\)/)
   })
 
   it('hides the pager on a single-chunk surah', () => {
@@ -161,10 +161,10 @@ describe('finishing a surah', () => {
 
   it('gives the button visible consequences', () => {
     const handler = page.slice(
-      page.indexOf('{ finished: true }') - 400,
-      page.indexOf('{ finished: true }') + 700
+      page.indexOf('finished: true,') - 400,
+      page.indexOf('finished: true,') + 700
     )
-    expect(handler, 'records the completion').toMatch(/\{ finished: true \}/)
+    expect(handler, 'records the completion').toMatch(/finished: true,/)
     expect(handler, 'names the surah in the confirmation').toMatch(/ui\.quranFinishedToast/)
     expect(handler, 'returns to the list where the tick is visible').toMatch(/setOpen\(null\)/)
     // And it must not claim success when the save failed.
@@ -183,7 +183,7 @@ describe('finishing a surah', () => {
     // A confirmation each time you move forward is noise; the deliberate actions
     // (mark my place, finished) are the ones that confirm.
     const pager = page.slice(page.indexOf("t('common.next')") - 1200, page.indexOf("t('common.next')"))
-    expect(pager).toMatch(/savePosition\(open, last\.n, last\.page\)/)
+    expect(pager).toMatch(/savePosition\(open, last\.n, last\.page/)
     expect(pager).not.toMatch(/toast\.success/)
   })
 
