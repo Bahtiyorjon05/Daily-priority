@@ -6,8 +6,8 @@ import {
   addTask, completeHabit, completeTask, dailySnapshot, todayHabits, todayTasks,
 } from '@/lib/telegram/actions'
 import {
-  CB, dailyMessage, habitsMessage, openKeyboard as buildOpenKeyboard, parseCallback,
-  tasksMessage,
+  CB, dailyMessage, habitsMessage, mainKeyboard, MENU_COMMAND,
+  openKeyboard as buildOpenKeyboard, parseCallback, tasksMessage,
 } from '@/lib/telegram/messages'
 import { streakFromDates } from '@/lib/streaks'
 import { surahByNumber } from '@/lib/quran/surahs'
@@ -31,12 +31,17 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://daily-priority.verce
 
 export type Lang = 'uz' | 'en'
 
-/** Telegram sends an IETF tag: `uz`, `en-GB`, `ru`. Uzbek users very often run
- *  Telegram in Russian, and Uzbek is the closer of the two we speak. */
+/**
+ * Which language to answer in.
+ *
+ * Uzbek unless the client is explicitly English. This is the reverse of the
+ * usual default and it is deliberate: essentially every person here is in
+ * Uzbekistan, many run Telegram in Russian, and plenty of phones report no
+ * language tag at all. Defaulting to English served the smallest group.
+ */
 export function langOf(code?: string): Lang {
-  if (!code) return 'en'
-  const base = code.toLowerCase().split('-')[0]
-  return base === 'uz' || base === 'ru' ? 'uz' : 'en'
+  if (!code) return 'uz'
+  return code.toLowerCase().split('-')[0] === 'en' ? 'en' : 'uz'
 }
 
 type Copy = Record<Lang, string>
@@ -49,17 +54,45 @@ const openKeyboard = (lang: Lang, path = '/dashboard'): InlineKeyboard =>
   buildOpenKeyboard(lang, path)
 
 const TEXT = {
+  /*
+    The first message anyone sees.
+
+    It names every command, because /start was a paragraph and a button and left
+    the reader with no idea the bot could do anything else. The keyboard arrives
+    with it, so the commands are on screen from the first second rather than
+    waiting behind a slash nobody types.
+  */
   start: {
     en:
       '<b>Assalamu alaykum</b> 🌙\n\n' +
-      'Daily Priority keeps your prayers, Quran reading, habits and tasks in one place — ' +
+      'Daily Priority holds your prayers, Quran reading, habits and tasks in one place — ' +
       'built around the five prayers rather than a nine-to-five.\n\n' +
-      'Tap below to open it. Everything works right here inside Telegram.',
+      '<b>What I can do right here</b>\n' +
+      '🌙 /today — your day at a glance\n' +
+      '📋 /tasks — tick tasks off without leaving the chat\n' +
+      '🔁 /habits — the same for today’s habits\n' +
+      '➕ /add — add a task, or just send me the text\n' +
+      '🕌 /prayers — today’s prayer times\n' +
+      '📖 /quran — carry on where you stopped\n' +
+      '🔥 /streak — how long you have kept it up\n' +
+      '⚙️ /reminders — the daily message, on or off\n' +
+      '📱 /app — open the full app\n\n' +
+      'Use the buttons below — they are always there.',
     uz:
       '<b>Assalomu alaykum</b> 🌙\n\n' +
       'Daily Priority namoz, Quron o‘qish, odatlar va vazifalaringizni bir joyda saqlaydi — ' +
       'ish kuni emas, besh vaqt namoz atrofida qurilgan.\n\n' +
-      'Ochish uchun quyidagini bosing. Hammasi shu yerda, Telegram ichida ishlaydi.',
+      '<b>Shu yerda nima qila olaman</b>\n' +
+      '🌙 /today — bugungi kuningiz qisqacha\n' +
+      '📋 /tasks — vazifalarni chatdan chiqmay belgilash\n' +
+      '🔁 /habits — bugungi odatlar uchun ham xuddi shunday\n' +
+      '➕ /add — vazifa qo‘shish, yoki shunchaki matn yuboring\n' +
+      '🕌 /prayers — bugungi namoz vaqtlari\n' +
+      '📖 /quran — to‘xtagan joyingizdan davom eting\n' +
+      '🔥 /streak — ketma-ketligingiz\n' +
+      '⚙️ /reminders — kunlik xabarni yoqish yoki o‘chirish\n' +
+      '📱 /app — to‘liq ilovani ochish\n\n' +
+      'Quyidagi tugmalardan foydalaning — ular doim shu yerda turadi.',
   } satisfies Copy,
   help: {
     en:
@@ -102,6 +135,10 @@ const TEXT = {
   remindersOff: {
     en: '🔕 Prayer reminders are <b>off</b>. Send /reminders to turn them back on.',
     uz: '🔕 Namoz eslatmalari <b>o‘chirildi</b>. Qayta yoqish uchun /reminders yuboring.',
+  } satisfies Copy,
+  openPrompt: {
+    en: 'Everything works inside Telegram. Tap to open:',
+    uz: 'Hammasi Telegram ichida ishlaydi. Ochish uchun bosing:',
   } satisfies Copy,
   taskAdded: {
     en: '📋 Added: <b>{title}</b>',
@@ -231,16 +268,33 @@ export type IncomingMessage = {
  */
 export async function handleMessage(msg: IncomingMessage): Promise<string> {
   const lang = langOf(msg.languageCode)
-  const command = msg.text.trim().split(/\s+/)[0].toLowerCase().split('@')[0]
+
+  /*
+    A tap on the permanent keyboard arrives as ordinary text -- the label itself.
+    Resolved to its command before anything else reads the message, or every tap
+    on "Vazifalar" would be captured as a new task called "Vazifalar".
+  */
+  const raw = msg.text.trim()
+  const text = MENU_COMMAND[raw] ?? raw
+  const command = text.split(/\s+/)[0].toLowerCase().split('@')[0]
 
   try {
     switch (command) {
       case '/start':
-        await sendMessage(msg.chatId, pick(TEXT.start, lang), { keyboard: openKeyboard(lang) })
+        /*
+          Two messages, because one message carries one reply_markup. The first
+          installs the permanent keyboard; the second offers the app inline. The
+          alternative is choosing between them, and both matter on the very first
+          screen someone sees.
+        */
+        await sendMessage(msg.chatId, pick(TEXT.start, lang), { reply: mainKeyboard(lang) })
+        await sendMessage(msg.chatId, pick(TEXT.openPrompt, lang), { keyboard: openKeyboard(lang) })
         return 'start'
 
       case '/help':
-        await sendMessage(msg.chatId, pick(TEXT.help, lang), { keyboard: openKeyboard(lang) })
+        // Re-installs the keyboard too: /help is where someone goes when they
+        // cannot find anything, and a missing keyboard is exactly that problem.
+        await sendMessage(msg.chatId, pick(TEXT.help, lang), { reply: mainKeyboard(lang) })
         return 'help'
 
       case '/app':
@@ -338,7 +392,7 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
           await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'add:unlinked'
         }
-        return addTaskFrom(msg, user.id, lang, msg.text.slice(command.length).trim())
+        return addTaskFrom(msg, user.id, lang, text.slice(command.length).trim())
       }
 
       default: {
@@ -359,7 +413,7 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
             await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
             return 'capture:unlinked'
           }
-          return addTaskFrom(msg, user.id, lang, msg.text)
+          return addTaskFrom(msg, user.id, lang, text)
         }
 
         await sendMessage(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })

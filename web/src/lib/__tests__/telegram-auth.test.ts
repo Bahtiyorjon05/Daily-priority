@@ -236,10 +236,16 @@ describe('which language the bot answers in', () => {
     expect(langOf('ru-RU')).toBe('uz')
   })
 
-  it('falls back to English for everything else', () => {
+  it('uses English only when the client asks for it', () => {
+    /*
+      Uzbek is the DEFAULT, which is the reverse of the usual arrangement and is
+      deliberate. Essentially everyone here is in Uzbekistan, many run Telegram
+      in Russian, and plenty of phones report no language tag at all -- an
+      English default served the smallest of the three groups.
+    */
     expect(langOf('en')).toBe('en')
     expect(langOf('en-GB')).toBe('en')
-    expect(langOf('de')).toBe('en')
-    expect(langOf(undefined)).toBe('en')
+    expect(langOf('de')).toBe('uz')
+    expect(langOf(undefined)).toBe('uz')
   })
 })

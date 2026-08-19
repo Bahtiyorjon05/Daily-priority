@@ -1,4 +1,4 @@
-import { escapeHtml, type InlineKeyboard } from '@/lib/telegram/api'
+import { escapeHtml, type InlineKeyboard, type ReplyKeyboard } from '@/lib/telegram/api'
 import type { DailySnapshot, TodayHabit, TodayTask } from '@/lib/telegram/actions'
 
 /**
@@ -22,6 +22,47 @@ export const OPEN_BUTTON: Copy = { en: 'Open the app', uz: 'Ilovani ochish' }
 
 export function openKeyboard(lang: Lang, path = '/dashboard'): InlineKeyboard {
   return [[{ text: OPEN_BUTTON[lang], web_app: { url: `${APP_URL}${path}` } }]]
+}
+
+/**
+ * The permanent menu, sitting where the phone keyboard would be.
+ *
+ * Telegram's menu button can be the command list OR the Mini App button, never
+ * both, and Open is worth more there than a list nobody would find. So the
+ * commands live here instead: always visible, one tap, no slash to remember --
+ * and the app is on it too, as a real `web_app` button.
+ *
+ * The labels are what the person actually sends when they tap, so `MENU_COMMAND`
+ * maps them back. Miss that and every tap becomes a task called "Vazifalar".
+ */
+export function mainKeyboard(lang: Lang): ReplyKeyboard {
+  const uz = lang === 'uz'
+  return [
+    [{ text: uz ? '🌙 Bugun' : '🌙 Today' }, { text: uz ? '📋 Vazifalar' : '📋 Tasks' }],
+    [{ text: uz ? '🔁 Odatlar' : '🔁 Habits' }, { text: uz ? '🕌 Namoz' : '🕌 Prayers' }],
+    [{ text: uz ? '📖 Quron' : '📖 Quran' }, { text: uz ? '🔥 Ketma-ketlik' : '🔥 Streak' }],
+    [
+      { text: uz ? '📱 Ilovani ochish' : '📱 Open the app', web_app: { url: `${APP_URL}/dashboard` } },
+      { text: uz ? '⚙️ Sozlamalar' : '⚙️ Settings' },
+    ],
+  ]
+}
+
+/**
+ * Menu label -> command.
+ *
+ * Every label in both languages, because a person whose Telegram is in English
+ * can still have been sent an Uzbek keyboard earlier in the chat -- the keyboard
+ * persists and the language can change under it.
+ */
+export const MENU_COMMAND: Record<string, string> = {
+  '🌙 Bugun': '/today', '🌙 Today': '/today',
+  '📋 Vazifalar': '/tasks', '📋 Tasks': '/tasks',
+  '🔁 Odatlar': '/habits', '🔁 Habits': '/habits',
+  '🕌 Namoz': '/prayers', '🕌 Prayers': '/prayers',
+  '📖 Quron': '/quran', '📖 Quran': '/quran',
+  '🔥 Ketma-ketlik': '/streak', '🔥 Streak': '/streak',
+  '⚙️ Sozlamalar': '/reminders', '⚙️ Settings': '/reminders',
 }
 
 /** Callback payloads. Kept short: Telegram caps `callback_data` at 64 bytes and

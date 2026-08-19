@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
-  CB, parseCallback, tasksMessage, habitsMessage, dailyMessage,
+  CB, parseCallback, tasksMessage, habitsMessage, dailyMessage, mainKeyboard,
+  MENU_COMMAND,
 } from '@/lib/telegram/messages'
+import { langOf } from '@/lib/telegram/bot'
 
 /**
  * What the bot can do besides open the app.
@@ -217,7 +219,10 @@ describe('the wiring that makes buttons work', () => {
 describe('capture from a chat message', () => {
   it('turns plain text into a task', () => {
     expect(bot).toMatch(/if \(!command\.startsWith\('\/'\)\)/)
-    expect(bot).toMatch(/return addTaskFrom\(msg, user\.id, lang, msg\.text\)/)
+    // `text`, not `msg.text`: a menu tap has already been resolved to its
+    // command by then, and capturing the raw label would create a task called
+    // "Vazifalar" every time somebody pressed the Tasks button.
+    expect(bot).toMatch(/return addTaskFrom\(msg, user\.id, lang, text\)/)
   })
 
   it('still treats a mistyped command as a command', () => {
@@ -273,5 +278,92 @@ describe('the daily send', () => {
     // Otherwise it retries a blocked chat every day forever.
     expect(cron).toMatch(/blocked\|chat not found\|deactivated/)
     expect(cron).toMatch(/telegramReminders: false/)
+  })
+})
+
+describe('the permanent menu', () => {
+  it('puts every command one tap away', () => {
+    /*
+      Telegram's menu button is either the command list or the Mini App button,
+      never both, and Open is worth more there. So the commands live on a
+      persistent reply keyboard instead of behind a slash nobody types.
+    */
+    const labels = mainKeyboard('uz').flat().map((b) => b.text)
+    expect(labels.length).toBeGreaterThanOrEqual(7)
+    for (const label of labels) {
+      const isApp = mainKeyboard('uz').flat().find((b) => b.text === label)?.web_app
+      expect(Boolean(MENU_COMMAND[label] || isApp), `"${label}" does nothing`).toBe(true)
+    }
+  })
+
+  it('carries the Mini App as a real web_app button', () => {
+    const app = mainKeyboard('uz').flat().find((b) => b.web_app)
+    expect(app, 'the app must be reachable from the keyboard too').toBeTruthy()
+    expect(app!.web_app!.url).toMatch(/^https:\/\//)
+  })
+
+  it('maps every label in both languages', () => {
+    // The keyboard persists while the language can change under it, so an Uzbek
+    // keyboard can outlive the Uzbek reply that installed it.
+    for (const lang of ['uz', 'en'] as const) {
+      for (const button of mainKeyboard(lang).flat()) {
+        if (button.web_app) continue
+        expect(MENU_COMMAND[button.text], `${lang}: "${button.text}"`).toBeTruthy()
+      }
+    }
+  })
+
+  it('resolves a tap before anything can capture it as a task', () => {
+    /*
+      A tap arrives as ordinary text -- the label itself. Without this mapping,
+      every press of "Vazifalar" would silently create a task called
+      "Vazifalar", which is the worst kind of bug: it looks like it worked.
+    */
+    expect(bot).toMatch(/const text = MENU_COMMAND\[raw\] \?\? raw/)
+    const capture = bot.slice(bot.indexOf('default: {'))
+    expect(capture).toMatch(/addTaskFrom\(msg, user\.id, lang, text\)/)
+    expect(capture).not.toMatch(/addTaskFrom\(msg, user\.id, lang, msg\.text\)/)
+  })
+})
+
+describe('the first message', () => {
+  it('names every command', () => {
+    // /start was a paragraph and a button, which left no sign the bot could do
+    // anything at all.
+    const start = bot.slice(bot.indexOf('start: {'), bot.indexOf('help: {'))
+    for (const cmd of ['/today', '/tasks', '/habits', '/add', '/prayers', '/quran', '/streak', '/reminders', '/app']) {
+      /*
+        Anchored on the command followed by a non-word character, not a bare
+        substring: `toContain('/today')` is also satisfied by `/todayX`, which
+        let a mutation that renamed every command walk straight through.
+      */
+      expect(start, `start should mention ${cmd}`).toMatch(new RegExp(`\\${cmd}\\b`))
+    }
+    // Both languages, or half the audience gets an English list.
+    const uzBlock = start.slice(start.indexOf('uz:'))
+    expect(uzBlock).toMatch(new RegExp('\\/today\\b'))
+    expect(uzBlock).toMatch(new RegExp('\\/reminders\\b'))
+  })
+
+  it('installs the keyboard and still offers the app', () => {
+    // One reply_markup per message, so this takes two -- and both matter on the
+    // first screen anyone sees.
+    const handler = bot.slice(bot.indexOf("case '/start':"), bot.indexOf("case '/help':"))
+    expect(handler).toMatch(/reply: mainKeyboard\(lang\)/)
+    expect(handler).toMatch(/keyboard: openKeyboard\(lang\)/)
+  })
+
+  it('is in Uzbek by default', () => {
+    /*
+      Reversed on purpose. Essentially everyone here is in Uzbekistan, many run
+      Telegram in Russian, and plenty of phones report no language tag at all --
+      the old English default served the smallest group of the three.
+    */
+    expect(langOf(undefined)).toBe('uz')
+    expect(langOf('ru')).toBe('uz')
+    expect(langOf('uz')).toBe('uz')
+    expect(langOf('de')).toBe('uz')
+    expect(langOf('en')).toBe('en')
+    expect(langOf('en-GB')).toBe('en')
   })
 })

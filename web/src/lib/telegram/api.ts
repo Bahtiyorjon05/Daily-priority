@@ -48,10 +48,20 @@ export async function callTelegram<T = unknown>(
 
 export type InlineKeyboard = { text: string; url?: string; web_app?: { url: string }; callback_data?: string }[][]
 
+/**
+ * The keyboard that replaces the phone keyboard, and stays there.
+ *
+ * Telegram's menu button is exclusive: it is EITHER the command list or the
+ * Mini App button, never both. This is how the commands stay one tap away while
+ * the menu button keeps saying Open -- and a reply keyboard can carry a
+ * `web_app` button of its own, so the app is reachable from here too.
+ */
+export type ReplyKeyboard = { text: string; web_app?: { url: string } }[][]
+
 export async function sendMessage(
   chatId: number | string,
   text: string,
-  options: { keyboard?: InlineKeyboard; silent?: boolean } = {}
+  options: { keyboard?: InlineKeyboard; reply?: ReplyKeyboard; silent?: boolean } = {}
 ) {
   return callTelegram('sendMessage', {
     chat_id: chatId,
@@ -61,7 +71,23 @@ export async function sendMessage(
     parse_mode: 'HTML',
     link_preview_options: { is_disabled: true },
     disable_notification: options.silent ?? false,
-    ...(options.keyboard ? { reply_markup: { inline_keyboard: options.keyboard } } : {}),
+    /*
+      Only one reply_markup per message. An inline keyboard belongs to the
+      message it is attached to; a reply keyboard replaces the phone keyboard
+      and persists. When both are wanted they have to go on separate messages,
+      which is why the caller picks one.
+    */
+    ...(options.keyboard
+      ? { reply_markup: { inline_keyboard: options.keyboard } }
+      : options.reply
+        ? {
+            reply_markup: {
+              keyboard: options.reply,
+              resize_keyboard: true,
+              is_persistent: true,
+            },
+          }
+        : {}),
   })
 }
 
