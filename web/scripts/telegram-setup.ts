@@ -68,8 +68,12 @@ async function main() {
   await call('setWebhook', {
     url: `${APP_URL}/api/telegram/webhook`,
     secret_token: SECRET,
-    // Only what the bot acts on. Anything else is bandwidth and a bigger surface.
-    allowed_updates: ['message', 'edited_message'],
+    /*
+      Only what the bot acts on -- but `callback_query` is not optional: it is
+      how every inline button reports a tap, and leaving it out means the buttons
+      render, spin and never do anything.
+    */
+    allowed_updates: ['message', 'edited_message', 'callback_query'],
     drop_pending_updates: true,
   })
   console.log(`webhook: ${APP_URL}/api/telegram/webhook`)
@@ -89,11 +93,15 @@ async function main() {
   console.log('menu button: Open -> /dashboard')
 
   const commands = [
-    { command: 'app', description: 'Open Daily Priority' },
+    { command: 'today', description: 'Your day at a glance' },
+    { command: 'tasks', description: 'Today’s tasks, tick them here' },
+    { command: 'habits', description: 'Today’s habits, tick them here' },
+    { command: 'add', description: 'Add a task' },
     { command: 'prayers', description: 'Today’s prayer times' },
     { command: 'quran', description: 'Carry on reading' },
     { command: 'streak', description: 'Your streaks' },
-    { command: 'reminders', description: 'Prayer reminders on/off' },
+    { command: 'reminders', description: 'Daily message on/off' },
+    { command: 'app', description: 'Open Daily Priority' },
     { command: 'help', description: 'What I can do' },
   ]
   await call('setMyCommands', { commands })
@@ -103,11 +111,15 @@ async function main() {
   await call('setMyCommands', {
     language_code: 'uz',
     commands: [
-      { command: 'app', description: 'Daily Priority ochish' },
+      { command: 'today', description: 'Bugungi kuningiz' },
+      { command: 'tasks', description: 'Bugungi vazifalar' },
+      { command: 'habits', description: 'Bugungi odatlar' },
+      { command: 'add', description: 'Vazifa qo‘shish' },
       { command: 'prayers', description: 'Bugungi namoz vaqtlari' },
       { command: 'quran', description: 'O‘qishni davom ettirish' },
       { command: 'streak', description: 'Ketma-ketliklaringiz' },
-      { command: 'reminders', description: 'Namoz eslatmalari' },
+      { command: 'reminders', description: 'Kunlik xabar' },
+      { command: 'app', description: 'Daily Priority ochish' },
       { command: 'help', description: 'Nima qila olaman' },
     ],
   })

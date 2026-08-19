@@ -42,6 +42,13 @@ const BOT_TOKEN = /\b\d{6,12}:[A-Za-z0-9_-]{30,}/
  *  form that matters, and reading them all makes this slow. */
 const SCANNABLE = /\.(ts|tsx|js|jsx|mjs|cjs|json|md|yml|yaml|env|txt|sh|css|html)$/
 
+/*
+  This file necessarily contains the patterns it hunts for, so it is skipped by
+  every scan below. It flagged itself the moment it became tracked -- which is at
+  least proof the scans read what git actually holds.
+*/
+const isSelf = (file: string) => file.includes('secret-hygiene.test.ts')
+
 describe('secret hygiene', () => {
   it('tracks no file containing a Telegram bot token', () => {
     const files = tracked()
@@ -50,7 +57,7 @@ describe('secret hygiene', () => {
     const leaks: string[] = []
     for (const file of files) {
       if (!SCANNABLE.test(file)) continue
-      if (file.includes('secret-hygiene.test.ts')) continue
+      if (isSelf(file)) continue
       const path = join(repoRoot, file)
       if (!existsSync(path)) continue
       let content: string
@@ -81,6 +88,7 @@ describe('secret hygiene', () => {
     */
     const sources = tracked().filter((f) => f.startsWith('web/src/') && /\.(ts|tsx)$/.test(f))
     const offenders = sources.filter((f) => {
+      if (isSelf(f)) return false
       const path = join(repoRoot, f)
       if (!existsSync(path)) return false
       return /NEXT_PUBLIC_TELEGRAM_BOT_TOKEN|NEXT_PUBLIC_.*SECRET/.test(readFileSync(path, 'utf8'))

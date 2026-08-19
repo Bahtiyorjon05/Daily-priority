@@ -1,5 +1,14 @@
 import { prisma } from '@/lib/prisma'
-import { escapeHtml, sendMessage, type InlineKeyboard } from '@/lib/telegram/api'
+import {
+  answerCallbackQuery, callTelegram, escapeHtml, sendMessage, type InlineKeyboard,
+} from '@/lib/telegram/api'
+import {
+  addTask, completeHabit, completeTask, dailySnapshot, todayHabits, todayTasks,
+} from '@/lib/telegram/actions'
+import {
+  CB, dailyMessage, habitsMessage, openKeyboard as buildOpenKeyboard, parseCallback,
+  tasksMessage,
+} from '@/lib/telegram/messages'
 import { streakFromDates } from '@/lib/streaks'
 import { surahByNumber } from '@/lib/quran/surahs'
 import { surahName } from '@/lib/quran/name'
@@ -35,10 +44,9 @@ const pick = (c: Copy, lang: Lang) => c[lang]
 
 const OPEN_BUTTON: Copy = { en: 'Open Daily Priority', uz: 'Daily Priority ochish' }
 
-/** Every message carries the same way in. */
-function openKeyboard(lang: Lang, path = '/dashboard'): InlineKeyboard {
-  return [[{ text: pick(OPEN_BUTTON, lang), web_app: { url: `${APP_URL}${path}` } }]]
-}
+/** Every message carries the same way in. One builder, shared with the digest. */
+const openKeyboard = (lang: Lang, path = '/dashboard'): InlineKeyboard =>
+  buildOpenKeyboard(lang, path)
 
 const TEXT = {
   start: {
@@ -56,19 +64,27 @@ const TEXT = {
   help: {
     en:
       '<b>Commands</b>\n\n' +
-      '/app — open Daily Priority\n' +
-      '/prayers — open today’s prayer times\n' +
+      '/today — your day at a glance\n' +
+      '/tasks — today’s tasks, tick them right here\n' +
+      '/habits — today’s habits, tick them right here\n' +
+      '/add — add a task (or just send me the text)\n' +
+      '/prayers — today’s prayer times\n' +
       '/quran — carry on reading where you stopped\n' +
       '/streak — your current streaks\n' +
-      '/reminders — turn prayer reminders in this chat on or off\n' +
+      '/reminders — the daily message, on or off\n' +
+      '/app — open Daily Priority\n' +
       '/help — this message',
     uz:
       '<b>Buyruqlar</b>\n\n' +
-      '/app — Daily Priority ochish\n' +
+      '/today — bugungi kuningiz\n' +
+      '/tasks — bugungi vazifalar, shu yerda belgilang\n' +
+      '/habits — bugungi odatlar, shu yerda belgilang\n' +
+      '/add — vazifa qo‘shish (yoki shunchaki matn yuboring)\n' +
       '/prayers — bugungi namoz vaqtlari\n' +
       '/quran — to‘xtagan joyingizdan davom eting\n' +
       '/streak — ketma-ketliklaringiz\n' +
-      '/reminders — shu chatda namoz eslatmalarini yoqish yoki o‘chirish\n' +
+      '/reminders — kunlik xabarni yoqish yoki o‘chirish\n' +
+      '/app — Daily Priority ochish\n' +
       '/help — shu xabar',
   } satisfies Copy,
   notLinked: {
@@ -86,6 +102,30 @@ const TEXT = {
   remindersOff: {
     en: '🔕 Prayer reminders are <b>off</b>. Send /reminders to turn them back on.',
     uz: '🔕 Namoz eslatmalari <b>o‘chirildi</b>. Qayta yoqish uchun /reminders yuboring.',
+  } satisfies Copy,
+  taskAdded: {
+    en: '📋 Added: <b>{title}</b>',
+    uz: '📋 Qo‘shildi: <b>{title}</b>',
+  } satisfies Copy,
+  taskTooLong: {
+    en: 'That is a bit long for a task title. Send something shorter.',
+    uz: 'Bu vazifa nomi uchun uzunroq. Qisqaroq yuboring.',
+  } satisfies Copy,
+  taskDone: {
+    en: '✅ Done: {title}',
+    uz: '✅ Bajarildi: {title}',
+  } satisfies Copy,
+  habitDone: {
+    en: '✅ Ticked: {title}',
+    uz: '✅ Belgilandi: {title}',
+  } satisfies Copy,
+  alreadyDone: {
+    en: 'Already done today.',
+    uz: 'Bugun allaqachon bajarilgan.',
+  } satisfies Copy,
+  gone: {
+    en: 'That is no longer there.',
+    uz: 'Bu endi mavjud emas.',
   } satisfies Copy,
   unknown: {
     en: 'I did not recognise that. Send /help to see what I can do.',
@@ -257,12 +297,176 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
         return next ? 'reminders:on' : 'reminders:off'
       }
 
-      default:
+      case '/today': {
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          return 'today:unlinked'
+        }
+        const { text, keyboard } = dailyMessage(await dailySnapshot(user.id), lang, {
+          name: user.name ?? msg.firstName,
+        })
+        await sendMessage(msg.chatId, text, { keyboard })
+        return 'today'
+      }
+
+      case '/tasks': {
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          return 'tasks:unlinked'
+        }
+        const { text, keyboard } = tasksMessage(await todayTasks(user.id), lang)
+        await sendMessage(msg.chatId, text, { keyboard })
+        return 'tasks'
+      }
+
+      case '/habits': {
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          return 'habits:unlinked'
+        }
+        const { text, keyboard } = habitsMessage(await todayHabits(user.id), lang)
+        await sendMessage(msg.chatId, text, { keyboard })
+        return 'habits'
+      }
+
+      case '/add': {
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          return 'add:unlinked'
+        }
+        return addTaskFrom(msg, user.id, lang, msg.text.slice(command.length).trim())
+      }
+
+      default: {
+        /*
+          Anything that is not a command becomes a task.
+
+          The fastest capture this app can offer: a thought arrives, you type it
+          into the chat you already have open, and it is on your list. Requiring
+          /add first would mean the one moment capture has to be effortless is
+          the one moment it is not.
+
+          Only outside a command, so a mistyped /halp is still an error rather
+          than silently becoming a task called "/halp".
+        */
+        if (!command.startsWith('/')) {
+          const user = await userFor(msg.telegramId)
+          if (!user) {
+            await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+            return 'capture:unlinked'
+          }
+          return addTaskFrom(msg, user.id, lang, msg.text)
+        }
+
         await sendMessage(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
         return 'unknown'
+      }
     }
   } catch (error) {
     console.error('[telegram] handler failed', command, error)
     return 'error'
+  }
+}
+
+/** Shared by /add and plain-text capture, so the two cannot drift apart. */
+async function addTaskFrom(
+  msg: IncomingMessage,
+  userId: string,
+  lang: Lang,
+  title: string
+): Promise<string> {
+  const added = await addTask(userId, title)
+  if (!added.ok) {
+    if (added.reason === 'too-long') {
+      await sendMessage(msg.chatId, pick(TEXT.taskTooLong, lang))
+      return 'add:too-long'
+    }
+    await sendMessage(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
+    return 'add:empty'
+  }
+
+  await sendMessage(
+    msg.chatId,
+    pick(TEXT.taskAdded, lang).replace('{title}', escapeHtml(added.title)),
+    { keyboard: [[{ text: lang === 'uz' ? '📋 Vazifalar' : '📋 Tasks', callback_data: CB.tasks }]] }
+  )
+  return 'add'
+}
+
+export type IncomingCallback = {
+  id: string
+  chatId: number | string
+  messageId: number
+  telegramId: string
+  data: string
+  languageCode?: string
+}
+
+/**
+ * A tap on an inline button.
+ *
+ * Telegram shows a loading spinner on the button until `answerCallbackQuery`
+ * arrives, so that call happens on every path including the failures -- a button
+ * that spins forever reads as broken even when the work succeeded.
+ *
+ * The list is then rewritten in place rather than sent again. Ticking four
+ * habits should leave one message that is now correct, not five messages of
+ * history.
+ */
+export async function handleCallback(cb: IncomingCallback): Promise<string> {
+  const lang = langOf(cb.languageCode)
+  const parsed = parseCallback(cb.data)
+
+  try {
+    if (!parsed) {
+      await answerCallbackQuery(cb.id)
+      return 'callback:unknown'
+    }
+
+    const user = await userFor(cb.telegramId)
+    if (!user) {
+      await answerCallbackQuery(cb.id, pick(TEXT.notLinked, lang))
+      return 'callback:unlinked'
+    }
+
+    let toast = ''
+    if (parsed.kind === 'task' && parsed.id) {
+      const done = await completeTask(user.id, parsed.id)
+      toast = done.ok ? pick(TEXT.taskDone, lang).replace('{title}', done.title) : pick(TEXT.gone, lang)
+    } else if (parsed.kind === 'habit' && parsed.id) {
+      const done = await completeHabit(user.id, parsed.id)
+      toast = !done.ok
+        ? pick(TEXT.gone, lang)
+        : done.already
+          ? pick(TEXT.alreadyDone, lang)
+          : pick(TEXT.habitDone, lang).replace('{title}', done.title)
+    }
+
+    await answerCallbackQuery(cb.id, toast || undefined)
+
+    // Redraw whichever list this button belonged to.
+    const showHabits = parsed.kind === 'habit' || parsed.kind === 'habits'
+    const view = showHabits
+      ? habitsMessage(await todayHabits(user.id), lang)
+      : tasksMessage(await todayTasks(user.id), lang)
+
+    await callTelegram('editMessageText', {
+      chat_id: cb.chatId,
+      message_id: cb.messageId,
+      text: view.text,
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: view.keyboard },
+    })
+
+    return showHabits ? 'callback:habits' : 'callback:tasks'
+  } catch (error) {
+    console.error('[telegram] callback failed', cb.data, error)
+    // Still clear the spinner, or the button looks stuck.
+    await answerCallbackQuery(cb.id).catch(() => {})
+    return 'callback:error'
   }
 }
