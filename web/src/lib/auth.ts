@@ -1,5 +1,7 @@
 import { NextAuthOptions, Session, User, Account, Profile } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { verifyInitData } from '@/lib/telegram/init-data'
+import { resolveTelegramAccount } from '@/lib/telegram/account'
 import GoogleProvider from 'next-auth/providers/google'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
@@ -125,7 +127,38 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
         }
       }
-    })
+    }),
+    /*
+      Signing in from inside Telegram.
+
+      The Mini App has no password to offer and no sign-in form worth showing --
+      Telegram already knows exactly who is looking at the screen and says so, in
+      a blob it signs with our bot token. `verifyInitData` is what makes that
+      claim worth anything; without it this provider would be "log in as whoever
+      you say you are", so the credential here is the SIGNATURE, not the id.
+
+      Deliberately a separate provider rather than a branch inside `credentials`:
+      the two have nothing in common beyond both ending in a session, and mixing
+      a password path with a signature path in one `authorize` is how a missing
+      `else` becomes an authentication bypass.
+    */
+    CredentialsProvider({
+      id: 'telegram',
+      name: 'Telegram',
+      credentials: {
+        initData: { label: 'initData', type: 'text' },
+      },
+      async authorize(credentials) {
+        const verified = verifyInitData(credentials?.initData ?? '')
+        if (!verified.ok) {
+          logger.warn('Telegram sign-in rejected', { reason: verified.reason })
+          throw new Error('Invalid credentials')
+        }
+
+        const account = await resolveTelegramAccount(verified.user)
+        return { id: account.userId, email: account.email }
+      },
+    }),
   ],
   session: {
     strategy: 'jwt',

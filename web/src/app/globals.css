@@ -2130,6 +2130,59 @@ a:focus-visible,
   padding-bottom: calc(0.25rem + var(--safe-area-bottom));
 }
 
+/*
+  Inside Telegram.
+
+  `env(safe-area-inset-*)` reports ZERO in a Mini App: the page is in a webview
+  that Telegram has already positioned, so the browser sees no notch and no home
+  indicator even though both are still there, plus Telegram's own header sits
+  over the top of the viewport. The real numbers only arrive through the JS
+  bridge, which publishes them as these variables -- see TelegramProvider.
+
+  Scoped to `.in-telegram`, which that provider only adds when `initData` is
+  actually present, so the ordinary website keeps using the CSS insets.
+*/
+/*
+  Declared here at zero, then overwritten from JS with the real numbers.
+
+  Declaring them matters: a `var()` on a property nothing ever defines silently
+  resolves to nothing, and the fallback only saves the cases where someone
+  remembered to write one. Zero is also the correct value outside Telegram.
+*/
+:root {
+  --tg-safe-top: 0px;
+  --tg-safe-bottom: 0px;
+  --tg-safe-left: 0px;
+  --tg-safe-right: 0px;
+}
+
+.in-telegram {
+  --safe-area-bottom: var(--tg-safe-bottom, 0px);
+}
+
+.in-telegram .mobile-bottom-nav {
+  padding-bottom: calc(0.25rem + var(--tg-safe-bottom, 0px));
+}
+
+.in-telegram .modal-overlay {
+  padding-top: max(1rem, var(--tg-safe-top, 0px));
+  padding-bottom: max(1rem, var(--tg-safe-bottom, 0px));
+}
+
+/*
+  Telegram draws its own header over the first pixels of the page, so anything
+  the app makes sticky at the top has to start below it.
+*/
+.in-telegram .sticky.top-0 {
+  top: var(--tg-safe-top, 0px);
+}
+
+/* The install prompt is meaningless in a Mini App: it is already installed, as
+   far as the person is concerned, and Telegram has no home-screen concept. */
+.in-telegram .pwa-install-only {
+  display: none !important;
+}
+
 /* Prevent text selection on interactive nav elements */
 .mobile-bottom-nav button,
 .mobile-bottom-nav a {

@@ -43,6 +43,21 @@ model User {
   timezone         String?          @default("UTC")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+  /// Telegram account this person opens the Mini App with.
+  ///
+  /// A string, not an Int: Telegram ids already exceed 32 bits and are only
+  /// promised to fit in 52, and this is a lookup key. Unique, so one Telegram
+  /// account maps to exactly one app account and a second link cannot silently
+  /// hijack someone.
+  telegramId       String?          @unique
+  telegramUsername String?
+  /// When the Telegram account was attached, so the profile can say so.
+  telegramLinkedAt DateTime?
+  /// Whether the bot may send this person prayer reminders in chat. Off until
+  /// asked for: an unrequested daily message is how a bot gets blocked.
+  telegramReminders Boolean         @default(false)
+  /// The private chat to send those reminders to.
+  telegramChatId   String?
   twoFactorEnabled Boolean          @default(false)
   twoFactorSecret  String?
   accounts         Account[]

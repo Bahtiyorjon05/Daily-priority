@@ -3,7 +3,9 @@ import { Geist, Geist_Mono, Amiri } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
+import Script from "next/script";
 import { Providers } from "@/components/providers";
+import { TelegramProvider } from "@/components/telegram/TelegramProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorReporter } from "@/components/shared/ErrorReporter";
 import { PrayerPhaseProvider } from "@/components/shared/PrayerPhaseProvider";
@@ -242,6 +244,19 @@ export default function RootLayout({
         <meta name="theme-color" content="#062a2c" media="(prefers-color-scheme: dark)" />
         {/* Viewport with safe area */}
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        {/*
+          The Telegram Mini App bridge.
+
+          Loaded for everyone rather than conditionally: it is ~5KB, it is what
+          defines `window.Telegram.WebApp`, and there is no way to know we are
+          inside Telegram before it runs. Outside Telegram it defines the object
+          with an empty `initData`, which every caller here treats as "not in
+          Telegram" -- see `isInsideTelegram`.
+
+          `beforeInteractive` so the bridge exists before React hydrates and the
+          first paint can already be in Telegram's colour scheme.
+        */}
+        <Script src="https://telegram.org/js/telegram-web-app.js?63" strategy="beforeInteractive" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${amiri.variable} antialiased bg-background text-foreground preload`}
@@ -252,6 +267,7 @@ export default function RootLayout({
           <Providers>
             <LocaleProvider>
             <PrayerPhaseProvider>
+            <TelegramProvider />
             {children}
             <Toaster position="top-center" richColors />
             <Analytics />

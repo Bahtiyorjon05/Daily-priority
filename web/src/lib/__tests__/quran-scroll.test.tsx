@@ -1,7 +1,20 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, configure, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
+/*
+  These render a whole page component and wait on real effects, and the suite runs
+  many files at once, so they are slow when the machine is saturated -- which
+  showed up as failures only in the full run, never in isolation.
+
+  BOTH limits have to move, and the test timeout has to be the larger of the two:
+  raising only the testing-library wait did nothing, because vitest killed the
+  test at five seconds first. A flaky test is worse than no test.
+*/
+vi.setConfig({ testTimeout: 30_000 })
+configure({ asyncUtilTimeout: 10_000 })
+
 
 /**
  * Opening a surah starts at the first ayah.
