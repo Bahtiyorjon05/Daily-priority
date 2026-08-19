@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     */
     const callback = update?.callback_query
     if (callback?.id && callback?.from?.id && callback?.message?.chat?.id) {
-      await handleCallback({
+      const outcome = await handleCallback({
         id: String(callback.id),
         chatId: callback.message.chat.id,
         messageId: callback.message.message_id,
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         data: String(callback.data ?? ''),
         languageCode: callback.from.language_code,
       })
-      return NextResponse.json({ ok: true })
+      return NextResponse.json({ ok: true, outcome })
     }
 
     const message = update?.message ?? update?.edited_message
@@ -62,13 +62,23 @@ export async function POST(request: NextRequest) {
     // Anything else (joins, channel posts) is acknowledged and ignored, so
     // Telegram stops resending it.
     if (message?.text && message?.chat?.id && message?.from?.id) {
-      await handleMessage({
+      /*
+        The outcome comes back in the response body.
+
+        Telegram ignores it, and the endpoint already requires the secret header,
+        so it costs nothing -- but it is the difference between "the bot is
+        broken" and one curl that says exactly which step failed. This was added
+        after every reply silently failed to send and the only observable symptom
+        was a perfectly healthy 200.
+      */
+      const outcome = await handleMessage({
         chatId: message.chat.id,
         telegramId: String(message.from.id),
         text: String(message.text),
         languageCode: message.from.language_code,
         firstName: message.from.first_name,
       })
+      return NextResponse.json({ ok: true, outcome })
     }
   } catch (error) {
     console.error('[telegram] webhook failed', error)

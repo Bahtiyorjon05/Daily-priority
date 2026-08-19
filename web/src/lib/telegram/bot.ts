@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { APP_URL } from '@/lib/telegram/app-url'
 import {
   answerCallbackQuery, callTelegram, escapeHtml, sendMessage, type InlineKeyboard,
 } from '@/lib/telegram/api'
@@ -27,7 +28,7 @@ import { surahName } from '@/lib/quran/name'
  *     phone is in Uzbek did not come here to read English.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://daily-priority.vercel.app'
+
 
 export type Lang = 'uz' | 'en'
 
@@ -287,22 +288,22 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
           alternative is choosing between them, and both matter on the very first
           screen someone sees.
         */
-        await sendMessage(msg.chatId, pick(TEXT.start, lang), { reply: mainKeyboard(lang) })
-        await sendMessage(msg.chatId, pick(TEXT.openPrompt, lang), { keyboard: openKeyboard(lang) })
+        await reply(msg.chatId, pick(TEXT.start, lang), { reply: mainKeyboard(lang) })
+        await reply(msg.chatId, pick(TEXT.openPrompt, lang), { keyboard: openKeyboard(lang) })
         return 'start'
 
       case '/help':
         // Re-installs the keyboard too: /help is where someone goes when they
         // cannot find anything, and a missing keyboard is exactly that problem.
-        await sendMessage(msg.chatId, pick(TEXT.help, lang), { reply: mainKeyboard(lang) })
+        await reply(msg.chatId, pick(TEXT.help, lang), { reply: mainKeyboard(lang) })
         return 'help'
 
       case '/app':
-        await sendMessage(msg.chatId, pick(OPEN_BUTTON, lang), { keyboard: openKeyboard(lang) })
+        await reply(msg.chatId, pick(OPEN_BUTTON, lang), { keyboard: openKeyboard(lang) })
         return 'app'
 
       case '/prayers':
-        await sendMessage(
+        await reply(
           msg.chatId,
           lang === 'uz' ? '🕌 Bugungi namoz vaqtlari:' : '🕌 Today’s prayer times:',
           { keyboard: openKeyboard(lang, '/prayers') }
@@ -312,28 +313,28 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
       case '/quran': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang, '/quran') })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang, '/quran') })
           return 'quran:unlinked'
         }
         const { text, path } = await quranMessage(user.id, lang)
-        await sendMessage(msg.chatId, text, { keyboard: openKeyboard(lang, path) })
+        await reply(msg.chatId, text, { keyboard: openKeyboard(lang, path) })
         return 'quran'
       }
 
       case '/streak': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'streak:unlinked'
         }
-        await sendMessage(msg.chatId, await streakMessage(user.id, lang), { keyboard: openKeyboard(lang) })
+        await reply(msg.chatId, await streakMessage(user.id, lang), { keyboard: openKeyboard(lang) })
         return 'streak'
       }
 
       case '/reminders': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'reminders:unlinked'
         }
         // A toggle, so the same command turns it off. Two commands for one
@@ -343,7 +344,7 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
           where: { id: user.id },
           data: { telegramReminders: next, telegramChatId: String(msg.chatId) },
         })
-        await sendMessage(
+        await reply(
           msg.chatId,
           pick(next ? TEXT.remindersOn : TEXT.remindersOff, lang),
           { keyboard: openKeyboard(lang, '/prayers') }
@@ -354,42 +355,42 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
       case '/today': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'today:unlinked'
         }
         const { text, keyboard } = dailyMessage(await dailySnapshot(user.id), lang, {
           name: user.name ?? msg.firstName,
         })
-        await sendMessage(msg.chatId, text, { keyboard })
+        await reply(msg.chatId, text, { keyboard })
         return 'today'
       }
 
       case '/tasks': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'tasks:unlinked'
         }
         const { text, keyboard } = tasksMessage(await todayTasks(user.id), lang)
-        await sendMessage(msg.chatId, text, { keyboard })
+        await reply(msg.chatId, text, { keyboard })
         return 'tasks'
       }
 
       case '/habits': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'habits:unlinked'
         }
         const { text, keyboard } = habitsMessage(await todayHabits(user.id), lang)
-        await sendMessage(msg.chatId, text, { keyboard })
+        await reply(msg.chatId, text, { keyboard })
         return 'habits'
       }
 
       case '/add': {
         const user = await userFor(msg.telegramId)
         if (!user) {
-          await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+          await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
           return 'add:unlinked'
         }
         return addTaskFrom(msg, user.id, lang, text.slice(command.length).trim())
@@ -410,20 +411,40 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
         if (!command.startsWith('/')) {
           const user = await userFor(msg.telegramId)
           if (!user) {
-            await sendMessage(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
+            await reply(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang) })
             return 'capture:unlinked'
           }
           return addTaskFrom(msg, user.id, lang, text)
         }
 
-        await sendMessage(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
+        await reply(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
         return 'unknown'
       }
     }
   } catch (error) {
     console.error('[telegram] handler failed', command, error)
-    return 'error'
+    return `error:${(error as Error).message}`
   }
+}
+
+/**
+ * Send, and say so when it does not work.
+ *
+ * `sendMessage` returns a result rather than throwing, which is right for a cron
+ * that must keep going -- and wrong here, where a silent failure means the person
+ * pressed a button and nothing at all happened. Every reply in this file goes
+ * through this, so the reason ends up in the log and in the webhook's response
+ * instead of being dropped on the floor.
+ */
+export async function reply(
+  chatId: number | string,
+  text: string,
+  options: Parameters<typeof sendMessage>[2] = {}
+): Promise<string | null> {
+  const result = await sendMessage(chatId, text, options)
+  if (result.ok) return null
+  console.error('[telegram] send failed', result.error)
+  return result.error
 }
 
 /** Shared by /add and plain-text capture, so the two cannot drift apart. */
@@ -436,14 +457,14 @@ async function addTaskFrom(
   const added = await addTask(userId, title)
   if (!added.ok) {
     if (added.reason === 'too-long') {
-      await sendMessage(msg.chatId, pick(TEXT.taskTooLong, lang))
+      await reply(msg.chatId, pick(TEXT.taskTooLong, lang))
       return 'add:too-long'
     }
-    await sendMessage(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
+    await reply(msg.chatId, pick(TEXT.unknown, lang), { keyboard: openKeyboard(lang) })
     return 'add:empty'
   }
 
-  await sendMessage(
+  await reply(
     msg.chatId,
     pick(TEXT.taskAdded, lang).replace('{title}', escapeHtml(added.title)),
     { keyboard: [[{ text: lang === 'uz' ? '📋 Vazifalar' : '📋 Tasks', callback_data: CB.tasks }]] }

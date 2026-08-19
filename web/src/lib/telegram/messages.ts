@@ -1,4 +1,5 @@
 import { escapeHtml, type InlineKeyboard, type ReplyKeyboard } from '@/lib/telegram/api'
+import { APP_URL } from '@/lib/telegram/app-url'
 import type { DailySnapshot, TodayHabit, TodayTask } from '@/lib/telegram/actions'
 
 /**
@@ -16,7 +17,7 @@ import type { DailySnapshot, TodayHabit, TodayTask } from '@/lib/telegram/action
 export type Lang = 'uz' | 'en'
 export type Copy = Record<Lang, string>
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://daily-priority.vercel.app'
+
 
 export const OPEN_BUTTON: Copy = { en: 'Open the app', uz: 'Ilovani ochish' }
 
