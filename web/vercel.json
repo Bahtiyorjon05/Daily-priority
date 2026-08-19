@@ -11,7 +11,7 @@
     },
     {
       "path": "/api/cron/telegram-daily",
-      "schedule": "0 * * * *"
+      "schedule": "0 3 * * *"
     }
   ],
   "build": {

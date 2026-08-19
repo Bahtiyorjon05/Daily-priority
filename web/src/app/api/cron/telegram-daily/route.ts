@@ -29,6 +29,24 @@ export const maxDuration = 60
  *  late enough that it is not sitting there at Fajr. */
 const SEND_HOUR = 8
 
+/*
+  How this is scheduled, and why it is not per-timezone yet.
+
+  Ideally this runs hourly and each person is written to in their own eight
+  o'clock. Vercel's Hobby plan refuses any cron that fires more than once a day
+  -- the deployment is rejected outright, which is how this was found -- so it
+  runs once, at 03:00 UTC. That is 08:00 in UTC+5, where essentially all of these
+  users are.
+
+  On the daily run everyone opted in is sent to, regardless of local hour. The
+  alternative is a window check that silently posts nothing at all to anyone
+  outside a few timezones, which is a worse answer than "the wrong hour".
+
+  `?window=1` restores the per-user check, for an hourly scheduler: change the
+  schedule to `0 * * * *` on Pro, or point any external cron at
+  `/api/cron/telegram-daily?secret=...&window=1`.
+*/
+
 /** Telegram allows ~30 messages a second to different chats. This stays far
  *  below that and keeps the function well inside its time budget. */
 const BATCH = 20
@@ -60,6 +78,7 @@ export async function GET(request: NextRequest) {
     cron secret.
   */
   const force = new URL(request.url).searchParams.get('force') === '1'
+  const windowed = new URL(request.url).searchParams.get('window') === '1'
 
   try {
     const users = await prisma.user.findMany({
@@ -86,7 +105,7 @@ export async function GET(request: NextRequest) {
             a single fixed UTC time would reach half the users in the middle of
             the night.
           */
-          if (!force && localHour(tz) !== SEND_HOUR) {
+          if (windowed && !force && localHour(tz) !== SEND_HOUR) {
             skipped++
             return
           }

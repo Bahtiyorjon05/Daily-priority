@@ -234,14 +234,29 @@ describe('the daily send', () => {
     expect(paths).toContain('/api/cron/telegram-daily')
   })
 
-  it('runs hourly so it can hit 8am in every timezone', () => {
+  it('is scheduled at a time the plan actually allows', () => {
     /*
-      A single fixed UTC time would reach half the users in the middle of the
-      night. Hourly plus a local-hour check is what makes "8am" mean 8am.
+      Hourly would let each person be written to in their own eight o'clock. The
+      Hobby plan REFUSES any cron that fires more than once a day and rejects the
+      whole deployment -- which is how this was found: a green push that never
+      produced a build.
+
+      So: once, at 03:00 UTC, which is 08:00 in UTC+5 where these users are.
     */
     const entry = (vercel.crons ?? []).find((c: { path: string }) => c.path === '/api/cron/telegram-daily')
-    expect(entry.schedule).toBe('0 * * * *')
-    expect(cron).toMatch(/localHour\(tz\) !== SEND_HOUR/)
+    expect(entry.schedule).toBe('0 3 * * *')
+    const daily = /^(\d+) (\d+) \* \* \*$/.test(entry.schedule)
+    expect(daily, 'Hobby rejects anything more frequent than daily').toBe(true)
+  })
+
+  it('does not silently skip everyone on a daily run', () => {
+    /*
+      The local-hour check is right for an hourly schedule and catastrophic for a
+      daily one: it would post nothing at all to anyone outside a single timezone.
+      It is opt-in via ?window=1, so the daily run reaches everyone who asked.
+    */
+    expect(cron).toMatch(/windowed && !force && localHour\(tz\) !== SEND_HOUR/)
+    expect(cron).toMatch(/searchParams\.get\('window'\) === '1'/)
   })
 
   it('only messages people who asked', () => {
