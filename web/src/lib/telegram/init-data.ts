@@ -19,10 +19,20 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
  * reach would ship the token to every visitor.
  */
 
-/** How old a login blob may be. Telegram recommends checking `auth_date` but
- *  names no window; five minutes is the usual choice and is plenty for a page
- *  that posts it on load. */
-export const MAX_AUTH_AGE_SECONDS = 5 * 60
+/**
+ * How old a login blob may be.
+ *
+ * Telegram recommends checking `auth_date` but names no window. Five minutes is
+ * the usual choice and was wrong here: `initData` is stamped when the Mini App
+ * OPENS and never refreshes, so it has to stay valid for as long as someone
+ * might reasonably take inside the app before the account gets linked -- reading
+ * the sign-in page, typing a password, going through onboarding. Five minutes
+ * expired mid-signup and the link then failed silently.
+ *
+ * An hour still bounds a captured blob to a short window, which is what the
+ * check is for; nothing is signed in permanently by it.
+ */
+export const MAX_AUTH_AGE_SECONDS = 60 * 60
 
 export type TelegramUser = {
   id: string
