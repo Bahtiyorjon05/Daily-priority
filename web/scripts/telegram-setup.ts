@@ -87,10 +87,19 @@ async function main() {
     menu_button: {
       type: 'web_app',
       text: 'Open',
-      web_app: { url: `${APP_URL}/dashboard` },
+      /*
+        /tg, not /dashboard.
+
+        Telegram appends `initData` to the URL as a FRAGMENT, and a fragment does
+        not survive a server-side redirect in its webview. /dashboard is behind
+        auth, so opening it there redirected to /signin and threw the sign-in
+        blob away before any of our code ran -- the app opened signed out and the
+        bot never learned who anyone was. /tg is public, signs in, then forwards.
+      */
+      web_app: { url: `${APP_URL}/tg?to=%2Fdashboard` },
     },
   })
-  console.log('menu button: Open -> /dashboard')
+  console.log('menu button: Open -> /tg?to=/dashboard')
 
   const commands = [
     { command: 'today', description: 'Your day at a glance' },

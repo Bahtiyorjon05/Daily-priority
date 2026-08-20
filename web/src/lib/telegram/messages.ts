@@ -1,6 +1,6 @@
 import { escapeHtml, type InlineKeyboard, type ReplyKeyboard } from '@/lib/telegram/api'
 import { APP_URL } from '@/lib/telegram/app-url'
-import type { DailySnapshot, TodayHabit, TodayTask } from '@/lib/telegram/actions'
+import type { DailySnapshot, PrayerRow, TodayHabit, TodayTask } from '@/lib/telegram/actions'
 
 /**
  * The words, and the buttons under them.
@@ -21,8 +21,19 @@ export type Copy = Record<Lang, string>
 
 export const OPEN_BUTTON: Copy = { en: 'Open the app', uz: 'Ilovani ochish' }
 
+/**
+ * Every Mini App link goes through /tg.
+ *
+ * Not straight to the page: those are behind auth, and a redirect there loses
+ * the `initData` fragment Telegram attaches, so the app opens signed out and the
+ * bot never learns who the person is. /tg is public, signs in, then forwards.
+ */
+export function miniAppUrl(path = '/dashboard'): string {
+  return `${APP_URL}/tg?to=${encodeURIComponent(path)}`
+}
+
 export function openKeyboard(lang: Lang, path = '/dashboard'): InlineKeyboard {
-  return [[{ text: OPEN_BUTTON[lang], web_app: { url: `${APP_URL}${path}` } }]]
+  return [[{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl(path) } }]]
 }
 
 /**
@@ -43,7 +54,7 @@ export function mainKeyboard(lang: Lang): ReplyKeyboard {
     [{ text: uz ? '🔁 Odatlar' : '🔁 Habits' }, { text: uz ? '🕌 Namoz' : '🕌 Prayers' }],
     [{ text: uz ? '📖 Quron' : '📖 Quran' }, { text: uz ? '🔥 Ketma-ketlik' : '🔥 Streak' }],
     [
-      { text: uz ? '📱 Ilovani ochish' : '📱 Open the app', web_app: { url: `${APP_URL}/dashboard` } },
+      { text: uz ? '📱 Ilovani ochish' : '📱 Open the app', web_app: { url: miniAppUrl('/dashboard') } },
       { text: uz ? '⚙️ Sozlamalar' : '⚙️ Settings' },
     ],
   ]
@@ -112,7 +123,7 @@ export function tasksMessage(tasks: TodayTask[], lang: Lang): { text: string; ke
   const keyboard: InlineKeyboard = tasks.map((t) => [
     { text: `✅ ${trim(t.title, 40)}`, callback_data: CB.task(t.id) },
   ])
-  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: `${APP_URL}/dashboard` } }])
+  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl('/dashboard') } }])
   return { text, keyboard }
 }
 
@@ -145,7 +156,7 @@ export function habitsMessage(habits: TodayHabit[], lang: Lang): { text: string;
   const keyboard: InlineKeyboard = remaining.map((h) => [
     { text: `✅ ${trim(h.title, 40)}`, callback_data: CB.habit(h.id) },
   ])
-  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: `${APP_URL}/habits` } }])
+  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl('/habits') } }])
   return { text, keyboard }
 }
 
@@ -213,7 +224,7 @@ export function dailyMessage(
   if (undoneHabits > 0) {
     keyboard.push([{ text: uz ? '🔁 Odatlar' : '🔁 Habits', callback_data: CB.habits }])
   }
-  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: `${APP_URL}/dashboard` } }])
+  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl('/dashboard') } }])
 
   return { text: parts.join('\n'), keyboard }
 }
@@ -222,4 +233,56 @@ export function dailyMessage(
 function trim(s: string, max: number): string {
   const clean = s.replace(/\s+/g, ' ').trim()
   return clean.length <= max ? clean : `${clean.slice(0, max - 1)}…`
+}
+
+/* --------------------------------------------------------------- prayers --- */
+
+/** Prayer names, in the reader's language. Uzbek uses the Uzbek names, not
+ *  transliterated Arabic -- Bomdod, not Fajr. */
+const PRAYER_NAMES: Record<string, Record<Lang, string>> = {
+  fajr: { en: 'Fajr', uz: 'Bomdod' },
+  dhuhr: { en: 'Dhuhr', uz: 'Peshin' },
+  asr: { en: 'Asr', uz: 'Asr' },
+  maghrib: { en: 'Maghrib', uz: 'Shom' },
+  isha: { en: 'Isha', uz: 'Xufton' },
+}
+
+export function prayersMessage(
+  rows: PrayerRow[] | null,
+  lang: Lang
+): { text: string; keyboard: InlineKeyboard } {
+  const uz = lang === 'uz'
+
+  if (!rows) {
+    /*
+      No stored times means no location yet. Inventing times for the wrong city
+      would be worse than saying so -- these are prayer times, and a wrong Asr is
+      not a cosmetic bug.
+    */
+    return {
+      text: uz
+        ? 'Namoz vaqtlari uchun joylashuvingiz kerak. Ilovani bir marta oching — keyin vaqtlar shu yerda chiqadi.'
+        : 'I need your location for prayer times. Open the app once and they will show here.',
+      keyboard: openKeyboard(lang, '/prayers'),
+    }
+  }
+
+  const lines = rows.map((r) => {
+    const name = PRAYER_NAMES[r.name]?.[lang] ?? r.name
+    // A tick for what is done, an arrow for what is next, a space otherwise so
+    // the times stay in one column.
+    const mark = r.done ? '✅' : r.next ? '➡️' : '🕰'
+    const label = r.next ? `<b>${name}</b>` : name
+    return `${mark} ${label} — <b>${r.time}</b>`
+  })
+
+  const doneCount = rows.filter((r) => r.done).length
+
+  return {
+    text:
+      `<b>${uz ? 'Bugungi namoz vaqtlari' : 'Today’s prayer times'}</b>\n\n` +
+      lines.join('\n') +
+      `\n\n${uz ? `Belgilangan: ${doneCount}/5` : `Marked: ${doneCount}/5`}`,
+    keyboard: openKeyboard(lang, '/prayers'),
+  }
 }

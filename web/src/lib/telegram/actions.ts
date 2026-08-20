@@ -182,3 +182,78 @@ export async function dailySnapshot(userId: string): Promise<DailySnapshot> {
 
   return { tasks, habits, prayersDone, quranReadToday: Boolean(quran) }
 }
+
+export type PrayerRow = { name: string; time: string; done: boolean; next: boolean }
+
+/**
+ * Today's prayer times, with what has been marked.
+ *
+ * Read from the row the app already stores for this user, rather than calling
+ * the prayer-times API again: the bot must never show a different Asr from the
+ * screen, and the stored row is the one their madhab and location produced.
+ *
+ * Null when there is no row -- the app has to be opened once to establish a
+ * location, and saying so is better than inventing times for the wrong city.
+ */
+export async function todayPrayers(userId: string): Promise<PrayerRow[] | null> {
+  const { gte, lt, tz } = await dayFor(userId)
+
+  const [times, tracked] = await Promise.all([
+    prisma.prayerTime.findFirst({
+      where: { userId, date: { gte, lt } },
+      select: { fajr: true, dhuhr: true, asr: true, maghrib: true, isha: true },
+    }),
+    prisma.prayerTracking.findMany({
+      where: { userId, date: { gte, lt }, completedAt: { not: null } },
+      select: { prayerName: true },
+    }),
+  ])
+  if (!times) return null
+
+  const done = new Set(tracked.map((t) => String(t.prayerName).toUpperCase()))
+
+  const nowMinutes = (() => {
+    try {
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false,
+      }).format(new Date())
+      const [h, m] = parts.split(':').map(Number)
+      return h * 60 + m
+    } catch {
+      const d = new Date()
+      return d.getHours() * 60 + d.getMinutes()
+    }
+  })()
+
+  const toMinutes = (hhmm: string) => {
+    const [h, m] = hhmm.split(':').map(Number)
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null
+  }
+
+  const rows: PrayerRow[] = [
+    { key: 'FAJR', label: 'fajr', time: times.fajr },
+    { key: 'DHUHR', label: 'dhuhr', time: times.dhuhr },
+    { key: 'ASR', label: 'asr', time: times.asr },
+    { key: 'MAGHRIB', label: 'maghrib', time: times.maghrib },
+    { key: 'ISHA', label: 'isha', time: times.isha },
+  ].map((p) => ({
+    name: p.label,
+    time: p.time,
+    done: done.has(p.key),
+    next: false,
+  }))
+
+  /*
+    Mark the next one still to come. Only one is marked -- "next" is a single
+    prayer, and highlighting three of them says nothing.
+  */
+  const upcoming = rows.findIndex((r, i) => {
+    const at = toMinutes(
+      [times.fajr, times.dhuhr, times.asr, times.maghrib, times.isha][i]
+    )
+    return at !== null && at > nowMinutes
+  })
+  if (upcoming >= 0) rows[upcoming].next = true
+
+  return rows
+}

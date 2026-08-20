@@ -30,7 +30,17 @@ const publicRoutes = new Set([
     That is the authentication for this endpoint -- a cookie would be the wrong
     one.
   */
-  '/api/telegram/webhook'
+  '/api/telegram/webhook',
+  /*
+    The Mini App's entry point, and it MUST be public.
+
+    Telegram passes `initData` in the URL fragment, and a fragment does not
+    survive a server-side redirect inside its webview. Sending this route to
+    /signin threw the sign-in blob away before any of our JavaScript ran, which
+    is precisely how every Telegram feature came to depend on a value that no
+    longer existed.
+  */
+  '/tg'
 ])
 
 const semiProtectedRoutes = new Set(['/set-password'])

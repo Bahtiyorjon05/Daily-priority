@@ -4,11 +4,12 @@ import {
   answerCallbackQuery, callTelegram, escapeHtml, sendMessage, type InlineKeyboard,
 } from '@/lib/telegram/api'
 import {
-  addTask, completeHabit, completeTask, dailySnapshot, todayHabits, todayTasks,
+  addTask, completeHabit, completeTask, dailySnapshot, todayHabits, todayPrayers,
+  todayTasks,
 } from '@/lib/telegram/actions'
 import {
   CB, dailyMessage, habitsMessage, mainKeyboard, MENU_COMMAND,
-  openKeyboard as buildOpenKeyboard, parseCallback, tasksMessage,
+  openKeyboard as buildOpenKeyboard, parseCallback, prayersMessage, tasksMessage,
 } from '@/lib/telegram/messages'
 import { streakFromDates } from '@/lib/streaks'
 import { surahByNumber } from '@/lib/quran/surahs'
@@ -317,13 +318,24 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
         await say(msg.chatId, pick(OPEN_BUTTON, lang), { keyboard: openKeyboard(lang) })
         return outcome('app')
 
-      case '/prayers':
-        await say(
-          msg.chatId,
-          lang === 'uz' ? '🕌 Bugungi namoz vaqtlari:' : '🕌 Today’s prayer times:',
-          { keyboard: openKeyboard(lang, '/prayers') }
-        )
+      case '/prayers': {
+        /*
+          The actual times, in the chat.
+
+          This used to send a heading and a button, which is not an answer to
+          "what time is Asr" -- it is a link to somewhere that knows. The times
+          come from the row the app already stored for this person, so the bot
+          can never disagree with the screen about their madhab or city.
+        */
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await say(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang, '/prayers') })
+          return outcome('prayers:unlinked')
+        }
+        const view = prayersMessage(await todayPrayers(user.id), lang)
+        await say(msg.chatId, view.text, { keyboard: view.keyboard })
         return outcome('prayers')
+      }
 
       case '/quran': {
         const user = await userFor(msg.telegramId)
