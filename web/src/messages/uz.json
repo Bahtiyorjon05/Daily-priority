@@ -1974,5 +1974,7 @@
   "ui.quranYouStoppedHere": "Shu yerda to'xtagansiz",
   "ui.quranPagesRead": "bet o'qildi",
   "ui.quranReadingIn": "O'qilmoqda",
-  "ui.quranClearSaved": "O'chirish"
+  "ui.quranClearSaved": "O'chirish",
+  "ui.telegramSignInFailed": "Telegram orqali kirib bo'lmadi. Quyidagi shakldan foydalaning.",
+  "ui.telegramLinkFailed": "Telegram hisobingizni ulab bo'lmadi. Bu ishlamaguncha bot sizni tanimaydi."
 }

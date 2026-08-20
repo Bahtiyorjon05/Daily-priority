@@ -1974,5 +1974,7 @@
   "ui.quranYouStoppedHere": "You stopped here",
   "ui.quranPagesRead": "pages read",
   "ui.quranReadingIn": "Reading",
-  "ui.quranClearSaved": "Remove"
+  "ui.quranClearSaved": "Remove",
+  "ui.telegramSignInFailed": "Could not sign you in through Telegram. Use the sign-in form below.",
+  "ui.telegramLinkFailed": "Could not connect your Telegram account. The bot will not recognise you until this works."
 }

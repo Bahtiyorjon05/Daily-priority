@@ -245,7 +245,9 @@ export const authOptions: NextAuthOptions = {
               onboardedAt: true,
               twoFactorEnabled: true,
               twoFactorSecret: true,
-              deletedAt: true
+              deletedAt: true,
+              // Needed to tell "no password yet" from "signs in with Telegram".
+              telegramId: true
             }
           })
 
@@ -270,6 +272,21 @@ export const authOptions: NextAuthOptions = {
               })
               token.needsPasswordSetup = true
             } else if (dbUser.password) {
+              token.needsPasswordSetup = false
+            } else if (dbUser.telegramId) {
+              /*
+                A Telegram account has no password and never needs one.
+
+                Telegram is the credential: every sign-in re-verifies a blob
+                signed with the bot token. Demanding a password here bounced the
+                person to /set-password before they ever saw the app, and made
+                every API call answer 403 PASSWORD_SETUP_REQUIRED -- including
+                the one that links their Telegram account, so they could not
+                even get out of the loop.
+
+                They can still set one from settings if they want to sign in on
+                the website too.
+              */
               token.needsPasswordSetup = false
             } else {
               logger.info('[JWT Refresh] User has NO password, setting needsPasswordSetup flag', {
@@ -437,7 +454,8 @@ export const authOptions: NextAuthOptions = {
               email: true,
               password: true,
               twoFactorEnabled: true,
-              twoFactorSecret: true
+              twoFactorSecret: true,
+              telegramId: true
             }
           })
 
@@ -546,7 +564,8 @@ export const authOptions: NextAuthOptions = {
                 email: true,
                 password: true,
                 twoFactorEnabled: true,
-                twoFactorSecret: true
+                twoFactorSecret: true,
+                telegramId: true
               }
             })
 

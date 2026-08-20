@@ -8,8 +8,8 @@
 // the home-screen icon, the install dialog, the push badge and the app icon on
 // the onboarding screen were all stale, while the server had the new bytes all
 // along. `activate` deletes any cache not named below, so renaming is the fix.
-const CACHE_NAME = 'daily-priority-v4'
-const RUNTIME_CACHE = 'runtime-cache-v4'
+const CACHE_NAME = 'daily-priority-v5'
+const RUNTIME_CACHE = 'runtime-cache-v5'
 
 // Only truly static assets are precached. HTML pages are deliberately NOT
 // precached: a cached document pins the hashed JS chunks it references, so a

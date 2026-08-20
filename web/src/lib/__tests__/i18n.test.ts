@@ -48,7 +48,19 @@ describe('Accept-Language negotiation', () => {
 
   it('skips languages it cannot serve', () => {
     expect(localeFromAcceptLanguage('ru-RU, de;q=0.8, uz;q=0.1')).toBe('uz')
-    expect(localeFromAcceptLanguage('ru-RU, de-DE')).toBeNull()
+    expect(localeFromAcceptLanguage('fr-FR, de-DE')).toBeNull()
+  })
+
+  it('reads Russian as a preference for Uzbek', () => {
+    /*
+      Not a language this app serves, but a great many phones in Uzbekistan run
+      it, and Uzbek is far closer for that reader than English. Without this they
+      land on English purely because `ru` is not one of the two locales here.
+    */
+    expect(localeFromAcceptLanguage('ru-RU, de-DE')).toBe('uz')
+    expect(localeFromAcceptLanguage('ru')).toBe('uz')
+    // Still behind a language we do serve, when that one is ranked higher.
+    expect(localeFromAcceptLanguage('en-GB;q=0.9, ru;q=0.5')).toBe('en')
   })
 
   it('ignores the wildcard rather than treating it as a match', () => {

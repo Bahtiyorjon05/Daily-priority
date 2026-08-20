@@ -15,7 +15,29 @@ export const LOCALES = ['en', 'uz'] as const
 
 export type Locale = (typeof LOCALES)[number]
 
-export const DEFAULT_LOCALE: Locale = 'en'
+/*
+  Uzbek, not English.
+
+  Every user of this app is in Uzbekistan. English was the default because it is
+  the usual one, which meant the whole product opened in the wrong language for
+  everybody and asked each of them to go and change it. A default is a guess, and
+  this is the guess that is right almost every time.
+
+  English is still one tap away and the choice still wins forever once made --
+  see `resolveLocale`.
+*/
+export const DEFAULT_LOCALE: Locale = 'uz'
+
+/**
+ * The language the app is written in.
+ *
+ * Distinct from DEFAULT_LOCALE, and the distinction matters: DEFAULT_LOCALE is
+ * what an unknown visitor SEES, while this is where a missing string is looked
+ * up. Collapsing them meant that flipping the display default to Uzbek also
+ * moved the fallback, so a key missing from uz.json would render as the raw key
+ * instead of legible English.
+ */
+export const SOURCE_LOCALE: Locale = 'en'
 
 /** Cookie name. Readable by the server so the first paint is already correct. */
 export const LOCALE_COOKIE = 'dp_locale'
@@ -56,6 +78,15 @@ export function normalizeLocale(value: unknown): Locale {
 export function localeFromAcceptLanguage(header: string | null | undefined): Locale | null {
   if (!header) return null
 
+  /*
+    Russian counts as a vote for Uzbek, not English.
+
+    A great many phones in Uzbekistan are set to Russian, and for that reader
+    Uzbek is far closer than English. Without this they get English purely
+    because `ru` is not one of our two locales.
+  */
+  const wantsRussian = /(^|,)\s*ru/i.test(header)
+
   const ranked = header
     .split(',')
     .map(part => {
@@ -72,8 +103,11 @@ export function localeFromAcceptLanguage(header: string | null | undefined): Loc
     if (tag === '*') continue
     const base = tag.toLowerCase().split('-')[0]
     if (isLocale(base)) return base
+    // Reached before any lower-weighted English entry, so a `ru` phone lands on
+    // Uzbek rather than on the fallback.
+    if (base === 'ru') return 'uz'
   }
-  return null
+  return wantsRussian ? 'uz' : null
 }
 
 /**

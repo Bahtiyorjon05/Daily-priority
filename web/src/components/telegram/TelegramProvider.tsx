@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
+import { toast } from 'sonner'
 import { getWebApp, isInsideTelegram } from '@/lib/telegram/webapp'
+import { useT } from '@/lib/i18n/client'
 
 /**
  * Running the app inside Telegram.
@@ -28,6 +30,7 @@ import { getWebApp, isInsideTelegram } from '@/lib/telegram/webapp'
 const TELEGRAM_CLASS = 'in-telegram'
 
 export function TelegramProvider() {
+  const { t } = useT()
   const { status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
@@ -104,11 +107,24 @@ export function TelegramProvider() {
     if (!app?.initData) return
 
     attempted.current = true
-    void signIn('telegram', { initData: app.initData, redirect: false }).then((res) => {
-      // A failure is not fatal: the ordinary sign-in page is still there, and it
-      // works inside Telegram like any other page.
-      if (res?.ok) router.refresh()
-    })
+    void signIn('telegram', { initData: app.initData, redirect: false })
+      .then((res) => {
+        if (res?.ok) {
+          router.refresh()
+          return
+        }
+        /*
+          Not fatal -- the ordinary sign-in page still works inside Telegram --
+          but it must not be silent. This failing quietly is how the bot spent a
+          day telling people to "open the app first" while they had, repeatedly.
+        */
+        console.error('[telegram] sign-in failed', res?.error)
+        toast.error(t('ui.telegramSignInFailed'))
+      })
+      .catch((error) => {
+        console.error('[telegram] sign-in threw', error)
+        toast.error(t('ui.telegramSignInFailed'))
+      })
   }, [inTelegram, status, router])
 
   /*
@@ -133,10 +149,22 @@ export function TelegramProvider() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ initData: app.initData }),
-    }).catch(() => {
-      // A 409 means that Telegram account belongs to someone else, which is a
-      // refusal working as designed, not something to interrupt reading over.
     })
+      .then(async (res) => {
+        if (res.ok) return
+        /*
+          A 409 means that Telegram account belongs to someone else, which is a
+          refusal working as designed. Anything else means the bot will not know
+          who this person is, and they will be told to "open the app first"
+          forever with no idea why -- so it says so.
+        */
+        if (res.status === 409) return
+        console.error('[telegram] link failed', res.status, await res.text().catch(() => ''))
+        toast.error(t('ui.telegramLinkFailed'))
+      })
+      .catch((error) => {
+        console.error('[telegram] link threw', error)
+      })
   }, [inTelegram, status])
 
   /*

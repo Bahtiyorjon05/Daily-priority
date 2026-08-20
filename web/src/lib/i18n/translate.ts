@@ -1,6 +1,6 @@
 import en from '@/messages/en.json'
 import uz from '@/messages/uz.json'
-import { DEFAULT_LOCALE, type Locale } from './locales'
+import { DEFAULT_LOCALE, SOURCE_LOCALE, type Locale } from './locales'
 
 /**
  * The translation primitive, shared by every surface.
@@ -52,7 +52,9 @@ export function translate(
   const template =
     dict[key] ??
     (fallbackKey ? dict[fallbackKey] : undefined) ??
-    DICTIONARIES[DEFAULT_LOCALE][key] ??
+    // SOURCE_LOCALE, not DEFAULT_LOCALE: the fallback is the language the copy
+    // is authored in, which is the one guaranteed to have the key.
+    DICTIONARIES[SOURCE_LOCALE][key] ??
     key
 
   if (!params) return template
