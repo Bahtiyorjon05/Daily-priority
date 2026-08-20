@@ -63,14 +63,19 @@ describe('who may read the stats', () => {
 })
 
 describe('the command hides from everyone else', () => {
-  it('answers a non-admin exactly like any other message', () => {
+  it('says nothing at all to anyone else', () => {
     /*
-      Not "not authorised". That reply would confirm the command exists, and the
-      one thing a private command must not do is announce itself.
+      Not a refusal, not the welcome, no keyboard -- no reply.
+
+      A refusal confirms the command exists. Even the ordinary welcome is a
+      tell: the same text arriving for a word nobody else knows is a hint worth
+      following. Silence leaks nothing.
     */
     const branch = bot.slice(bot.indexOf("if (command === '/adminstats')"))
-    expect(branch).toMatch(/if \(!isAdmin\(msg\.telegramId\)\)/)
-    expect(branch.slice(0, 400)).toMatch(/pick\(TEXT\.start, lang\), openKeyboard\(lang\)/)
+    const guard = branch.slice(0, branch.indexOf('const error'))
+    expect(guard).toMatch(/if \(!isAdmin\(msg\.telegramId\)\) return 'ignored'/)
+    // No send of any kind before the admin check has passed.
+    expect(guard).not.toMatch(/reply\(/)
     expect(bot).not.toMatch(/not authorised|unauthorized|forbidden/i)
   })
 
@@ -135,12 +140,16 @@ describe('knowing who left', () => {
 
 describe('the report itself', () => {
   it('leads with the counts, including the one that matters', () => {
-    // Started vs signed in is the whole point; a raw user count answers nothing.
-    expect(stats).toMatch(/Started:/)
-    expect(stats).toMatch(/Signed in:/)
-    expect(stats).toMatch(/Active 24h:/)
-    expect(stats).toMatch(/Blocked:/)
-    expect(stats).toMatch(/conversion/)
+    /*
+      Anchored on the numbers, not the labels: the wording is Uzbek and will be
+      reworded again, but every one of these figures has to be on screen. Started
+      vs signed in is the whole point -- a raw user count answers nothing.
+    */
+    expect(stats).toMatch(/Botni ochganlar: <b>\$\{total\}/)
+    expect(stats).toMatch(/<b>\$\{linked\}<\/b> \(\$\{conversion\}%\)/)
+    expect(stats).toMatch(/Bugun faol: <b>\$\{active1\}/)
+    expect(stats).toMatch(/Shu hafta faol: <b>\$\{active7\}/)
+    expect(stats).toMatch(/bloklaganlar: <b>\$\{blocked\}/)
   })
 
   it('does not divide by zero on an empty bot', () => {
@@ -157,7 +166,9 @@ describe('the report itself', () => {
   it('escapes names', () => {
     // They come from Telegram profiles, they can contain anything, and the
     // message is sent as HTML.
-    expect(stats).toMatch(/escapeHtml\(\[r\.firstName, r\.lastName\]/)
+    expect(stats).toMatch(/const name = escapeHtml\(full \|\| r\.username \|\| r\.telegramId\)/)
     expect(stats).toMatch(/escapeHtml\(r\.username\)/)
+    // A blank Telegram name must still print something identifiable.
+    expect(stats).toMatch(/full \|\| r\.username \|\| r\.telegramId/)
   })
 })

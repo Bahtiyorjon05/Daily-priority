@@ -48,12 +48,12 @@ const openKeyboard = (lang: Lang): InlineKeyboard => [
 const TEXT = {
   start: {
     en:
-      '<b>Assalamu alaykum</b> 🌙\n\n' +
+      '<b>Assalamu alaykum</b> \u{1F319}\n\n' +
       'Daily Priority holds your prayers, Quran reading, habits and tasks in one ' +
       'place — built around the five prayers rather than a nine-to-five.\n\n' +
       'Tap below. It opens right here inside Telegram, and you stay signed in.',
     uz:
-      '<b>Assalomu alaykum</b> 🌙\n\n' +
+      '<b>Assalomu alaykum</b> \u{1F319}\n\n' +
       'Daily Priority namoz, Quron o‘qish, odatlar va vazifalaringizni bir joyda ' +
       'saqlaydi — ish kuni emas, besh vaqt namoz atrofida qurilgan.\n\n' +
       'Quyidagini bosing. U shu yerda, Telegram ichida ochiladi va siz tizimda ' +
@@ -137,10 +137,18 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
       it must not do.
     */
     if (command === '/adminstats') {
-      if (!isAdmin(msg.telegramId)) {
-        const denied = await reply(msg.chatId, pick(TEXT.start, lang), openKeyboard(lang))
-        return denied ? `open:send-failed:${denied}` : 'open'
-      }
+      /*
+        Anyone else gets NOTHING. Not a refusal, not the welcome, not a
+        keyboard -- no reply at all.
+
+        A refusal confirms the command exists. Even answering with the ordinary
+        welcome is a tell: the same text arriving for a word nobody else knows
+        is a hint worth following. Silence is the only response that leaks
+        nothing, and to the sender it is indistinguishable from a typo landing
+        in an empty void.
+      */
+      if (!isAdmin(msg.telegramId)) return 'ignored'
+
       const error = await reply(msg.chatId, await statsMessage(), [])
       return error ? `adminstats:send-failed:${error}` : 'adminstats'
     }
