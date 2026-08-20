@@ -1,5 +1,6 @@
 import { sendMessage, type InlineKeyboard } from '@/lib/telegram/api'
 import { APP_URL } from '@/lib/telegram/app-url'
+import { isAdmin, recordChat, statsMessage } from '@/lib/telegram/stats'
 
 /**
  * The bot, and it does one thing: open the app.
@@ -74,6 +75,8 @@ export type IncomingMessage = {
   text: string
   languageCode?: string
   firstName?: string
+  lastName?: string
+  username?: string
 }
 
 /**
@@ -88,7 +91,9 @@ async function reply(
   text: string,
   keyboard: InlineKeyboard
 ): Promise<string | null> {
-  const result = await sendMessage(chatId, text, { keyboard })
+  // An empty keyboard means no markup at all, rather than an empty grey strip
+  // under the message.
+  const result = await sendMessage(chatId, text, keyboard.length ? { keyboard } : {})
   if (result.ok) return null
   console.error('[telegram] send failed', result.error)
   return result.error
@@ -106,6 +111,40 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
   const command = msg.text.trim().split(/\s+/)[0].toLowerCase().split('@')[0]
 
   try {
+    /*
+      Record the person before answering them.
+
+      Awaited rather than fired and forgotten: this runs in a serverless
+      function, and work still in flight when the response is returned may simply
+      not happen. It never throws, so a failed statistic cannot cost someone
+      their reply.
+    */
+    await recordChat({
+      telegramId: msg.telegramId,
+      chatId: msg.chatId,
+      firstName: msg.firstName,
+      lastName: msg.lastName,
+      username: msg.username,
+      languageCode: msg.languageCode,
+    })
+
+    /*
+      The one command that is not for everyone.
+
+      Deliberately absent from the command list, and for anyone else it behaves
+      exactly like any other message -- the same welcome and button. A "not
+      authorised" reply would confirm the command exists, which is the one thing
+      it must not do.
+    */
+    if (command === '/adminstats') {
+      if (!isAdmin(msg.telegramId)) {
+        const denied = await reply(msg.chatId, pick(TEXT.start, lang), openKeyboard(lang))
+        return denied ? `open:send-failed:${denied}` : 'open'
+      }
+      const error = await reply(msg.chatId, await statsMessage(), [])
+      return error ? `adminstats:send-failed:${error}` : 'adminstats'
+    }
+
     const isHelp = command === '/help'
     const error = await reply(
       msg.chatId,

@@ -74,10 +74,14 @@ async function main() {
       render, spin and never do anything.
     */
     /*
-      Messages only. The bot has no buttons of its own and no inline mode any
-      more -- subscribing to updates nothing handles is just traffic.
+      Messages, plus `my_chat_member`.
+
+      The second one is how Telegram announces a block the instant it happens.
+      Without it the only way to learn somebody left is a failed send, which may
+      not come for weeks -- and "how many blocked the bot" would be a number
+      quietly drifting away from the truth.
     */
-    allowed_updates: ['message'],
+    allowed_updates: ['message', 'my_chat_member'],
     drop_pending_updates: true,
   })
   console.log(`webhook: ${APP_URL}/api/telegram/webhook`)

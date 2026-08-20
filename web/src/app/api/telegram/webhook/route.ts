@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleMessage } from '@/lib/telegram/bot'
+import { setBlocked } from '@/lib/telegram/stats'
 
 /**
  * Where Telegram delivers updates.
@@ -40,6 +41,20 @@ export async function POST(request: NextRequest) {
   try {
     const update = await request.json().catch(() => null)
 
+    /*
+      Somebody blocked or unblocked the bot.
+
+      Telegram announces this the moment it happens, which is the difference
+      between knowing and finding out months later that a send failed. `kicked`
+      is what a block looks like in a private chat.
+    */
+    const member = update?.my_chat_member
+    if (member?.from?.id && member?.new_chat_member?.status) {
+      const status = String(member.new_chat_member.status)
+      await setBlocked(String(member.from.id), status === 'kicked' || status === 'left')
+      return NextResponse.json({ ok: true, outcome: `member:${status}` })
+    }
+
     const message = update?.message ?? update?.edited_message
 
     // Anything else (joins, channel posts) is acknowledged and ignored, so
@@ -60,6 +75,8 @@ export async function POST(request: NextRequest) {
         text: String(message.text),
         languageCode: message.from.language_code,
         firstName: message.from.first_name,
+        lastName: message.from.last_name,
+        username: message.from.username,
       })
       return NextResponse.json({ ok: true, outcome })
     }

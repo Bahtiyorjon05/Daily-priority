@@ -251,6 +251,41 @@ model QuranPageRead {
   @@map("quran_pages_read")
 }
 
+/// Everyone who has ever messaged the bot.
+///
+/// Separate from `User.telegramId`, and it has to be: that column only exists
+/// once somebody opens the Mini App and signs in. Plenty of people press /start
+/// and never go further, and they are exactly the ones worth counting -- a bot
+/// with 400 starts and 12 sign-ins is telling you something a User table cannot.
+///
+/// Blocking is recorded rather than inferred. Telegram announces it through a
+/// `my_chat_member` update the moment it happens, which is the difference
+/// between knowing someone left and noticing months later that a send failed.
+model TelegramChat {
+  id           String    @id @default(cuid())
+  /// The person's Telegram id. String for the same reason as User.telegramId:
+  /// already past 32 bits, only promised to fit in 52, and it is a key.
+  telegramId   String    @unique
+  /// The private chat with them, which for a private chat equals telegramId --
+  /// stored anyway rather than assumed, because that is Telegram's guarantee to
+  /// change, not ours.
+  chatId       String
+  firstName    String?
+  lastName     String?
+  username     String?
+  languageCode String?
+  startedAt    DateTime  @default(now())
+  lastSeenAt   DateTime  @default(now())
+  /// How many messages they have sent. The cheapest signal of "actually using".
+  messages     Int       @default(1)
+  blocked      Boolean   @default(false)
+  blockedAt    DateTime?
+
+  @@index([lastSeenAt(sort: Desc)])
+  @@index([blocked])
+  @@map("telegram_chats")
+}
+
 /// One row per day of Ramadan, per user.
 ///
 /// Fasting and Taraweeh are tracked separately because they are separate acts —
