@@ -4,12 +4,13 @@ import {
   answerCallbackQuery, callTelegram, escapeHtml, sendMessage, type InlineKeyboard,
 } from '@/lib/telegram/api'
 import {
-  addTask, completeHabit, completeTask, dailySnapshot, todayHabits, todayPrayers,
-  todayTasks,
+  addTask, adjustQada, ayahAt, completeHabit, completeTask, dailySnapshot,
+  markPrayer, qadaDebts, todayHabits, todayPrayers, todayTasks,
 } from '@/lib/telegram/actions'
 import {
-  CB, dailyMessage, habitsMessage, mainKeyboard, MENU_COMMAND,
-  openKeyboard as buildOpenKeyboard, parseCallback, prayersMessage, tasksMessage,
+  ayahMessage, CB, dailyMessage, habitsMessage, mainKeyboard, MENU_COMMAND,
+  miniAppUrl, openKeyboard as buildOpenKeyboard, parseCallback, prayersMessage,
+  qadaMessage, tasksMessage,
 } from '@/lib/telegram/messages'
 import { streakFromDates } from '@/lib/streaks'
 import { surahByNumber } from '@/lib/quran/surahs'
@@ -161,6 +162,18 @@ const TEXT = {
   alreadyDone: {
     en: 'Already done today.',
     uz: 'Bugun allaqachon bajarilgan.',
+  } satisfies Copy,
+  prayerMarked: {
+    en: '✅ Marked as prayed.',
+    uz: '✅ O‘qildi deb belgilandi.',
+  } satisfies Copy,
+  qadaMade: {
+    en: '✅ One made up.',
+    uz: '✅ Bittasi qazo qilindi.',
+  } satisfies Copy,
+  qadaOwed: {
+    en: '➕ Added one to the debt.',
+    uz: '➕ Qarzga bitta qo‘shildi.',
   } satisfies Copy,
   gone: {
     en: 'That is no longer there.',
@@ -343,8 +356,28 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
           await say(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang, '/quran') })
           return outcome('quran:unlinked')
         }
-        const { text, path } = await quranMessage(user.id, lang)
-        await say(msg.chatId, text, { keyboard: openKeyboard(lang, path) })
+
+        /*
+          The ayah itself, in the chat.
+
+          Telling someone "you stopped at Al-Baqara 40" and handing them a link
+          is a bookmark, not a reading. This puts the text in front of them, and
+          the next one is one tap away -- which is the whole difference between
+          a reminder to read and actually reading.
+        */
+        const progress = await prisma.quranProgress.findUnique({
+          where: { userId: user.id },
+          select: { lastSurah: true, lastAyah: true },
+        })
+        const surahNumber = progress?.lastSurah ?? 1
+        const ayahNumber = progress?.lastAyah ?? 1
+        const surah = surahByNumber(surahNumber)
+        const view = ayahMessage(
+          await ayahAt(surahNumber, ayahNumber, lang, APP_URL),
+          surah ? surahName(surah, lang) : `Surah ${surahNumber}`,
+          lang
+        )
+        await say(msg.chatId, view.text, { keyboard: view.keyboard })
         return outcome('quran')
       }
 
@@ -377,6 +410,18 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
           { keyboard: openKeyboard(lang, '/prayers') }
         )
         return next ? 'reminders:on' : 'reminders:off'
+      }
+
+      case '/qazo':
+      case '/qada': {
+        const user = await userFor(msg.telegramId)
+        if (!user) {
+          await say(msg.chatId, pick(TEXT.notLinked, lang), { keyboard: openKeyboard(lang, '/prayers') })
+          return outcome('qazo:unlinked')
+        }
+        const view = qadaMessage(await qadaDebts(user.id), lang)
+        await say(msg.chatId, view.text, { keyboard: view.keyboard })
+        return outcome('qazo')
       }
 
       case '/today': {
@@ -537,39 +582,220 @@ export async function handleCallback(cb: IncomingCallback): Promise<string> {
     }
 
     let toast = ''
-    if (parsed.kind === 'task' && parsed.id) {
+    // The list to redraw afterwards. Every branch sets one, so the message the
+    // button lives on is always left showing the truth.
+    let view: { text: string; keyboard: InlineKeyboard } | null = null
+    let kind = 'tasks'
+
+    if (parsed.kind === 'task') {
       const done = await completeTask(user.id, parsed.id)
       toast = done.ok ? pick(TEXT.taskDone, lang).replace('{title}', done.title) : pick(TEXT.gone, lang)
-    } else if (parsed.kind === 'habit' && parsed.id) {
+      view = tasksMessage(await todayTasks(user.id), lang)
+    } else if (parsed.kind === 'habit') {
       const done = await completeHabit(user.id, parsed.id)
       toast = !done.ok
         ? pick(TEXT.gone, lang)
         : done.already
           ? pick(TEXT.alreadyDone, lang)
           : pick(TEXT.habitDone, lang).replace('{title}', done.title)
+      view = habitsMessage(await todayHabits(user.id), lang)
+      kind = 'habits'
+    } else if (parsed.kind === 'prayer') {
+      /*
+        Marking a prayer from the reminder itself.
+
+        The whole point of a reminder in a chat: the answer to "have you prayed
+        Asr" is one tap away, in the same place the question was asked.
+      */
+      const marked = await markPrayer(user.id, parsed.slot)
+      toast = !marked.ok
+        ? pick(TEXT.gone, lang)
+        : marked.already
+          ? pick(TEXT.alreadyDone, lang)
+          : pick(TEXT.prayerMarked, lang)
+      view = prayersMessage(await todayPrayers(user.id), lang)
+      kind = 'prayers'
+    } else if (parsed.kind === 'qadaMade' || parsed.kind === 'qadaOwe') {
+      const rows = await adjustQada(
+        user.id,
+        parsed.slot,
+        parsed.kind === 'qadaMade' ? 'made' : 'owe'
+      )
+      if (!rows) {
+        toast = pick(TEXT.gone, lang)
+        view = qadaMessage(await qadaDebts(user.id), lang)
+      } else {
+        toast = pick(parsed.kind === 'qadaMade' ? TEXT.qadaMade : TEXT.qadaOwed, lang)
+        view = qadaMessage(rows, lang)
+      }
+      kind = 'qada'
+    } else if (parsed.kind === 'ayah') {
+      const surah = surahByNumber(parsed.surah)
+      view = ayahMessage(
+        await ayahAt(parsed.surah, parsed.ayah, lang, APP_URL),
+        surah ? surahName(surah, lang) : `Surah ${parsed.surah}`,
+        lang
+      )
+      /*
+        Reading on moves the bookmark, so closing the chat and opening the app
+        lands on the ayah just read rather than where the session started.
+      */
+      await savePositionFromBot(user.id, parsed.surah, parsed.ayah)
+      kind = 'ayah'
+    } else {
+      view = tasksMessage(await todayTasks(user.id), lang)
     }
 
     await answerCallbackQuery(cb.id, toast || undefined)
 
-    // Redraw whichever list this button belonged to.
-    const showHabits = parsed.kind === 'habit' || parsed.kind === 'habits'
-    const view = showHabits
-      ? habitsMessage(await todayHabits(user.id), lang)
-      : tasksMessage(await todayTasks(user.id), lang)
+    if (view) {
+      await callTelegram('editMessageText', {
+        chat_id: cb.chatId,
+        message_id: cb.messageId,
+        text: view.text,
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: view.keyboard },
+      })
+    }
 
-    await callTelegram('editMessageText', {
-      chat_id: cb.chatId,
-      message_id: cb.messageId,
-      text: view.text,
-      parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: view.keyboard },
-    })
-
-    return showHabits ? 'callback:habits' : 'callback:tasks'
+    return `callback:${kind}`
   } catch (error) {
     console.error('[telegram] callback failed', cb.data, error)
     // Still clear the spinner, or the button looks stuck.
     await answerCallbackQuery(cb.id).catch(() => {})
     return 'callback:error'
+  }
+}
+
+/**
+ * Move the reading bookmark when someone reads on in the chat.
+ *
+ * Deliberately not the full `savePosition` the page uses: reading one ayah in a
+ * chat is not a page of the mushaf, so it moves the bookmark and records the day
+ * without claiming a page was read. Progress has already been wrong once by
+ * over-counting; it will not be wrong that way again.
+ */
+async function savePositionFromBot(userId: string, surah: number, ayah: number) {
+  try {
+    const today = new Date()
+    const day = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    await prisma.$transaction([
+      prisma.quranProgress.upsert({
+        where: { userId },
+        create: { userId, lastSurah: surah, lastAyah: ayah, lastPage: 1 },
+        update: { lastSurah: surah, lastAyah: ayah },
+      }),
+      prisma.quranReadingLog.upsert({
+        where: { userId_date: { userId, date: day } },
+        create: { userId, date: day, pages: 1 },
+        update: { pages: { increment: 1 } },
+      }),
+    ])
+  } catch (error) {
+    console.error('[telegram] bookmark move failed', error)
+  }
+}
+
+export type IncomingInline = {
+  id: string
+  telegramId: string
+  query: string
+  languageCode?: string
+}
+
+/**
+ * Inline mode: `@Daily_priority_bot` typed in any chat.
+ *
+ * The cheapest distribution this app has. Someone shares today's prayer times
+ * into a family group and every person in it sees where it came from — no ad,
+ * no link, no install prompt, just something useful with a name on it.
+ *
+ * Results are personal, so they are cached per user and never shared: `is_personal`
+ * plus a zero cache time, or Telegram would serve one person's streak to the
+ * next person who typed the same query.
+ */
+export async function handleInline(inline: IncomingInline): Promise<string> {
+  const lang = langOf(inline.languageCode)
+  const uz = lang === 'uz'
+
+  try {
+    const user = await userFor(inline.telegramId)
+
+    /* Not linked: one result explaining how, rather than an empty dropdown that
+       looks like the bot is broken. */
+    if (!user) {
+      await callTelegram('answerInlineQuery', {
+        inline_query_id: inline.id,
+        is_personal: true,
+        cache_time: 0,
+        button: {
+          text: uz ? 'Ilovani ochish' : 'Open the app',
+          web_app: { url: miniAppUrl('/dashboard') },
+        },
+        results: [
+          {
+            type: 'article',
+            id: 'unlinked',
+            title: uz ? 'Avval ilovani oching' : 'Open the app first',
+            description: uz ? 'Shundan keyin bu yerda ulashishingiz mumkin' : 'Then you can share from here',
+            input_message_content: {
+              message_text: uz
+                ? 'Daily Priority — namoz, Quron va odatlar bir joyda.'
+                : 'Daily Priority — prayers, Quran and habits in one place.',
+            },
+          },
+        ],
+      })
+      return 'inline:unlinked'
+    }
+
+    const [prayers, snapshot] = await Promise.all([
+      todayPrayers(user.id),
+      dailySnapshot(user.id),
+    ])
+
+    const results: Record<string, unknown>[] = []
+
+    if (prayers) {
+      const view = prayersMessage(prayers, lang)
+      results.push({
+        type: 'article',
+        id: 'prayers',
+        title: uz ? '🕌 Bugungi namoz vaqtlari' : '🕌 Today’s prayer times',
+        description: prayers.map((p) => p.time).join(' · '),
+        // No keyboard on a shared message: the buttons act on the SENDER's data,
+        // and everyone else in the chat tapping them would be a nasty surprise.
+        input_message_content: { message_text: view.text, parse_mode: 'HTML' },
+      })
+    }
+
+    const done = snapshot.prayersDone
+    results.push({
+      type: 'article',
+      id: 'streak',
+      title: uz ? '🔥 Bugungi holatim' : '🔥 How my day is going',
+      description: uz ? `${done}/5 namoz belgilangan` : `${done}/5 prayers marked`,
+      input_message_content: {
+        message_text: uz
+          ? `🕌 Bugun ${done}/5 namoz belgilandi.\n\nDaily Priority bilan.`
+          : `🕌 ${done}/5 prayers marked today.\n\nWith Daily Priority.`,
+        parse_mode: 'HTML',
+      },
+    })
+
+    await callTelegram('answerInlineQuery', {
+      inline_query_id: inline.id,
+      is_personal: true,
+      cache_time: 0,
+      button: {
+        text: uz ? 'Ilovani ochish' : 'Open the app',
+        web_app: { url: miniAppUrl('/dashboard') },
+      },
+      results,
+    })
+    return 'inline'
+  } catch (error) {
+    console.error('[telegram] inline failed', error)
+    return 'inline:error'
   }
 }

@@ -1,6 +1,8 @@
 import { escapeHtml, type InlineKeyboard, type ReplyKeyboard } from '@/lib/telegram/api'
 import { APP_URL } from '@/lib/telegram/app-url'
-import type { DailySnapshot, PrayerRow, TodayHabit, TodayTask } from '@/lib/telegram/actions'
+import type {
+  AyahView, DailySnapshot, PrayerRow, QadaRow, TodayHabit, TodayTask,
+} from '@/lib/telegram/actions'
 
 /**
  * The words, and the buttons under them.
@@ -84,14 +86,37 @@ export const CB = {
   habit: (id: string) => `h:${id}`,
   tasks: 'list:t',
   habits: 'list:h',
+  prayer: (slot: string) => `p:${slot}`,
+  qadaMade: (slot: string) => `qm:${slot}`,
+  qadaOwe: (slot: string) => `qo:${slot}`,
+  ayah: (surah: number, ayah: number) => `a:${surah}:${ayah}`,
 } as const
 
-export function parseCallback(data: string): { kind: 'task' | 'habit' | 'tasks' | 'habits'; id?: string } | null {
+export type Callback =
+  | { kind: 'tasks' | 'habits' }
+  | { kind: 'task' | 'habit'; id: string }
+  | { kind: 'prayer' | 'qadaMade' | 'qadaOwe'; slot: string }
+  | { kind: 'ayah'; surah: number; ayah: number }
+
+export function parseCallback(data: string): Callback | null {
   if (data === CB.tasks) return { kind: 'tasks' }
   if (data === CB.habits) return { kind: 'habits' }
-  const [prefix, id] = data.split(':')
-  if (prefix === 't' && id) return { kind: 'task', id }
-  if (prefix === 'h' && id) return { kind: 'habit', id }
+
+  const [prefix, a, b] = data.split(':')
+  if (prefix === 't' && a) return { kind: 'task', id: a }
+  if (prefix === 'h' && a) return { kind: 'habit', id: a }
+  if (prefix === 'p' && a) return { kind: 'prayer', slot: a }
+  if (prefix === 'qm' && a) return { kind: 'qadaMade', slot: a }
+  if (prefix === 'qo' && a) return { kind: 'qadaOwe', slot: a }
+  if (prefix === 'a' && a && b) {
+    const surah = Number(a)
+    const ayah = Number(b)
+    // Bounds come from the data, not the payload: a crafted callback must not
+    // become a request for surah 9999.
+    if (Number.isInteger(surah) && surah >= 1 && surah <= 114 && Number.isInteger(ayah) && ayah >= 1) {
+      return { kind: 'ayah', surah, ayah }
+    }
+  }
   return null
 }
 
@@ -284,5 +309,91 @@ export function prayersMessage(
       lines.join('\n') +
       `\n\n${uz ? `Belgilangan: ${doneCount}/5` : `Marked: ${doneCount}/5`}`,
     keyboard: openKeyboard(lang, '/prayers'),
+  }
+}
+
+/* ------------------------------------------------------------------ qada --- */
+
+export function qadaMessage(
+  rows: QadaRow[],
+  lang: Lang
+): { text: string; keyboard: InlineKeyboard } {
+  const uz = lang === 'uz'
+  const total = rows.reduce((n, r) => n + r.outstanding, 0)
+
+  const lines = rows.map((r) => {
+    const name = PRAYER_NAMES[r.prayer]?.[lang] ?? r.prayer
+    return `${r.outstanding > 0 ? '🔴' : '✅'} ${name} — <b>${r.outstanding}</b>`
+  })
+
+  /*
+    One row per prayer: "prayed one" on the left, "add one" on the right.
+
+    Making up qada is the common action and sits first. Adding to the debt is
+    deliberately the smaller, second button -- nobody opens this hoping to add.
+  */
+  const keyboard: InlineKeyboard = rows.map((r) => [
+    {
+      text: `✅ ${PRAYER_NAMES[r.prayer]?.[lang] ?? r.prayer}`,
+      callback_data: CB.qadaMade(r.prayer),
+    },
+    { text: '➕', callback_data: CB.qadaOwe(r.prayer) },
+  ])
+  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl('/prayers') } }])
+
+  return {
+    text:
+      `<b>${uz ? 'Qazo namozlar' : 'Qada prayers'}</b>\n\n` +
+      lines.join('\n') +
+      `\n\n${
+        total === 0
+          ? uz ? 'Qazo yo‘q. Alhamdulillah.' : 'Nothing outstanding. Alhamdulillah.'
+          : uz ? `Jami: <b>${total}</b>` : `Total: <b>${total}</b>`
+      }`,
+    keyboard,
+  }
+}
+
+/* ----------------------------------------------------------------- quran --- */
+
+export function ayahMessage(
+  view: AyahView | null,
+  surahName: string,
+  lang: Lang
+): { text: string; keyboard: InlineKeyboard } {
+  const uz = lang === 'uz'
+
+  if (!view) {
+    return {
+      text: uz ? 'Oyat matnini yuklab bo‘lmadi.' : 'Could not load the ayah text.',
+      keyboard: openKeyboard(lang, '/quran'),
+    }
+  }
+
+  const keyboard: InlineKeyboard = []
+  const nav: InlineKeyboard[number] = []
+  if (view.ayah > 1) {
+    nav.push({ text: '◀️', callback_data: CB.ayah(view.surah, view.ayah - 1) })
+  }
+  if (view.ayah < view.surahAyahs) {
+    nav.push({
+      text: uz ? 'Keyingi oyat ▶️' : 'Next ayah ▶️',
+      callback_data: CB.ayah(view.surah, view.ayah + 1),
+    })
+  }
+  if (nav.length) keyboard.push(nav)
+  keyboard.push([{ text: OPEN_BUTTON[lang], web_app: { url: miniAppUrl('/quran') } }])
+
+  return {
+    /*
+      Arabic first and alone on its line. It is the text; the translation is an
+      aid to it, and running them together makes the Arabic just another
+      paragraph.
+    */
+    text:
+      `<b>${escapeHtml(surahName)}</b> · ${view.ayah}/${view.surahAyahs}\n\n` +
+      `${escapeHtml(view.arabic)}\n\n` +
+      (view.translation ? `<i>${escapeHtml(view.translation)}</i>` : ''),
+    keyboard,
   }
 }

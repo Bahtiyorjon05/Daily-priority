@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleCallback, handleMessage } from '@/lib/telegram/bot'
+import { handleCallback, handleInline, handleMessage } from '@/lib/telegram/bot'
 
 /**
  * Where Telegram delivers updates.
@@ -53,6 +53,18 @@ export async function POST(request: NextRequest) {
         telegramId: String(callback.from.id),
         data: String(callback.data ?? ''),
         languageCode: callback.from.language_code,
+      })
+      return NextResponse.json({ ok: true, outcome })
+    }
+
+    /* `@Daily_priority_bot ...` typed in any chat. */
+    const inline = update?.inline_query
+    if (inline?.id && inline?.from?.id) {
+      const outcome = await handleInline({
+        id: String(inline.id),
+        telegramId: String(inline.from.id),
+        query: String(inline.query ?? ''),
+        languageCode: inline.from.language_code,
       })
       return NextResponse.json({ ok: true, outcome })
     }

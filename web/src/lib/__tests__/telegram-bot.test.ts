@@ -192,7 +192,16 @@ describe('the wiring that makes buttons work', () => {
       nothing — and nothing in the code looks wrong. This is a one-word setting
       in a script nobody re-reads.
     */
-    expect(setup).toMatch(/allowed_updates: \['message', 'edited_message', 'callback_query'\]/)
+    /*
+      Each of these is a whole feature that silently does nothing when missing:
+      buttons need callback_query, inline sharing needs inline_query, and the
+      code for both looks perfectly correct without them.
+    */
+    const line = setup.split('\n').find((l) => l.includes('allowed_updates:')) ?? ''
+    expect(line, 'allowed_updates not found').toBeTruthy()
+    for (const kind of ['message', 'edited_message', 'callback_query', 'inline_query']) {
+      expect(line, `allowed_updates must include ${kind}`).toContain(`'${kind}'`)
+    }
   })
 
   it('handles them in the webhook', () => {
@@ -204,7 +213,13 @@ describe('the wiring that makes buttons work', () => {
     // Telegram spins the button until answered. A stuck spinner reads as broken
     // even when the work succeeded.
     expect(bot).toMatch(/answerCallbackQuery\(cb\.id\)/)
-    const failure = bot.slice(bot.lastIndexOf('catch (error)'))
+    /*
+      Anchored on the callback handler itself, not the last catch in the file --
+      that moved the moment another handler was added below it, which is exactly
+      the kind of drift a slice-based assertion invites.
+    */
+    const handler = bot.slice(bot.indexOf('export async function handleCallback'))
+    const failure = handler.slice(handler.indexOf('catch (error)'))
     expect(failure).toMatch(/answerCallbackQuery\(cb\.id\)\.catch/)
   })
 

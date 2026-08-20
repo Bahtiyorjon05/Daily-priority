@@ -119,7 +119,9 @@ describe('a reply that fails must say so', () => {
     */
     expect(webhook).toMatch(/const outcome = await handleMessage\(/)
     expect(webhook).toMatch(/const outcome = await handleCallback\(/)
-    expect(webhook.match(/ok: true, outcome/g) ?? []).toHaveLength(2)
+    // One per update kind the webhook handles: message, callback, inline.
+    expect(webhook).toMatch(/const outcome = await handleInline\(/)
+    expect((webhook.match(/ok: true, outcome/g) ?? []).length).toBeGreaterThanOrEqual(3)
   })
 
   it('still answers 200 even when the send failed', () => {

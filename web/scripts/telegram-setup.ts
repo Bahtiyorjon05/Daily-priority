@@ -73,7 +73,7 @@ async function main() {
       how every inline button reports a tap, and leaving it out means the buttons
       render, spin and never do anything.
     */
-    allowed_updates: ['message', 'edited_message', 'callback_query'],
+    allowed_updates: ['message', 'edited_message', 'callback_query', 'inline_query'],
     drop_pending_updates: true,
   })
   console.log(`webhook: ${APP_URL}/api/telegram/webhook`)
@@ -109,7 +109,8 @@ async function main() {
     { command: 'prayers', description: 'Today’s prayer times' },
     { command: 'quran', description: 'Carry on reading' },
     { command: 'streak', description: 'Your streaks' },
-    { command: 'reminders', description: 'Daily message on/off' },
+    { command: 'qazo', description: 'Qada prayers, count them here' },
+    { command: 'reminders', description: 'Reminders on/off' },
     { command: 'app', description: 'Open Daily Priority' },
     { command: 'help', description: 'What I can do' },
   ]
@@ -127,7 +128,8 @@ async function main() {
       { command: 'prayers', description: 'Bugungi namoz vaqtlari' },
       { command: 'quran', description: 'O‘qishni davom ettirish' },
       { command: 'streak', description: 'Ketma-ketliklaringiz' },
-      { command: 'reminders', description: 'Kunlik xabar' },
+      { command: 'qazo', description: 'Qazo namozlar' },
+      { command: 'reminders', description: 'Eslatmalar' },
       { command: 'app', description: 'Daily Priority ochish' },
       { command: 'help', description: 'Nima qila olaman' },
     ],

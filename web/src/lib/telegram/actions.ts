@@ -257,3 +257,135 @@ export async function todayPrayers(userId: string): Promise<PrayerRow[] | null> 
 
   return rows
 }
+
+/* ------------------------------------------------------------------ qada --- */
+
+export const PRAYER_SLOTS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const
+export type PrayerSlot = (typeof PRAYER_SLOTS)[number]
+
+export type QadaRow = { prayer: PrayerSlot; outstanding: number }
+
+/** What is still owed, per prayer. Never negative: made-up can exceed owed if
+ *  someone over-counts, and a negative debt is not a thing. */
+export async function qadaDebts(userId: string): Promise<QadaRow[]> {
+  const rows = await prisma.qadaDebt.findMany({
+    where: { userId },
+    select: { prayer: true, owed: true, madeUp: true },
+  })
+  const by = new Map(rows.map((r) => [r.prayer, Math.max(0, r.owed - r.madeUp)]))
+  return PRAYER_SLOTS.map((prayer) => ({ prayer, outstanding: by.get(prayer) ?? 0 }))
+}
+
+/**
+ * Record one made-up prayer, or add one to the debt.
+ *
+ * `madeUp` climbs rather than `owed` falling, so the history of how much was
+ * owed is not rewritten every time one is prayed -- the same reason the app
+ * keeps them as two numbers.
+ */
+export async function adjustQada(
+  userId: string,
+  prayer: string,
+  direction: 'made' | 'owe'
+): Promise<QadaRow[] | null> {
+  if (!(PRAYER_SLOTS as readonly string[]).includes(prayer)) return null
+
+  const existing = await prisma.qadaDebt.findUnique({
+    where: { userId_prayer: { userId, prayer } },
+    select: { owed: true, madeUp: true },
+  })
+
+  if (direction === 'owe') {
+    await prisma.qadaDebt.upsert({
+      where: { userId_prayer: { userId, prayer } },
+      create: { userId, prayer, owed: 1 },
+      update: { owed: { increment: 1 } },
+    })
+  } else {
+    // Nothing owed means nothing to make up; incrementing would show a negative.
+    const outstanding = Math.max(0, (existing?.owed ?? 0) - (existing?.madeUp ?? 0))
+    if (outstanding <= 0) return qadaDebts(userId)
+    await prisma.qadaDebt.update({
+      where: { userId_prayer: { userId, prayer } },
+      data: { madeUp: { increment: 1 } },
+    })
+  }
+
+  return qadaDebts(userId)
+}
+
+/* ----------------------------------------------------------- mark prayer --- */
+
+/**
+ * Mark one of today's prayers as prayed, from the chat.
+ *
+ * Upsert on the same compound key the app writes, so marking Asr here and
+ * opening the app shows Asr marked -- not two rows disagreeing.
+ */
+export async function markPrayer(
+  userId: string,
+  prayer: string
+): Promise<{ ok: true; already: boolean } | { ok: false }> {
+  const slot = prayer.toLowerCase()
+  if (!(PRAYER_SLOTS as readonly string[]).includes(slot)) return { ok: false }
+
+  const { gte } = await dayFor(userId)
+  const prayerName = slot.toUpperCase() as 'FAJR' | 'DHUHR' | 'ASR' | 'MAGHRIB' | 'ISHA'
+
+  const existing = await prisma.prayerTracking.findUnique({
+    where: { userId_date_prayerName: { userId, date: gte, prayerName } },
+    select: { completedAt: true },
+  })
+  if (existing?.completedAt) return { ok: true, already: true }
+
+  await prisma.prayerTracking.upsert({
+    where: { userId_date_prayerName: { userId, date: gte, prayerName } },
+    create: { userId, date: gte, prayerName, completedAt: new Date(), onTime: true },
+    update: { completedAt: new Date() },
+  })
+  return { ok: true, already: false }
+}
+
+/* ----------------------------------------------------------------- quran --- */
+
+export type AyahView = {
+  surah: number
+  ayah: number
+  arabic: string
+  translation: string
+  surahAyahs: number
+}
+
+/**
+ * The ayah this person stopped at, with its text.
+ *
+ * Read through the app's own surah endpoint rather than a second call to the
+ * external source: that route already caches for a year, so this costs nothing
+ * after the first read and cannot drift from what the reader sees on screen.
+ */
+export async function ayahAt(
+  surah: number,
+  ayah: number,
+  locale: string,
+  baseUrl: string
+): Promise<AyahView | null> {
+  try {
+    const res = await fetch(`${baseUrl}/api/quran/surah/${surah}?locale=${locale}`, {
+      next: { revalidate: 86_400 },
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    const list: { n: number; ar: string; tr: string }[] = json?.ayahs ?? []
+    const found = list.find((a) => a.n === ayah) ?? list[0]
+    if (!found) return null
+    return {
+      surah,
+      ayah: found.n,
+      arabic: found.ar,
+      translation: found.tr,
+      surahAyahs: list.length,
+    }
+  } catch {
+    return null
+  }
+}
