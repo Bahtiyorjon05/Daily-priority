@@ -8,10 +8,6 @@
     {
       "path": "/api/cron/weekly-review",
       "schedule": "0 17 * * 0"
-    },
-    {
-      "path": "/api/cron/telegram-daily",
-      "schedule": "0 3 * * *"
     }
   ],
   "build": {

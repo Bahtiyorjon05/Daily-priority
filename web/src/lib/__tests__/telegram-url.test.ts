@@ -21,7 +21,6 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8')
 const strip = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
 
 const bot = strip(read('src/lib/telegram/bot.ts'))
-const messages = strip(read('src/lib/telegram/messages.ts'))
 const webhook = strip(read('src/app/api/telegram/webhook/route.ts'))
 
 const GOOD = 'https://daily-priority.vercel.app'
@@ -64,8 +63,7 @@ describe('cleaning the base url', () => {
 
   it('is what the bot actually builds its buttons from', () => {
     // The point of the module is that nothing reads the raw variable any more.
-    expect(messages).toMatch(/import \{ APP_URL \} from '@\/lib\/telegram\/app-url'/)
-    expect(messages).not.toMatch(/process\.env\.NEXT_PUBLIC_APP_URL/)
+    expect(bot).toMatch(/import \{ APP_URL \} from '@\/lib\/telegram\/app-url'/)
     expect(bot).not.toMatch(/process\.env\.NEXT_PUBLIC_APP_URL/)
   })
 })
@@ -77,7 +75,7 @@ describe('a reply that fails must say so', () => {
       cron and wrong here: it meant the person pressed a button, nothing arrived,
       and the log said nothing either.
     */
-    expect(bot).toMatch(/export async function reply\(/)
+    expect(bot).toMatch(/async function reply\(/)
     expect(bot).toMatch(/console\.error\('\[telegram\] send failed', result\.error\)/)
 
     /*
@@ -85,29 +83,18 @@ describe('a reply that fails must say so', () => {
       `reply`. Anything else is a handler that can fail in silence again.
     */
     expect(bot.match(/await sendMessage\(/g) ?? []).toHaveLength(1)
-    const helper = bot.slice(bot.indexOf('export async function reply('))
+    const helper = bot.slice(bot.indexOf('async function reply('))
     expect(helper).toMatch(/await sendMessage\(/)
   })
 
   it('carries the send failure into the outcome', () => {
     /*
-      The first version of this diagnostic returned "start" whether or not the
+      An earlier version of this diagnostic returned "start" whether or not the
       message went out, which is the same blindness it was written to remove.
-      The outcome has to name the failure.
+      With one handler left the collector is gone, but the outcome must still
+      name the failure.
     */
-    expect(bot).toMatch(/failures\.length \? `\$\{name\}:send-failed:\$\{failures\[0\]\}` : name/)
-    // Per invocation, not module scope: two updates can be in flight in one
-    // instance and a shared buffer would blame the wrong person.
-    expect(bot).toMatch(/const failures: string\[\] = \[\]/)
-    /*
-      Exactly one `await reply(` inside handleMessage: the one in `say`. Every
-      other path has to go through the collector or its failure vanishes again.
-    */
-    const handler = bot.slice(
-      bot.indexOf('export async function handleMessage'),
-      bot.indexOf('export async function reply(')
-    )
-    expect(handler.match(/await reply\(/g) ?? []).toHaveLength(1)
+    expect(bot).toMatch(/error \? `\$\{name\}:send-failed:\$\{error\}` : name/)
   })
 
   it('reports the outcome back through the webhook', () => {
@@ -118,10 +105,10 @@ describe('a reply that fails must say so', () => {
       a perfectly healthy 200.
     */
     expect(webhook).toMatch(/const outcome = await handleMessage\(/)
-    expect(webhook).toMatch(/const outcome = await handleCallback\(/)
-    // One per update kind the webhook handles: message, callback, inline.
-    expect(webhook).toMatch(/const outcome = await handleInline\(/)
-    expect((webhook.match(/ok: true, outcome/g) ?? []).length).toBeGreaterThanOrEqual(3)
+    // One update kind left, so one report. It still has to be reported: a dead
+    // bot answering a healthy 200 is what made this necessary.
+    expect(webhook).toMatch(/const outcome = await handleMessage\(/)
+    expect(webhook).toMatch(/ok: true, outcome/)
   })
 
   it('still answers 200 even when the send failed', () => {

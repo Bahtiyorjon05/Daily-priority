@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { miniAppUrl, openKeyboard, mainKeyboard, prayersMessage } from '@/lib/telegram/messages'
+import { miniAppUrl } from '@/lib/telegram/bot'
 
 /**
  * How the Mini App is entered, and what the bot answers with.
@@ -31,26 +31,18 @@ describe('the mini app entry route', () => {
     expect(middleware).toMatch(/'\/tg'/)
   })
 
-  it('is where every Mini App button points', () => {
+  it('is where every Mini App link points', () => {
     /*
-      A single button still aimed at a protected path re-creates the bug for
-      whichever feature it opens, and only for that one — the worst kind of
-      partial fix.
+      One link now, where there were four keyboards' worth. It still has to go
+      through /tg: a button aimed straight at a protected path re-creates the
+      bug that made the Mini App impossible to sign into.
     */
-    expect(miniAppUrl('/quran')).toContain('/tg?to=')
+    expect(miniAppUrl()).toContain('/tg?to=')
     expect(miniAppUrl('/quran')).toContain(encodeURIComponent('/quran'))
 
-    const buttons = [
-      ...openKeyboard('uz').flat(),
-      ...openKeyboard('en', '/habits').flat(),
-      ...mainKeyboard('uz').flat(),
-      ...mainKeyboard('en').flat(),
-    ].filter((b) => b.web_app)
-
-    expect(buttons.length).toBeGreaterThan(0)
-    for (const b of buttons) {
-      expect(b.web_app!.url, `${b.text} bypasses the entry route`).toContain('/tg?to=')
-    }
+    const bot = strip(read('src/lib/telegram/bot.ts'))
+    expect(bot).toMatch(/web_app: \{ url: miniAppUrl\(\) \}/)
+    expect(bot).not.toMatch(/web_app: \{ url: `\$\{APP_URL\}\/dashboard` \}/)
   })
 
   it('is what the menu button opens', () => {
@@ -75,60 +67,5 @@ describe('the mini app entry route', () => {
     // the time.
     expect(entry).toMatch(/setError\(/)
     expect(entry).toMatch(/console\.error\('\[tg\] signIn failed'/)
-  })
-})
-
-describe('prayer times in the chat', () => {
-  const rows = [
-    { name: 'fajr', time: '04:12', done: true, next: false },
-    { name: 'dhuhr', time: '12:30', done: false, next: true },
-    { name: 'asr', time: '17:16', done: false, next: false },
-    { name: 'maghrib', time: '19:02', done: false, next: false },
-    { name: 'isha', time: '20:31', done: false, next: false },
-  ]
-
-  it('prints the actual times', () => {
-    /*
-      This used to be a heading and a button, which is not an answer to "what
-      time is Asr" -- it is a link to something that knows.
-    */
-    const { text } = prayersMessage(rows, 'en')
-    for (const t of ['04:12', '12:30', '17:16', '19:02', '20:31']) {
-      expect(text).toContain(t)
-    }
-  })
-
-  it('uses the Uzbek prayer names', () => {
-    // Bomdod and Xufton, not transliterated Arabic — the same names the app uses.
-    const { text } = prayersMessage(rows, 'uz')
-    expect(text).toContain('Bomdod')
-    expect(text).toContain('Peshin')
-    expect(text).toContain('Shom')
-    expect(text).toContain('Xufton')
-  })
-
-  it('marks what is done and what is next', () => {
-    const { text } = prayersMessage(rows, 'en')
-    expect(text).toMatch(/✅ Fajr/)
-    expect(text).toMatch(/➡️ <b>Dhuhr<\/b>/)
-    expect(text).toContain('1/5')
-  })
-
-  it('says it needs a location rather than inventing times', () => {
-    /*
-      Times for the wrong city are worse than none: this is a prayer app and a
-      wrong Asr is not a cosmetic bug.
-    */
-    const { text } = prayersMessage(null, 'uz')
-    expect(text).toMatch(/joylashuv/i)
-    expect(text).not.toMatch(/\d\d:\d\d/)
-  })
-
-  it('is answered from the stored row, not a fresh calculation', () => {
-    // The bot must never show a different Asr from the screen: same row, same
-    // madhab, same city.
-    const actions = strip(read('src/lib/telegram/actions.ts'))
-    expect(actions).toMatch(/prisma\.prayerTime\.findFirst/)
-    expect(bot).toMatch(/prayersMessage\(await todayPrayers\(user\.id\), lang\)/)
   })
 })

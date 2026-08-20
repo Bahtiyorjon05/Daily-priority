@@ -73,7 +73,11 @@ async function main() {
       how every inline button reports a tap, and leaving it out means the buttons
       render, spin and never do anything.
     */
-    allowed_updates: ['message', 'edited_message', 'callback_query', 'inline_query'],
+    /*
+      Messages only. The bot has no buttons of its own and no inline mode any
+      more -- subscribing to updates nothing handles is just traffic.
+    */
+    allowed_updates: ['message'],
     drop_pending_updates: true,
   })
   console.log(`webhook: ${APP_URL}/api/telegram/webhook`)
@@ -101,37 +105,24 @@ async function main() {
   })
   console.log('menu button: Open -> /tg?to=/dashboard')
 
+  /*
+    Two commands, because there are two things to say.
+
+    There were ten. Every one beyond these depended on the chat knowing which
+    account it was talking to, and while that link was failing they all answered
+    "open the app first" -- which is worse than not offering them.
+  */
   const commands = [
-    { command: 'today', description: 'Your day at a glance' },
-    { command: 'tasks', description: 'Today’s tasks, tick them here' },
-    { command: 'habits', description: 'Today’s habits, tick them here' },
-    { command: 'add', description: 'Add a task' },
-    { command: 'prayers', description: 'Today’s prayer times' },
-    { command: 'quran', description: 'Carry on reading' },
-    { command: 'streak', description: 'Your streaks' },
-    { command: 'qazo', description: 'Qada prayers, count them here' },
-    { command: 'reminders', description: 'Reminders on/off' },
-    { command: 'app', description: 'Open Daily Priority' },
-    { command: 'help', description: 'What I can do' },
+    { command: 'start', description: 'Open Daily Priority' },
+    { command: 'help', description: 'What this is' },
   ]
   await call('setMyCommands', { commands })
 
-  // Uzbek gets its own list. Telegram picks by the client's language, so an
-  // Uzbek phone sees Uzbek descriptions in the command menu.
   await call('setMyCommands', {
     language_code: 'uz',
     commands: [
-      { command: 'today', description: 'Bugungi kuningiz' },
-      { command: 'tasks', description: 'Bugungi vazifalar' },
-      { command: 'habits', description: 'Bugungi odatlar' },
-      { command: 'add', description: 'Vazifa qo‘shish' },
-      { command: 'prayers', description: 'Bugungi namoz vaqtlari' },
-      { command: 'quran', description: 'O‘qishni davom ettirish' },
-      { command: 'streak', description: 'Ketma-ketliklaringiz' },
-      { command: 'qazo', description: 'Qazo namozlar' },
-      { command: 'reminders', description: 'Eslatmalar' },
-      { command: 'app', description: 'Daily Priority ochish' },
-      { command: 'help', description: 'Nima qila olaman' },
+      { command: 'start', description: 'Daily Priority ochish' },
+      { command: 'help', description: 'Bu nima' },
     ],
   })
   console.log(`commands: ${commands.map((c) => '/' + c.command).join(' ')} (en + uz)`)

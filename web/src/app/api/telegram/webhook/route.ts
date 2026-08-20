@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleCallback, handleInline, handleMessage } from '@/lib/telegram/bot'
+import { handleMessage } from '@/lib/telegram/bot'
 
 /**
  * Where Telegram delivers updates.
@@ -39,35 +39,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const update = await request.json().catch(() => null)
-
-    /*
-      A tap on an inline button. Telegram spins the button until it is answered,
-      so this is handled before anything else and always answered.
-    */
-    const callback = update?.callback_query
-    if (callback?.id && callback?.from?.id && callback?.message?.chat?.id) {
-      const outcome = await handleCallback({
-        id: String(callback.id),
-        chatId: callback.message.chat.id,
-        messageId: callback.message.message_id,
-        telegramId: String(callback.from.id),
-        data: String(callback.data ?? ''),
-        languageCode: callback.from.language_code,
-      })
-      return NextResponse.json({ ok: true, outcome })
-    }
-
-    /* `@Daily_priority_bot ...` typed in any chat. */
-    const inline = update?.inline_query
-    if (inline?.id && inline?.from?.id) {
-      const outcome = await handleInline({
-        id: String(inline.id),
-        telegramId: String(inline.from.id),
-        query: String(inline.query ?? ''),
-        languageCode: inline.from.language_code,
-      })
-      return NextResponse.json({ ok: true, outcome })
-    }
 
     const message = update?.message ?? update?.edited_message
 

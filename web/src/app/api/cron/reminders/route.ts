@@ -11,7 +11,6 @@ const PRAYER_KEY: Record<string, string> = {
   Isha: 'prayer.isha',
 }
 import { sendPushToUser, isPushConfigured, isQuietHour } from '@/lib/push'
-import { sendMessage } from '@/lib/telegram/api'
 import { todayKeyInTimeZone, localDayRange } from '@/lib/server-date'
 import { recordCronRun } from '@/lib/cron-heartbeat'
 
@@ -36,41 +35,23 @@ export async function GET(request: NextRequest) {
   if (!secret || provided !== secret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  /*
-    Push being unconfigured is no longer fatal: Telegram delivery does not need
-    VAPID keys, and refusing the whole run would take the working channel down
-    with the broken one.
-  */
-  const pushReady = isPushConfigured()
+  if (!isPushConfigured()) {
+    return NextResponse.json({ error: 'Push not configured (missing VAPID keys)' }, { status: 503 })
+  }
 
   const startedAt = Date.now()
   const now = new Date()
   const results = { prayer: 0, habit: 0, task: 0, usersChecked: 0, errors: 0 }
 
   try {
-    /*
-      Anyone reachable by ANY channel.
-
-      This used to be push subscribers only, which quietly excluded every
-      Telegram user -- and push reached 2 accounts out of 29 while a Telegram
-      message needs no permission prompt and survives a reinstall. A reminder
-      nobody receives is not a reminder.
-    */
+    // Only users who have at least one push endpoint are worth processing.
     const users = await prisma.user.findMany({
-      where: {
-        deletedAt: null,
-        OR: [
-          { pushSubscriptions: { some: {} } },
-          { telegramReminders: true, telegramChatId: { not: null } },
-        ],
-      },
+      where: { deletedAt: null, pushSubscriptions: { some: {} } },
       select: {
         id: true,
         name: true,
         timezone: true,
         notificationPreference: true,
-        telegramChatId: true,
-        telegramReminders: true,
       },
     })
 
@@ -122,34 +103,7 @@ export async function GET(request: NextRequest) {
               const target = h * 60 + m - lead
               // Fire once inside a 5-minute window around the target.
               if (nowMinutes >= target && nowMinutes < target + 5) {
-                /*
-                  Telegram as well as push, and with a button.
-
-                  The reminder and the action it asks about end up in the same
-                  place: "Asr in 10 minutes" with a tick that marks it, so the
-                  answer never requires opening anything.
-                */
-                if (user.telegramReminders && user.telegramChatId) {
-                  const slot = name.toLowerCase()
-                  await sendMessage(
-                    user.telegramChatId,
-                    `🕌 <b>${t(PRAYER_KEY[name] ?? name)}</b> — ${hhmm}
-${t('push.prayerTitle', {
-                      prayer: t(PRAYER_KEY[name] ?? name),
-                      minutes: lead,
-                    })}`,
-                    {
-                      keyboard: [
-                        [{ text: `✅ ${t(PRAYER_KEY[name] ?? name)}`, callback_data: `p:${slot}` }],
-                      ],
-                    }
-                  ).catch(() => {
-                    /* One unreachable chat must not stop the run for everyone
-                       else; the daily job disables blocked chats. */
-                  })
-                }
-
-                if (pushReady) await sendPushToUser(user.id, {
+                await sendPushToUser(user.id, {
                   title: t('push.prayerTitle', { prayer: t(PRAYER_KEY[name] ?? name), minutes: lead }),
                   body: t('push.prayerBody', { prayer: t(PRAYER_KEY[name] ?? name), time: hhmm }),
                   url: '/prayers',
@@ -170,7 +124,7 @@ ${t('push.prayerTitle', {
           })
           const pending = habits.filter((h) => h.completions.length === 0)
           if (pending.length > 0) {
-            if (pushReady) await sendPushToUser(user.id, {
+            await sendPushToUser(user.id, {
               title:
                 pending.length === 1
                   ? t('push.habitsOne')
@@ -189,7 +143,7 @@ ${t('push.prayerTitle', {
             where: { userId: user.id, status: { in: ['TODO', 'IN_PROGRESS'] }, dueDate: { not: null, lt: now } },
           })
           if (overdue > 0) {
-            if (pushReady) await sendPushToUser(user.id, {
+            await sendPushToUser(user.id, {
               title:
                 overdue === 1 ? t('push.overdueOne') : t('push.overdueMany', { count: overdue }),
               body: t('push.overdueBody'),
