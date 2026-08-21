@@ -1976,5 +1976,6 @@
   "ui.quranReadingIn": "O'qilmoqda",
   "ui.quranClearSaved": "O'chirish",
   "ui.telegramSignInFailed": "Telegram orqali kirib bo'lmadi. Quyidagi shakldan foydalaning.",
-  "ui.telegramLinkFailed": "Telegram hisobingizni ulab bo'lmadi. Bu ishlamaguncha bot sizni tanimaydi."
+  "ui.telegramLinkFailed": "Telegram hisobingizni ulab bo'lmadi. Bu ishlamaguncha bot sizni tanimaydi.",
+  "ui.setEmailWhy": "Telegram orqali ochilgan hisobingizda email yo'q edi. Saytda ham kirishingiz va hisobingizni tiklay olishingiz uchun qo'shing."
 }

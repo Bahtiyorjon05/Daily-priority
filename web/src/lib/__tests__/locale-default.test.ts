@@ -69,32 +69,16 @@ describe('the default language', () => {
   })
 })
 
-describe('a telegram account needs no password', () => {
-  it('is exempt from the set-password gate', () => {
+describe('a telegram account is an ordinary account', () => {
+  it('is NOT exempt from the set-password gate', () => {
     /*
-      Telegram IS the credential: every sign-in re-verifies a blob signed with
-      the bot token. Demanding a password bounced the person to /set-password
-      before they saw the app, and made every API call answer 403 -- including
-      the one that links their Telegram account, so they could not get out of
-      the loop either.
+      This exemption existed and was right only while Telegram could create
+      accounts. It cannot any more: signing up means a real email or Google, and
+      always a password, so a Telegram account needs one like everybody else.
+      See account-completeness.test.ts for the rest of that rule.
     */
     const auth = read('src/lib/auth.ts')
-    expect(auth).toMatch(/else if \(dbUser\.telegramId\) \{[\s\S]*?needsPasswordSetup = false/)
-    /*
-      And the flag is decided from a field the query actually selects. Without
-      this the branch above is dead code that always sees `undefined`, which
-      looks correct and behaves exactly like the bug.
-    */
-    // Anchored on `onboardedAt`, which only the JWT-refresh select carries --
-    // `mustResetPassword` appears first in the credentials authorize query,
-    // which does not decide this flag.
-    const start = auth.indexOf('onboardedAt: true')
-    const selectBlock = auth.slice(start, auth.indexOf('})', start))
-    expect(selectBlock).toMatch(/telegramId: true/)
-  })
-
-  it('still requires one from everybody else', () => {
-    const auth = read('src/lib/auth.ts')
+    expect(auth).not.toMatch(/else if \(dbUser\.telegramId\) \{[\s\S]{0,200}needsPasswordSetup = false/)
     expect(auth).toMatch(/token\.needsPasswordSetup = true/)
   })
 })

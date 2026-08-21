@@ -15,7 +15,8 @@ import {
   Home,
   ArrowLeft,
   Shield,
-  Info
+  Info,
+  Mail
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,7 +42,20 @@ export default function SetPasswordClient() {
     setIsRequired(required)
   }, [searchParams])
 
+  /*
+    Whether this account still needs a real address.
+
+    Accounts created through Telegram were given `tg12345@telegram.local`, which
+    nothing can send to and nobody can recover. Those people finish signing up
+    here, keeping everything they have already done.
+  */
+  const needsEmail = Boolean(
+    (session as unknown as { needsRealEmail?: boolean })?.needsRealEmail ??
+      session?.user?.email?.endsWith('@telegram.local')
+  )
+
   const [formData, setFormData] = useState({
+    email: '',
     password: '',
     confirmPassword: '',
   })
@@ -102,6 +116,16 @@ export default function SetPasswordClient() {
 
     setTouched({ password: true, confirmPassword: true })
 
+    // A placeholder account cannot be finished without a real address.
+    const emailError =
+      needsEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())
+        ? t('ui.pleaseEnterAValidEmailAddress')
+        : ''
+    if (emailError) {
+      setErrors(prev => ({ ...prev, general: emailError }))
+      return
+    }
+
     if (passwordError || confirmPasswordError) {
       return
     }
@@ -116,6 +140,7 @@ export default function SetPasswordClient() {
         },
         body: JSON.stringify({
           password: formData.password,
+          ...(needsEmail ? { email: formData.email } : {}),
         }),
       })
 
@@ -302,6 +327,37 @@ export default function SetPasswordClient() {
               
               <form onSubmit={handleSubmit}>
                 <div className="space-y-5">
+                  {/*
+                    Only for accounts still carrying a placeholder address.
+                    Everyone else keeps the email they signed up with, and this
+                    endpoint deliberately refuses to change it -- it is reached
+                    with a session alone, so an arbitrary email change here would
+                    be an account-takeover primitive.
+                  */}
+                  {needsEmail && (
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        {t('auth.email')}
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="you@example.com"
+                        className="h-12"
+                        required
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {t('ui.setEmailWhy')}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                       <Lock className="w-4 h-4" />

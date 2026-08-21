@@ -1976,5 +1976,6 @@
   "ui.quranReadingIn": "Reading",
   "ui.quranClearSaved": "Remove",
   "ui.telegramSignInFailed": "Could not sign you in through Telegram. Use the sign-in form below.",
-  "ui.telegramLinkFailed": "Could not connect your Telegram account. The bot will not recognise you until this works."
+  "ui.telegramLinkFailed": "Could not connect your Telegram account. The bot will not recognise you until this works.",
+  "ui.setEmailWhy": "Your Telegram account was set up without an email. Add one so you can sign in on the website and recover your account."
 }

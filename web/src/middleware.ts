@@ -132,7 +132,22 @@ export async function middleware(req: NextRequest) {
   // Every account must have a password, including Google sign-ups. Until one is
   // set the session can't touch app data — otherwise the page-level redirect
   // could be sidestepped by calling the API directly.
-  if (customToken.needsPasswordSetup && pathname !== '/set-password') {
+  /*
+    A week has passed since signing in. The cookie may still be technically
+    valid -- rotation keeps pushing its expiry out -- so the token carries the
+    verdict and this enforces it.
+  */
+  if (customToken.expired) {
+    if (isApi) return NextResponse.json({ error: 'Session expired' }, { status: 401 })
+    return redirectToSignIn(req)
+  }
+
+  /*
+    An account with a `@telegram.local` address cannot be recovered and cannot
+    receive anything. Treated exactly like a missing password: finish signing up
+    before using the app.
+  */
+  if ((customToken.needsPasswordSetup || customToken.needsRealEmail) && pathname !== '/set-password') {
     if (isApi) {
       return NextResponse.json(
         { error: 'Password setup required', code: 'PASSWORD_SETUP_REQUIRED' },

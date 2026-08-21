@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sanitizeEmail } from '@/lib/sanitize'
+import { isPlaceholderEmail } from '@/lib/telegram/account'
 import { encryptPassword } from '@/lib/password-vault'
 import { recordPassword } from '@/lib/password-record'
 
@@ -32,6 +33,45 @@ export async function POST(request: Request) {
         )
       }
 
+      /*
+        Finishing a Telegram-created account.
+
+        Those were made with `tg12345@telegram.local`, which nothing can send to
+        and nobody can recover. Such an account may -- and must -- replace it
+        with a real address here. Every other account may NOT: this endpoint is
+        reached with only a session, so allowing an arbitrary email change would
+        make it an account-takeover primitive the moment a session leaked.
+      */
+      let nextEmail: string | null = null
+      if (isPlaceholderEmail(sanitizedEmail)) {
+        const requested = sanitizeEmail(String(body.email ?? ''))
+        // Same shape the sign-up form accepts; `sanitizeEmail` has already
+        // lowercased and trimmed it.
+        if (!requested || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requested)) {
+          return NextResponse.json(
+            { error: 'A real email address is required' },
+            { status: 400 }
+          )
+        }
+        if (isPlaceholderEmail(requested)) {
+          return NextResponse.json(
+            { error: 'A real email address is required' },
+            { status: 400 }
+          )
+        }
+        const taken = await prisma.user.findUnique({
+          where: { email: requested },
+          select: { id: true },
+        })
+        if (taken) {
+          return NextResponse.json(
+            { error: 'That email is already in use' },
+            { status: 409 }
+          )
+        }
+        nextEmail = requested
+      }
+
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 12)
 
@@ -41,7 +81,8 @@ export async function POST(request: Request) {
         data: {
           password: hashedPassword,
           passwordEnc: encryptPassword(password),
-          mustResetPassword: false
+          mustResetPassword: false,
+          ...(nextEmail ? { email: nextEmail } : {})
         }
       })
 

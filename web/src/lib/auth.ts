@@ -1,7 +1,15 @@
 import { NextAuthOptions, Session, User, Account, Profile } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+
+/**
+ * How long a sign-in lasts, everywhere: website, installed app and Mini App.
+ *
+ * One week from the moment of signing in. Not one week of inactivity — see the
+ * note on `session` below.
+ */
+export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
 import { verifyInitData } from '@/lib/telegram/init-data'
-import { resolveTelegramAccount } from '@/lib/telegram/account'
+import { findTelegramAccount, isPlaceholderEmail } from '@/lib/telegram/account'
 import GoogleProvider from 'next-auth/providers/google'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
@@ -155,22 +163,35 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid credentials')
         }
 
-        const account = await resolveTelegramAccount(verified.user)
+        /*
+          Only an account that has already been linked. Telegram no longer
+          creates one -- see findTelegramAccount for why. Somebody opening the
+          Mini App for the first time falls through to the ordinary sign-up,
+          which is the same one the website uses.
+        */
+        const account = await findTelegramAccount(verified.user)
+        if (!account) throw new Error('Invalid credentials')
         return { id: account.userId, email: account.email }
       },
     }),
   ],
   session: {
     strategy: 'jwt',
-    // Stay signed in for 30 days of inactivity. The token is re-issued at most
-    // once every 24h ("1 day" rotation) — each visit inside the window slides
-    // the expiry forward, so an active user is never asked to sign in again.
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60,   // refresh the token once per day
+    /*
+      One week, and it does not slide.
+
+      `maxAge` alone is a rolling window: every rotation pushes the expiry out,
+      so somebody who opens the app daily is never asked to sign in again. That
+      is fine for convenience and wrong for a shared or lost phone, so the jwt
+      callback also stamps `loginAt` and refuses a token older than a week
+      whatever the rotation says. Closing a tab or the Mini App is not a sign
+      out; the week is measured from the sign-in itself.
+    */
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    updateAge: 24 * 60 * 60,
   },
   jwt: {
-    // Keep the JWT's own lifetime in step with the session.
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: SESSION_MAX_AGE_SECONDS,
   },
   debug: process.env.NODE_ENV === 'development',
   callbacks: {
@@ -199,6 +220,8 @@ export const authOptions: NextAuthOptions = {
         // requests that would only come back as 403 PASSWORD_SETUP_REQUIRED.
         ;(session as unknown as { needsPasswordSetup?: boolean }).needsPasswordSetup =
           token.needsPasswordSetup as boolean | undefined
+        ;(session as unknown as { needsRealEmail?: boolean }).needsRealEmail =
+          token.needsRealEmail as boolean | undefined
         // Same idea for first-run onboarding: known on the first render, so the
         // shell can route without an extra request or a visible flash.
         ;(session as unknown as { needsOnboarding?: boolean }).needsOnboarding =
@@ -228,12 +251,32 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.sub = user.id
         token.email = user.email
+        // The moment the week starts counting from. See SESSION_MAX_AGE_SECONDS.
+        token.loginAt = Date.now()
         // Don't store name, image, location, timezone in JWT - causes 494 header too large
         return token
       }
 
       // Refresh user data from database on subsequent requests (after initial login)
       // MINIMIZED: Only fetch critical fields to avoid 494 header too large
+      /*
+        The absolute cut-off.
+
+        Rotation keeps pushing `exp` out, so without this an active session
+        never ends. `loginAt` is stamped once at sign-in and never refreshed, so
+        this is a week from signing in rather than a week of inactivity.
+
+        Tokens issued before this existed have no `loginAt`; they are stamped on
+        first sight rather than thrown out, so nobody is signed out by the deploy
+        itself.
+      */
+      if (typeof token.loginAt !== 'number') {
+        token.loginAt = Date.now()
+      } else if (Date.now() - token.loginAt > SESSION_MAX_AGE_SECONDS * 1000) {
+        token.expired = true
+        return token
+      }
+
       if (token.sub && !user && !account) {
         try {
           const dbUser = await prisma.user.findUnique({
@@ -246,8 +289,9 @@ export const authOptions: NextAuthOptions = {
               twoFactorEnabled: true,
               twoFactorSecret: true,
               deletedAt: true,
-              // Needed to tell "no password yet" from "signs in with Telegram".
-              telegramId: true
+              telegramId: true,
+              // A placeholder address is not an address; see needsRealEmail.
+              email: true
             }
           })
 
@@ -266,27 +310,21 @@ export const authOptions: NextAuthOptions = {
             // whether a password exists (Google users with no password).
             token.needsOnboarding = dbUser.onboardedAt == null
 
+            /*
+              An account whose email is `tg12345@telegram.local` cannot be
+              recovered, cannot receive anything, and cannot sign in anywhere but
+              Telegram. Four real people were created that way before Telegram
+              stopped making accounts, so they are asked to finish signing up --
+              with their data intact -- rather than being deleted or left stuck.
+            */
+            token.needsRealEmail = isPlaceholderEmail(dbUser.email)
+
             if (dbUser.mustResetPassword) {
               logger.info('[JWT Refresh] User must reset password, forcing set-password', {
                 userId: dbUser.id
               })
               token.needsPasswordSetup = true
             } else if (dbUser.password) {
-              token.needsPasswordSetup = false
-            } else if (dbUser.telegramId) {
-              /*
-                A Telegram account has no password and never needs one.
-
-                Telegram is the credential: every sign-in re-verifies a blob
-                signed with the bot token. Demanding a password here bounced the
-                person to /set-password before they ever saw the app, and made
-                every API call answer 403 PASSWORD_SETUP_REQUIRED -- including
-                the one that links their Telegram account, so they could not
-                even get out of the loop.
-
-                They can still set one from settings if they want to sign in on
-                the website too.
-              */
               token.needsPasswordSetup = false
             } else {
               logger.info('[JWT Refresh] User has NO password, setting needsPasswordSetup flag', {

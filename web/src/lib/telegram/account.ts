@@ -37,69 +37,50 @@ export function telegramDisplayName(user: TelegramUser): string {
 export type ResolvedAccount = {
   userId: string
   email: string
-  /** True when this call created the account, so the caller can route to onboarding. */
-  created: boolean
 }
 
 /**
- * Find the account for this Telegram user, or make one.
+ * Find the account this Telegram user has already linked. Never creates one.
  *
- * A closed account is not reopened here. Someone who deleted their account and
- * comes back through Telegram gets a fresh one rather than silently resurrecting
- * a record they asked to be rid of -- and `deletedAt` is checked in the auth
- * layer anyway, so returning it would just fail the login with no explanation.
+ * It used to create an account with a `tg12345@telegram.local` address and no
+ * password, and that was wrong in three ways at once: the person could never
+ * sign in anywhere else, could never recover the account, and had a fake email
+ * on file that nothing could ever send to. Four real people ended up in that
+ * state.
+ *
+ * Signing up is now the same everywhere -- a real email or Google, and always a
+ * password. Telegram is a fast way back IN to an account, not a way to have one
+ * without the parts that make it recoverable.
  */
-export async function resolveTelegramAccount(
-  tg: TelegramUser,
-  opts: { chatId?: string } = {}
-): Promise<ResolvedAccount> {
+export async function findTelegramAccount(tg: TelegramUser): Promise<ResolvedAccount | null> {
   const existing = await prisma.user.findUnique({
     where: { telegramId: tg.id },
     select: { id: true, email: true, deletedAt: true },
   })
 
-  if (existing && !existing.deletedAt) {
-    // Keep the username current -- people change them, and the admin console and
-    // the bot both show it.
-    await prisma.user.update({
-      where: { id: existing.id },
-      data: {
-        telegramUsername: tg.username ?? null,
-        ...(opts.chatId ? { telegramChatId: opts.chatId } : {}),
-      },
-    })
-    return { userId: existing.id, email: existing.email, created: false }
-  }
+  if (!existing) return null
 
-  if (existing?.deletedAt) {
+  if (existing.deletedAt) {
     /*
-      The link belongs to a closed account. Release it, so the same Telegram
-      account can start again -- exactly the problem `deletedEmail` solves for
-      email sign-ups, which shipped after someone hit it.
+      The link belongs to a closed account. Release it so the same Telegram
+      account can sign up again -- the same problem `deletedEmail` solves for
+      email sign-ups, which shipped after somebody hit it.
     */
     await prisma.user.update({
       where: { id: existing.id },
       data: { telegramId: null },
     })
+    return null
   }
 
-  const email = telegramPlaceholderEmail(tg.id)
-  const created = await prisma.user.create({
-    data: {
-      email,
-      name: telegramDisplayName(tg),
-      telegramId: tg.id,
-      telegramUsername: tg.username ?? null,
-      telegramLinkedAt: new Date(),
-      ...(opts.chatId ? { telegramChatId: opts.chatId } : {}),
-      // No password: this account cannot be signed into with one, and
-      // `authorize` refuses a credentials login when `password` is null.
-      emailVerified: null,
-    },
-    select: { id: true, email: true },
+  // Keep the username current: people change them, and both the admin console
+  // and the stats report show it.
+  await prisma.user.update({
+    where: { id: existing.id },
+    data: { telegramUsername: tg.username ?? null },
   })
 
-  return { userId: created.id, email: created.email, created: true }
+  return { userId: existing.id, email: existing.email }
 }
 
 /**
