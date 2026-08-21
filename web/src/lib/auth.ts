@@ -8,6 +8,9 @@ import CredentialsProvider from 'next-auth/providers/credentials'
  * note on `session` below.
  */
 export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
+
+/** HTTPS-only settings are wrong locally, where there is no HTTPS. */
+const isProduction = process.env.NODE_ENV === 'production'
 import { verifyInitData } from '@/lib/telegram/init-data'
 import { findTelegramAccount, isPlaceholderEmail } from '@/lib/telegram/account'
 import GoogleProvider from 'next-auth/providers/google'
@@ -192,6 +195,65 @@ export const authOptions: NextAuthOptions = {
   },
   jwt: {
     maxAge: SESSION_MAX_AGE_SECONDS,
+  },
+  /*
+    Cookies that survive a Telegram Mini App.
+
+    NextAuth defaults to `SameSite=Lax`, and a Lax cookie is NOT sent on
+    requests made inside a cross-site iframe -- which is exactly what Telegram
+    Web and Desktop run a Mini App in. The session existed and was simply never
+    presented, so every open looked like a fresh visitor and showed the sign-in
+    page no matter how recently the person had signed in.
+
+    `None` is what makes a session usable in an embedded context, and it
+    requires `Secure`. In development there is no HTTPS, so the pair falls back
+    to Lax there rather than producing a cookie the browser silently drops.
+
+    The CSRF trade this makes is real and is covered: NextAuth carries a
+    double-submit CSRF token of its own, this app's API routes are same-origin,
+    and `frame-ancestors` still permits only Telegram to embed the page at all.
+
+    `maxAge` has to be repeated here. Declaring `cookies` replaces the defaults
+    NextAuth would have derived from `session.maxAge`, so leaving it out gives a
+    session cookie that dies when the browser closes -- which is precisely the
+    symptom this block exists to remove.
+  */
+  cookies: {
+    sessionToken: {
+      name: isProduction
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        secure: isProduction,
+        maxAge: SESSION_MAX_AGE_SECONDS,
+      },
+    },
+    callbackUrl: {
+      name: isProduction ? '__Secure-next-auth.callback-url' : 'next-auth.callback-url',
+      options: {
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
+    csrfToken: {
+      /*
+        No `__Host-` prefix here. That prefix forbids a Domain attribute and is
+        fine, but it is also rejected by some embedded webviews when combined
+        with SameSite=None, and a rejected CSRF cookie means sign-in fails
+        inside Telegram with no visible reason.
+      */
+      name: isProduction ? '__Secure-next-auth.csrf-token' : 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
   },
   debug: process.env.NODE_ENV === 'development',
   callbacks: {

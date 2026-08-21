@@ -81,7 +81,7 @@ async function main() {
       not come for weeks -- and "how many blocked the bot" would be a number
       quietly drifting away from the truth.
     */
-    allowed_updates: ['message', 'my_chat_member'],
+    allowed_updates: ['message', 'my_chat_member', 'callback_query'],
     drop_pending_updates: true,
   })
   console.log(`webhook: ${APP_URL}/api/telegram/webhook`)

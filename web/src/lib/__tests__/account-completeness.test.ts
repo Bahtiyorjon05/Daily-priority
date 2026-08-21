@@ -104,8 +104,13 @@ describe('how long a sign-in lasts', () => {
   it('is one week, everywhere', () => {
     expect(SESSION_MAX_AGE_SECONDS).toBe(7 * 24 * 60 * 60)
     expect(auth).toMatch(/maxAge: SESSION_MAX_AGE_SECONDS/)
-    // Both, or the cookie and the token disagree about when it ends.
-    expect((auth.match(/maxAge: SESSION_MAX_AGE_SECONDS/g) ?? []).length).toBe(2)
+    /*
+      Three places, and all three must agree or they contradict each other: the
+      session, the JWT, and the cookie that carries it. The cookie one is the
+      easiest to forget and the one whose absence looks exactly like "closing
+      the tab signs you out".
+    */
+    expect((auth.match(/maxAge: SESSION_MAX_AGE_SECONDS/g) ?? []).length).toBe(3)
   })
 
   it('measures the week from signing in, not from the last visit', () => {
@@ -136,8 +141,54 @@ describe('how long a sign-in lasts', () => {
     /*
       Nothing here may make the cookie session-scoped. Closing a tab is not a
       sign-out, and in the Mini App it is the single most common way to leave.
+
+      Declaring `cookies` replaces the defaults NextAuth derives from
+      `session.maxAge`, so the cookie needs its own `maxAge` -- without it the
+      browser drops the session on close, which is exactly the bug this whole
+      block exists to prevent.
     */
     expect(auth).not.toMatch(/maxAge: 0/)
     expect(auth).toMatch(/strategy: 'jwt'/)
+    const cookies = auth.slice(auth.indexOf('cookies: {'))
+    expect(cookies.slice(0, 600)).toMatch(/maxAge: SESSION_MAX_AGE_SECONDS/)
+  })
+
+  it('sends the session cookie inside a Telegram iframe', () => {
+    /*
+      The reason a signed-in person kept seeing the login page.
+
+      NextAuth defaults to SameSite=Lax, and a Lax cookie is NOT sent on
+      requests made inside a cross-site iframe -- which is what Telegram Web and
+      Desktop run a Mini App in. The session existed and was never presented, so
+      every open looked like a first visit.
+    */
+    const cookies = auth.slice(auth.indexOf('cookies: {'))
+    /*
+      EVERY cookie, not one of them. There are three -- session, callback url
+      and CSRF -- and sign-in inside the iframe needs all three to arrive.
+      Requiring the pattern to appear merely somewhere was satisfied while the
+      session cookie itself had been set back to Lax.
+    */
+    const sameSite = cookies.match(/sameSite: /g) ?? []
+    const conditional = cookies.match(/sameSite: isProduction \? 'none' : 'lax'/g) ?? []
+    expect(sameSite.length).toBe(3)
+    expect(conditional.length).toBe(sameSite.length)
+    // SameSite=None is only honoured on a Secure cookie.
+    expect((cookies.match(/secure: isProduction/g) ?? []).length).toBe(3)
+    // Lax stays in development, where there is no HTTPS to make Secure work.
+    expect(auth).toMatch(/const isProduction = process\.env\.NODE_ENV === 'production'/)
+  })
+
+  it('does not send an already signed-in visitor back to sign in', () => {
+    /*
+      /tg attempts a Telegram sign-in, which fails when that Telegram account is
+      not linked to anything. Treating that failure as "not signed in" bounced
+      people who plainly were.
+    */
+    const entry = strip(read('src/app/tg/page.tsx'))
+    expect(entry).toMatch(/if \(status === 'authenticated'\)/)
+    expect(entry.indexOf("status === 'authenticated'")).toBeLessThan(
+      entry.indexOf("signIn('telegram'")
+    )
   })
 })

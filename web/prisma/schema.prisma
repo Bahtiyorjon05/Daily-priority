@@ -274,6 +274,11 @@ model TelegramChat {
   lastName     String?
   username     String?
   languageCode String?
+  /// Only ever set when the person SHARES their contact. Telegram never gives a
+  /// bot a phone number otherwise -- not on /start, not in any update -- so this
+  /// is null for almost everyone and the report says so rather than showing a
+  /// blank column that looks like a bug.
+  phone        String?
   startedAt    DateTime  @default(now())
   lastSeenAt   DateTime  @default(now())
   /// How many messages they have sent. The cheapest signal of "actually using".

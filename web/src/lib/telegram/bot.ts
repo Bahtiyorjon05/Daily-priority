@@ -1,6 +1,10 @@
-import { sendMessage, type InlineKeyboard } from '@/lib/telegram/api'
+import {
+  answerCallbackQuery, callTelegram, sendMessage, type InlineKeyboard,
+} from '@/lib/telegram/api'
 import { APP_URL } from '@/lib/telegram/app-url'
-import { isAdmin, recordChat, statsMessage } from '@/lib/telegram/stats'
+import {
+  isAdmin, parseStatsCallback, recordChat, statsPage,
+} from '@/lib/telegram/stats'
 
 /**
  * The bot, and it does one thing: open the app.
@@ -77,6 +81,8 @@ export type IncomingMessage = {
   firstName?: string
   lastName?: string
   username?: string
+  /** Present only in the update where somebody shares their contact. */
+  phone?: string
 }
 
 /**
@@ -126,6 +132,7 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
       lastName: msg.lastName,
       username: msg.username,
       languageCode: msg.languageCode,
+      phone: msg.phone,
     })
 
     /*
@@ -149,7 +156,8 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
       */
       if (!isAdmin(msg.telegramId)) return 'ignored'
 
-      const error = await reply(msg.chatId, await statsMessage(), [])
+      const view = await statsPage()
+      const error = await reply(msg.chatId, view.text, view.keyboard)
       return error ? `adminstats:send-failed:${error}` : 'adminstats'
     }
 
@@ -164,5 +172,56 @@ export async function handleMessage(msg: IncomingMessage): Promise<string> {
   } catch (error) {
     console.error('[telegram] handler failed', command, error)
     return `error:${(error as Error).message}`
+  }
+}
+
+export type IncomingCallback = {
+  id: string
+  chatId: number | string
+  messageId: number
+  telegramId: string
+  data: string
+}
+
+/**
+ * A tap on a button in the stats report.
+ *
+ * The only buttons this bot has, and only one person can see them -- but the
+ * check is repeated here anyway. A callback carries whatever `callback_data` the
+ * sender chooses, and a message can be forwarded, so "the button was only shown
+ * to the admin" is not the same claim as "this tap came from the admin".
+ *
+ * The report is edited in place rather than re-sent: paging through six pages
+ * should leave one message that is now on page six, not six messages.
+ */
+export async function handleCallback(cb: IncomingCallback): Promise<string> {
+  try {
+    if (!isAdmin(cb.telegramId)) {
+      // Answered so the button stops spinning, and told nothing.
+      await answerCallbackQuery(cb.id)
+      return 'ignored'
+    }
+
+    const parsed = parseStatsCallback(cb.data)
+    if (!parsed) {
+      await answerCallbackQuery(cb.id)
+      return 'callback:unknown'
+    }
+
+    const view = await statsPage(parsed.filter, parsed.page)
+    await answerCallbackQuery(cb.id)
+    await callTelegram('editMessageText', {
+      chat_id: cb.chatId,
+      message_id: cb.messageId,
+      text: view.text,
+      parse_mode: 'HTML',
+      reply_markup: { inline_keyboard: view.keyboard },
+    })
+    return `adminstats:${parsed.filter}:${parsed.page}`
+  } catch (error) {
+    console.error('[telegram] callback failed', cb.data, error)
+    // Still clear the spinner, or the button looks stuck.
+    await answerCallbackQuery(cb.id).catch(() => {})
+    return 'callback:error'
   }
 }

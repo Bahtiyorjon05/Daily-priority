@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { Loader2, Moon } from 'lucide-react'
 import { getWebApp } from '@/lib/telegram/webapp'
 import { useT } from '@/lib/i18n/client'
@@ -29,6 +29,7 @@ function TelegramEntry() {
   const { t } = useT()
   const router = useRouter()
   const params = useSearchParams()
+  const { status } = useSession()
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)
 
@@ -39,10 +40,24 @@ function TelegramEntry() {
   }, [params])
 
   useEffect(() => {
-    if (started.current) return
+    // Wait for NextAuth to say whether there is a session at all.
+    if (status === 'loading' || started.current) return
     started.current = true
 
     const run = async () => {
+      /*
+        Already signed in: go straight through.
+
+        Without this check, somebody with a perfectly good week-old session was
+        sent to sign in again -- the Telegram sign-in below fails when their
+        Telegram account is not linked to anything, and that failure was being
+        treated as "not signed in" when they plainly were.
+      */
+      if (status === 'authenticated') {
+        router.replace(destination())
+        return
+      }
+
       const app = getWebApp()
 
       /*
@@ -76,7 +91,7 @@ function TelegramEntry() {
     }
 
     void run()
-  }, [router, destination])
+  }, [router, destination, status])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white p-6 text-center dark:bg-slate-950">

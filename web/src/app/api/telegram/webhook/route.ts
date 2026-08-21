@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleMessage } from '@/lib/telegram/bot'
+import { handleCallback, handleMessage } from '@/lib/telegram/bot'
 import { setBlocked } from '@/lib/telegram/stats'
 
 /**
@@ -48,6 +48,23 @@ export async function POST(request: NextRequest) {
       between knowing and finding out months later that a send failed. `kicked`
       is what a block looks like in a private chat.
     */
+    /*
+      A tap on a stats page button. Handled before anything else because
+      Telegram spins the button until it is answered, and re-checks who sent it
+      -- the button being private is not proof the tap is.
+    */
+    const callback = update?.callback_query
+    if (callback?.id && callback?.from?.id && callback?.message?.chat?.id) {
+      const outcome = await handleCallback({
+        id: String(callback.id),
+        chatId: callback.message.chat.id,
+        messageId: callback.message.message_id,
+        telegramId: String(callback.from.id),
+        data: String(callback.data ?? ''),
+      })
+      return NextResponse.json({ ok: true, outcome })
+    }
+
     const member = update?.my_chat_member
     if (member?.from?.id && member?.new_chat_member?.status) {
       const status = String(member.new_chat_member.status)
@@ -77,6 +94,15 @@ export async function POST(request: NextRequest) {
         firstName: message.from.first_name,
         lastName: message.from.last_name,
         username: message.from.username,
+        /*
+          Telegram gives a bot a phone number in exactly one place: an update
+          where the person shared their own contact. It is never on an ordinary
+          message, which is why almost every row has none.
+        */
+        phone:
+          message.contact?.user_id === message.from.id
+            ? message.contact?.phone_number
+            : undefined,
       })
       return NextResponse.json({ ok: true, outcome })
     }
